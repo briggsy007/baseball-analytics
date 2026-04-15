@@ -1,0 +1,36 @@
+# Data files (too large for git)
+data/*.duckdb
+data/cache/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Coverage
+.coverage
+htmlcov/
+
+# Environment
+.env
+.venv/
+venv/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/*.jsonl
+
+# Model artifacts (tracked via releases, not git)
+# Uncomment below to exclude model files:
+# models/*.pkl
+# models/*.pt

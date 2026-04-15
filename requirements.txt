@@ -1,0 +1,24 @@
+# Data acquisition
+pybaseball>=2.2.7
+MLB-StatsAPI>=1.9.0
+requests
+
+# Database
+duckdb>=1.1.0
+
+# Analytics
+pandas>=2.0
+numpy
+scipy
+scikit-learn
+
+# Visualization / Dashboard
+streamlit>=1.35
+plotly>=5.0
+
+# Caching / Live state
+redis
+
+# Utilities
+python-dateutil
+tqdm

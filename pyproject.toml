@@ -1,0 +1,69 @@
+[project]
+name = "baseball-analytics"
+version = "0.1.0"
+description = "Professional baseball analytics platform with 16 proprietary models built on 7.3M Statcast pitches"
+requires-python = ">=3.12"
+dependencies = [
+    "duckdb>=1.1.0",
+    "pandas>=2.0",
+    "numpy",
+    "scipy",
+    "scikit-learn",
+    "pydantic>=2.0",
+    "joblib",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov",
+    "pytest-xdist",
+]
+
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.backends._legacy:_Backend"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+markers = [
+    "slow: marks tests that query the real database or train models (deselect with '-m \"not slow\"')",
+    "integration: marks integration tests requiring the full database",
+    "prod_db: marks tests that require the production database (requires --use-prod-db flag)",
+]
+addopts = [
+    "-ra",
+    "--strict-markers",
+    "--tb=short",
+    "--cov=src",
+    "--cov-report=term-missing",
+]
+norecursedirs = ["data", "notebooks", ".git", "__pycache__", "node_modules"]
+filterwarnings = [
+    "ignore::DeprecationWarning:pybaseball.*",
+    "ignore::FutureWarning:pandas.*",
+]
+
+[tool.coverage.run]
+source = ["src"]
+branch = true
+omit = [
+    "src/dashboard/*",
+    "src/ingest/*",
+    "tests/*",
+]
+
+[tool.coverage.report]
+fail_under = 90
+show_missing = true
+exclude_lines = [
+    "pragma: no cover",
+    "if __name__ == .__main__.",
+    "if TYPE_CHECKING:",
+    "raise NotImplementedError",
+]

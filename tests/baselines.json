@@ -1,0 +1,38 @@
+{
+    "_comment": "Baseline metric thresholds for model performance regression tests. Update these values when models are retrained and validated.",
+    "stuff_plus": {
+        "r2_test_min": -0.15,
+        "rmse_test_max": 1.0,
+        "description": "Stuff+ gradient boosting: R² on temporal hold-out, RMSE on negative wOBA scale. Threshold is lenient because the test DB may use small synthetic data."
+    },
+    "mechanix_ae": {
+        "final_recon_loss_max": 1.0,
+        "mdi_mean_min": 0.0,
+        "mdi_mean_max": 100.0,
+        "description": "MechanixAE VAE: reconstruction loss after training, MDI range"
+    },
+    "pitchgpt": {
+        "mean_pps_max": 8.0,
+        "perplexity_max": 3000.0,
+        "description": "PitchGPT transformer: mean PPS (neg log-lik), perplexity upper bound"
+    },
+    "chemnet": {
+        "val_gnn_mse_max": 5.0,
+        "mean_synergy_min": -10.0,
+        "mean_synergy_max": 15.0,
+        "description": "ChemNet GNN: validation MSE, mean synergy on random inputs. Range is wide because synergy values depend on model weights and random input distribution."
+    },
+    "causal_war": {
+        "war_min": -5.0,
+        "war_max": 12.0,
+        "mean_war_min": -3.0,
+        "mean_war_max": 3.0,
+        "description": "CausalWAR DML: expected WAR value ranges"
+    },
+    "pset": {
+        "pset_per_100_min": -50.0,
+        "pset_per_100_max": 50.0,
+        "description": "PSET: expected per-100-pitch threat range"
+    },
+    "regression_tolerance": 0.05
+}
