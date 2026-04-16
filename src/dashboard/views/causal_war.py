@@ -156,10 +156,15 @@ def render() -> None:
     df = _load_leaderboard(conn, season, position_type)
 
     if df is None or df.empty:
-        st.info(
-            "No CausalWAR data available for this season. "
-            "Click **Train CausalWAR Model** in the sidebar to build it."
+        st.warning("**Model not trained.** CausalWAR data is not available for this season.")
+        st.markdown(
+            "Click **Train CausalWAR Model** in the sidebar, or run "
+            "`python scripts/precompute.py` to generate cached results."
         )
+        if _CAUSAL_AVAILABLE and not _USE_MOCK:
+            if st.button("Train CausalWAR Model Now", type="primary", key="causal_train_main"):
+                _train_model_ui(conn, season)
+                st.rerun()
         return
 
     # ---- Tabs ------------------------------------------------------------
@@ -203,6 +208,12 @@ def _get_available_seasons(conn) -> list[int]:
         return [2025]
 
 
+@st.cache_data(ttl=3600, show_spinner=False)
+def _cached_causal_leaderboard(_conn, season: int, position_type: str) -> pd.DataFrame | None:
+    """Cached wrapper for CausalWAR leaderboard computation."""
+    return get_leaderboard(_conn, season, position_type)
+
+
 def _load_leaderboard(
     conn,
     season: int,
@@ -215,7 +226,7 @@ def _load_leaderboard(
     if not _CAUSAL_AVAILABLE:
         return None
 
-    # Try cache first
+    # Try precomputed cache first
     if _CACHE_AVAILABLE:
         try:
             cached = get_cached_leaderboard(conn, "causal_war", season)
@@ -229,7 +240,7 @@ def _load_leaderboard(
 
     try:
         with st.spinner("Computing... Run `python scripts/precompute.py` for instant loading."):
-            return get_leaderboard(conn, season, position_type)
+            return _cached_causal_leaderboard(conn, season, position_type)
     except RuntimeError:
         # Model not trained
         return None

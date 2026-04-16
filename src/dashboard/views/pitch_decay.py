@@ -66,6 +66,20 @@ _PITCH_LABELS: dict[str, str] = {
 # ---------------------------------------------------------------------------
 
 
+@st.cache_data(ttl=3600)
+def _cached_pdr(pitcher_id: int, season: int) -> dict:
+    """Cached PDR calculation."""
+    conn = get_db_connection()
+    return calculate_pdr(conn, pitcher_id, season=season)
+
+
+@st.cache_data(ttl=3600)
+def _cached_game_cliff_data(pitcher_id: int, game_pk: int) -> dict:
+    """Cached game cliff data."""
+    conn = get_db_connection()
+    return get_game_cliff_data(conn, pitcher_id, game_pk)
+
+
 def render() -> None:
     """Render the Pitch Decay Rate analysis page."""
     st.title("Pitch Decay Rate (PDR) -- Fatigue Cliff Detection")
@@ -172,7 +186,7 @@ def _render_pitcher_analysis(conn) -> None:
 
     with st.spinner("Detecting pitch-type fatigue cliffs..."):
         try:
-            result = calculate_pdr(conn, pitcher_id, season=int(season))
+            result = _cached_pdr(pitcher_id, season=int(season))
         except Exception as exc:
             st.error(f"Error computing PDR: {exc}")
             return
@@ -456,7 +470,7 @@ def _render_game_view(conn) -> None:
 
     with st.spinner("Analysing game cliffs..."):
         try:
-            data = get_game_cliff_data(conn, pitcher_id, game_pk)
+            data = _cached_game_cliff_data(pitcher_id, game_pk)
         except Exception as exc:
             st.error(f"Error: {exc}")
             return

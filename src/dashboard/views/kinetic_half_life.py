@@ -66,14 +66,14 @@ _PITCH_LABELS: dict[str, str] = {
 # ---------------------------------------------------------------------------
 
 
-@st.cache_data(ttl=600, show_spinner=False)
+@st.cache_data(ttl=3600, show_spinner=False)
 def _cached_calculate_half_life(pitcher_id: int, season: int | None = None) -> dict:
     """Cached wrapper around calculate_half_life (avoids recomputing on every rerun)."""
     conn = get_db_connection()
     return calculate_half_life(conn, pitcher_id, season)
 
 
-@st.cache_data(ttl=600, show_spinner=False)
+@st.cache_data(ttl=3600, show_spinner=False)
 def _cached_batch_calculate(season: int | None = None, min_pitches: int = 500) -> pd.DataFrame:
     """Cached wrapper around batch_calculate (leaderboard)."""
     conn = get_db_connection()
@@ -218,12 +218,25 @@ def _render_pitcher_analysis(conn) -> None:
 
     pitcher_id = pitcher_names[selected_name]
 
-    with st.spinner("Computing K\u00bd..."):
+    # Try entity cache first, then Streamlit-cached computation
+    result = None
+    if _CACHE_AVAILABLE:
         try:
-            result = _cached_calculate_half_life(pitcher_id)
-        except Exception as exc:
-            st.error(f"Error computing K\u00bd: {exc}")
-            return
+            from src.dashboard.cache_reader import get_cached_entity
+            cached = get_cached_entity(conn, "kinetic_half_life", pitcher_id)
+            if cached is not None:
+                result = cached
+                st.caption("Using pre-computed results")
+        except Exception:
+            pass
+
+    if result is None:
+        with st.spinner("Computing K\u00bd..."):
+            try:
+                result = _cached_calculate_half_life(pitcher_id)
+            except Exception as exc:
+                st.error(f"Error computing K\u00bd: {exc}")
+                return
 
     # ── Key metrics row ───────────────────────────────────────────────────
     col1, col2, col3 = st.columns(3)

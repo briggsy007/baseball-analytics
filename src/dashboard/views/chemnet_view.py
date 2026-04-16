@@ -54,6 +54,35 @@ _NODE_COLOR = "#FF9100"
 _BG_DARK = "#0E1117"
 
 
+# ── Cached data helpers ──────────────────────────────────────────────────────
+
+
+@st.cache_data(ttl=3600)
+def _cached_seasons() -> list[int]:
+    """Cached list of seasons."""
+    conn = get_db_connection()
+    try:
+        return conn.execute(
+            "SELECT DISTINCT EXTRACT(YEAR FROM game_date)::INT AS season "
+            "FROM pitches ORDER BY season DESC"
+        ).fetchdf()["season"].tolist()
+    except Exception:
+        return []
+
+
+@st.cache_data(ttl=3600)
+def _cached_teams() -> list[str]:
+    """Cached list of teams."""
+    conn = get_db_connection()
+    try:
+        return conn.execute(
+            "SELECT DISTINCT home_team FROM pitches "
+            "WHERE home_team IS NOT NULL ORDER BY home_team"
+        ).fetchdf()["home_team"].tolist()
+    except Exception:
+        return []
+
+
 # ── Page entry point ─────────────────────────────────────────────────────────
 
 
@@ -97,13 +126,7 @@ def render() -> None:
     with st.sidebar:
         st.markdown("### ChemNet Options")
 
-        try:
-            seasons = conn.execute(
-                "SELECT DISTINCT EXTRACT(YEAR FROM game_date)::INT AS season "
-                "FROM pitches ORDER BY season DESC"
-            ).fetchdf()["season"].tolist()
-        except Exception:
-            seasons = []
+        seasons = _cached_seasons()
 
         season = st.selectbox(
             "Season",
@@ -112,13 +135,7 @@ def render() -> None:
             key="chemnet_season",
         )
 
-        try:
-            teams = conn.execute(
-                "SELECT DISTINCT home_team FROM pitches "
-                "WHERE home_team IS NOT NULL ORDER BY home_team"
-            ).fetchdf()["home_team"].tolist()
-        except Exception:
-            teams = []
+        teams = _cached_teams()
 
         team = st.selectbox(
             "Team",
@@ -155,8 +172,10 @@ def render() -> None:
 # ── Synergy Score ────────────────────────────────────────────────────────────
 
 
-def _get_game_options(conn, season, team) -> list[dict]:
+@st.cache_data(ttl=3600)
+def _get_game_options(season: int, team: str | None) -> list[dict]:
     """Get available games for the selectors."""
+    conn = get_db_connection()
     params: list = [int(season)]
     if team:
         team_filter = "AND (home_team = $2 OR away_team = $2)"
@@ -183,7 +202,7 @@ def _render_synergy_score(conn, season, team) -> None:
     """Display the synergy score for a selected game."""
     st.subheader("Lineup Synergy Score")
 
-    games = _get_game_options(conn, season, team)
+    games = _get_game_options(season, team)
     if not games:
         st.info("No games found for the selected season/team.")
         return
@@ -271,7 +290,7 @@ def _render_protection_network(conn, season, team) -> None:
     """Visualise the lineup as a graph with attention-weighted edges."""
     st.subheader("Protection Network")
 
-    games = _get_game_options(conn, season, team)
+    games = _get_game_options(season, team)
     if not games:
         st.info("No games found.")
         return
@@ -396,7 +415,7 @@ def _render_pairwise_heatmap(conn, season, team) -> None:
     """Display a heatmap of attention between batting-order slot pairs."""
     st.subheader("Pairwise Interaction Heatmap")
 
-    games = _get_game_options(conn, season, team)
+    games = _get_game_options(season, team)
     if not games:
         st.info("No games found.")
         return

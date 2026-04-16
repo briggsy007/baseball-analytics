@@ -169,7 +169,7 @@ def render() -> None:
     with st.sidebar:
         st.markdown("### ABL Options")
 
-        available_seasons = _get_available_seasons(conn)
+        available_seasons = _get_available_seasons()
         default_idx = available_seasons.index(2025) if 2025 in available_seasons else 0
         season = st.selectbox(
             "Season",
@@ -250,8 +250,10 @@ def render() -> None:
 # Data loading
 # ---------------------------------------------------------------------------
 
-def _get_available_seasons(conn) -> list[int]:
+@st.cache_data(ttl=3600)
+def _get_available_seasons(_conn_id: int = 0) -> list[int]:
     """Return list of seasons with pitch data."""
+    conn = get_db_connection()
     if conn is None:
         return [2025]
     try:
@@ -297,6 +299,20 @@ def _load_leaderboard(
         return None
 
 
+@st.cache_data(ttl=3600)
+def _cached_calculate_abl(batter_id: int, season: int) -> dict:
+    """Cached ABL calculation for a single batter."""
+    conn = get_db_connection()
+    return calculate_abl(conn, batter_id, season)
+
+
+@st.cache_data(ttl=3600)
+def _cached_validate_against_outcomes(batter_id: int, season: int) -> dict:
+    """Cached ABL validation against outcomes."""
+    conn = get_db_connection()
+    return validate_against_outcomes(conn, batter_id, season)
+
+
 def _build_batter_options(df: pd.DataFrame) -> dict[str, int]:
     """Build batter display name -> batter_id mapping."""
     options = {}
@@ -318,7 +334,7 @@ def _render_load_timeline(conn, batter_id: int, season: int) -> None:
     if _USE_MOCK:
         timeline = _generate_mock_timeline()
     elif _ABL_AVAILABLE:
-        result = calculate_abl(conn, batter_id, season)
+        result = _cached_calculate_abl(batter_id, season)
         timeline = result.get("timeline")
         if timeline is None or timeline.empty:
             st.info("No timeline data available for this batter.")
@@ -386,7 +402,7 @@ def _render_current_gauges(conn, batter_id: int, season: int) -> None:
         }
         composite = 62.4
     elif _ABL_AVAILABLE:
-        result = calculate_abl(conn, batter_id, season)
+        result = _cached_calculate_abl(batter_id, season)
         channel_loads = result.get("channel_loads", {})
         composite = result.get("composite_abl")
         if composite is None:
@@ -473,9 +489,9 @@ def _render_fatigue_scatter(conn, batter_id: int, season: int) -> None:
             "chase_rate": chase,
         })
     elif _ABL_AVAILABLE:
-        validation = validate_against_outcomes(conn, batter_id, season)
+        validation = _cached_validate_against_outcomes(batter_id, season)
         # Also get the per-game timeline for scatter
-        result = calculate_abl(conn, batter_id, season)
+        result = _cached_calculate_abl(batter_id, season)
         timeline = result.get("timeline")
         if timeline is None or timeline.empty:
             st.info("No timeline data available for this batter.")
@@ -602,7 +618,7 @@ def _render_rest_optimisation(
         current_abl = 72.5
         days_needed = 4
     elif _ABL_AVAILABLE:
-        result = calculate_abl(conn, batter_id, season)
+        result = _cached_calculate_abl(batter_id, season)
         current_abl = result.get("composite_abl")
         if current_abl is None:
             st.info("No ABL data available for this batter.")

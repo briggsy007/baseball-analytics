@@ -66,9 +66,9 @@ from src.dashboard.db_helper import (
 # Cached wrappers (no conn argument -- get conn inside for st.cache_data)
 # ---------------------------------------------------------------------------
 
-@st.cache_data(ttl=60)
+@st.cache_data(ttl=300)
 def _cached_bullpen_state(team: str) -> list[dict] | None:
-    """Cached real bullpen state (TTL 60s -- changes during games)."""
+    """Cached real bullpen state (TTL 300s)."""
     conn = get_db_connection()
     if conn is None or _USE_MOCK_BULLPEN:
         return None
@@ -78,16 +78,71 @@ def _cached_bullpen_state(team: str) -> list[dict] | None:
         return None
 
 
-@st.cache_data(ttl=300)
-def _cached_matchup_stats(pitcher_id: int, batter_id: int) -> dict | None:
-    """Cached real matchup stats (TTL 5 min)."""
+@st.cache_data(ttl=3600)
+def _cached_batch_matchup_stats(
+    pitcher_ids: tuple[int | None, ...],
+    batter_ids: tuple[int | None, ...],
+) -> dict[tuple[int, int], dict]:
+    """Batch-fetch matchup stats for ALL reliever-batter pairs in ONE query.
+
+    Returns a dict keyed by (pitcher_id, batter_id) -> matchup stats dict.
+    """
     conn = get_db_connection()
     if conn is None or _USE_MOCK_MATCHUP:
-        return None
+        return {}
+
+    # Filter out None IDs
+    valid_pitcher_ids = [pid for pid in pitcher_ids if pid is not None]
+    valid_batter_ids = [bid for bid in batter_ids if bid is not None]
+    if not valid_pitcher_ids or not valid_batter_ids:
+        return {}
+
     try:
-        return _real_get_matchup_stats(conn, pitcher_id, batter_id)
+        # Single query: aggregate wOBA-relevant stats for all pairs at once
+        df = conn.execute(
+            """
+            WITH pa_events AS (
+                SELECT pitcher_id, batter_id, events,
+                       launch_speed, description, zone,
+                       type
+                FROM   pitches
+                WHERE  pitcher_id IN (SELECT UNNEST($1::INT[]))
+                  AND  batter_id  IN (SELECT UNNEST($2::INT[]))
+                  AND  events IS NOT NULL
+            )
+            SELECT pitcher_id,
+                   batter_id,
+                   COUNT(*)                                       AS plate_appearances,
+                   AVG(CASE WHEN events IN ('single','double','triple','home_run')
+                            THEN 1.0 ELSE 0.0 END)               AS batting_avg,
+                   -- Simplified wOBA weights
+                   AVG(CASE
+                       WHEN events = 'walk'       THEN 0.690
+                       WHEN events = 'hit_by_pitch' THEN 0.720
+                       WHEN events = 'single'     THEN 0.880
+                       WHEN events = 'double'     THEN 1.247
+                       WHEN events = 'triple'     THEN 1.578
+                       WHEN events = 'home_run'   THEN 2.031
+                       ELSE 0.0
+                   END)                                           AS woba
+            FROM   pa_events
+            GROUP  BY pitcher_id, batter_id
+            """,
+            [valid_pitcher_ids, valid_batter_ids],
+        ).fetchdf()
+
+        results: dict[tuple[int, int], dict] = {}
+        if not df.empty:
+            for _, row in df.iterrows():
+                key = (int(row["pitcher_id"]), int(row["batter_id"]))
+                results[key] = {
+                    "woba": round(float(row["woba"]), 3),
+                    "batting_avg": round(float(row["batting_avg"]), 3),
+                    "plate_appearances": int(row["plate_appearances"]),
+                }
+        return results
     except Exception:
-        return None
+        return {}
 
 
 # ---------------------------------------------------------------------------
@@ -183,28 +238,12 @@ def _adapt_bullpen_state(real_list: list[dict]) -> list[dict[str, Any]]:
     return adapted
 
 
-def _get_matchup_stats_by_id(pitcher_id: int | None, batter_id: int | None,
-                              pitcher_name: str, batter_name: str) -> dict[str, Any]:
-    """Get matchup stats, trying real DB first then mock."""
-    if pitcher_id is not None and batter_id is not None:
-        real = _cached_matchup_stats(pitcher_id, batter_id)
-        if real is not None:
-            # Extract estimated_woba from the real return
-            return {
-                "estimated_woba": real.get("woba", 0.320),
-                "batting_avg": real.get("batting_avg", 0.0),
-                "plate_appearances": real.get("plate_appearances", 0),
-            }
-    # No real data available -- return league average placeholder
-    return {"estimated_woba": 0.320, "no_data": True}
-
-
-def _get_matchup_for_grid(pitcher_name: str, batter_name: str,
-                           pitcher_id: int | None = None,
-                           batter_id: int | None = None) -> dict[str, Any]:
-    """Get matchup stats for the heatmap grid."""
-    result = _get_matchup_stats_by_id(pitcher_id, batter_id, pitcher_name, batter_name)
-    return result
+def _get_batch_matchups_for_grid(
+    pitcher_ids: list[int | None],
+    batter_ids: list[int | None],
+) -> dict[tuple[int, int], dict]:
+    """Fetch all matchup stats for the grid in a single batch call."""
+    return _cached_batch_matchup_stats(tuple(pitcher_ids), tuple(batter_ids))
 
 
 # ---------------------------------------------------------------------------
@@ -428,20 +467,23 @@ def _render_matchup_grid(bullpen: list[dict[str, Any]], team_code: str) -> None:
     batter_names = [b["name"] for b in batters]
     batter_ids = [b.get("batter_id") for b in batters]
 
-    # Build wOBA matrix
+    # Batch-fetch ALL matchup stats in ONE query instead of N*M individual queries
+    batch_results = _get_batch_matchups_for_grid(pitcher_ids, batter_ids)
+
+    # Build wOBA matrix from the batch results
     z: list[list[float]] = []
     text: list[list[str]] = []
     for rp_idx, rp_name in enumerate(pitcher_names):
         row_z = []
         row_t = []
+        pid = pitcher_ids[rp_idx]
         for bat_idx, bat_name in enumerate(batter_names):
-            result = _get_matchup_for_grid(
-                pitcher_name=rp_name,
-                batter_name=bat_name,
-                pitcher_id=pitcher_ids[rp_idx],
-                batter_id=batter_ids[bat_idx],
-            )
-            woba = result.get("estimated_woba", 0.320)
+            bid = batter_ids[bat_idx]
+            if pid is not None and bid is not None:
+                result = batch_results.get((pid, bid), {})
+                woba = result.get("woba", 0.320)
+            else:
+                woba = 0.320
             row_z.append(woba)
             row_t.append(f"{woba:.3f}")
         z.append(row_z)

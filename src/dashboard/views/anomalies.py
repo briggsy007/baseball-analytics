@@ -49,6 +49,13 @@ from src.dashboard.db_helper import (
 # Cached wrappers
 # ---------------------------------------------------------------------------
 
+@st.cache_data(ttl=3600)
+def _cached_player_id_by_name(name: str) -> int | None:
+    """Cached player ID lookup (TTL 1 hour) -- avoids repeated DB queries."""
+    conn = get_db_connection()
+    return get_player_id_by_name(conn, name)
+
+
 @st.cache_data(ttl=300)
 def _cached_pitcher_baselines(pitcher_id: int) -> dict | None:
     """Cached pitcher baselines from the real analytics module (TTL 5 min)."""
@@ -123,25 +130,41 @@ def _get_live_anomalies() -> list[dict[str, Any]]:
 
         from src.ingest.live_feed import parse_pitch_events as _parse_pitch_events
 
-        monitor_key = f"_anomaly_monitor_{pitcher_id}"
-        if monitor_key not in st.session_state:
+        # Reuse monitor from session_state; only create a new one when
+        # the pitcher (i.e. game context) changes.
+        monitor_key = "_anomaly_monitor"
+        prev_pitcher_key = "_anomaly_monitor_pitcher_id"
+
+        prev_pitcher_id = st.session_state.get(prev_pitcher_key)
+        if prev_pitcher_id != pitcher_id or monitor_key not in st.session_state:
             monitor = GameAnomalyMonitor(pitcher_id=pitcher_id, conn=conn)
             st.session_state[monitor_key] = monitor
+            st.session_state[prev_pitcher_key] = pitcher_id
         else:
             monitor = st.session_state[monitor_key]
 
+        # Only re-process pitches if the feed has new data since last check
         pitch_events = _parse_pitch_events(feed)
-        monitor._pitches = []
-        for pe in pitch_events:
-            monitor.add_pitch({
-                "pitch_type": pe.get("pitch_type", ""),
-                "release_speed": pe.get("start_speed"),
-                "release_spin_rate": pe.get("release_spin_rate"),
-                "release_pos_x": pe.get("release_pos_x"),
-                "release_pos_z": pe.get("release_pos_z"),
-            })
+        feed_pitch_count = len(pitch_events)
+        last_count_key = "_anomaly_last_pitch_count"
+        last_count = st.session_state.get(last_count_key, 0)
 
-        alerts = monitor.check_all()
+        if feed_pitch_count != last_count:
+            monitor._pitches = []
+            for pe in pitch_events:
+                monitor.add_pitch({
+                    "pitch_type": pe.get("pitch_type", ""),
+                    "release_speed": pe.get("start_speed"),
+                    "release_spin_rate": pe.get("release_spin_rate"),
+                    "release_pos_x": pe.get("release_pos_x"),
+                    "release_pos_z": pe.get("release_pos_z"),
+                })
+            st.session_state[last_count_key] = feed_pitch_count
+            alerts = monitor.check_all()
+            st.session_state["_anomaly_cached_alerts"] = alerts
+        else:
+            alerts = st.session_state.get("_anomaly_cached_alerts", [])
+
         if alerts:
             adapted: list[dict[str, Any]] = []
             for a in alerts:
@@ -239,7 +262,7 @@ def render() -> None:
     # Resolve pitcher ID
     pitcher_id = pitcher_id_map.get(selected_pitcher)
     if pitcher_id is None and use_real:
-        pitcher_id = get_player_id_by_name(conn, selected_pitcher)
+        pitcher_id = _cached_player_id_by_name(selected_pitcher)
 
     # Try to get real baselines
     real_baselines: dict | None = None
@@ -381,7 +404,7 @@ def _render_velocity_trend(pitcher_name: str, baselines: dict | None = None) -> 
     velo_df = pd.DataFrame()
     conn = get_db_connection()
     if has_data(conn) and not _USE_MOCK_ANOMALY:
-        pitcher_id = get_player_id_by_name(conn, pitcher_name)
+        pitcher_id = _cached_player_id_by_name(pitcher_name)
         if pitcher_id is not None:
             try:
                 _df = conn.execute("""
@@ -454,7 +477,7 @@ def _render_release_point(pitcher_name: str, baselines: dict | None = None) -> N
     rp_df = pd.DataFrame()
     conn = get_db_connection()
     if has_data(conn) and not _USE_MOCK_ANOMALY:
-        pitcher_id = get_player_id_by_name(conn, pitcher_name)
+        pitcher_id = _cached_player_id_by_name(pitcher_name)
         if pitcher_id is not None:
             try:
                 _df = conn.execute("""
@@ -522,7 +545,7 @@ def _render_spin_rate_trend(pitcher_name: str, baselines: dict | None = None) ->
     conn = get_db_connection()
     spin_df = pd.DataFrame()
     if has_data(conn) and not _USE_MOCK_ANOMALY:
-        pitcher_id = get_player_id_by_name(conn, pitcher_name)
+        pitcher_id = _cached_player_id_by_name(pitcher_name)
         if pitcher_id is not None:
             try:
                 spin_df = conn.execute("""
@@ -587,7 +610,7 @@ def _render_pitch_mix_comparison(pitcher_name: str, baselines: dict | None = Non
     conn = get_db_connection()
     mix_df = pd.DataFrame()
     if has_data(conn) and not _USE_MOCK_ANOMALY:
-        pitcher_id = get_player_id_by_name(conn, pitcher_name)
+        pitcher_id = _cached_player_id_by_name(pitcher_name)
         if pitcher_id is not None:
             try:
                 mix_df = conn.execute("""

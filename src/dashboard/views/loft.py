@@ -51,6 +51,40 @@ except Exception:
 # ---------------------------------------------------------------------------
 
 
+@st.cache_data(ttl=3600)
+def _cached_seasons() -> list[int]:
+    """Cached list of seasons."""
+    conn = get_db_connection()
+    try:
+        return conn.execute(
+            "SELECT DISTINCT EXTRACT(YEAR FROM game_date)::INT AS season "
+            "FROM pitches ORDER BY season DESC"
+        ).fetchdf()["season"].tolist()
+    except Exception:
+        return []
+
+
+@st.cache_data(ttl=3600)
+def _cached_game_loft(game_pk: int, pitcher_id: int) -> dict:
+    """Cached game LOFT computation."""
+    conn = get_db_connection()
+    return compute_game_loft(conn, game_pk, pitcher_id)
+
+
+@st.cache_data(ttl=3600)
+def _cached_pitcher_baseline(pitcher_id: int, season: int) -> dict:
+    """Cached pitcher baseline computation."""
+    conn = get_db_connection()
+    return compute_pitcher_baseline(conn, pitcher_id, season)
+
+
+@st.cache_data(ttl=3600)
+def _cached_calculate_loft(pitcher_id: int, season: int) -> dict:
+    """Cached full LOFT profile computation."""
+    conn = get_db_connection()
+    return calculate_loft(conn, pitcher_id, season)
+
+
 def render() -> None:
     """Render the LOFT Analysis page."""
     st.title("Lineup Order Flow Toxicity (LOFT)")
@@ -92,13 +126,7 @@ def render() -> None:
         st.markdown("### LOFT Options")
 
         # Season filter
-        try:
-            seasons = conn.execute(
-                "SELECT DISTINCT EXTRACT(YEAR FROM game_date)::INT AS season "
-                "FROM pitches ORDER BY season DESC"
-            ).fetchdf()["season"].tolist()
-        except Exception:
-            seasons = []
+        seasons = _cached_seasons()
 
         if not seasons:
             st.info("No season data found.")
@@ -192,8 +220,8 @@ def _render_game_analysis(conn, season: int) -> None:
 
     # Compute
     with st.spinner("Computing LOFT..."):
-        game_loft = compute_game_loft(conn, game_pk, pitcher_id)
-        baseline = compute_pitcher_baseline(conn, pitcher_id, season)
+        game_loft = _cached_game_loft(game_pk, pitcher_id)
+        baseline = _cached_pitcher_baseline(pitcher_id, season)
 
     if game_loft["total_buckets"] == 0:
         st.info("Not enough pitches for LOFT analysis in this game.")
@@ -443,7 +471,7 @@ def _render_pitcher_profile(conn, season: int) -> None:
         return
 
     with st.spinner("Computing season LOFT profile..."):
-        profile = calculate_loft(conn, pitcher_id, season)
+        profile = _cached_calculate_loft(pitcher_id, season)
 
     baseline = profile.get("baseline", {})
     games = profile.get("games", [])

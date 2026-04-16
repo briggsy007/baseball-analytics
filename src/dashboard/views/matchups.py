@@ -70,7 +70,7 @@ def _cached_all_batters() -> list[dict]:
     return get_all_batters(conn)
 
 
-@st.cache_data(ttl=300)
+@st.cache_data(ttl=3600)
 def _cached_pitcher_profile(pitcher_id: int) -> dict[str, Any] | None:
     """Cached pitcher profile from the real analytics module (TTL 5 min)."""
     conn = get_db_connection()
@@ -82,7 +82,7 @@ def _cached_pitcher_profile(pitcher_id: int) -> dict[str, Any] | None:
         return None
 
 
-@st.cache_data(ttl=300)
+@st.cache_data(ttl=3600)
 def _cached_batter_profile(batter_id: int) -> dict[str, Any] | None:
     """Cached batter profile from the real analytics module (TTL 5 min)."""
     conn = get_db_connection()
@@ -94,7 +94,7 @@ def _cached_batter_profile(batter_id: int) -> dict[str, Any] | None:
         return None
 
 
-@st.cache_data(ttl=300)
+@st.cache_data(ttl=3600)
 def _cached_matchup_stats(pitcher_id: int, batter_id: int) -> dict[str, Any] | None:
     """Cached matchup stats from the real analytics module (TTL 5 min)."""
     conn = get_db_connection()
@@ -106,7 +106,7 @@ def _cached_matchup_stats(pitcher_id: int, batter_id: int) -> dict[str, Any] | N
         return None
 
 
-@st.cache_data(ttl=300)
+@st.cache_data(ttl=3600)
 def _cached_matchup_woba(pitcher_id: int, batter_id: int) -> dict[str, Any] | None:
     """Cached Bayesian matchup wOBA estimate (TTL 5 min)."""
     conn = get_db_connection()
@@ -118,7 +118,7 @@ def _cached_matchup_woba(pitcher_id: int, batter_id: int) -> dict[str, Any] | No
         return None
 
 
-@st.cache_data(ttl=300)
+@st.cache_data(ttl=3600)
 def _cached_matchup_history(pitcher_id: int, batter_id: int) -> pd.DataFrame | None:
     """Cached matchup pitch history for zone heatmaps (TTL 5 min)."""
     conn = get_db_connection()

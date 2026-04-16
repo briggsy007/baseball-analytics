@@ -37,6 +37,13 @@ try:
 except ImportError:
     pass
 
+_CACHE_AVAILABLE = False
+try:
+    from src.dashboard.cache_reader import get_cached_entity, cache_age_display
+    _CACHE_AVAILABLE = True
+except Exception:
+    pass
+
 # Pitch type metadata
 _PITCH_LABELS: dict[str, str] = {
     "FF": "4-Seam", "SI": "Sinker", "SL": "Slider", "CU": "Curve",
@@ -50,6 +57,17 @@ _PITCH_COLORS: dict[str, str] = {
     "CH": "#2ECC71", "FC": "#F39C12", "FS": "#1ABC9C", "KC": "#9B59B6",
     "ST": "#E74C3C", "SV": "#3498DB",
 }
+
+
+# ---------------------------------------------------------------------------
+# Cached computation wrappers
+# ---------------------------------------------------------------------------
+
+
+@st.cache_data(ttl=3600, show_spinner=False)
+def _cached_sequencing_patterns(_conn, pitcher_id: int) -> dict:
+    """Cached wrapper for sequencing pattern analysis."""
+    return analyze_sequencing_patterns(_conn, pitcher_id)
 
 
 # ---------------------------------------------------------------------------
@@ -119,12 +137,24 @@ def render() -> None:
     pitcher_id = pitcher_names[selected_pitcher]
 
     # ── Load sequencing data ─────────────────────────────────────────────
-    with st.spinner("Analysing sequencing patterns..."):
+    # Try entity cache first, then compute with Streamlit caching
+    patterns = None
+    if _CACHE_AVAILABLE:
         try:
-            patterns = analyze_sequencing_patterns(conn, pitcher_id)
-        except Exception as exc:
-            st.error(f"Error analysing patterns: {exc}")
-            return
+            cached = get_cached_entity(conn, "sequencing", pitcher_id)
+            if cached is not None:
+                patterns = cached
+                st.caption("Using pre-computed results")
+        except Exception:
+            pass
+
+    if patterns is None:
+        with st.spinner("Analysing sequencing patterns..."):
+            try:
+                patterns = _cached_sequencing_patterns(conn, pitcher_id)
+            except Exception as exc:
+                st.error(f"Error analysing patterns: {exc}")
+                return
 
     if not patterns.get("transition_matrix") and not patterns.get("count_mix"):
         st.info("Not enough data for this pitcher's sequencing analysis.")

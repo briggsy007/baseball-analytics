@@ -75,6 +75,29 @@ _CONTEXT_LABELS: dict[str, str] = {
 
 
 # ---------------------------------------------------------------------------
+# Cached computation wrappers
+# ---------------------------------------------------------------------------
+
+
+@st.cache_data(ttl=3600, show_spinner=False)
+def _cached_mesi_leaderboard(_conn, min_pitches: int) -> pd.DataFrame:
+    """Cached wrapper for MESI leaderboard computation."""
+    return batch_calculate(_conn, min_pitches=min_pitches)
+
+
+@st.cache_data(ttl=3600, show_spinner=False)
+def _cached_arsenal_stability(_conn, pitcher_id: int) -> dict:
+    """Cached wrapper for get_arsenal_stability computation."""
+    return get_arsenal_stability(_conn, pitcher_id)
+
+
+@st.cache_data(ttl=3600, show_spinner=False)
+def _cached_context_stability(_conn, pitcher_id: int) -> dict:
+    """Cached wrapper for compute_context_stability computation."""
+    return compute_context_stability(_conn, pitcher_id)
+
+
+# ---------------------------------------------------------------------------
 # Page entry point
 # ---------------------------------------------------------------------------
 
@@ -123,7 +146,7 @@ def render() -> None:
         )
         return
 
-    # ── Main content tabs ────────────────────────────────────────────────
+    # ── Main content tabs ─────────────────────────────────────────────────
     tab_leaderboard, tab_pitcher, tab_compare = st.tabs(
         ["Leaderboard", "Pitcher Deep Dive", "Comparison Mode"]
     )
@@ -168,7 +191,7 @@ def _render_leaderboard(conn) -> None:
     if leaderboard is None:
         try:
             with st.spinner("Computing... Run `python scripts/precompute.py` for instant loading."):
-                leaderboard = batch_calculate(conn, min_pitches=min_pitches)
+                leaderboard = _cached_mesi_leaderboard(conn, min_pitches=min_pitches)
         except Exception as exc:
             st.error(f"Error computing leaderboard: {exc}")
             return
@@ -241,7 +264,7 @@ def _render_pitcher_deep_dive(conn) -> None:
                 st.caption("Using pre-computed results")
         if profile is None:
             with st.spinner("Computing MESI profile... Run `python scripts/precompute.py` for instant loading."):
-                profile = get_arsenal_stability(conn, pitcher_id)
+                profile = _cached_arsenal_stability(conn, pitcher_id)
     except Exception as exc:
         st.error(f"Error computing MESI profile: {exc}")
         return
@@ -549,12 +572,12 @@ def _render_comparison(conn) -> None:
 
     with st.spinner("Computing MESI profiles..."):
         try:
-            profile_a = get_arsenal_stability(conn, pid_a)
+            profile_a = _cached_arsenal_stability(conn, pid_a)
         except Exception as exc:
             st.warning(f"Could not compute profile for {name_a}: {exc}")
 
         try:
-            profile_b = get_arsenal_stability(conn, pid_b)
+            profile_b = _cached_arsenal_stability(conn, pid_b)
         except Exception as exc:
             st.warning(f"Could not compute profile for {name_b}: {exc}")
 

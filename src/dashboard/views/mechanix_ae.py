@@ -109,6 +109,22 @@ def _mdi_label(mdi: float) -> str:
 # ---------------------------------------------------------------------------
 
 
+@st.cache_data(ttl=3600)
+def _cached_mdi(pitcher_id: int) -> dict:
+    """Cached MDI calculation for a pitcher."""
+    conn = get_db_connection()
+    model, checkpoint = _load_model(pitcher_id)
+    return calculate_mdi(conn, pitcher_id, model=model, checkpoint=checkpoint)
+
+
+@st.cache_data(ttl=3600)
+def _cached_drift_velocity(pitcher_id: int) -> dict:
+    """Cached drift velocity calculation."""
+    conn = get_db_connection()
+    model, checkpoint = _load_model(pitcher_id)
+    return calculate_drift_velocity(conn, pitcher_id, model=model, checkpoint=checkpoint)
+
+
 def render() -> None:
     """Render the MechanixAE dashboard page."""
     st.title("MechanixAE -- Mechanical Drift Detection")
@@ -197,12 +213,8 @@ def _render_pitcher_analysis(conn) -> None:
 
     # ── Compute MDI ───────────────────────────────────────────────────────
     with st.spinner("Computing MDI..."):
-        mdi_result = calculate_mdi(
-            conn, pitcher_id, model=model, checkpoint=checkpoint,
-        )
-        dv_result = calculate_drift_velocity(
-            conn, pitcher_id, model=model, checkpoint=checkpoint,
-        )
+        mdi_result = _cached_mdi(pitcher_id)
+        dv_result = _cached_drift_velocity(pitcher_id)
 
     if mdi_result["mdi"] is None:
         st.info("Not enough recent pitches to compute MDI.")

@@ -59,7 +59,20 @@ _PITCH_LABELS: dict[str, str] = {
 # ---------------------------------------------------------------------------
 
 
-@st.cache_data(ttl=600)
+@st.cache_data(ttl=3600)
+def _cached_pset_seasons() -> list[int]:
+    """Cached list of seasons."""
+    conn = get_db_connection()
+    try:
+        return conn.execute(
+            "SELECT DISTINCT EXTRACT(YEAR FROM game_date)::INT AS season "
+            "FROM pitches ORDER BY season DESC"
+        ).fetchdf()["season"].tolist()
+    except Exception:
+        return []
+
+
+@st.cache_data(ttl=3600)
 def _cached_pset(pitcher_id: int, season=None) -> dict:
     """Try DB entity cache first, then live computation."""
     conn = get_db_connection()
@@ -72,7 +85,7 @@ def _cached_pset(pitcher_id: int, season=None) -> dict:
     return calculate_pset(conn, pitcher_id, season=season)
 
 
-@st.cache_data(ttl=600)
+@st.cache_data(ttl=3600)
 def _cached_best_sequences(pitcher_id: int, season=None, top_n: int = 5) -> list:
     """Cache best sequences lookup."""
     conn = get_db_connection()
@@ -125,13 +138,7 @@ def render() -> None:
         st.markdown("### PSET Options")
 
         # Season filter
-        try:
-            seasons = conn.execute(
-                "SELECT DISTINCT EXTRACT(YEAR FROM game_date)::INT AS season "
-                "FROM pitches ORDER BY season DESC"
-            ).fetchdf()["season"].tolist()
-        except Exception:
-            seasons = []
+        seasons = _cached_pset_seasons()
 
         season_options = ["All Seasons"] + [str(s) for s in seasons]
         selected_season = st.selectbox(

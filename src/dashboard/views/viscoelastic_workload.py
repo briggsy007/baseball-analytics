@@ -77,6 +77,20 @@ def _vwr_label(score: float) -> str:
 # ---------------------------------------------------------------------------
 
 
+@st.cache_data(ttl=3600)
+def _cached_vwr(pitcher_id: int) -> dict:
+    """Cached VWR calculation."""
+    conn = get_db_connection()
+    return calculate_vwr(conn, pitcher_id)
+
+
+@st.cache_data(ttl=3600)
+def _cached_recovery(pitcher_id: int, rest_days: int) -> dict:
+    """Cached recovery prediction."""
+    conn = get_db_connection()
+    return predict_recovery(conn, pitcher_id, rest_days=rest_days)
+
+
 def render() -> None:
     """Render the Viscoelastic Workload Response analysis page."""
     st.title("Viscoelastic Workload Response (VWR)")
@@ -188,7 +202,7 @@ def _render_pitcher_analysis(conn) -> None:
 
     with st.spinner("Computing VWR..."):
         try:
-            result = calculate_vwr(conn, pitcher_id)
+            result = _cached_vwr(pitcher_id)
         except Exception as exc:
             st.error(f"Error computing VWR: {exc}")
             return
@@ -341,7 +355,7 @@ def _render_recovery_predictor(conn) -> None:
 
     with st.spinner("Predicting recovery..."):
         try:
-            result = predict_recovery(conn, pitcher_id, rest_days=rest_days)
+            result = _cached_recovery(pitcher_id, rest_days=rest_days)
         except Exception as exc:
             st.error(f"Error predicting recovery: {exc}")
             return
@@ -443,7 +457,7 @@ def _render_season_workload(conn) -> None:
 
     with st.spinner("Computing season workload..."):
         try:
-            result = calculate_vwr(conn, pitcher_id)
+            result = _cached_vwr(pitcher_id)
         except Exception as exc:
             st.error(f"Error: {exc}")
             return

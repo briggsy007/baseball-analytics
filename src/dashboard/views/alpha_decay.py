@@ -69,6 +69,26 @@ _PITCH_LABELS: dict[str, str] = {
 # ---------------------------------------------------------------------------
 
 
+@st.cache_data(ttl=3600)
+def _cached_get_seasons() -> list[int]:
+    """Cached list of seasons with pitch data."""
+    conn = get_db_connection()
+    try:
+        return conn.execute(
+            "SELECT DISTINCT EXTRACT(YEAR FROM game_date)::INT AS season "
+            "FROM pitches ORDER BY season DESC"
+        ).fetchdf()["season"].tolist()
+    except Exception:
+        return []
+
+
+@st.cache_data(ttl=3600)
+def _cached_alpha_decay(pitcher_id: int, season: int | None) -> dict:
+    """Cached alpha decay calculation for a single pitcher."""
+    conn = get_db_connection()
+    return calculate_alpha_decay(conn, pitcher_id, season=season)
+
+
 def render() -> None:
     """Render the Pitch Sequence Alpha Decay analysis page."""
     st.title("Pitch Sequence Alpha Decay")
@@ -113,13 +133,7 @@ def render() -> None:
     with st.sidebar:
         st.markdown("### Alpha Decay Options")
 
-        try:
-            seasons = conn.execute(
-                "SELECT DISTINCT EXTRACT(YEAR FROM game_date)::INT AS season "
-                "FROM pitches ORDER BY season DESC"
-            ).fetchdf()["season"].tolist()
-        except Exception:
-            seasons = []
+        seasons = _cached_get_seasons()
 
         season_options = ["All Seasons"] + [str(s) for s in seasons]
         selected_season = st.selectbox(
@@ -185,7 +199,7 @@ def _render_pitcher_analysis(conn, season) -> None:
 
     with st.spinner("Computing alpha decay profile..."):
         try:
-            result = calculate_alpha_decay(conn, pitcher_id, season=season)
+            result = _cached_alpha_decay(pitcher_id, season=season)
         except Exception as exc:
             st.error(f"Error computing alpha decay: {exc}")
             return

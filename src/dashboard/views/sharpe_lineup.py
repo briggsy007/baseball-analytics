@@ -52,6 +52,53 @@ _PSR_COLOR_SCALE = [
 ]
 
 
+# ── Cached data helpers ──────────────────────────────────────────────────────
+
+
+@st.cache_data(ttl=3600)
+def _cached_seasons() -> list[int]:
+    """Cached list of seasons."""
+    conn = get_db_connection()
+    try:
+        return conn.execute(
+            "SELECT DISTINCT EXTRACT(YEAR FROM game_date)::INT AS season "
+            "FROM pitches ORDER BY season DESC"
+        ).fetchdf()["season"].tolist()
+    except Exception:
+        return []
+
+
+@st.cache_data(ttl=3600)
+def _cached_teams() -> list[str]:
+    """Cached list of teams."""
+    conn = get_db_connection()
+    try:
+        return conn.execute(
+            "SELECT DISTINCT home_team FROM pitches "
+            "WHERE home_team IS NOT NULL ORDER BY home_team"
+        ).fetchdf()["home_team"].tolist()
+    except Exception:
+        return []
+
+
+@st.cache_data(ttl=3600)
+def _cached_batch_player_sharpe(
+    team_id: str | None, season: int | None, min_games: int,
+) -> pd.DataFrame:
+    """Cached batch player sharpe computation."""
+    conn = get_db_connection()
+    return batch_player_sharpe(conn, team_id=team_id, season=season, min_games=min_games)
+
+
+@st.cache_data(ttl=3600)
+def _cached_correlation_matrix(
+    player_ids: tuple, season: int | None,
+) -> pd.DataFrame:
+    """Cached correlation matrix computation."""
+    conn = get_db_connection()
+    return compute_correlation_matrix(conn, list(player_ids), season)
+
+
 # ── Page entry point ─────────────────────────────────────────────────────────
 
 
@@ -98,13 +145,7 @@ def render() -> None:
         st.markdown("### Sharpe / Frontier Options")
 
         # Season selector
-        try:
-            seasons = conn.execute(
-                "SELECT DISTINCT EXTRACT(YEAR FROM game_date)::INT AS season "
-                "FROM pitches ORDER BY season DESC"
-            ).fetchdf()["season"].tolist()
-        except Exception:
-            seasons = []
+        seasons = _cached_seasons()
 
         season = st.selectbox(
             "Season",
@@ -114,13 +155,7 @@ def render() -> None:
         )
 
         # Team selector
-        try:
-            teams = conn.execute(
-                "SELECT DISTINCT home_team FROM pitches "
-                "WHERE home_team IS NOT NULL ORDER BY home_team"
-            ).fetchdf()["home_team"].tolist()
-        except Exception:
-            teams = []
+        teams = _cached_teams()
 
         team = st.selectbox(
             "Team",
@@ -179,7 +214,7 @@ def _render_leaderboard(conn, season, team, min_games) -> None:
     if df is None:
         try:
             with st.spinner("Computing... Run `python scripts/precompute.py` for instant loading."):
-                df = batch_player_sharpe(conn, team_id=team, season=season, min_games=min_games)
+                df = _cached_batch_player_sharpe(team_id=team, season=season, min_games=min_games)
         except Exception as exc:
             st.error(f"Error computing leaderboard: {exc}")
             return
@@ -253,7 +288,7 @@ def _render_correlation_heatmap(conn, season, team, min_games) -> None:
     st.subheader("Game-Level wOBA Correlation Heatmap")
 
     try:
-        stats = batch_player_sharpe(conn, team_id=team, season=season, min_games=min_games)
+        stats = _cached_batch_player_sharpe(team_id=team, season=season, min_games=min_games)
     except Exception as exc:
         st.error(f"Error: {exc}")
         return
@@ -267,7 +302,7 @@ def _render_correlation_heatmap(conn, season, team, min_games) -> None:
     player_ids = display_stats["batter_id"].tolist()
 
     try:
-        corr = compute_correlation_matrix(conn, player_ids, season)
+        corr = _cached_correlation_matrix(tuple(player_ids), season)
     except Exception as exc:
         st.error(f"Error computing correlation matrix: {exc}")
         return
@@ -326,7 +361,7 @@ def _render_efficient_frontier(conn, season, team, min_games) -> None:
     st.subheader("Efficient Lineup Frontier")
 
     try:
-        stats = batch_player_sharpe(conn, team_id=team, season=season, min_games=min_games)
+        stats = _cached_batch_player_sharpe(team_id=team, season=season, min_games=min_games)
     except Exception as exc:
         st.error(f"Error: {exc}")
         return
@@ -350,7 +385,7 @@ def _render_efficient_frontier(conn, season, team, min_games) -> None:
     player_ids = pool["batter_id"].tolist()
 
     try:
-        corr = compute_correlation_matrix(conn, player_ids, season)
+        corr = _cached_correlation_matrix(tuple(player_ids), season)
         points = efficient_frontier(pool, corr, n_points=30, n_players=min(9, len(pool)))
     except Exception as exc:
         st.error(f"Error computing frontier: {exc}")
@@ -455,8 +490,8 @@ def _render_lineup_builder(conn, season, team, min_games) -> None:
     st.subheader("Lineup Builder")
 
     try:
-        stats = batch_player_sharpe(
-            conn, team_id=team, season=season, min_games=max(1, min_games // 2),
+        stats = _cached_batch_player_sharpe(
+            team_id=team, season=season, min_games=max(1, min_games // 2),
         )
     except Exception as exc:
         st.error(f"Error: {exc}")
@@ -494,7 +529,7 @@ def _render_lineup_builder(conn, season, team, min_games) -> None:
 
     # Compute portfolio stats
     try:
-        corr = compute_correlation_matrix(conn, selected_stats["batter_id"].tolist(), season)
+        corr = _cached_correlation_matrix(tuple(selected_stats["batter_id"].tolist()), season)
         portfolio = optimize_lineup(
             selected_stats, corr, n_players=len(selected_stats),
         )

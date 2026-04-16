@@ -60,6 +60,33 @@ _PITCH_LABELS: dict[str, str] = {
 # ---------------------------------------------------------------------------
 
 
+@st.cache_data(ttl=3600)
+def _cached_seasons() -> list[int]:
+    """Cached list of seasons."""
+    conn = get_db_connection()
+    try:
+        return conn.execute(
+            "SELECT DISTINCT EXTRACT(YEAR FROM game_date)::INT AS season "
+            "FROM pitches ORDER BY season DESC"
+        ).fetchdf()["season"].tolist()
+    except Exception:
+        return []
+
+
+@st.cache_data(ttl=3600)
+def _cached_predictability(pitcher_id: int, season: int | None) -> dict:
+    """Cached predictability calculation."""
+    conn = get_db_connection()
+    return calculate_predictability(conn, pitcher_id, season=season)
+
+
+@st.cache_data(ttl=3600)
+def _cached_predictability_by_catcher(pitcher_id: int, season: int | None) -> list:
+    """Cached per-catcher predictability calculation."""
+    conn = get_db_connection()
+    return calculate_predictability_by_catcher(conn, pitcher_id, season=season)
+
+
 def render() -> None:
     """Render the PitchGPT analysis page."""
     st.title("PitchGPT -- Pitch Sequence Transformer")
@@ -100,13 +127,7 @@ def render() -> None:
         st.markdown("### PitchGPT Options")
 
         # Season filter
-        try:
-            seasons = conn.execute(
-                "SELECT DISTINCT EXTRACT(YEAR FROM game_date)::INT AS season "
-                "FROM pitches ORDER BY season DESC"
-            ).fetchdf()["season"].tolist()
-        except Exception:
-            seasons = []
+        seasons = _cached_seasons()
 
         season_options = ["All Seasons"] + [str(s) for s in seasons]
         selected_season = st.selectbox(
@@ -279,7 +300,7 @@ def _render_pitcher_analysis(conn, season) -> None:
     # ── Predictability Score ──────────────────────────────────────────────
     with st.spinner("Computing PPS..."):
         try:
-            result = calculate_predictability(conn, pitcher_id, season=season)
+            result = _cached_predictability(pitcher_id, season=season)
         except FileNotFoundError:
             st.warning("PitchGPT model not trained yet. Train the model first.")
             return
@@ -464,8 +485,8 @@ def _render_catcher_comparison(conn, season) -> None:
     # Compute PPS by catcher
     with st.spinner("Computing PPS by catcher..."):
         try:
-            catcher_results = calculate_predictability_by_catcher(
-                conn, pitcher_id, season=season,
+            catcher_results = _cached_predictability_by_catcher(
+                pitcher_id, season=season,
             )
         except FileNotFoundError:
             st.warning("PitchGPT model not trained yet. Train the model first.")

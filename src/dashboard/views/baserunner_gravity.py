@@ -131,7 +131,7 @@ def render() -> None:
 
         season = st.selectbox(
             "Season",
-            options=_get_available_seasons(conn),
+            options=_get_available_seasons(),
             key="bgi_season",
         )
 
@@ -176,8 +176,10 @@ def render() -> None:
 # ---------------------------------------------------------------------------
 
 
-def _get_available_seasons(conn) -> list[int]:
+@st.cache_data(ttl=3600)
+def _get_available_seasons() -> list[int]:
     """Return list of seasons with pitch data."""
+    conn = get_db_connection()
     if conn is None:
         return [2025]
     try:
@@ -531,7 +533,7 @@ def _render_team_view(conn, df: pd.DataFrame, season: int) -> None:
         return
 
     # Get available teams
-    teams = _get_teams(conn, season)
+    teams = _get_teams(season)
     if not teams:
         teams = ["PHI"]
 
@@ -542,7 +544,7 @@ def _render_team_view(conn, df: pd.DataFrame, season: int) -> None:
     )
 
     # Filter runners by team (via their batting appearances)
-    team_runner_ids = _get_team_runner_ids(conn, selected_team, season)
+    team_runner_ids = _get_team_runner_ids(selected_team, season)
 
     if not team_runner_ids:
         st.info(f"No runners found for {selected_team} in {season}.")
@@ -594,8 +596,10 @@ def _render_team_view(conn, df: pd.DataFrame, season: int) -> None:
     )
 
 
-def _get_teams(conn, season: int) -> list[str]:
+@st.cache_data(ttl=3600)
+def _get_teams(season: int) -> list[str]:
     """Return list of teams in the season."""
+    conn = get_db_connection()
     if conn is None:
         return []
     try:
@@ -610,8 +614,10 @@ def _get_teams(conn, season: int) -> list[str]:
         return []
 
 
-def _get_team_runner_ids(conn, team: str, season: int) -> list[int]:
+@st.cache_data(ttl=3600)
+def _get_team_runner_ids(team: str, season: int) -> list[int]:
     """Return list of runner IDs (players who appeared as batters for this team)."""
+    conn = get_db_connection()
     if conn is None:
         return []
     try:

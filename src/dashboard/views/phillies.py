@@ -106,6 +106,13 @@ def _cached_pitching_staff() -> dict | None:
         return None
 
 
+@st.cache_data(ttl=3600)
+def _cached_player_id_by_name(name: str) -> int | None:
+    """Cached player ID lookup (TTL 1 hour) -- avoids repeated DB queries per rerun."""
+    conn = get_db_connection()
+    return get_player_id_by_name(conn, name)
+
+
 @st.cache_data(ttl=300)
 def _cached_lineup_matchups(pitcher_id: int, lineup_ids: tuple[int, ...]) -> list[dict] | None:
     """Cached lineup matchup cards (TTL 5 min)."""
@@ -193,64 +200,77 @@ def _cached_standings() -> dict[str, Any] | None:
     return None
 
 
-@st.cache_data(ttl=300)
+@st.cache_data(ttl=1800)
 def _cached_schedule() -> list[dict[str, Any]] | None:
-    """Fetch real Phillies schedule from the MLB Stats API (TTL 5 min).
+    """Fetch real Phillies schedule from the MLB Stats API (TTL 30 min).
 
+    Uses a single date-range API call instead of 7 sequential requests.
     Returns a list of game dicts in mock_schedule() format, or None on failure.
     """
     from datetime import datetime, timedelta
     try:
         base = datetime.now()
+        start_date = base.strftime("%Y-%m-%d")
+        end_date = (base + timedelta(days=6)).strftime("%Y-%m-%d")
+
+        resp = requests.get(
+            "https://statsapi.mlb.com/api/v1/schedule",
+            params={
+                "sportId": 1,
+                "startDate": start_date,
+                "endDate": end_date,
+                "teamId": 143,
+                "hydrate": "team,probablePitcher",
+            },
+            timeout=10,
+        )
+        if not resp.ok:
+            return None
+
+        data = resp.json()
         result = []
-        for i in range(7):
-            d = (base + timedelta(days=i)).strftime("%Y-%m-%d")
-            resp = requests.get(
-                "https://statsapi.mlb.com/api/v1/schedule",
-                params={
-                    "sportId": 1,
-                    "date": d,
-                    "teamId": 143,
-                    "hydrate": "team,probablePitcher",
-                },
-                timeout=10,
-            )
-            if not resp.ok:
-                continue
-            data = resp.json()
-            for gdate in data.get("dates", []):
-                for g in gdate.get("games", []):
-                    home_abbr = g.get("teams", {}).get("home", {}).get("team", {}).get("abbreviation", "")
-                    away_abbr = g.get("teams", {}).get("away", {}).get("team", {}).get("abbreviation", "")
-                    home_away = "vs" if home_abbr == "PHI" else "@"
-                    opp = away_abbr if home_abbr == "PHI" else home_abbr
+        for gdate in data.get("dates", []):
+            for g in gdate.get("games", []):
+                home_abbr = g.get("teams", {}).get("home", {}).get("team", {}).get("abbreviation", "")
+                away_abbr = g.get("teams", {}).get("away", {}).get("team", {}).get("abbreviation", "")
+                home_away = "vs" if home_abbr == "PHI" else "@"
+                opp = away_abbr if home_abbr == "PHI" else home_abbr
 
-                    pp_home = g.get("teams", {}).get("home", {}).get("probablePitcher", {}).get("fullName", "TBD")
-                    pp_away = g.get("teams", {}).get("away", {}).get("probablePitcher", {}).get("fullName", "TBD")
-                    phi_sp = pp_home if home_abbr == "PHI" else pp_away
-                    opp_sp = pp_away if home_abbr == "PHI" else pp_home
+                pp_home = g.get("teams", {}).get("home", {}).get("probablePitcher", {}).get("fullName", "TBD")
+                pp_away = g.get("teams", {}).get("away", {}).get("probablePitcher", {}).get("fullName", "TBD")
+                phi_sp = pp_home if home_abbr == "PHI" else pp_away
+                opp_sp = pp_away if home_abbr == "PHI" else pp_home
 
-                    start_time = ""
-                    game_dt = g.get("gameDate", "")
-                    if game_dt:
-                        try:
-                            from zoneinfo import ZoneInfo
-                            dt_utc = datetime.fromisoformat(game_dt.replace("Z", "+00:00"))
-                            dt_et = dt_utc.astimezone(ZoneInfo("America/New_York"))
-                            start_time = dt_et.strftime("%I:%M %p ET").lstrip("0")
-                        except (ValueError, OSError, ImportError):
-                            start_time = game_dt
+                start_time = ""
+                game_dt = g.get("gameDate", "")
+                if game_dt:
+                    try:
+                        from zoneinfo import ZoneInfo
+                        dt_utc = datetime.fromisoformat(game_dt.replace("Z", "+00:00"))
+                        dt_et = dt_utc.astimezone(ZoneInfo("America/New_York"))
+                        start_time = dt_et.strftime("%I:%M %p ET").lstrip("0")
+                    except (ValueError, OSError, ImportError):
+                        start_time = game_dt
 
-                    game_date = (base + timedelta(days=i))
-                    result.append({
-                        "date": game_date.strftime("%m/%d"),
-                        "day": game_date.strftime("%a"),
-                        "opponent": opp,
-                        "home_away": home_away,
-                        "time": start_time,
-                        "phillies_starter": phi_sp,
-                        "opponent_starter": opp_sp,
-                    })
+                # Parse the actual game date from the API response
+                raw_date = gdate.get("date", "")
+                if raw_date:
+                    try:
+                        game_date_obj = datetime.strptime(raw_date, "%Y-%m-%d")
+                    except ValueError:
+                        game_date_obj = base
+                else:
+                    game_date_obj = base
+
+                result.append({
+                    "date": game_date_obj.strftime("%m/%d"),
+                    "day": game_date_obj.strftime("%a"),
+                    "opponent": opp,
+                    "home_away": home_away,
+                    "time": start_time,
+                    "phillies_starter": phi_sp,
+                    "opponent_starter": opp_sp,
+                })
         return result if result else None
     except Exception:
         pass
@@ -322,8 +342,8 @@ def _get_matchup_stats(pitcher_name: str, batter_name: str) -> dict[str, Any] | 
     conn = get_db_connection()
     if has_data(conn) and not _USE_MOCK_MATCHUP:
         try:
-            pitcher_id = get_player_id_by_name(conn, pitcher_name)
-            batter_id = get_player_id_by_name(conn, batter_name)
+            pitcher_id = _cached_player_id_by_name(pitcher_name)
+            batter_id = _cached_player_id_by_name(batter_name)
             if pitcher_id is not None and batter_id is not None:
                 real = _real_get_matchup_stats(conn, pitcher_id, batter_id)
                 return _adapt_matchup_stats(real, pitcher_name, batter_name)
@@ -579,7 +599,7 @@ def _render_scouting_report(pitcher_name: str, use_real: bool = False) -> None:
     if use_real and not _USE_MOCK_MATCHUP:
         try:
             conn = get_db_connection()
-            pitcher_id = get_player_id_by_name(conn, pitcher_name)
+            pitcher_id = _cached_player_id_by_name(pitcher_name)
             if pitcher_id is not None:
                 real_profile = _real_get_pitcher_profile(conn, pitcher_id)
                 if real_profile is not None:
@@ -695,12 +715,12 @@ def _render_lineup_matchups(opp_starter: str, use_real: bool = False) -> None:
 
     # Try real lineup matchups if DB is available
     if use_real and not _USE_MOCK_MATCHUP:
-        pitcher_id = get_player_id_by_name(conn, opp_starter)
+        pitcher_id = _cached_player_id_by_name(opp_starter)
         if pitcher_id is not None:
-            # Resolve batter IDs
+            # Resolve batter IDs (cached individually -- avoids N sequential DB hits)
             lineup_ids: list[int] = []
             for batter in lineup:
-                bid = get_player_id_by_name(conn, batter["name"])
+                bid = _cached_player_id_by_name(batter["name"])
                 if bid is not None:
                     lineup_ids.append(bid)
 

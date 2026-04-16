@@ -56,6 +56,21 @@ except Exception:
     pass
 
 
+# ── Cached computation wrappers ──────────────────────────────────────────────
+
+
+@st.cache_data(ttl=3600, show_spinner=False)
+def _cached_volatility_surface(_conn, pitcher_id: int, season: int | None) -> dict:
+    """Cached wrapper for single-pitcher volatility surface computation."""
+    return calculate_volatility_surface(_conn, pitcher_id, season)
+
+
+@st.cache_data(ttl=3600, show_spinner=False)
+def _cached_batch_volatility(_conn, min_pitches: int) -> pd.DataFrame:
+    """Cached wrapper for volatility leaderboard computation."""
+    return batch_calculate(_conn, min_pitches=min_pitches)
+
+
 # ── Page entry point ─────────────────────────────────────────────────────────
 
 
@@ -163,8 +178,21 @@ def _render_pitcher_analysis(conn) -> None:
     pitcher_id = pitcher_names[selected_name]
     season_val = int(season) if season > 0 else None
 
-    with st.spinner("Computing volatility surface..."):
-        result = calculate_volatility_surface(conn, pitcher_id, season_val)
+    # Try entity cache first, then Streamlit-cached computation
+    result = None
+    if _CACHE_AVAILABLE:
+        try:
+            from src.dashboard.cache_reader import get_cached_entity
+            cached = get_cached_entity(conn, "volatility_surface", pitcher_id, season=season_val)
+            if cached is not None:
+                result = cached
+                st.caption("Using pre-computed results")
+        except Exception:
+            pass
+
+    if result is None:
+        with st.spinner("Computing volatility surface..."):
+            result = _cached_volatility_surface(conn, pitcher_id, season_val)
 
     if result["n_pitches"] == 0:
         st.info("No scoreable pitches found for this pitcher.")
@@ -580,7 +608,7 @@ def _render_leaderboard(conn) -> None:
     if df is None:
         with st.spinner("Computing... Run `python scripts/precompute.py` for instant loading."):
             try:
-                df = batch_calculate(conn, min_pitches=min_pitches)
+                df = _cached_batch_volatility(conn, min_pitches=min_pitches)
             except Exception as exc:
                 st.error(f"Error computing leaderboard: {exc}")
                 return

@@ -33,6 +33,13 @@ try:
 except ImportError:
     pass
 
+_CACHE_AVAILABLE = False
+try:
+    from src.dashboard.cache_reader import get_cached_leaderboard, cache_age_display
+    _CACHE_AVAILABLE = True
+except Exception:
+    pass
+
 # Pitch type metadata for colours and labels
 _PITCH_COLORS: dict[str, str] = {
     "FF": "#E81828", "SI": "#FF6B35", "SL": "#002D72", "CU": "#6A0DAD",
@@ -173,6 +180,12 @@ def _train_model_ui(conn) -> None:
 # ---------------------------------------------------------------------------
 
 
+@st.cache_data(ttl=3600, show_spinner=False)
+def _cached_stuff_leaderboard(_conn, min_pitches: int) -> pd.DataFrame:
+    """Cached wrapper for Stuff+ leaderboard computation."""
+    return batch_calculate_stuff_plus(_conn, min_pitches=min_pitches)
+
+
 def _render_leaderboard(conn) -> None:
     """Display the Stuff+ leaderboard for all qualifying pitchers."""
     st.subheader("Stuff+ Leaderboard")
@@ -182,14 +195,29 @@ def _render_leaderboard(conn) -> None:
         key="stuff_min_pitches",
     )
 
-    try:
-        df = batch_calculate_stuff_plus(conn, min_pitches=min_pitches)
-    except FileNotFoundError:
-        st.warning("Model not found. Train it from the sidebar.")
-        return
-    except Exception as exc:
-        st.error(f"Error computing leaderboard: {exc}")
-        return
+    # Try precomputed cache first, then Streamlit cache, then compute
+    df = None
+    if _CACHE_AVAILABLE:
+        try:
+            cached = get_cached_leaderboard(conn, "stuff_plus", None)
+            if cached is not None:
+                df = cached
+                age_info = cache_age_display(conn, "stuff_plus", None)
+                if age_info:
+                    st.caption(age_info)
+        except Exception:
+            pass
+
+    if df is None:
+        try:
+            with st.spinner("Computing... Run `python scripts/precompute.py` for instant loading."):
+                df = _cached_stuff_leaderboard(conn, min_pitches=min_pitches)
+        except FileNotFoundError:
+            st.warning("Model not found. Train it from the sidebar.")
+            return
+        except Exception as exc:
+            st.error(f"Error computing leaderboard: {exc}")
+            return
 
     if df.empty:
         st.info("No qualifying pitchers found with the current filters.")

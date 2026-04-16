@@ -132,6 +132,13 @@ def _generate_mock_bip_scatter() -> pd.DataFrame:
 # Page entry point
 # ---------------------------------------------------------------------------
 
+@st.cache_data(ttl=3600)
+def _cached_dpi_timeline(team_id: str, season: int) -> pd.DataFrame | None:
+    """Cached DPI timeline for a team/season."""
+    conn = get_db_connection()
+    return get_team_game_dpi_timeline(conn, team_id, season)
+
+
 def render() -> None:
     """Render the Defensive Pressing Intensity (DPI) Analysis page."""
     st.title("Defensive Pressing Intensity (DPI)")
@@ -175,7 +182,7 @@ def render() -> None:
 
         season = st.selectbox(
             "Season",
-            options=_get_available_seasons(conn),
+            options=_get_available_seasons(),
             key="dpi_season",
         )
 
@@ -228,8 +235,10 @@ def render() -> None:
 # Data loading
 # ---------------------------------------------------------------------------
 
-def _get_available_seasons(conn) -> list[int]:
+@st.cache_data(ttl=3600)
+def _get_available_seasons() -> list[int]:
     """Return list of seasons with pitch data."""
+    conn = get_db_connection()
     if conn is None:
         return [2025]
     try:
@@ -356,7 +365,7 @@ def _render_bip_scatter(conn, team_id: str, season: int) -> None:
         scatter_df = _generate_mock_bip_scatter()
     elif _DPI_AVAILABLE:
         try:
-            scatter_df = _load_bip_data(conn, team_id, season)
+            scatter_df = _load_bip_data(team_id, season)
         except Exception as exc:
             st.error(f"Error loading BIP data: {exc}")
             return
@@ -437,8 +446,10 @@ def _render_bip_scatter(conn, team_id: str, season: int) -> None:
     )
 
 
-def _load_bip_data(conn, team_id: str, season: int) -> pd.DataFrame:
+@st.cache_data(ttl=3600)
+def _load_bip_data(team_id: str, season: int) -> pd.DataFrame:
     """Load BIP data with expected out probabilities for the scatter chart."""
+    conn = get_db_connection()
     query = """
         SELECT
             launch_speed, launch_angle, hc_x, hc_y, bb_type, events
@@ -595,7 +606,7 @@ def _render_timeline(conn, team_id: str, season: int) -> None:
         timeline = _generate_mock_timeline()
     elif _DPI_AVAILABLE:
         try:
-            timeline = get_team_game_dpi_timeline(conn, team_id, season)
+            timeline = _cached_dpi_timeline(team_id, season)
         except Exception as exc:
             st.error(f"Error loading timeline: {exc}")
             return
