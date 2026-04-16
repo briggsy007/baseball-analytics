@@ -36,6 +36,14 @@ def main() -> None:
     for name in sorted(tables["table_name"].tolist()):
         print(f"  - {name}")
 
+    # Report indexes.
+    indexes = conn.execute(
+        "SELECT index_name, table_name FROM duckdb_indexes() ORDER BY table_name, index_name"
+    ).fetchall()
+    print(f"Indexes ({len(indexes)}):")
+    for idx_name, tbl_name in indexes:
+        print(f"  - {tbl_name}.{idx_name}")
+
     conn.close()
     print("Done.")
 

@@ -47,6 +47,34 @@ def create_tables(conn: duckdb.DuckDBPyConnection) -> None:
     _create_model_cache(conn)
     _create_leaderboard_cache(conn)
     _create_data_freshness(conn)
+    create_indexes(conn)
+
+
+# ── Index definitions ──────────────────────────────────────────────────────
+
+# All indexes for the pitches table.  Using IF NOT EXISTS so they are safe
+# to run repeatedly (idempotent, just like the table DDL above).
+PITCHES_INDEXES: list[str] = [
+    "CREATE INDEX IF NOT EXISTS idx_pitches_pitcher_id ON pitches(pitcher_id);",
+    "CREATE INDEX IF NOT EXISTS idx_pitches_batter_id ON pitches(batter_id);",
+    "CREATE INDEX IF NOT EXISTS idx_pitches_game_date ON pitches(game_date);",
+    "CREATE INDEX IF NOT EXISTS idx_pitches_pitcher_game ON pitches(pitcher_id, game_date);",
+    "CREATE INDEX IF NOT EXISTS idx_pitches_batter_game ON pitches(batter_id, game_date);",
+    "CREATE INDEX IF NOT EXISTS idx_pitches_game_pk ON pitches(game_pk);",
+    "CREATE INDEX IF NOT EXISTS idx_pitches_pitcher_type ON pitches(pitcher_id, pitch_type);",
+]
+
+
+def create_indexes(conn: duckdb.DuckDBPyConnection) -> None:
+    """Create performance indexes on the pitches table (and any future tables).
+
+    Safe to call multiple times — every statement uses IF NOT EXISTS.
+
+    Args:
+        conn: An open DuckDB connection.
+    """
+    for stmt in PITCHES_INDEXES:
+        conn.execute(stmt)
 
 
 def init_db(db_path: Optional[str] = None) -> duckdb.DuckDBPyConnection:
