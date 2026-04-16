@@ -19,7 +19,9 @@ import pytest
 from src.analytics.causal_war import (
     CausalWARConfig,
     CausalWARModel,
+    _aggregate_player_effects,
     _build_features,
+    _effects_to_df,
     _extract_pa_data,
 )
 
@@ -592,3 +594,279 @@ class TestEdgeCases:
         assert "n_players" in result
         assert "mean_causal_war" in result
         assert result["n_players"] > 0
+
+
+# ---------------------------------------------------------------------------
+# Temporal train/test split (Ticket #1)
+# ---------------------------------------------------------------------------
+
+
+def _build_multi_year_synthetic_conn(
+    seasons: tuple[int, ...] = (2015, 2016, 2023),
+    per_season: int = 250,
+    n_players: int = 8,
+    seed: int = 123,
+):
+    """Build an in-memory DuckDB with synthetic PA data across multiple seasons.
+
+    Each season has ``per_season`` pitches assigned across ``n_players``
+    batters.  Returns the open connection; caller is responsible for closing.
+    """
+    import duckdb as _ddb
+    from src.db.schema import create_tables as _ct
+
+    conn = _ddb.connect(":memory:")
+    _ct(conn)
+
+    rng = np.random.RandomState(seed)
+    rows = []
+    game_pk_base = 700000
+    game_pk_counter = 0
+
+    for season in seasons:
+        for i in range(per_season):
+            event = rng.choice(
+                [None, "single", "double", "home_run", "strikeout",
+                 "walk", "field_out"]
+            )
+            woba_val = round(float(rng.uniform(0, 2.0)), 3) if event else None
+            woba_den = 1.0 if event else 0.0
+            month = int(rng.randint(4, 10))
+            day = int(rng.randint(1, 28))
+            rows.append({
+                "game_pk": game_pk_base + game_pk_counter,
+                "game_date": f"{season}-{month:02d}-{day:02d}",
+                "pitcher_id": int(rng.randint(200000, 200050)),
+                "batter_id": int(rng.choice(range(100000, 100000 + n_players))),
+                "pitch_type": rng.choice(["FF", "SL", "CH", "CU"]),
+                "pitch_name": "FF",
+                "release_speed": round(float(rng.normal(93, 2)), 1),
+                "release_spin_rate": round(float(rng.normal(2300, 200)), 0),
+                "spin_axis": round(float(rng.uniform(0, 360)), 1),
+                "pfx_x": round(float(rng.normal(0, 5)), 1),
+                "pfx_z": round(float(rng.normal(8, 4)), 1),
+                "plate_x": round(float(rng.normal(0, 0.6)), 2),
+                "plate_z": round(float(rng.normal(2.5, 0.6)), 2),
+                "release_extension": round(float(rng.normal(6.2, 0.4)), 1),
+                "release_pos_x": round(float(rng.normal(-1.5, 0.5)), 2),
+                "release_pos_y": round(float(rng.normal(55, 0.5)), 2),
+                "release_pos_z": round(float(rng.normal(5.8, 0.4)), 2),
+                "launch_speed": round(float(rng.normal(88, 12)), 1) if event else None,
+                "launch_angle": round(float(rng.normal(12, 20)), 1) if event else None,
+                "hit_distance": round(float(rng.uniform(50, 420)), 0) if event else None,
+                "hc_x": None,
+                "hc_y": None,
+                "bb_type": None,
+                "estimated_ba": None,
+                "estimated_woba": None,
+                "delta_home_win_exp": round(float(rng.normal(0, 0.03)), 4),
+                "delta_run_exp": round(float(rng.normal(0, 0.1)), 4),
+                "inning": int(rng.randint(1, 10)),
+                "inning_topbot": rng.choice(["Top", "Bot"]),
+                "outs_when_up": int(rng.randint(0, 3)),
+                "balls": int(rng.randint(0, 4)),
+                "strikes": int(rng.randint(0, 3)),
+                "on_1b": int(rng.choice([0, 1])),
+                "on_2b": int(rng.choice([0, 1])),
+                "on_3b": int(rng.choice([0, 1])),
+                "stand": rng.choice(["L", "R"]),
+                "p_throws": rng.choice(["L", "R"]),
+                "at_bat_number": int(i // 5 + 1),
+                "pitch_number": int(i % 5 + 1),
+                "description": rng.choice(["called_strike", "ball", "hit_into_play", "foul"]),
+                "events": event,
+                "type": "X" if event else "S",
+                "home_team": "PHI",
+                "away_team": rng.choice(["NYM", "ATL", "WSH"]),
+                "woba_value": woba_val,
+                "woba_denom": woba_den,
+                "babip_value": None,
+                "iso_value": None,
+                "zone": int(rng.randint(1, 15)),
+                "effective_speed": round(float(rng.normal(92, 2)), 1),
+                "if_fielding_alignment": rng.choice(["Standard", "Infield shift"]),
+                "of_fielding_alignment": rng.choice(["Standard", "Strategic"]),
+                "fielder_2": int(rng.randint(400000, 500000)),
+            })
+            game_pk_counter += 1
+        game_pk_counter += 100  # separate seasons' game_pk ranges
+
+    df = pd.DataFrame(rows)
+    conn.execute("INSERT INTO pitches SELECT * FROM df")
+
+    # Insert games for venue join
+    game_pks = df[["game_pk", "game_date"]].drop_duplicates(subset=["game_pk"])
+    for _, row in game_pks.iterrows():
+        venue = rng.choice(["Citizens Bank Park", "Yankee Stadium", "Fenway Park"])
+        conn.execute(
+            "INSERT INTO games (game_pk, game_date, home_team, away_team, venue) "
+            "VALUES ($1, $2, 'PHI', 'NYM', $3)",
+            [int(row["game_pk"]), str(row["game_date"]), str(venue)],
+        )
+
+    return conn
+
+
+class TestTrainTestSplit:
+    """Tests for the temporal train/test split workflow (Ticket #1)."""
+
+    def _small_config(self) -> CausalWARConfig:
+        return CausalWARConfig(
+            n_estimators=10,
+            n_bootstrap=5,
+            n_splits=2,
+            pa_min_qualifying=5,
+            pa_min_test_qualifying=10,
+        )
+
+    def test_train_test_split_no_overlap(self, tmp_path, monkeypatch):
+        """Non-overlapping ranges succeed; overlapping ranges raise."""
+        # Redirect artifact directory into tmp_path so we don't pollute models/.
+        from src.analytics import causal_war as cw
+        monkeypatch.setattr(cw, "DEFAULT_MODEL_DIR", tmp_path / "causal_war")
+
+        conn = _build_multi_year_synthetic_conn(
+            seasons=(2015, 2016, 2023), per_season=250, n_players=6,
+        )
+        try:
+            model = CausalWARModel(self._small_config())
+
+            # Non-overlapping: train 2015-2016, test 2023 -> should succeed
+            result = model.train_test_split(
+                conn,
+                train_split=(2015, 2016),
+                test_split=(2023, 2023),
+            )
+            assert "train_metrics" in result
+            assert "test_metrics" in result
+
+            # Overlapping: test_start == train_end -> ValueError
+            with pytest.raises(ValueError, match="Leakage guard"):
+                model.train_test_split(
+                    conn,
+                    train_split=(2015, 2023),
+                    test_split=(2023, 2023),
+                )
+
+            # Overlapping: test range starts before train end -> ValueError
+            with pytest.raises(ValueError, match="Leakage guard"):
+                model.train_test_split(
+                    conn,
+                    train_split=(2015, 2023),
+                    test_split=(2020, 2024),
+                )
+        finally:
+            conn.close()
+
+    def test_train_test_split_metrics_reported(self, tmp_path, monkeypatch):
+        """Both train and test metrics come back non-null on a small fixture."""
+        from src.analytics import causal_war as cw
+        monkeypatch.setattr(cw, "DEFAULT_MODEL_DIR", tmp_path / "causal_war")
+
+        conn = _build_multi_year_synthetic_conn(
+            seasons=(2015, 2016, 2023), per_season=250, n_players=6,
+        )
+        try:
+            model = CausalWARModel(self._small_config())
+            result = model.train_test_split(
+                conn,
+                train_split=(2015, 2016),
+                test_split=(2023, 2023),
+            )
+
+            tm = result["train_metrics"]
+            assert tm["n_observations"] > 0
+            assert tm["n_players_estimated"] > 0
+            assert tm["train_start_year"] == 2015
+            assert tm["train_end_year"] == 2016
+            assert "outcome_nuisance_r2" in tm
+
+            te = result["test_metrics"]
+            assert te["n_test_observations"] > 0
+            assert te["n_test_players"] >= 0
+            assert te["test_start_year"] == 2023
+            assert te["test_end_year"] == 2023
+            assert "test_nuisance_r2" in te
+            assert te["test_nuisance_r2"] is not None
+            assert "test_rmse_residuals" in te
+            assert te["test_rmse_residuals"] is not None
+            assert te["test_rmse_residuals"] >= 0.0
+
+            # Player-effect DataFrames exist and have expected columns
+            train_df = result["train_player_effects"]
+            test_df = result["test_player_effects"]
+            assert isinstance(train_df, pd.DataFrame)
+            assert isinstance(test_df, pd.DataFrame)
+            assert "player_id" in train_df.columns
+            assert "player_id" in test_df.columns
+            # Test DF should carry the sparse flag
+            assert "sparse" in test_df.columns
+
+            # Artifact path reported and file written
+            artifact_path = result["artifact_path"]
+            assert "causal_war_trainsplit_2015_2016.pkl" in artifact_path
+            from pathlib import Path
+            assert Path(artifact_path).exists()
+        finally:
+            conn.close()
+
+    def test_train_test_split_backcompat(self, tmp_path, monkeypatch):
+        """Existing single-season train(conn, season) still works identically."""
+        # Redirect artifact directory so this test doesn't write to models/.
+        from src.analytics import causal_war as cw
+        monkeypatch.setattr(cw, "DEFAULT_MODEL_DIR", tmp_path / "causal_war")
+
+        # Use the pre-existing synthetic helper (single-season path)
+        model, conn, season = _train_synthetic_model()
+        try:
+            # Single-season train path must still produce effects
+            assert model._is_trained
+            assert model._training_season == season
+            assert len(model._player_effects) > 0
+
+            # _extract_pa_data with positional season still works
+            df_single = _extract_pa_data(conn, season)
+            assert len(df_single) > 0
+
+            # Extract via year_range kwarg should match single-season output
+            df_range = _extract_pa_data(conn, year_range=(season, season))
+            assert len(df_range) == len(df_single)
+
+            # batch_calculate still returns a DataFrame with expected columns
+            df = model.batch_calculate(conn, season)
+            assert isinstance(df, pd.DataFrame)
+        finally:
+            conn.close()
+
+    def test_extract_pa_data_requires_season_or_range(self):
+        """Calling with neither season nor year_range should raise."""
+        conn = _build_multi_year_synthetic_conn(
+            seasons=(2015,), per_season=100, n_players=4,
+        )
+        try:
+            with pytest.raises(ValueError, match="season.*year_range"):
+                _extract_pa_data(conn)
+        finally:
+            conn.close()
+
+    def test_aggregate_player_effects_helper(self):
+        """The helper produces dicts with the expected keys."""
+        df = _synthetic_pa_df(n=300, n_players=6)
+        W, Y, player_ids, pa_df = _build_features(df)
+
+        # Use zero residuals to test the shape of output (deterministic)
+        Y_res = np.zeros_like(Y)
+        effects = _aggregate_player_effects(Y_res, player_ids, pa_df, pa_min=5)
+
+        assert len(effects) > 0
+        for pid, e in effects.items():
+            assert "causal_war" in e
+            assert "pa" in e
+            assert "raw_woba" in e
+            assert e["pa"] >= 5
+
+        # _effects_to_df should convert cleanly
+        out_df = _effects_to_df(effects, season_label="2015-2016", pa_min_qualifying=50)
+        assert "season" in out_df.columns
+        assert "sparse" in out_df.columns
+        assert (out_df["season"] == "2015-2016").all()

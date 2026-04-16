@@ -81,6 +81,16 @@ class CausalWARConfig:
     # Random state for reproducibility
     random_state: int = 42
 
+    # Temporal train/test split defaults (used by train_test_split())
+    train_start_year: int = 2015
+    train_end_year: int = 2022
+    test_start_year: int = 2023
+    test_end_year: int = 2024
+
+    # Minimum PA for a test-set player to be considered "qualified" (players
+    # below this threshold are still reported but flagged as sparse).
+    pa_min_test_qualifying: int = 50
+
 
 # ---------------------------------------------------------------------------
 # Core model class
@@ -209,6 +219,202 @@ class CausalWARModel(BaseAnalyticsModel):
             "min_causal_war": round(float(np.min(effects_arr)), 4),
             "max_causal_war": round(float(np.max(effects_arr)), 4),
         })
+
+    # ---- Temporal train/test split --------------------------------------
+
+    def train_test_split(
+        self,
+        conn: duckdb.DuckDBPyConnection,
+        train_split: tuple[int, int] | None = None,
+        test_split: tuple[int, int] | None = None,
+    ) -> dict:
+        """Fit the DML nuisance model on a train-year range and evaluate on a
+        disjoint test-year range.
+
+        This is the spec-compliant validation path that rules out in-sample
+        leakage.  The nuisance model is fit on ``train_split`` PA data only;
+        the fitted model is then applied to ``test_split`` PA data to produce
+        out-of-sample residuals and a held-out R squared.  Per-player effects
+        are aggregated independently for each split.
+
+        Args:
+            conn: Open DuckDB connection.
+            train_split: Inclusive ``(start_year, end_year)`` for training.
+                Defaults to ``(config.train_start_year, config.train_end_year)``.
+            test_split: Inclusive ``(start_year, end_year)`` for testing.
+                Defaults to ``(config.test_start_year, config.test_end_year)``.
+
+        Returns:
+            Dictionary with keys ``train_metrics``, ``test_metrics``,
+            ``train_player_effects`` (DataFrame), ``test_player_effects``
+            (DataFrame).
+
+        Raises:
+            ValueError: If the train and test year ranges overlap, or if
+                either range has insufficient data.
+        """
+        if train_split is None:
+            train_split = (self.config.train_start_year, self.config.train_end_year)
+        if test_split is None:
+            test_split = (self.config.test_start_year, self.config.test_end_year)
+
+        train_start, train_end = int(train_split[0]), int(train_split[1])
+        test_start, test_end = int(test_split[0]), int(test_split[1])
+
+        # Leakage guard
+        if train_start > train_end:
+            raise ValueError(
+                f"train_split start ({train_start}) must be <= end ({train_end})."
+            )
+        if test_start > test_end:
+            raise ValueError(
+                f"test_split start ({test_start}) must be <= end ({test_end})."
+            )
+        if test_start <= train_end:
+            raise ValueError(
+                f"Leakage guard: test_start_year ({test_start}) must be strictly "
+                f"greater than train_end_year ({train_end}). Ranges overlap."
+            )
+
+        logger.info(
+            "CausalWAR train/test split: train=%d-%d, test=%d-%d",
+            train_start, train_end, test_start, test_end,
+        )
+
+        # ---- Extract train and test data --------------------------------
+        train_df = _extract_pa_data(conn, year_range=(train_start, train_end))
+        logger.info(
+            "Extracted %d train PAs (%d-%d)", len(train_df), train_start, train_end,
+        )
+        if len(train_df) < _MIN_TRAINING_OBS:
+            raise ValueError(
+                f"Only {len(train_df)} PAs in train window {train_start}-{train_end}; "
+                f"need at least {_MIN_TRAINING_OBS}."
+            )
+
+        test_df = _extract_pa_data(conn, year_range=(test_start, test_end))
+        logger.info(
+            "Extracted %d test PAs (%d-%d)", len(test_df), test_start, test_end,
+        )
+        if len(test_df) == 0:
+            raise ValueError(
+                f"No PAs found in test window {test_start}-{test_end}."
+            )
+
+        # ---- Build features ---------------------------------------------
+        W_train, Y_train, player_ids_train, pa_df_train = _build_features(train_df)
+        W_test, Y_test, player_ids_test, pa_df_test = _build_features(test_df)
+
+        # ---- Fit DML on train only --------------------------------------
+        Y_res_train, train_effects, train_metrics = self._fit_dml(
+            W_train, Y_train, player_ids_train, pa_df_train,
+        )
+
+        # ---- Fit a single full-train nuisance model for test prediction --
+        # (Cross-fitting is used for train residuals; for held-out test
+        # predictions we use a model fit on the full train set.)
+        full_model = HistGradientBoostingRegressor(
+            max_iter=self.config.n_estimators,
+            max_depth=self.config.max_depth,
+            learning_rate=self.config.learning_rate,
+            min_samples_leaf=self.config.min_samples_leaf,
+            l2_regularization=self.config.l2_regularization,
+            random_state=self.config.random_state,
+        )
+        full_model.fit(W_train, Y_train)
+
+        # Persist state so predict() / evaluate() keep working after this call
+        self._nuisance_outcome = full_model
+        self._player_effects = train_effects
+        self._is_trained = True
+        self._training_season = train_end
+
+        # ---- Evaluate on held-out test ----------------------------------
+        Y_pred_test = full_model.predict(W_test)
+        Y_res_test = Y_test - Y_pred_test
+        test_r2 = float(r2_score(Y_test, Y_pred_test))
+        test_rmse_residuals = float(np.sqrt(mean_squared_error(Y_test, Y_pred_test)))
+
+        # Aggregate per-player test effects
+        test_effects = _aggregate_player_effects(
+            Y_res_test,
+            player_ids_test,
+            pa_df_test,
+            pa_min=10,
+        )
+
+        n_test_players = len(test_effects)
+        n_test_players_sparse = sum(
+            1 for e in test_effects.values()
+            if e.get("pa", 0) < self.config.pa_min_test_qualifying
+        )
+
+        test_metrics = {
+            "test_nuisance_r2": round(test_r2, 4),
+            "test_rmse_residuals": round(test_rmse_residuals, 6),
+            "n_test_observations": int(len(Y_test)),
+            "n_test_players": int(n_test_players),
+            "n_test_players_sparse": int(n_test_players_sparse),
+            "pa_min_test_qualifying": self.config.pa_min_test_qualifying,
+            "test_start_year": test_start,
+            "test_end_year": test_end,
+        }
+
+        train_metrics = dict(train_metrics)
+        train_metrics["train_start_year"] = train_start
+        train_metrics["train_end_year"] = train_end
+
+        # ---- Build per-split player-effect DataFrames -------------------
+        train_player_effects = _effects_to_df(
+            train_effects, season_label=f"{train_start}-{train_end}",
+        )
+        test_player_effects = _effects_to_df(
+            test_effects,
+            season_label=f"{test_start}-{test_end}",
+            pa_min_qualifying=self.config.pa_min_test_qualifying,
+        )
+
+        # ---- Save artifact ----------------------------------------------
+        artifact_dir = DEFAULT_MODEL_DIR
+        artifact_dir.mkdir(parents=True, exist_ok=True)
+        artifact_path = (
+            artifact_dir
+            / f"causal_war_trainsplit_{train_start}_{train_end}.pkl"
+        )
+        artifact = {
+            "nuisance_outcome": full_model,
+            "config": self.config,
+            "train_split": (train_start, train_end),
+            "test_split": (test_start, test_end),
+            "train_metrics": train_metrics,
+            "test_metrics": test_metrics,
+            "saved_at": datetime.now(timezone.utc).isoformat(),
+        }
+        try:
+            import joblib
+            joblib.dump(artifact, artifact_path)
+            logger.info("CausalWAR train/test artifact saved to %s", artifact_path)
+        except Exception as exc:  # pragma: no cover - filesystem errors
+            logger.warning("Could not persist train/test artifact: %s", exc)
+
+        self.set_training_metadata(
+            metrics={"train": train_metrics, "test": test_metrics},
+            params={
+                "n_splits": self.config.n_splits,
+                "n_bootstrap": self.config.n_bootstrap,
+                "n_estimators": self.config.n_estimators,
+                "train_split": (train_start, train_end),
+                "test_split": (test_start, test_end),
+            },
+        )
+
+        return {
+            "train_metrics": train_metrics,
+            "test_metrics": test_metrics,
+            "train_player_effects": train_player_effects,
+            "test_player_effects": test_player_effects,
+            "artifact_path": str(artifact_path),
+        }
 
     # ---- Public API ------------------------------------------------------
 
@@ -500,17 +706,43 @@ class CausalWARModel(BaseAnalyticsModel):
 
 def _extract_pa_data(
     conn: duckdb.DuckDBPyConnection,
-    season: int,
+    season: int | None = None,
+    *,
+    year_range: tuple[int, int] | None = None,
 ) -> pd.DataFrame:
     """Extract plate-appearance-level data with confounders.
 
     Joins pitches to games for venue, aggregates to PA level, and computes
     confounder features.
 
+    Args:
+        conn: Open DuckDB connection.
+        season: Single season year (backwards-compatible default).  Ignored if
+            ``year_range`` is provided.
+        year_range: Optional inclusive ``(start_year, end_year)`` tuple for
+            multi-season extraction (used by the temporal train/test split
+            workflow).
+
     Returns:
         DataFrame with one row per plate appearance.
     """
-    query = """
+    if year_range is not None:
+        start_year, end_year = year_range
+        if start_year > end_year:
+            raise ValueError(
+                f"year_range start ({start_year}) must be <= end ({end_year})."
+            )
+        params = [int(start_year), int(end_year)]
+        year_filter = (
+            "EXTRACT(YEAR FROM p.game_date) BETWEEN $1 AND $2"
+        )
+    else:
+        if season is None:
+            raise ValueError("Either 'season' or 'year_range' must be provided.")
+        params = [int(season)]
+        year_filter = "EXTRACT(YEAR FROM p.game_date) = $1"
+
+    query = f"""
         WITH pa_events AS (
             SELECT
                 p.pitcher_id,
@@ -533,7 +765,7 @@ def _extract_pa_data(
                 MAX(p.strikes) AS strikes,
                 COUNT(*) AS pitches_in_pa
             FROM pitches p
-            WHERE EXTRACT(YEAR FROM p.game_date) = $1
+            WHERE {year_filter}
               AND p.pitch_type IS NOT NULL
             GROUP BY
                 p.pitcher_id, p.batter_id, p.game_pk, p.game_date,
@@ -550,7 +782,7 @@ def _extract_pa_data(
         WHERE pa.woba_denom > 0
         ORDER BY pa.game_date, pa.game_pk, pa.at_bat_number
     """
-    df = conn.execute(query, [season]).fetchdf()
+    df = conn.execute(query, params).fetchdf()
     return df
 
 
@@ -657,6 +889,116 @@ def _build_features(
 # ---------------------------------------------------------------------------
 # Helper functions
 # ---------------------------------------------------------------------------
+
+
+def _aggregate_player_effects(
+    Y_res: np.ndarray,
+    player_ids: np.ndarray,
+    pa_df: pd.DataFrame,
+    pa_min: int = 10,
+) -> dict[int, dict]:
+    """Aggregate per-player residual statistics into CausalWAR effect dicts.
+
+    This mirrors the aggregation step inside ``_fit_dml`` but without the
+    bootstrap CI pass; it is used for held-out test-set evaluation where a
+    bootstrap is not required.
+
+    Args:
+        Y_res: Residual vector (``Y - E[Y|W]``) aligned with ``player_ids``.
+        player_ids: Array of player IDs, one per row of ``Y_res``.
+        pa_df: PA-level DataFrame (must contain ``woba_value`` if raw wOBA is
+            to be reported).
+        pa_min: Minimum PA count required to emit an effect for a player.
+
+    Returns:
+        Dict mapping ``player_id -> {causal_war, causal_run_value,
+        point_estimate_per_pa, park_adj_woba, raw_woba, pa, ci_low, ci_high}``.
+    """
+    unique_players = np.unique(player_ids)
+    effects: dict[int, dict] = {}
+
+    has_woba = "woba_value" in pa_df.columns
+
+    for pid in unique_players:
+        mask = player_ids == pid
+        n_pa = int(mask.sum())
+        if n_pa < pa_min:
+            continue
+
+        player_y_res = Y_res[mask]
+        point_estimate = float(np.mean(player_y_res))
+
+        if has_woba:
+            raw_woba = float(pa_df.loc[mask, "woba_value"].mean())
+            park_adj_woba = raw_woba + point_estimate
+        else:
+            raw_woba = None
+            park_adj_woba = None
+
+        causal_run_value_per_pa = point_estimate / _WOBA_SCALE
+        causal_runs = causal_run_value_per_pa * n_pa
+        causal_war = causal_runs / _RUNS_PER_WIN
+
+        effects[int(pid)] = {
+            "causal_war": round(causal_war, 2),
+            "causal_run_value": round(causal_runs, 2),
+            "point_estimate_per_pa": round(point_estimate, 4),
+            "park_adj_woba": (
+                round(park_adj_woba, 3) if park_adj_woba is not None else None
+            ),
+            "raw_woba": round(raw_woba, 3) if raw_woba is not None else None,
+            "pa": n_pa,
+            "ci_low": None,
+            "ci_high": None,
+        }
+
+    return effects
+
+
+def _effects_to_df(
+    effects: dict[int, dict],
+    season_label: str | None = None,
+    pa_min_qualifying: int | None = None,
+) -> pd.DataFrame:
+    """Convert a ``{player_id -> effect_dict}`` mapping to a DataFrame.
+
+    Args:
+        effects: Mapping produced by ``_aggregate_player_effects`` or the
+            equivalent aggregation in ``_fit_dml``.
+        season_label: Optional season string (e.g. ``"2015-2022"``) added as
+            a column for downstream reporting.
+        pa_min_qualifying: If provided, adds a boolean ``sparse`` column
+            flagging players below this PA threshold.
+
+    Returns:
+        DataFrame sorted by ``causal_war`` descending.
+    """
+    rows = []
+    for pid, e in effects.items():
+        row = {"player_id": int(pid), **e}
+        if season_label is not None:
+            row["season"] = season_label
+        if pa_min_qualifying is not None:
+            row["sparse"] = bool(e.get("pa", 0) < pa_min_qualifying)
+        rows.append(row)
+
+    if not rows:
+        cols = [
+            "player_id", "causal_war", "ci_low", "ci_high",
+            "park_adj_woba", "raw_woba", "pa", "causal_run_value",
+            "point_estimate_per_pa",
+        ]
+        if season_label is not None:
+            cols.append("season")
+        if pa_min_qualifying is not None:
+            cols.append("sparse")
+        return pd.DataFrame(columns=cols)
+
+    df = pd.DataFrame(rows)
+    df = df.sort_values("causal_war", ascending=False, na_position="last")
+    df = df.reset_index(drop=True)
+    return df
+
 
 def _get_latest_season(conn: duckdb.DuckDBPyConnection) -> int:
     """Return the most recent season year in the pitches table."""
