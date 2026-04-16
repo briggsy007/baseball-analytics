@@ -764,3 +764,127 @@ def _role_fit_bonus(role: str, inning: int, score_diff: int, li: float) -> float
             bonus = 0.1
 
     return bonus
+
+
+# ---------------------------------------------------------------------------
+# Batch precompute: team bullpen x opposing lineup matchup stats
+# ---------------------------------------------------------------------------
+
+import logging as _logging
+
+_bp_logger = _logging.getLogger(__name__)
+
+
+def batch_bullpen_matchups(
+    conn: duckdb.DuckDBPyConnection,
+    season: int,
+) -> pd.DataFrame:
+    """Precompute bullpen matchup stats for all teams in a season.
+
+    For each team, fetches the bullpen state and computes aggregate matchup
+    metrics against the most-frequently-faced opposing lineups.  The result
+    is a flat DataFrame cached in ``leaderboard_cache`` for fast dashboard reads.
+
+    Args:
+        conn: Open DuckDB connection.
+        season: Season year.
+
+    Returns:
+        DataFrame with columns: team_id, pitcher_id, pitcher_name, role,
+        fatigue_level, fatigue_score, era, fip, k_pct, bb_pct,
+        avg_matchup_woba, platoon_adv_pct, season_appearances, season_saves.
+    """
+    # Get all teams that played in this season
+    teams_df = conn.execute(
+        """
+        SELECT DISTINCT home_team AS team_id FROM pitches
+        WHERE EXTRACT(YEAR FROM game_date) = $1
+        UNION
+        SELECT DISTINCT away_team AS team_id FROM pitches
+        WHERE EXTRACT(YEAR FROM game_date) = $1
+        """,
+        [season],
+    ).fetchdf()
+
+    if teams_df.empty:
+        return pd.DataFrame()
+
+    rows: list[dict] = []
+    for team_id in teams_df["team_id"].tolist():
+        try:
+            bullpen = get_bullpen_state(conn, team_id)
+        except Exception as exc:
+            _bp_logger.debug("Could not get bullpen state for %s: %s", team_id, exc)
+            continue
+
+        if not bullpen:
+            continue
+
+        # Get the most common opposing batters for this team (top 20 by PA)
+        opp_batters = conn.execute(
+            """
+            SELECT batter_id, stand, COUNT(*) AS pa
+            FROM pitches
+            WHERE EXTRACT(YEAR FROM game_date) = $1
+              AND (
+                  (home_team = $2 AND inning_topbot = 'Top')
+                  OR (away_team = $2 AND inning_topbot = 'Bot')
+              )
+            GROUP BY batter_id, stand
+            ORDER BY pa DESC
+            LIMIT 20
+            """,
+            [season, team_id],
+        ).fetchdf()
+
+        for reliever in bullpen:
+            pid = reliever["pitcher_id"]
+            throws = reliever.get("throws", "R")
+
+            # Compute average matchup wOBA against common opponents
+            avg_woba = None
+            platoon_adv_count = 0
+            matchup_count = 0
+
+            if not opp_batters.empty:
+                woba_sum = 0.0
+                for _, batter_row in opp_batters.iterrows():
+                    bid = int(batter_row["batter_id"])
+                    batter_hand = batter_row["stand"] if pd.notna(batter_row["stand"]) else "R"
+                    try:
+                        matchup = estimate_matchup_woba(conn, pid, bid, method="bayesian")
+                        woba_sum += matchup["estimated_woba"]
+                        matchup_count += 1
+                        if _platoon_advantage(batter_hand, throws) == "pitcher":
+                            platoon_adv_count += 1
+                    except Exception:
+                        continue
+
+                if matchup_count > 0:
+                    avg_woba = round(woba_sum / matchup_count, 3)
+
+            platoon_pct = round(platoon_adv_count / max(matchup_count, 1), 3)
+
+            rows.append({
+                "team_id": team_id,
+                "pitcher_id": pid,
+                "pitcher_name": reliever.get("name"),
+                "role": reliever.get("role"),
+                "fatigue_level": reliever["fatigue"]["fatigue_level"],
+                "fatigue_score": reliever["fatigue"]["fatigue_score"],
+                "era": reliever.get("era"),
+                "fip": reliever.get("fip"),
+                "k_pct": reliever.get("k_pct"),
+                "bb_pct": reliever.get("bb_pct"),
+                "avg_matchup_woba": avg_woba,
+                "platoon_adv_pct": platoon_pct,
+                "season_appearances": reliever.get("season_appearances", 0),
+                "season_saves": reliever.get("season_saves", 0),
+            })
+
+    if not rows:
+        return pd.DataFrame()
+
+    df = pd.DataFrame(rows)
+    df = df.sort_values(["team_id", "fatigue_score"]).reset_index(drop=True)
+    return df

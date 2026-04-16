@@ -12,6 +12,7 @@ return plain dicts / DataFrames suitable for dashboard rendering.
 
 from __future__ import annotations
 
+import json
 import logging
 import math
 from typing import Optional
@@ -1058,3 +1059,112 @@ def _build_sequence_suggestion(
         parts.append(f"Avoid {avoid_type} over the plate.")
 
     return " ".join(parts)
+
+
+# ---------------------------------------------------------------------------
+# Batch precompute: top-N pitcher transition matrices
+# ---------------------------------------------------------------------------
+
+
+def batch_transition_matrices(
+    conn: duckdb.DuckDBPyConnection,
+    season: int,
+    top_n: int = 100,
+    min_pitches: int = 200,
+) -> pd.DataFrame:
+    """Compute pitch transition matrices for the top-N pitchers by pitch count.
+
+    Returns a DataFrame suitable for caching in ``leaderboard_cache``.  Each row
+    represents one pitcher with their sequencing summary serialised as JSON columns.
+
+    Args:
+        conn: Open DuckDB connection.
+        season: Season year.
+        top_n: Number of pitchers to include (ranked by pitch count).
+        min_pitches: Minimum pitches to qualify.
+
+    Returns:
+        DataFrame with columns: pitcher_id, name, n_pitches, transition_matrix_json,
+        top_setup_knockout, first_pitch_type, first_pitch_strike_rate, putaway_pitch,
+        putaway_whiff_rate.
+    """
+    # Find qualifying pitchers ranked by pitch volume
+    query = """
+        SELECT pitcher_id, COUNT(*) AS n_pitches
+        FROM pitches
+        WHERE EXTRACT(YEAR FROM game_date) = $1
+          AND pitch_type IS NOT NULL
+        GROUP BY pitcher_id
+        HAVING COUNT(*) >= $2
+        ORDER BY n_pitches DESC
+        LIMIT $3
+    """
+    pitchers = conn.execute(query, [season, min_pitches, top_n]).fetchdf()
+
+    if pitchers.empty:
+        return pd.DataFrame(columns=[
+            "pitcher_id", "name", "n_pitches", "transition_matrix_json",
+            "top_setup_knockout", "first_pitch_type", "first_pitch_strike_rate",
+            "putaway_pitch", "putaway_whiff_rate",
+        ])
+
+    rows: list[dict] = []
+    for _, p in pitchers.iterrows():
+        pid = int(p["pitcher_id"])
+        n_pitches = int(p["n_pitches"])
+
+        try:
+            result = analyze_sequencing_patterns(conn, pid, season=season)
+        except Exception:
+            logger.debug("Sequencing analysis failed for pitcher %d", pid)
+            continue
+
+        # Extract summary fields
+        tm = result.get("transition_matrix", {})
+        sk_pairs = result.get("setup_knockout_pairs", [])
+        fp = result.get("first_pitch", {})
+        pa = result.get("putaway", {})
+
+        # Top setup-knockout pair as a readable string
+        top_sk = ""
+        if sk_pairs:
+            best = sk_pairs[0]
+            top_sk = f"{best.get('setup', '?')}->{best.get('knockout', '?')} ({best.get('whiff_rate', 0):.0%})"
+
+        # First-pitch type distribution: pick the most common
+        fp_dist = fp.get("type_dist", {})
+        fp_type = max(fp_dist, key=fp_dist.get) if fp_dist else None
+        fp_strike_rate = fp.get("strike_rate", 0.0)
+
+        rows.append({
+            "pitcher_id": pid,
+            "n_pitches": n_pitches,
+            "transition_matrix_json": json.dumps(tm, default=str),
+            "top_setup_knockout": top_sk,
+            "first_pitch_type": fp_type,
+            "first_pitch_strike_rate": round(fp_strike_rate, 3),
+            "putaway_pitch": pa.get("pitch"),
+            "putaway_whiff_rate": round(pa.get("whiff_rate", 0.0), 3),
+        })
+
+    if not rows:
+        return pd.DataFrame()
+
+    df = pd.DataFrame(rows)
+
+    # Join player names
+    try:
+        names_df = conn.execute(
+            "SELECT player_id AS pitcher_id, full_name AS name FROM players"
+        ).fetchdf()
+        df = df.merge(names_df, on="pitcher_id", how="left")
+    except Exception:
+        df["name"] = None
+
+    # Reorder
+    front = ["pitcher_id", "name", "n_pitches"]
+    other = [c for c in df.columns if c not in front]
+    df = df[front + sorted(other)]
+    df = df.sort_values("n_pitches", ascending=False).reset_index(drop=True)
+
+    return df
