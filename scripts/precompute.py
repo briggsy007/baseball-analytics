@@ -101,6 +101,8 @@ MODELS: list[dict[str, Any]] = [
     {"name": "allostatic_load",    "module": "src.analytics.allostatic_load",        "fn": "batch_calculate",            "entity": "batter",  "tier": 2},
     {"name": "loft",               "module": "src.analytics.loft",                   "fn": "batch_game_analysis",        "entity": "pitcher", "tier": 2},
     {"name": "baserunner_gravity", "module": "src.analytics.baserunner_gravity",     "fn": "batch_calculate",            "entity": "batter",  "tier": 2},
+    {"name": "sequencing",         "module": "src.analytics.pitch_sequencing",       "fn": "batch_transition_matrices",  "entity": "pitcher", "tier": 2},
+    {"name": "bullpen_matchups",   "module": "src.analytics.bullpen",               "fn": "batch_bullpen_matchups",     "entity": "team",    "tier": 2},
     # Tier 3: Slow (10+ min)
     {"name": "pitch_decay",        "module": "src.analytics.pitch_decay",            "fn": "batch_calculate",            "entity": "pitcher", "tier": 3},
     {"name": "viscoelastic_workload", "module": "src.analytics.viscoelastic_workload", "fn": "batch_calculate",          "entity": "pitcher", "tier": 3},
@@ -207,6 +209,305 @@ def _check_existing_cache(conn, model_name: str, season: int) -> bool:
 
 
 # ---------------------------------------------------------------------------
+# Dedicated precompute functions for dashboard-critical models
+# ---------------------------------------------------------------------------
+# These functions can be called standalone (e.g. from daily ETL) or are
+# invoked automatically by the main pipeline when the corresponding model
+# name is encountered.  Each is idempotent: it deletes stale cache entries
+# before inserting fresh ones.
+
+
+def precompute_stuff_plus(conn, season: int) -> dict:
+    """Precompute the Stuff+ leaderboard for all qualifying pitchers.
+
+    Trains the model if no artefact exists, then runs batch inference and
+    caches the resulting leaderboard DataFrame.
+
+    Returns:
+        Summary dict with status, row_count, and elapsed seconds.
+    """
+    t0 = time.time()
+    _info("Stuff+: importing model...")
+
+    from src.analytics.stuff_model import (
+        batch_calculate_stuff_plus,
+        train_stuff_model,
+        DEFAULT_MODEL_PATH,
+    )
+
+    # Ensure the model artefact exists
+    if not DEFAULT_MODEL_PATH.exists():
+        _info("Stuff+: training model (first run)...")
+        train_stuff_model(conn)
+
+    _info("Stuff+: running batch inference...")
+    df = batch_calculate_stuff_plus(conn, season=season)
+    elapsed = time.time() - t0
+
+    if df is None or df.empty:
+        _warn(f"Stuff+: empty result ({elapsed:.1f}s)")
+        return {"status": "empty", "rows": 0, "seconds": round(elapsed, 2)}
+
+    # Idempotent: delete old entry then insert
+    conn.execute(
+        "DELETE FROM leaderboard_cache WHERE model_name = 'stuff_plus' AND season = $1",
+        [season],
+    )
+
+    parquet_bytes = _serialize_to_parquet(df)
+    conn.execute(
+        """
+        INSERT INTO leaderboard_cache
+            (model_name, season, leaderboard_parquet, row_count,
+             computed_at, model_version, compute_seconds)
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        """,
+        [
+            "stuff_plus", season, parquet_bytes, len(df),
+            datetime.now(timezone.utc), "1.0", round(elapsed, 2),
+        ],
+    )
+
+    _ok(f"Stuff+: {len(df)} pitchers cached in {elapsed:.1f}s")
+    return {"status": "ok", "rows": len(df), "seconds": round(elapsed, 2)}
+
+
+def precompute_sequencing(conn, season: int) -> dict:
+    """Precompute transition matrices for the top-100 pitchers.
+
+    Returns:
+        Summary dict with status, row_count, and elapsed seconds.
+    """
+    t0 = time.time()
+    _info("Sequencing: importing module...")
+
+    from src.analytics.pitch_sequencing import batch_transition_matrices
+
+    _info("Sequencing: computing top-100 pitcher transition matrices...")
+    df = batch_transition_matrices(conn, season=season, top_n=100)
+    elapsed = time.time() - t0
+
+    if df is None or df.empty:
+        _warn(f"Sequencing: empty result ({elapsed:.1f}s)")
+        return {"status": "empty", "rows": 0, "seconds": round(elapsed, 2)}
+
+    conn.execute(
+        "DELETE FROM leaderboard_cache WHERE model_name = 'sequencing' AND season = $1",
+        [season],
+    )
+
+    parquet_bytes = _serialize_to_parquet(df)
+    conn.execute(
+        """
+        INSERT INTO leaderboard_cache
+            (model_name, season, leaderboard_parquet, row_count,
+             computed_at, model_version, compute_seconds)
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        """,
+        [
+            "sequencing", season, parquet_bytes, len(df),
+            datetime.now(timezone.utc), "1.0", round(elapsed, 2),
+        ],
+    )
+
+    _ok(f"Sequencing: {len(df)} pitcher matrices cached in {elapsed:.1f}s")
+    return {"status": "ok", "rows": len(df), "seconds": round(elapsed, 2)}
+
+
+def precompute_bullpen_matchups(conn, season: int) -> dict:
+    """Precompute bullpen x opposing lineup matchup stats for all teams.
+
+    Returns:
+        Summary dict with status, row_count, and elapsed seconds.
+    """
+    t0 = time.time()
+    _info("Bullpen Matchups: importing module...")
+
+    from src.analytics.bullpen import batch_bullpen_matchups
+
+    _info("Bullpen Matchups: computing team bullpen matchup stats...")
+    df = batch_bullpen_matchups(conn, season=season)
+    elapsed = time.time() - t0
+
+    if df is None or df.empty:
+        _warn(f"Bullpen Matchups: empty result ({elapsed:.1f}s)")
+        return {"status": "empty", "rows": 0, "seconds": round(elapsed, 2)}
+
+    conn.execute(
+        "DELETE FROM leaderboard_cache WHERE model_name = 'bullpen_matchups' AND season = $1",
+        [season],
+    )
+
+    parquet_bytes = _serialize_to_parquet(df)
+    conn.execute(
+        """
+        INSERT INTO leaderboard_cache
+            (model_name, season, leaderboard_parquet, row_count,
+             computed_at, model_version, compute_seconds)
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        """,
+        [
+            "bullpen_matchups", season, parquet_bytes, len(df),
+            datetime.now(timezone.utc), "1.0", round(elapsed, 2),
+        ],
+    )
+
+    _ok(f"Bullpen Matchups: {len(df)} reliever-team rows cached in {elapsed:.1f}s")
+    return {"status": "ok", "rows": len(df), "seconds": round(elapsed, 2)}
+
+
+def precompute_defensive_pressing(conn, season: int) -> dict:
+    """Precompute the DPI leaderboard for all teams.
+
+    Trains the xOut model if needed, then computes team DPI rankings.
+
+    Returns:
+        Summary dict with status, row_count, and elapsed seconds.
+    """
+    t0 = time.time()
+    _info("Defensive Pressing: importing module...")
+
+    from src.analytics.defensive_pressing import (
+        batch_calculate,
+        train_expected_out_model,
+    )
+
+    _info("Defensive Pressing: ensuring xOut model is trained...")
+    train_expected_out_model(conn)
+
+    _info("Defensive Pressing: computing DPI leaderboard...")
+    df = batch_calculate(conn, season=season)
+    elapsed = time.time() - t0
+
+    if df is None or df.empty:
+        _warn(f"Defensive Pressing: empty result ({elapsed:.1f}s)")
+        return {"status": "empty", "rows": 0, "seconds": round(elapsed, 2)}
+
+    conn.execute(
+        "DELETE FROM leaderboard_cache WHERE model_name = 'defensive_pressing' AND season = $1",
+        [season],
+    )
+
+    parquet_bytes = _serialize_to_parquet(df)
+    conn.execute(
+        """
+        INSERT INTO leaderboard_cache
+            (model_name, season, leaderboard_parquet, row_count,
+             computed_at, model_version, compute_seconds)
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        """,
+        [
+            "defensive_pressing", season, parquet_bytes, len(df),
+            datetime.now(timezone.utc), "1.0", round(elapsed, 2),
+        ],
+    )
+
+    _ok(f"Defensive Pressing: {len(df)} teams cached in {elapsed:.1f}s")
+    return {"status": "ok", "rows": len(df), "seconds": round(elapsed, 2)}
+
+
+def precompute_baserunner_gravity(conn, season: int) -> dict:
+    """Precompute the BGI leaderboard for all qualifying runners.
+
+    Returns:
+        Summary dict with status, row_count, and elapsed seconds.
+    """
+    t0 = time.time()
+    _info("Baserunner Gravity: importing module...")
+
+    from src.analytics.baserunner_gravity import batch_calculate
+
+    _info("Baserunner Gravity: computing BGI leaderboard...")
+    df = batch_calculate(conn, season=season)
+    elapsed = time.time() - t0
+
+    if df is None or df.empty:
+        _warn(f"Baserunner Gravity: empty result ({elapsed:.1f}s)")
+        return {"status": "empty", "rows": 0, "seconds": round(elapsed, 2)}
+
+    conn.execute(
+        "DELETE FROM leaderboard_cache WHERE model_name = 'baserunner_gravity' AND season = $1",
+        [season],
+    )
+
+    parquet_bytes = _serialize_to_parquet(df)
+    conn.execute(
+        """
+        INSERT INTO leaderboard_cache
+            (model_name, season, leaderboard_parquet, row_count,
+             computed_at, model_version, compute_seconds)
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        """,
+        [
+            "baserunner_gravity", season, parquet_bytes, len(df),
+            datetime.now(timezone.utc), "1.0", round(elapsed, 2),
+        ],
+    )
+
+    _ok(f"Baserunner Gravity: {len(df)} runners cached in {elapsed:.1f}s")
+    return {"status": "ok", "rows": len(df), "seconds": round(elapsed, 2)}
+
+
+# Map of model names to their dedicated precompute functions.
+# These are called by `run_precompute_dedicated()` and also available for
+# standalone invocation from the daily ETL.
+DEDICATED_PRECOMPUTE: dict[str, Any] = {
+    "stuff_plus":         precompute_stuff_plus,
+    "sequencing":         precompute_sequencing,
+    "bullpen_matchups":   precompute_bullpen_matchups,
+    "defensive_pressing": precompute_defensive_pressing,
+    "baserunner_gravity": precompute_baserunner_gravity,
+}
+
+
+def run_precompute_dedicated(
+    conn,
+    season: int,
+    model_filter: Optional[str] = None,
+    force: bool = False,
+) -> list[dict]:
+    """Run the dedicated precompute functions for dashboard-critical models.
+
+    These run *in addition to* the generic registry-based pipeline and provide
+    more tailored caching (e.g. training the Stuff+ model first, training xOut
+    for DPI, etc.).
+
+    Args:
+        conn: Open DuckDB connection (read-write).
+        season: MLB season year.
+        model_filter: If set, run only this model's dedicated function.
+        force: If True, recompute even if fresh cache exists.
+
+    Returns:
+        List of result dicts from each dedicated function.
+    """
+    targets = DEDICATED_PRECOMPUTE
+    if model_filter:
+        if model_filter in targets:
+            targets = {model_filter: targets[model_filter]}
+        else:
+            # Not a dedicated model -- silently skip (generic pipeline handles it)
+            return []
+
+    results = []
+    for name, fn in targets.items():
+        if not force and _check_existing_cache(conn, name, season):
+            _info(f"Dedicated {name}: fresh cache exists, skipping.")
+            results.append({"name": name, "status": "cached", "rows": 0, "seconds": 0.0})
+            continue
+        try:
+            result = fn(conn, season)
+            result["name"] = name
+            results.append(result)
+        except Exception as exc:
+            _fail(f"Dedicated {name}: {exc}")
+            logger.exception("Dedicated precompute failure for %s", name)
+            results.append({"name": name, "status": "error", "rows": 0, "seconds": 0.0})
+
+    return results
+
+
+# ---------------------------------------------------------------------------
 # Core precompute loop
 # ---------------------------------------------------------------------------
 
@@ -301,6 +602,23 @@ def run_precompute(
         if not force and _check_existing_cache(conn, name, season):
             _info("Fresh cache exists, skipping (use --force to override).")
             result["status"] = "cached"
+            results.append(result)
+            print()
+            continue
+
+        # Use dedicated precompute function if available (handles training,
+        # idempotent cache writes, and model-specific setup).
+        if name in DEDICATED_PRECOMPUTE:
+            try:
+                dedicated_result = DEDICATED_PRECOMPUTE[name](conn, season)
+                result["status"] = dedicated_result.get("status", "ok")
+                result["rows"] = dedicated_result.get("rows", 0)
+                result["seconds"] = dedicated_result.get("seconds", 0.0)
+            except Exception as exc:
+                _fail(f"Dedicated precompute for {name} failed: {exc}")
+                logger.exception("Dedicated precompute failure for %s", name)
+                result["status"] = "error"
+                result["error"] = str(exc)
             results.append(result)
             print()
             continue
