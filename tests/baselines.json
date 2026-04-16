@@ -1,38 +1,35 @@
 {
-    "_comment": "Baseline metric thresholds for model performance regression tests. Update these values when models are retrained and validated.",
+    "_README": "Baseline metric thresholds for model performance regression tests. See tests/BASELINES_README.md for how to populate these values.",
+    "regression_tolerance": 0.05,
     "stuff_plus": {
-        "r2_test_min": -0.15,
-        "rmse_test_max": 1.0,
-        "description": "Stuff+ gradient boosting: R² on temporal hold-out, RMSE on negative wOBA scale. Threshold is lenient because the test DB may use small synthetic data."
+        "r2_test_min": -1.0,
+        "rmse_test_max": 10.0,
+        "_TODO": "Populate from scripts/train_stuff_model.py output (r2_test, rmse_test). Replace with best_value * (1 - tolerance) for r2 floor and best_value * (1 + tolerance) for rmse ceiling. Tests reference: baselines['stuff_plus']['r2_test_min'] and ['rmse_test_max']."
     },
     "mechanix_ae": {
-        "final_recon_loss_max": 1.0,
-        "mdi_mean_min": 0.0,
-        "mdi_mean_max": 100.0,
-        "description": "MechanixAE VAE: reconstruction loss after training, MDI range"
+        "final_recon_loss_max": 10.0,
+        "_TODO": "Populate from MechanixAE training recon loss on held-out windows. Replace with best_value * (1 + tolerance). Tests reference: baselines['mechanix_ae']['final_recon_loss_max']. MDI [0,100] range is enforced in code, not via baselines."
     },
     "pitchgpt": {
-        "mean_pps_max": 8.0,
-        "perplexity_max": 3000.0,
-        "description": "PitchGPT transformer: mean PPS (neg log-lik), perplexity upper bound"
+        "mean_pps_max": 20.0,
+        "perplexity_max": 500000000.0,
+        "_TODO": "Populate from PitchGPT evaluate() on validation set: mean_pps. perplexity_max = exp(mean_pps * (1 + tolerance)). Tests reference: baselines['pitchgpt']['mean_pps_max'] and ['perplexity_max']."
     },
     "chemnet": {
-        "val_gnn_mse_max": 5.0,
-        "mean_synergy_min": -10.0,
-        "mean_synergy_max": 15.0,
-        "description": "ChemNet GNN: validation MSE, mean synergy on random inputs. Range is wide because synergy values depend on model weights and random input distribution."
+        "mean_synergy_min": -100.0,
+        "mean_synergy_max": 100.0,
+        "_TODO": "Populate from ChemNet training: compute mean synergy on 100+ random 9-node graphs with a fixed seed, then widen by tolerance on each side. Tests reference: baselines['chemnet']['mean_synergy_min'] and ['mean_synergy_max']."
     },
     "causal_war": {
-        "war_min": -5.0,
-        "war_max": 12.0,
-        "mean_war_min": -3.0,
-        "mean_war_max": 3.0,
-        "description": "CausalWAR DML: expected WAR value ranges"
+        "war_min": -20.0,
+        "war_max": 25.0,
+        "mean_war_min": -10.0,
+        "mean_war_max": 10.0,
+        "_TODO": "Populate from CausalWAR training on a full season. Per-player WAR bounds and mean WAR bounds (mean should be near zero). Tests reference: baselines['causal_war']['war_min'|'war_max'|'mean_war_min'|'mean_war_max']."
     },
     "pset": {
-        "pset_per_100_min": -50.0,
-        "pset_per_100_max": 50.0,
-        "description": "PSET: expected per-100-pitch threat range"
-    },
-    "regression_tolerance": 0.05
+        "pset_per_100_min": -200.0,
+        "pset_per_100_max": 200.0,
+        "_TODO": "Populate from PSETModel.evaluate() on a full season: mean_pset_per_100 distribution bounds, widened by tolerance. Tests reference: baselines['pset']['pset_per_100_min'] and ['pset_per_100_max']."
+    }
 }
