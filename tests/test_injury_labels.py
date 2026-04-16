@@ -26,6 +26,7 @@ _PROJECT_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(_PROJECT_ROOT))
 
 from scripts.ingest_injury_labels import (  # noqa: E402
+    _match_activations,
     build_labels,
     classify_injury,
     is_activation,
@@ -293,6 +294,68 @@ def test_output_parquet_schema(mini_db: duckdb.DuckDBPyConnection, tmp_path: Pat
         "il_end_date", "injury_type", "injury_description_raw", "source",
     }
     assert set(table.column_names) == expected
+
+
+def test_match_activations_skips_null_player_id() -> None:
+    """Regression: activations with NULL player_id must not crash int() coercion.
+
+    Not every transaction row involves a player — team-level "Status Change"
+    rows have NULL player_id.  Those rows must be silently skipped rather
+    than crash the ingest with ``TypeError: int() argument must be ... not
+    'NAType'``.
+    """
+    placements = pd.DataFrame(
+        {
+            "player_id": pd.array([100], dtype="Int64"),
+            "il_date": [pd.Timestamp("2020-05-10")],
+        }
+    )
+    # One activation for player 100 (valid) + one with NULL player_id.
+    activations = pd.DataFrame(
+        {
+            "player_id": pd.array([100, pd.NA], dtype="Int64"),
+            "transaction_date": [
+                pd.Timestamp("2020-06-10"),
+                pd.Timestamp("2020-06-15"),
+            ],
+        }
+    )
+
+    # Must not raise.
+    result = _match_activations(placements, activations)
+
+    # Output is aligned to the placements index (length 1).
+    assert len(result) == 1
+    # The valid placement/activation pairing is preserved.
+    assert pd.Timestamp(result.iloc[0]) == pd.Timestamp("2020-06-10")
+
+
+def test_match_activations_skips_null_placement_player_id() -> None:
+    """A placement with NULL player_id must not crash; it returns NaT."""
+    placements = pd.DataFrame(
+        {
+            "player_id": pd.array([pd.NA, 100], dtype="Int64"),
+            "il_date": [
+                pd.Timestamp("2020-04-01"),
+                pd.Timestamp("2020-05-10"),
+            ],
+        }
+    )
+    activations = pd.DataFrame(
+        {
+            "player_id": pd.array([100], dtype="Int64"),
+            "transaction_date": [pd.Timestamp("2020-06-10")],
+        }
+    )
+
+    # Must not raise.
+    result = _match_activations(placements, activations)
+
+    # Series aligned to the 2-row placements index.
+    assert len(result) == 2
+    # NULL-player row gets NaT; valid row gets its matching activation.
+    assert pd.isna(result.iloc[0])
+    assert pd.Timestamp(result.iloc[1]) == pd.Timestamp("2020-06-10")
 
 
 def test_output_parquet_empty_labels_still_writes(tmp_path: Path) -> None:

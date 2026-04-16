@@ -270,21 +270,33 @@ def _match_activations(
     if placements.empty:
         return pd.Series([pd.NaT] * 0, dtype="datetime64[ns]")
 
-    # Work on copies sorted chronologically per player.
-    pls = placements.sort_values(["player_id", "il_date"]).copy()
-    acts = activations.sort_values(["player_id", "transaction_date"]).copy()
+    # Work on copies sorted chronologically per player.  Drop rows whose
+    # player_id is NULL — not every transaction involves a player (e.g. team
+    # "Status Change" rows), and we cannot match those to anyone.
+    pls = placements.dropna(subset=["player_id"]).sort_values(["player_id", "il_date"]).copy()
+    acts = activations.dropna(subset=["player_id"]).sort_values(
+        ["player_id", "transaction_date"]
+    ).copy()
 
     il_end: dict[int, pd.Timestamp] = {}
 
     # Group activations by player for O(P + A) matching.
     acts_by_player: dict[int, list[pd.Timestamp]] = {}
     for pid, grp in acts.groupby("player_id"):
+        if pd.isna(pid):
+            continue
         acts_by_player[int(pid)] = sorted(pd.to_datetime(grp["transaction_date"]).tolist())
 
     used_counts: dict[int, int] = {pid: 0 for pid in acts_by_player}
 
     for idx, row in pls.iterrows():
-        pid = int(row["player_id"])
+        raw_pid = row["player_id"]
+        if pd.isna(raw_pid):
+            # Defensive: dropna above should have removed these, but guard
+            # anyway so a schema/dtype change can never crash the script.
+            il_end[idx] = pd.NaT
+            continue
+        pid = int(raw_pid)
         il_d = pd.Timestamp(row["il_date"])
         match: Optional[pd.Timestamp] = None
         if pid in acts_by_player:
@@ -297,7 +309,8 @@ def _match_activations(
                     break
         il_end[idx] = match if match is not None else pd.NaT
 
-    # Re-align back to the original placements index.
+    # Re-align back to the original placements index (rows that were dropped
+    # due to NULL player_id will surface as NaT, same as unmatched rows).
     return pd.Series(il_end).reindex(placements.index)
 
 
