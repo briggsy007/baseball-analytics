@@ -16,7 +16,13 @@ import torch
 
 from src.analytics.pitchgpt import (
     CONTEXT_DIM,
+    NUM_BATTER_HANDS,
+    NUM_COUNT_STATES,
+    NUM_INNING_BUCKETS,
+    NUM_OUTS,
     NUM_PITCH_TYPES,
+    NUM_RUNNER_STATES,
+    NUM_SCORE_DIFF_BUCKETS,
     NUM_VELO_BUCKETS,
     NUM_ZONES,
     PAD_TOKEN,
@@ -26,8 +32,19 @@ from src.analytics.pitchgpt import (
     PitchSequenceDataset,
     PitchTokenizer,
     _collate_fn,
+    _compute_per_pitch_score_diff,
     _score_sequences,
     train_pitchgpt,
+)
+
+
+# Offset inside the 34-dim context one-hot where the 5 score-diff buckets sit.
+_SCORE_BUCKET_OFFSET = (
+    NUM_COUNT_STATES
+    + NUM_OUTS
+    + NUM_RUNNER_STATES
+    + NUM_BATTER_HANDS
+    + NUM_INNING_BUCKETS
 )
 
 
@@ -449,3 +466,134 @@ class TestEdgeCases:
         }])
         results = _score_sequences(model, df)
         assert len(results) == 0  # not enough pitches to score
+
+
+# ═════════════════════════════════════════════════════════════════════════════
+# Ticket #2: score_diff no longer hard-coded
+# ═════════════════════════════════════════════════════════════════════════════
+
+
+class TestScoreDiffFix:
+    """Regression tests for the score_diff context feature.
+
+    Prior to ticket #2 the dataset loader and inference path both
+    hard-coded ``score_diff=0`` so 100% of the mass landed in bucket 2
+    ("tie").  These tests lock in the fix.
+    """
+
+    def test_score_diff_not_hardcoded_zero(self, db_conn):
+        """After the fix at least one non-tie bucket must show up in the
+        dataset on synthetic data."""
+        ds = PitchSequenceDataset(db_conn, max_seq_len=128)
+        if len(ds) == 0:
+            pytest.skip("No sequences in test dataset.")
+
+        # Extract the score-bucket one-hot argmax from every context row.
+        buckets: list[int] = []
+        for _tokens, ctx, _target in ds.sequences:
+            block = ctx[:, _SCORE_BUCKET_OFFSET : _SCORE_BUCKET_OFFSET + NUM_SCORE_DIFF_BUCKETS]
+            buckets.extend(block.argmax(dim=-1).tolist())
+
+        assert buckets, "Dataset produced no context rows."
+        bucket_set = set(buckets)
+        # The key assertion: if score_diff were still hard-coded to 0 the
+        # only bucket we'd ever see is bucket 2 ("tie").  We must see at
+        # least one other bucket on a realistic sample.
+        non_tie = bucket_set - {2}
+        assert non_tie, (
+            f"All pitches mapped to bucket 2 (tie): score_diff still hardcoded? "
+            f"Buckets seen: {bucket_set}"
+        )
+
+    def test_score_diff_reflects_game_state(self):
+        """A synthetic game where the home team has already scored 5+
+        should place the pitcher's context in the 'big lead' bucket
+        when the home team is pitching (inning_topbot='Top')."""
+        # Build a deliberately-crafted tiny game: the home team hits
+        # five solo home runs in the top of the 1st... wait, that's
+        # backwards.  In Statcast convention, during the TOP of the
+        # inning the AWAY team bats.  So to make the HOME team lead,
+        # we simulate the home team batting in the BOTTOM of the 1st
+        # and hitting 5 solo home runs, then a pitch is thrown with
+        # inning_topbot='Top' (the next half-inning) where the HOME
+        # team is now pitching and leading by 5.
+        rows = []
+        # 5 solo home runs, home team batting (Bot of the 1st).
+        for i in range(5):
+            rows.append({
+                "game_pk": 9999,
+                "inning_topbot": "Bot",
+                "on_1b": 0, "on_2b": 0, "on_3b": 0,
+                "events": "home_run",
+                "delta_run_exp": 1.0,
+                "at_bat_number": i + 1,
+                "pitch_number": 1,
+            })
+        # Now a pitch in the TOP of the 2nd (home team pitching,
+        # leading by 5).  score_diff from pitcher POV should be +5.
+        rows.append({
+            "game_pk": 9999,
+            "inning_topbot": "Top",
+            "on_1b": 0, "on_2b": 0, "on_3b": 0,
+            "events": None,
+            "delta_run_exp": 0.0,
+            "at_bat_number": 6,
+            "pitch_number": 1,
+        })
+
+        df = pd.DataFrame(rows)
+        diffs = _compute_per_pitch_score_diff(df)
+        assert len(diffs) == len(rows)
+        # The 6th pitch is thrown with home up 5-0.  Pitcher POV = +5.
+        assert diffs[-1] == 5, f"Expected +5 at pitch 6, got {diffs[-1]}"
+
+        # And the bucket mapping for +5 is bucket 4 ("big lead").
+        ctx = PitchTokenizer.encode_context(
+            balls=0, strikes=0, outs=0,
+            on_1b=False, on_2b=False, on_3b=False,
+            stand="R", inning=2, score_diff=diffs[-1],
+        )
+        assert ctx[5] == 4, f"Expected bucket 4 (big lead), got {ctx[5]}"
+
+    def test_score_diff_home_run_increments_correctly(self):
+        """A single home-run event should push the batting team's score
+        by exactly 1 + runners-on.  Verifies the reconstructor math."""
+        # Grand slam: bases loaded, home run → 4 runs for the batting team.
+        rows = [
+            # Pre-HR pitch: bases loaded, 0-0 count.
+            {
+                "game_pk": 1,
+                "inning_topbot": "Top",  # away batting
+                "on_1b": 1, "on_2b": 1, "on_3b": 1,
+                "events": None,
+                "delta_run_exp": 0.0,
+                "at_bat_number": 1, "pitch_number": 1,
+            },
+            # HR pitch: same PA, bases still loaded at moment of pitch.
+            {
+                "game_pk": 1,
+                "inning_topbot": "Top",
+                "on_1b": 1, "on_2b": 1, "on_3b": 1,
+                "events": "home_run",
+                "delta_run_exp": 3.5,
+                "at_bat_number": 1, "pitch_number": 2,
+            },
+            # Next pitch of the inning (new batter, bases empty, away leads 4-0).
+            {
+                "game_pk": 1,
+                "inning_topbot": "Top",
+                "on_1b": 0, "on_2b": 0, "on_3b": 0,
+                "events": None,
+                "delta_run_exp": 0.0,
+                "at_bat_number": 2, "pitch_number": 1,
+            },
+        ]
+        df = pd.DataFrame(rows)
+        diffs = _compute_per_pitch_score_diff(df)
+        # Pitches 1 and 2: score_diff still 0 (event happens *on* pitch 2,
+        # runs are credited after recording).
+        assert diffs[0] == 0
+        assert diffs[1] == 0
+        # Pitch 3: home team pitching (inning_topbot=Top), away now up 4-0,
+        # pitcher POV score_diff = home - away = -4.
+        assert diffs[2] == -4, f"Expected -4 after grand slam, got {diffs[2]}"

@@ -74,6 +74,153 @@ def _safe_str(val, default: str = "R") -> str:
     return s
 
 
+# ── Score reconstruction helpers ────────────────────────────────────────────
+#
+# The pitches table does not carry home_score / away_score / post_home_score
+# columns (see schema).  We reconstruct a running score per game from the
+# ``events`` column plus baserunner state and ``delta_run_exp`` as a
+# tie-breaker signal.  This is an approximation (not exact Statcast runs),
+# but it produces realistic, varied score differentials instead of the
+# previous hard-coded ``0`` — which was the whole bug this module fixes.
+
+# Events that reliably score runs — value is a conservative lower bound
+# on runs scored on that event (runners must already be on).
+_SAC_EVENTS = {"sac_fly", "sac_fly_double_play"}
+
+
+def _runs_scored_on_event(
+    event: str | None,
+    on_1b_before: bool,
+    on_2b_before: bool,
+    on_3b_before: bool,
+    delta_run_exp: float | None,
+) -> int:
+    """Estimate runs scored on the current pitch-event.
+
+    This is a deliberately simple heuristic; exact reconstruction would
+    require ``post_home_score`` / ``post_away_score`` columns we don't
+    ingest.
+
+    Rules:
+      * ``home_run``: 1 (batter) + number of runners currently on base.
+      * ``sac_fly`` family: 1 run (runner from 3rd).
+      * Any event with ``delta_run_exp > 0.45`` and a runner on 3rd:
+          assume ≥ 1 run scored (covers singles, walks-with-bases-loaded,
+          fielders-choices-where-the-runner-scored, etc.).
+      * Otherwise: 0.
+
+    The threshold 0.45 is empirical — ``delta_run_exp`` is change in
+    run expectancy, and a scoring play almost always produces a
+    positive delta well above this cutoff.
+    """
+    if event is None:
+        return 0
+    ev = str(event).lower()
+    if ev == "home_run":
+        return 1 + int(on_1b_before) + int(on_2b_before) + int(on_3b_before)
+    if ev in _SAC_EVENTS:
+        return 1
+    # General case: if a runner was on 3rd and the play clearly increased
+    # run expectancy, one run likely scored.  This catches most singles,
+    # bases-loaded walks, wild pitches on the pitch-level, etc.  It under-
+    # counts multi-run events (e.g. bases-clearing doubles) but that is
+    # acceptable for a 5-bucket score-diff context feature.
+    if delta_run_exp is not None and not (isinstance(delta_run_exp, float) and np.isnan(delta_run_exp)):
+        try:
+            if float(delta_run_exp) > 0.45 and on_3b_before:
+                # Attempt to credit additional runners who also scored on
+                # doubles / triples when delta_run_exp is very high.
+                bonus = 0
+                if float(delta_run_exp) > 1.3 and on_2b_before:
+                    bonus += 1
+                if float(delta_run_exp) > 2.0 and on_1b_before:
+                    bonus += 1
+                return 1 + bonus
+        except (TypeError, ValueError):
+            pass
+    return 0
+
+
+def _score_diff_for_pitch(
+    home_score_before: int,
+    away_score_before: int,
+    inning_topbot: str | None,
+) -> int:
+    """Compute score_diff from the perspective of the *pitching* team.
+
+    In Statcast convention, when ``inning_topbot == 'Top'`` the home team
+    is pitching (away batting); when ``'Bot'`` the away team is pitching.
+    The PitchGPT context feature wants score_diff from the pitcher's POV:
+    positive = pitcher's team leading.
+    """
+    diff = home_score_before - away_score_before
+    if inning_topbot is None:
+        return diff
+    tb = str(inning_topbot).lower()
+    if tb.startswith("bot"):
+        # Away team pitching; flip sign.
+        return -diff
+    return diff
+
+
+def _compute_per_pitch_score_diff(df: pd.DataFrame) -> list[int]:
+    """Walk each game in ``df`` in pitch order and return the per-row
+    score_diff (pitcher's POV) at the moment of each pitch.
+
+    Expects columns ``game_pk``, ``inning_topbot``, ``on_1b``, ``on_2b``,
+    ``on_3b``, ``events``, ``delta_run_exp``, plus an ordering that is
+    monotonically increasing within a game — the caller is responsible
+    for sorting by ``(at_bat_number, pitch_number)``.
+
+    Returns a list aligned 1:1 with ``df.iterrows()`` in iteration order.
+    """
+    if df.empty:
+        return []
+
+    # We need to preserve the row order the caller used (iterrows order).
+    # ``df.groupby(..., sort=False)`` keeps the order of first appearance
+    # for each group key, and within-group order is preserved.
+    result = np.zeros(len(df), dtype=np.int32)
+    # Track per-game running score.
+    game_scores: dict[int, tuple[int, int]] = {}
+
+    # iterate by position to align with output array cleanly
+    # df may have a non-default index; use reset_index approach
+    reset = df.reset_index(drop=True)
+    for pos, row in reset.iterrows():
+        gpk_raw = row.get("game_pk")
+        try:
+            gpk = int(gpk_raw) if gpk_raw is not None else -1
+        except (TypeError, ValueError):
+            gpk = -1
+        home_s, away_s = game_scores.get(gpk, (0, 0))
+
+        topbot = row.get("inning_topbot")
+        result[pos] = _score_diff_for_pitch(home_s, away_s, topbot)
+
+        # Update running score AFTER recording (score_diff reflects state
+        # at the moment the pitch is thrown, not after the result).
+        runs = _runs_scored_on_event(
+            row.get("events"),
+            _safe_bool(row.get("on_1b")),
+            _safe_bool(row.get("on_2b")),
+            _safe_bool(row.get("on_3b")),
+            row.get("delta_run_exp"),
+        )
+        if runs:
+            tb = str(topbot).lower() if topbot is not None else ""
+            if tb.startswith("top"):
+                # Away team batting → away scores
+                away_s += runs
+            else:
+                home_s += runs
+            game_scores[gpk] = (home_s, away_s)
+        else:
+            game_scores[gpk] = (home_s, away_s)
+
+    return result.tolist()
+
+
 # ── Paths ────────────────────────────────────────────────────────────────────
 _MODEL_DIR = Path(__file__).resolve().parents[2] / "models"
 
@@ -307,6 +454,13 @@ class PitchSequenceDataset(Dataset):
                 )
             """
 
+        # NOTE: we also pull ``events``, ``delta_run_exp`` and ``inning_topbot``
+        # so we can reconstruct a running score per game — the pitches
+        # table does not carry home_score / away_score / post_home_score
+        # columns.  See ``_compute_per_pitch_score_diff`` above.  The ORDER
+        # BY must sort by ``(game_pk, at_bat_number, pitch_number)`` so
+        # the reconstructor sees pitches in game order even though
+        # multiple pitchers share a game_pk.
         query = f"""
             SELECT
                 game_pk,
@@ -322,12 +476,17 @@ class PitchSequenceDataset(Dataset):
                 on_2b,
                 on_3b,
                 stand,
-                inning
+                inning,
+                inning_topbot,
+                events,
+                delta_run_exp,
+                at_bat_number,
+                pitch_number
             FROM pitches
             WHERE pitch_type IS NOT NULL
               {season_filter}
               {game_filter}
-            ORDER BY game_pk, pitcher_id, at_bat_number, pitch_number
+            ORDER BY game_pk, at_bat_number, pitch_number
         """
         df = conn.execute(query).fetchdf()
 
@@ -335,8 +494,14 @@ class PitchSequenceDataset(Dataset):
             logger.warning("No pitch data found for PitchGPT dataset.")
             return
 
+        # Reconstruct per-pitch score_diff (pitcher POV) for the whole
+        # frame in one sweep, then attach as a column.  Replaces the
+        # previous hard-coded ``score_diff=0`` so the "situational
+        # context" feature actually reflects game state.
+        df = df.assign(_score_diff=_compute_per_pitch_score_diff(df))
+
         # Group by (game, pitcher) to form sequences
-        grouped = df.groupby(["game_pk", "pitcher_id"])
+        grouped = df.groupby(["game_pk", "pitcher_id"], sort=False)
         for _key, game_df in grouped:
             if len(game_df) < 2:
                 continue  # need at least 2 pitches
@@ -362,7 +527,7 @@ class PitchSequenceDataset(Dataset):
                     on_3b=_safe_bool(row.get("on_3b")),
                     stand=_safe_str(row.get("stand"), "R"),
                     inning=_safe_int(row.get("inning"), 1),
-                    score_diff=0,  # not directly available; use 0
+                    score_diff=_safe_int(row.get("_score_diff"), 0),
                 )
                 contexts.append(PitchTokenizer.context_to_tensor(ctx_list))
 
@@ -786,11 +951,15 @@ def _get_pitcher_game_sequences(
         idx += 1
 
     where = " AND ".join(filters)
+    # Extra columns (inning_topbot, events, delta_run_exp) power the
+    # per-pitch score_diff reconstruction in ``_score_sequences``.
     query = f"""
         SELECT
             game_pk, pitcher_id, pitch_type, plate_x, plate_z,
             release_speed, balls, strikes, outs_when_up,
-            on_1b, on_2b, on_3b, stand, inning, at_bat_number, pitch_number
+            on_1b, on_2b, on_3b, stand, inning,
+            inning_topbot, events, delta_run_exp,
+            at_bat_number, pitch_number
         FROM pitches
         WHERE {where}
         ORDER BY game_pk, at_bat_number, pitch_number
@@ -810,7 +979,20 @@ def _score_sequences(
     device = next(model.parameters()).device
     results = []
 
-    for game_pk, game_df in df.groupby("game_pk"):
+    # Attach a per-pitch score_diff column up front.  The caller (see
+    # ``_get_pitcher_game_sequences``) is responsible for sorting the
+    # frame by ``(game_pk, at_bat_number, pitch_number)`` so this
+    # reconstruction sees pitches in game order.  If the expected
+    # columns are missing (e.g. older callers / tests), fall back to
+    # zeros silently — the fix is best-effort for legacy call sites.
+    if "_score_diff" not in df.columns:
+        required = {"inning_topbot", "events", "delta_run_exp"}
+        if required.issubset(df.columns):
+            df = df.assign(_score_diff=_compute_per_pitch_score_diff(df))
+        else:
+            df = df.assign(_score_diff=0)
+
+    for game_pk, game_df in df.groupby("game_pk", sort=False):
         if len(game_df) < 2:
             continue
 
@@ -837,7 +1019,7 @@ def _score_sequences(
                 on_3b=_safe_bool(row.get("on_3b")),
                 stand=_safe_str(row.get("stand"), "R"),
                 inning=_safe_int(row.get("inning"), 1),
-                score_diff=0,
+                score_diff=_safe_int(row.get("_score_diff"), 0),
             )
             contexts_list.append(PitchTokenizer.context_to_tensor(ctx))
 
@@ -1081,7 +1263,9 @@ def calculate_predictability_by_catcher(
             SELECT
                 game_pk, pitcher_id, pitch_type, plate_x, plate_z,
                 release_speed, balls, strikes, outs_when_up,
-                on_1b, on_2b, on_3b, stand, inning, at_bat_number, pitch_number
+                on_1b, on_2b, on_3b, stand, inning,
+                inning_topbot, events, delta_run_exp,
+                at_bat_number, pitch_number
             FROM pitches
             WHERE pitcher_id = $1
               AND pitch_type IS NOT NULL
