@@ -1,6 +1,13 @@
 # Data files (too large for git)
 data/*.duckdb
+data/*.duckdb.wal
 data/cache/
+
+# Claude Code session state
+.claude/
+
+# PyTorch test artifacts that churn on every test run
+models/pitchgpt_vtest.pt
 
 # Python
 __pycache__/
