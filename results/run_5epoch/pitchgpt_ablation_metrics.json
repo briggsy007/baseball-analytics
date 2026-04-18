@@ -1,0 +1,257 @@
+{
+  "seed": 42,
+  "device": "cpu",
+  "epochs": 5,
+  "batch_size": 32,
+  "lr": 0.001,
+  "train_range": "2015-2022",
+  "val_range": "2023",
+  "test_range": "2024",
+  "n_train_sequences": 8680,
+  "n_val_sequences": 2568,
+  "n_test_sequences": 2541,
+  "leakage_audit": {
+    "shared_game_pks": 0,
+    "shared_game_pks_train_val": 0,
+    "shared_game_pks_train_test": 0,
+    "shared_game_pks_val_test": 0,
+    "shared_pitcher_ids_train_test": 416,
+    "shared_pitcher_ids_train_val": 471,
+    "n_train_game_pks": 1000,
+    "n_val_game_pks": 300,
+    "n_test_game_pks": 300,
+    "n_train_pitchers": 1455,
+    "n_val_pitchers": 626,
+    "n_test_pitchers": 675
+  },
+  "full": {
+    "mode": "full",
+    "params": 1398562,
+    "train_loss_final": 4.7801,
+    "val_loss_final": 4.8889,
+    "test_loss": 4.9799,
+    "test_perplexity": 145.459,
+    "epoch_best": 5,
+    "best_val_loss": 4.8889,
+    "wall_clock_sec": 668.3,
+    "history": [
+      {
+        "epoch": 1,
+        "train_loss": 5.6403,
+        "val_loss": 5.4308,
+        "train_perplexity": 281.543,
+        "val_perplexity": 228.336,
+        "wall_clock_sec": 135.2
+      },
+      {
+        "epoch": 2,
+        "train_loss": 5.1638,
+        "val_loss": 5.1842,
+        "train_perplexity": 174.823,
+        "val_perplexity": 178.439,
+        "wall_clock_sec": 137.4
+      },
+      {
+        "epoch": 3,
+        "train_loss": 4.9682,
+        "val_loss": 5.0166,
+        "train_perplexity": 143.767,
+        "val_perplexity": 150.901,
+        "wall_clock_sec": 138.4
+      },
+      {
+        "epoch": 4,
+        "train_loss": 4.8535,
+        "val_loss": 4.9253,
+        "train_perplexity": 128.19,
+        "val_perplexity": 137.732,
+        "wall_clock_sec": 141.2
+      },
+      {
+        "epoch": 5,
+        "train_loss": 4.7801,
+        "val_loss": 4.8889,
+        "train_perplexity": 119.114,
+        "val_perplexity": 132.811,
+        "wall_clock_sec": 113.1
+      }
+    ]
+  },
+  "tokens_only": {
+    "mode": "tokens_only",
+    "params": 1398562,
+    "train_loss_final": 4.7671,
+    "val_loss_final": 4.892,
+    "test_loss": 4.9887,
+    "test_perplexity": 146.745,
+    "epoch_best": 5,
+    "best_val_loss": 4.892,
+    "wall_clock_sec": 526.8,
+    "history": [
+      {
+        "epoch": 1,
+        "train_loss": 5.5424,
+        "val_loss": 5.3226,
+        "train_perplexity": 255.295,
+        "val_perplexity": 204.918,
+        "wall_clock_sec": 113.1
+      },
+      {
+        "epoch": 2,
+        "train_loss": 5.0523,
+        "val_loss": 5.0383,
+        "train_perplexity": 156.378,
+        "val_perplexity": 154.209,
+        "wall_clock_sec": 87.7
+      },
+      {
+        "epoch": 3,
+        "train_loss": 4.8965,
+        "val_loss": 4.9598,
+        "train_perplexity": 133.826,
+        "val_perplexity": 142.57,
+        "wall_clock_sec": 87.3
+      },
+      {
+        "epoch": 4,
+        "train_loss": 4.822,
+        "val_loss": 4.9175,
+        "train_perplexity": 124.212,
+        "val_perplexity": 136.655,
+        "wall_clock_sec": 88.0
+      },
+      {
+        "epoch": 5,
+        "train_loss": 4.7671,
+        "val_loss": 4.892,
+        "train_perplexity": 117.578,
+        "val_perplexity": 133.224,
+        "wall_clock_sec": 148.1
+      }
+    ]
+  },
+  "count_only": {
+    "mode": "count_only",
+    "params": 1398562,
+    "train_loss_final": 4.78,
+    "val_loss_final": 4.9037,
+    "test_loss": 4.9996,
+    "test_perplexity": 148.349,
+    "epoch_best": 5,
+    "best_val_loss": 4.9037,
+    "wall_clock_sec": 596.0,
+    "history": [
+      {
+        "epoch": 1,
+        "train_loss": 5.6114,
+        "val_loss": 5.404,
+        "train_perplexity": 273.535,
+        "val_perplexity": 222.301,
+        "wall_clock_sec": 85.1
+      },
+      {
+        "epoch": 2,
+        "train_loss": 5.1167,
+        "val_loss": 5.1169,
+        "train_perplexity": 166.787,
+        "val_perplexity": 166.813,
+        "wall_clock_sec": 121.3
+      },
+      {
+        "epoch": 3,
+        "train_loss": 4.9308,
+        "val_loss": 4.9962,
+        "train_perplexity": 138.485,
+        "val_perplexity": 147.85,
+        "wall_clock_sec": 135.5
+      },
+      {
+        "epoch": 4,
+        "train_loss": 4.844,
+        "val_loss": 4.926,
+        "train_perplexity": 126.98,
+        "val_perplexity": 137.827,
+        "wall_clock_sec": 106.2
+      },
+      {
+        "epoch": 5,
+        "train_loss": 4.78,
+        "val_loss": 4.9037,
+        "train_perplexity": 119.109,
+        "val_perplexity": 134.789,
+        "wall_clock_sec": 139.3
+      }
+    ]
+  },
+  "identity_only": {
+    "mode": "identity_only",
+    "params": 1204656,
+    "train_loss_final": 0.184,
+    "val_loss_final": 2.6449,
+    "test_loss": 4.4532,
+    "test_perplexity": 85.904,
+    "epoch_best": 4,
+    "best_val_loss": 2.3582,
+    "wall_clock_sec": 557.4,
+    "history": [
+      {
+        "epoch": 1,
+        "train_loss": 6.2129,
+        "val_loss": 4.6614,
+        "train_perplexity": 499.151,
+        "val_perplexity": 105.783,
+        "wall_clock_sec": 103.0
+      },
+      {
+        "epoch": 2,
+        "train_loss": 1.7055,
+        "val_loss": 2.9959,
+        "train_perplexity": 5.504,
+        "val_perplexity": 20.004,
+        "wall_clock_sec": 138.3
+      },
+      {
+        "epoch": 3,
+        "train_loss": 0.606,
+        "val_loss": 2.8527,
+        "train_perplexity": 1.833,
+        "val_perplexity": 17.334,
+        "wall_clock_sec": 81.4
+      },
+      {
+        "epoch": 4,
+        "train_loss": 0.3219,
+        "val_loss": 2.3582,
+        "train_perplexity": 1.38,
+        "val_perplexity": 10.572,
+        "wall_clock_sec": 89.0
+      },
+      {
+        "epoch": 5,
+        "train_loss": 0.184,
+        "val_loss": 2.6449,
+        "train_perplexity": 1.202,
+        "val_perplexity": 14.083,
+        "wall_clock_sec": 142.6
+      }
+    ],
+    "vocab_size": 1456,
+    "n_pitchers": 1455
+  },
+  "drops_vs_full_pct": {
+    "tokens_only": 0.88,
+    "count_only": 1.95,
+    "identity_only": -69.33
+  },
+  "spec_threshold_full_vs_any_ablation_pct": 10.0,
+  "best_ablation": "identity_only",
+  "best_ablation_gap_pct": -69.33,
+  "pass": false,
+  "verdict": "FAIL \u2014 full model beats best ablation (identity_only) by -69.3% (spec requires \u226510%).",
+  "wall_clock_total_sec": 2351.0,
+  "best_non_degenerate_ablation": "tokens_only",
+  "best_non_degenerate_gap_pct": 0.88,
+  "pass_non_degenerate": false,
+  "verdict_non_degenerate": "FAIL -- full model beats best non-degenerate ablation (tokens_only) by 0.88% (spec requires >=10%).",
+  "identity_only_note": "The identity_only variant predicts a degenerate same-class-every-step target over a smaller pitcher-id vocabulary (n=1455 vs n=2210), so its perplexity is NOT directly comparable to full/tokens_only/count_only. Its low perplexity reflects an easy task, not strong modelling. The spec verdict uses the non-degenerate ablations."
+}

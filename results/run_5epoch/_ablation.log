@@ -1,0 +1,56 @@
+21:21:47  INFO     device=cpu  seed=42
+21:21:48  INFO     loading datasets (train=(2015, 2022) val=(2023, 2023) test=(2024, 2024))
+21:23:06  INFO     PitchGPT dataset: 8680 sequences from 294852 pitches.
+21:23:28  INFO     PitchGPT dataset: 2568 sequences from 88625 pitches.
+21:23:51  INFO     PitchGPT dataset: 2541 sequences from 87649 pitches.
+21:23:51  INFO     datasets built in 123.4s (train=8680 val=2568 test=2541)
+21:23:51  WARNING  sequence-pid alignment off: kept=8711 sequences=8680 — some short (<2 pitch) groups likely dropped by the dataset.  Truncating.
+21:23:52  WARNING  sequence-pid alignment off: kept=2570 sequences=2568 — some short (<2 pitch) groups likely dropped by the dataset.  Truncating.
+21:23:52  WARNING  sequence-pid alignment off: kept=2545 sequences=2541 — some short (<2 pitch) groups likely dropped by the dataset.  Truncating.
+C:\Users\hunte\projects\baseball\src\analytics\pitchgpt.py:783: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(
+21:23:54  INFO     [full] mode=full — 5 epochs
+C:\Users\hunte\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\nn\modules\transformer.py:431: UserWarning: Support for mismatched src_key_padding_mask and mask is deprecated. Use same type for both instead.
+  src_key_padding_mask = F._canonical_mask(
+21:26:09  INFO     [full] epoch 1/5  train=5.6403 (ppl 281.54)  val=5.4308 (ppl 228.34)  135.2s
+21:28:26  INFO     [full] epoch 2/5  train=5.1638 (ppl 174.82)  val=5.1842 (ppl 178.44)  137.4s
+21:30:45  INFO     [full] epoch 3/5  train=4.9682 (ppl 143.77)  val=5.0166 (ppl 150.90)  138.4s
+21:33:06  INFO     [full] epoch 4/5  train=4.8535 (ppl 128.19)  val=4.9253 (ppl 137.73)  141.2s
+21:34:59  INFO     [full] epoch 5/5  train=4.7801 (ppl 119.11)  val=4.8889 (ppl 132.81)  113.1s
+21:35:02  INFO     [full] BEST epoch 5  test_loss=4.9799  test_ppl=145.459  (668.3s total)
+21:35:02  INFO     saved full-variant checkpoint to results\run_5epoch\pitchgpt_full.pt
+C:\Users\hunte\projects\baseball\src\analytics\pitchgpt.py:783: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(
+21:35:02  INFO     [tokens-only] mode=tokens_only — 5 epochs
+21:36:55  INFO     [tokens-only] epoch 1/5  train=5.5424 (ppl 255.29)  val=5.3226 (ppl 204.92)  113.1s
+21:38:23  INFO     [tokens-only] epoch 2/5  train=5.0523 (ppl 156.38)  val=5.0383 (ppl 154.21)  87.7s
+21:39:50  INFO     [tokens-only] epoch 3/5  train=4.8965 (ppl 133.83)  val=4.9598 (ppl 142.57)  87.3s
+21:41:18  INFO     [tokens-only] epoch 4/5  train=4.8220 (ppl 124.21)  val=4.9175 (ppl 136.66)  88.0s
+21:43:46  INFO     [tokens-only] epoch 5/5  train=4.7671 (ppl 117.58)  val=4.8920 (ppl 133.22)  148.1s
+21:43:49  INFO     [tokens-only] BEST epoch 5  test_loss=4.9887  test_ppl=146.745  (526.8s total)
+21:43:49  INFO     [count-only] mode=count_only — 5 epochs
+21:45:14  INFO     [count-only] epoch 1/5  train=5.6114 (ppl 273.54)  val=5.4040 (ppl 222.30)  85.1s
+21:47:15  INFO     [count-only] epoch 2/5  train=5.1167 (ppl 166.79)  val=5.1169 (ppl 166.81)  121.3s
+21:49:31  INFO     [count-only] epoch 3/5  train=4.9308 (ppl 138.49)  val=4.9962 (ppl 147.85)  135.5s
+21:51:17  INFO     [count-only] epoch 4/5  train=4.8440 (ppl 126.98)  val=4.9260 (ppl 137.83)  106.2s
+21:53:36  INFO     [count-only] epoch 5/5  train=4.7800 (ppl 119.11)  val=4.9037 (ppl 134.79)  139.3s
+21:53:45  INFO     [count-only] BEST epoch 5  test_loss=4.9996  test_ppl=148.349  (596.0s total)
+C:\Users\hunte\projects\baseball\scripts\pitchgpt_ablation.py:940: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc_layer, num_layers=num_layers)
+21:53:45  INFO     [identity-only] mode=identity_only — 5 epochs
+21:55:28  INFO     [identity-only] epoch 1/5  train=6.2129 (ppl 499.15)  val=4.6614 (ppl 105.78)  103.0s
+21:57:47  INFO     [identity-only] epoch 2/5  train=1.7055 (ppl 5.50)  val=2.9959 (ppl 20.00)  138.3s
+21:59:08  INFO     [identity-only] epoch 3/5  train=0.6060 (ppl 1.83)  val=2.8527 (ppl 17.33)  81.4s
+22:00:37  INFO     [identity-only] epoch 4/5  train=0.3219 (ppl 1.38)  val=2.3582 (ppl 10.57)  89.0s
+22:03:00  INFO     [identity-only] epoch 5/5  train=0.1840 (ppl 1.20)  val=2.6449 (ppl 14.08)  142.6s
+22:03:03  INFO     [identity-only] BEST epoch 4  test_loss=4.4532  test_ppl=85.904  (557.4s total)
+22:03:03  INFO     wrote ablation metrics to results\run_5epoch\pitchgpt_ablation_metrics.json
+22:03:03  INFO     ======================================================================
+22:03:03  INFO     Ablation summary:
+22:03:03  INFO       full           test_ppl= 145.459  params= 1398562  drop_vs_full=+0.00%
+22:03:03  INFO       tokens_only    test_ppl= 146.745  params= 1398562  drop_vs_full=+0.88%
+22:03:03  INFO       count_only     test_ppl= 148.349  params= 1398562  drop_vs_full=+1.95%
+22:03:03  INFO       identity_only  test_ppl=  85.904  params= 1204656  drop_vs_full=-69.33%
+22:03:03  INFO     ----------------------------------------------------------------------
+22:03:03  INFO     FAIL — full model beats best ablation (identity_only) by -69.3% (spec requires \u226510%).
+22:03:03  INFO     ======================================================================
