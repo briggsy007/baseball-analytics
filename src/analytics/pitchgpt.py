@@ -23,7 +23,7 @@ from __future__ import annotations
 import logging
 import math
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Literal, Optional
 
 import duckdb
 import numpy as np
@@ -407,6 +407,91 @@ class PitchTokenizer:
 
 
 # ═════════════════════════════════════════════════════════════════════════════
+# Date-based split helpers (Ticket #1)
+# ═════════════════════════════════════════════════════════════════════════════
+
+
+def _range_to_years(rng: tuple[int, int]) -> set[int]:
+    """Expand an inclusive (start, end) year range to a set of years."""
+    a, b = rng
+    if a > b:
+        raise ValueError(f"Year range {rng} is inverted (start > end).")
+    return set(range(int(a), int(b) + 1))
+
+
+def _assert_ranges_disjoint(
+    train_range: tuple[int, int],
+    val_range: tuple[int, int],
+    test_range: tuple[int, int],
+) -> None:
+    """Raise ``ValueError`` if any of train/val/test year sets overlap."""
+    tr = _range_to_years(train_range)
+    va = _range_to_years(val_range)
+    te = _range_to_years(test_range)
+    for a_name, a_set, b_name, b_set in [
+        ("train", tr, "val", va),
+        ("train", tr, "test", te),
+        ("val", va, "test", te),
+    ]:
+        overlap = a_set & b_set
+        if overlap:
+            raise ValueError(
+                f"Leakage guard: {a_name} and {b_name} year ranges overlap "
+                f"on {sorted(overlap)}. train={train_range}, val={val_range}, "
+                f"test={test_range}."
+            )
+
+
+def audit_no_game_overlap(
+    train_ds: "PitchSequenceDataset",
+    val_ds: "PitchSequenceDataset",
+    test_ds: "PitchSequenceDataset",
+) -> dict:
+    """Leakage audit for the date-based split.
+
+    Returns a dict with:
+      * ``shared_game_pks``: count of ``game_pk`` values appearing in
+        more than one split.  MUST be 0 — a shared game_pk is a hard
+        leakage failure.
+      * ``shared_pitcher_ids_train_test``: count of pitcher IDs that
+        appear in both train AND test.  This is a SOFT warning only:
+        the same pitcher showing up across splits is unavoidable on a
+        date-based split (the same pitcher throws in every season) and
+        is OK for this task — we're modeling the per-pitch sequence
+        distribution, not generalization to new pitchers.
+      * ``shared_pitcher_ids_train_val``: same, for train vs val
+        (informational).
+      * Per-split ``n_game_pks`` / ``n_pitcher_ids`` counts.
+    """
+    train_games = set(train_ds.game_pks)
+    val_games = set(val_ds.game_pks)
+    test_games = set(test_ds.game_pks)
+
+    shared_tv = train_games & val_games
+    shared_tt = train_games & test_games
+    shared_vt = val_games & test_games
+    shared_any = shared_tv | shared_tt | shared_vt
+
+    shared_pitchers_tt = train_ds.pitcher_ids & test_ds.pitcher_ids
+    shared_pitchers_tv = train_ds.pitcher_ids & val_ds.pitcher_ids
+
+    return {
+        "shared_game_pks": len(shared_any),
+        "shared_game_pks_train_val": len(shared_tv),
+        "shared_game_pks_train_test": len(shared_tt),
+        "shared_game_pks_val_test": len(shared_vt),
+        "shared_pitcher_ids_train_test": len(shared_pitchers_tt),
+        "shared_pitcher_ids_train_val": len(shared_pitchers_tv),
+        "n_train_game_pks": len(train_games),
+        "n_val_game_pks": len(val_games),
+        "n_test_game_pks": len(test_games),
+        "n_train_pitchers": len(train_ds.pitcher_ids),
+        "n_val_pitchers": len(val_ds.pitcher_ids),
+        "n_test_pitchers": len(test_ds.pitcher_ids),
+    }
+
+
+# ═════════════════════════════════════════════════════════════════════════════
 # Dataset
 # ═════════════════════════════════════════════════════════════════════════════
 
@@ -425,10 +510,67 @@ class PitchSequenceDataset(Dataset):
         seasons: list[int] | range | None = None,
         max_seq_len: int = DEFAULT_MAX_SEQ,
         max_games: int | None = None,
+        split_mode: Optional[Literal["train", "val", "test"]] = None,
+        train_range: tuple[int, int] = (2015, 2022),
+        val_range: tuple[int, int] = (2023, 2023),
+        test_range: tuple[int, int] = (2024, 2024),
+        max_games_per_split: int | None = None,
     ) -> None:
+        """Loads a PyTorch Dataset of pitch sequences.
+
+        The default (``split_mode=None``, ``seasons=...``) path is the
+        backwards-compatible single-season behaviour used by dashboards
+        and the existing ``train_pitchgpt`` training loop.
+
+        When ``split_mode`` is set, the dataset resolves the season range
+        from ``train_range``/``val_range``/``test_range`` (inclusive on
+        both ends) and ignores ``seasons``.  A runtime guard asserts the
+        three ranges are disjoint — overlap raises ``ValueError``.
+
+        Args:
+            conn: DuckDB connection.
+            seasons: Legacy season filter (ignored if ``split_mode`` is set).
+            max_seq_len: Truncate any single game sequence to this length.
+            max_games: Legacy max-games sample (ignored if
+                ``split_mode`` is set; use ``max_games_per_split`` instead).
+            split_mode: One of ``"train" | "val" | "test"``.  If ``None``
+                the dataset behaves exactly as before.
+            train_range: (start_year, end_year) inclusive for training.
+            val_range: (start_year, end_year) inclusive for validation.
+            test_range: (start_year, end_year) inclusive for testing.
+            max_games_per_split: Cap the number of games sampled per
+                split (for quick dev runs).  Applied only when
+                ``split_mode`` is set.
+        """
         self.max_seq_len = max_seq_len
         self.sequences: list[tuple[torch.Tensor, torch.Tensor, torch.Tensor]] = []
-        self._load(conn, seasons, max_games=max_games)
+        # Track which game_pks and pitcher_ids actually produced a
+        # sequence — used by the leakage-audit utility.
+        self.game_pks: set[int] = set()
+        self.pitcher_ids: set[int] = set()
+        self.split_mode = split_mode
+
+        if split_mode is not None:
+            # Hard guard: the three ranges must be disjoint.
+            _assert_ranges_disjoint(train_range, val_range, test_range)
+            if split_mode == "train":
+                seasons_resolved = list(range(train_range[0], train_range[1] + 1))
+            elif split_mode == "val":
+                seasons_resolved = list(range(val_range[0], val_range[1] + 1))
+            elif split_mode == "test":
+                seasons_resolved = list(range(test_range[0], test_range[1] + 1))
+            else:
+                raise ValueError(
+                    f"split_mode must be one of 'train', 'val', 'test', "
+                    f"got {split_mode!r}"
+                )
+            self._load(
+                conn,
+                seasons_resolved,
+                max_games=max_games_per_split,
+            )
+        else:
+            self._load(conn, seasons, max_games=max_games)
 
     # ── Private ──────────────────────────────────────────────────────────
 
@@ -505,6 +647,13 @@ class PitchSequenceDataset(Dataset):
         for _key, game_df in grouped:
             if len(game_df) < 2:
                 continue  # need at least 2 pitches
+
+            # Track membership for the leakage audit utility.
+            try:
+                self.game_pks.add(int(_key[0]))
+                self.pitcher_ids.add(int(_key[1]))
+            except (TypeError, ValueError):
+                pass
 
             tokens: list[int] = []
             contexts: list[torch.Tensor] = []

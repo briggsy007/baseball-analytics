@@ -1,0 +1,44 @@
+20:31:52  INFO     device=cpu  seed=42
+20:31:52  INFO     loading datasets (train=(2015, 2022) val=(2023, 2023) test=(2024, 2024), max_games 1000/300/300)
+20:32:29  INFO     PitchGPT dataset: 8567 sequences from 294275 pitches.
+20:32:40  INFO     PitchGPT dataset: 2548 sequences from 88624 pitches.
+20:32:52  INFO     PitchGPT dataset: 2622 sequences from 88900 pitches.
+20:32:52  INFO     datasets built in 60.2s  (train=8567  val=2548  test=2622 sequences)
+20:32:52  INFO     leakage audit: {'shared_game_pks': 0, 'shared_game_pks_train_val': 0, 'shared_game_pks_train_test': 0, 'shared_game_pks_val_test': 0, 'shared_pitcher_ids_train_test': 398, 'shared_pitcher_ids_train_val': 471, 'n_train_game_pks': 1000, 'n_val_game_pks': 300, 'n_test_game_pks': 300, 'n_train_pitchers': 1448, 'n_val_pitchers': 645, 'n_test_pitchers': 663}
+C:\Users\hunte\projects\baseball\src\analytics\pitchgpt.py:783: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(
+20:32:53  INFO     [PitchGPT] starting 5-epoch training
+C:\Users\hunte\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\nn\modules\transformer.py:431: UserWarning: Support for mismatched src_key_padding_mask and mask is deprecated. Use same type for both instead.
+  src_key_padding_mask = F._canonical_mask(
+20:34:22  INFO     [PitchGPT] epoch 1/5  train=5.6445 (ppl 282.74)  val=5.4588 (ppl 234.82)  88.8s
+20:35:56  INFO     [PitchGPT] epoch 2/5  train=5.1591 (ppl 174.01)  val=5.2085 (ppl 182.82)  93.9s
+20:37:25  INFO     [PitchGPT] epoch 3/5  train=4.9690 (ppl 143.89)  val=5.0340 (ppl 153.54)  88.8s
+20:38:52  INFO     [PitchGPT] epoch 4/5  train=4.8525 (ppl 128.06)  val=4.9661 (ppl 143.46)  87.0s
+20:40:16  INFO     [PitchGPT] epoch 5/5  train=4.7798 (ppl 119.08)  val=4.9121 (ppl 135.92)  84.2s
+20:40:19  INFO     [PitchGPT] BEST epoch 5  test_loss=4.9985  test_ppl=148.198
+20:40:19  INFO     [LSTM] starting 5-epoch training
+20:40:48  INFO     [LSTM] epoch 1/5  train=5.8004 (ppl 330.43)  val=5.5978 (ppl 269.82)  28.5s
+20:41:19  INFO     [LSTM] epoch 2/5  train=5.2525 (ppl 191.04)  val=5.3168 (ppl 203.73)  31.0s
+20:41:43  INFO     [LSTM] epoch 3/5  train=5.0725 (ppl 159.57)  val=5.2053 (ppl 182.23)  24.7s
+20:42:06  INFO     [LSTM] epoch 4/5  train=4.9637 (ppl 143.12)  val=5.0903 (ppl 162.43)  23.2s
+20:42:29  INFO     [LSTM] epoch 5/5  train=4.8826 (ppl 131.97)  val=5.0313 (ppl 153.13)  22.5s
+20:42:30  INFO     [LSTM] BEST epoch 5  test_loss=5.1346  test_ppl=169.801
+20:42:30  INFO     [Markov-1] fitting closed-form model on 8567 train sequences
+20:42:40  INFO     [Markov-1] fit=3.0s  score=6.2s  train_ppl=279.730  val_ppl=325.377  test_ppl=355.003
+20:42:40  INFO     [Markov-2] fitting closed-form model on 8567 train sequences
+20:42:49  INFO     [Markov-2] fit=3.0s  score=6.2s  train_ppl=252.831  val_ppl=301.264  test_ppl=332.666
+20:42:49  INFO     [Heuristic] fitting closed-form model on 8567 train sequences
+20:42:50  INFO     [Heuristic] fit=0.3s  score=0.4s  train_ppl=394.002  val_ppl=425.572  test_ppl=438.863
+20:42:50  INFO     wrote metrics to results\run_5epoch\pitchgpt_baselines_metrics.json
+20:42:50  INFO     wrote training curves to results\run_5epoch\pitchgpt_training_curves.html
+20:42:50  INFO     ======================================================================
+20:42:50  INFO     PitchGPT test perplexity:   148.198
+20:42:50  INFO     LSTM      test perplexity:  169.801  (\u0394 +12.72%)
+20:42:50  INFO     Markov-2 test perplexity:   332.666  (\u0394 +55.45%)
+20:42:50  INFO     Heuristic test perplexity:  438.863  (\u0394 +66.23%)
+20:42:50  INFO     ----------------------------------------------------------------------
+20:42:50  INFO     FAIL — PitchGPT is 12.7% better than LSTM (spec requires \u226515%).
+20:42:50  INFO     PASS — PitchGPT is 55.5% better than Markov-2 (spec requires \u226520%).
+20:42:50  INFO     PASS — PitchGPT is 66.2% better than Heuristic (spec requires \u226525%).
+20:42:50  INFO     OVERALL: FAIL
+20:42:50  INFO     ======================================================================

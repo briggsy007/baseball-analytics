@@ -34,6 +34,7 @@ from src.analytics.pitchgpt import (
     _collate_fn,
     _compute_per_pitch_score_diff,
     _score_sequences,
+    audit_no_game_overlap,
     train_pitchgpt,
 )
 
@@ -597,3 +598,130 @@ class TestScoreDiffFix:
         # Pitch 3: home team pitching (inning_topbot=Top), away now up 4-0,
         # pitcher POV score_diff = home - away = -4.
         assert diffs[2] == -4, f"Expected -4 after grand slam, got {diffs[2]}"
+
+
+# ═════════════════════════════════════════════════════════════════════════════
+# Ticket #1: date-based train/val/test split + leakage audit
+# ═════════════════════════════════════════════════════════════════════════════
+
+
+class TestDateSplit:
+    """Regression tests for the leakage-free date-based split.
+
+    Guardrails:
+      * Overlapping train/val/test year ranges must raise ``ValueError``.
+      * On real date-separated data no ``game_pk`` can appear in more
+        than one split.
+      * Each of train/val/test must contain >= 1 sequence on a multi-
+        year fixture.
+    """
+
+    def test_split_year_ranges_disjoint_guard(self, db_conn):
+        """Overlapping ranges must raise ``ValueError`` at Dataset init."""
+        # train 2015-2022, val 2022-2023 overlap on 2022 → must raise.
+        with pytest.raises(ValueError, match="overlap"):
+            PitchSequenceDataset(
+                db_conn,
+                max_seq_len=32,
+                split_mode="train",
+                train_range=(2015, 2022),
+                val_range=(2022, 2023),
+                test_range=(2024, 2024),
+                max_games_per_split=5,
+            )
+        # train vs test overlap
+        with pytest.raises(ValueError, match="overlap"):
+            PitchSequenceDataset(
+                db_conn,
+                max_seq_len=32,
+                split_mode="train",
+                train_range=(2015, 2022),
+                val_range=(2023, 2023),
+                test_range=(2020, 2024),
+                max_games_per_split=5,
+            )
+
+    def test_no_game_overlap_across_splits(self, db_conn):
+        """No ``game_pk`` may appear in more than one date-based split."""
+        # Use the generous range that synthetic data covers (2015-2026).
+        train_ds = PitchSequenceDataset(
+            db_conn,
+            max_seq_len=64,
+            split_mode="train",
+            train_range=(2015, 2022),
+            val_range=(2023, 2023),
+            test_range=(2024, 2024),
+            max_games_per_split=20,
+        )
+        val_ds = PitchSequenceDataset(
+            db_conn,
+            max_seq_len=64,
+            split_mode="val",
+            train_range=(2015, 2022),
+            val_range=(2023, 2023),
+            test_range=(2024, 2024),
+            max_games_per_split=20,
+        )
+        test_ds = PitchSequenceDataset(
+            db_conn,
+            max_seq_len=64,
+            split_mode="test",
+            train_range=(2015, 2022),
+            val_range=(2023, 2023),
+            test_range=(2024, 2024),
+            max_games_per_split=20,
+        )
+
+        report = audit_no_game_overlap(train_ds, val_ds, test_ds)
+
+        # Hard leakage constraint: no game_pk can be shared.
+        assert report["shared_game_pks"] == 0, (
+            f"Leakage detected: {report['shared_game_pks']} shared game_pks "
+            f"across splits. report={report}"
+        )
+
+    def test_each_split_non_empty(self, db_conn):
+        """On a multi-year fixture, train/val/test must each have >= 1 seq."""
+        train_ds = PitchSequenceDataset(
+            db_conn, max_seq_len=64, split_mode="train",
+            train_range=(2015, 2022), val_range=(2023, 2023),
+            test_range=(2024, 2024), max_games_per_split=50,
+        )
+        val_ds = PitchSequenceDataset(
+            db_conn, max_seq_len=64, split_mode="val",
+            train_range=(2015, 2022), val_range=(2023, 2023),
+            test_range=(2024, 2024), max_games_per_split=50,
+        )
+        test_ds = PitchSequenceDataset(
+            db_conn, max_seq_len=64, split_mode="test",
+            train_range=(2015, 2022), val_range=(2023, 2023),
+            test_range=(2024, 2024), max_games_per_split=50,
+        )
+
+        # The synthetic fixture spans 2015-2026 with data in every year,
+        # so each of these must contain at least one sequence.
+        assert len(train_ds) >= 1, "Train split produced zero sequences."
+        assert len(val_ds) >= 1, "Val split produced zero sequences."
+        assert len(test_ds) >= 1, "Test split produced zero sequences."
+
+    def test_invalid_split_mode_raises(self, db_conn):
+        """An unknown split_mode should raise ``ValueError``."""
+        with pytest.raises(ValueError):
+            PitchSequenceDataset(
+                db_conn, max_seq_len=32, split_mode="garbage",  # type: ignore[arg-type]
+                max_games_per_split=5,
+            )
+
+    def test_backwards_compatible_default(self, db_conn):
+        """``split_mode=None`` must preserve the original single-season API.
+
+        The existing ``train_pitchgpt(conn, seasons=...)`` path and the
+        dashboards/precompute calls depend on this.
+        """
+        ds_legacy = PitchSequenceDataset(
+            db_conn, seasons=list(range(2015, 2027)), max_seq_len=32,
+        )
+        # Should load without raising.  Number of sequences may legitimately
+        # be zero on a tiny test fixture; what matters is the API works.
+        assert isinstance(ds_legacy.game_pks, set)
+        assert isinstance(ds_legacy.pitcher_ids, set)

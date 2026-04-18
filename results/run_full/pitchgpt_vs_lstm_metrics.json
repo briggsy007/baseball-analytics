@@ -1,0 +1,105 @@
+{
+  "seed": 42,
+  "device": "cpu",
+  "n_train_sequences": 8585,
+  "n_val_sequences": 2524,
+  "n_test_sequences": 2558,
+  "train_range": "2015-2022",
+  "val_range": "2023",
+  "test_range": "2024",
+  "max_train_games": 1000,
+  "max_val_games": 300,
+  "max_test_games": 300,
+  "epochs": 3,
+  "batch_size": 32,
+  "lr": 0.001,
+  "leakage_audit": {
+    "shared_game_pks": 0,
+    "shared_game_pks_train_val": 0,
+    "shared_game_pks_train_test": 0,
+    "shared_game_pks_val_test": 0,
+    "shared_pitcher_ids_train_test": 393,
+    "shared_pitcher_ids_train_val": 469,
+    "n_train_game_pks": 1000,
+    "n_val_game_pks": 300,
+    "n_test_game_pks": 300,
+    "n_train_pitchers": 1453,
+    "n_val_pitchers": 654,
+    "n_test_pitchers": 653
+  },
+  "pitchgpt": {
+    "params": 1398562,
+    "train_loss_final": 4.9694,
+    "val_loss_final": 5.0001,
+    "test_loss": 5.0983,
+    "test_perplexity": 163.748,
+    "epoch_best": 3,
+    "best_val_loss": 5.0001,
+    "wall_clock_sec": 399.2,
+    "history": [
+      {
+        "epoch": 1,
+        "train_loss": 5.6578,
+        "val_loss": 5.3958,
+        "train_perplexity": 286.507,
+        "val_perplexity": 220.469,
+        "wall_clock_sec": 139.3
+      },
+      {
+        "epoch": 2,
+        "train_loss": 5.1674,
+        "val_loss": 5.1686,
+        "train_perplexity": 175.467,
+        "val_perplexity": 175.663,
+        "wall_clock_sec": 154.1
+      },
+      {
+        "epoch": 3,
+        "train_loss": 4.9694,
+        "val_loss": 5.0001,
+        "train_perplexity": 143.937,
+        "val_perplexity": 148.425,
+        "wall_clock_sec": 100.2
+      }
+    ]
+  },
+  "lstm": {
+    "params": 837154,
+    "train_loss_final": 5.0927,
+    "val_loss_final": 5.1726,
+    "test_loss": 5.2582,
+    "test_perplexity": 192.136,
+    "epoch_best": 3,
+    "best_val_loss": 5.1726,
+    "wall_clock_sec": 84.4,
+    "history": [
+      {
+        "epoch": 1,
+        "train_loss": 5.803,
+        "val_loss": 5.6042,
+        "train_perplexity": 331.307,
+        "val_perplexity": 271.556,
+        "wall_clock_sec": 27.1
+      },
+      {
+        "epoch": 2,
+        "train_loss": 5.2795,
+        "val_loss": 5.2843,
+        "train_perplexity": 196.278,
+        "val_perplexity": 197.221,
+        "wall_clock_sec": 28.7
+      },
+      {
+        "epoch": 3,
+        "train_loss": 5.0927,
+        "val_loss": 5.1726,
+        "train_perplexity": 162.826,
+        "val_perplexity": 176.376,
+        "wall_clock_sec": 26.5
+      }
+    ]
+  },
+  "perplexity_improvement_pct": 14.77,
+  "spec_threshold_15pct": false,
+  "verdict": "FAIL \u2014 transformer only 14.8% better than LSTM; spec requires \u226515%."
+}

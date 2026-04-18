@@ -1,0 +1,194 @@
+{
+  "seed": 42,
+  "device": "cpu",
+  "n_train_sequences": 8567,
+  "n_val_sequences": 2548,
+  "n_test_sequences": 2622,
+  "train_range": "2015-2022",
+  "val_range": "2023",
+  "test_range": "2024",
+  "max_train_games": 1000,
+  "max_val_games": 300,
+  "max_test_games": 300,
+  "epochs": 5,
+  "batch_size": 32,
+  "lr": 0.001,
+  "leakage_audit": {
+    "shared_game_pks": 0,
+    "shared_game_pks_train_val": 0,
+    "shared_game_pks_train_test": 0,
+    "shared_game_pks_val_test": 0,
+    "shared_pitcher_ids_train_test": 398,
+    "shared_pitcher_ids_train_val": 471,
+    "n_train_game_pks": 1000,
+    "n_val_game_pks": 300,
+    "n_test_game_pks": 300,
+    "n_train_pitchers": 1448,
+    "n_val_pitchers": 645,
+    "n_test_pitchers": 663
+  },
+  "pitchgpt": {
+    "params": 1398562,
+    "train_loss_final": 4.7798,
+    "val_loss_final": 4.9121,
+    "test_loss": 4.9985,
+    "test_perplexity": 148.198,
+    "epoch_best": 5,
+    "best_val_loss": 4.9121,
+    "wall_clock_sec": 447.0,
+    "history": [
+      {
+        "epoch": 1,
+        "train_loss": 5.6445,
+        "val_loss": 5.4588,
+        "train_perplexity": 282.743,
+        "val_perplexity": 234.824,
+        "wall_clock_sec": 88.8
+      },
+      {
+        "epoch": 2,
+        "train_loss": 5.1591,
+        "val_loss": 5.2085,
+        "train_perplexity": 174.007,
+        "val_perplexity": 182.82,
+        "wall_clock_sec": 93.9
+      },
+      {
+        "epoch": 3,
+        "train_loss": 4.969,
+        "val_loss": 5.034,
+        "train_perplexity": 143.889,
+        "val_perplexity": 153.541,
+        "wall_clock_sec": 88.8
+      },
+      {
+        "epoch": 4,
+        "train_loss": 4.8525,
+        "val_loss": 4.9661,
+        "train_perplexity": 128.058,
+        "val_perplexity": 143.46,
+        "wall_clock_sec": 87.0
+      },
+      {
+        "epoch": 5,
+        "train_loss": 4.7798,
+        "val_loss": 4.9121,
+        "train_perplexity": 119.078,
+        "val_perplexity": 135.924,
+        "wall_clock_sec": 84.2
+      }
+    ]
+  },
+  "lstm": {
+    "params": 837154,
+    "train_loss_final": 4.8826,
+    "val_loss_final": 5.0313,
+    "test_loss": 5.1346,
+    "test_perplexity": 169.801,
+    "epoch_best": 5,
+    "best_val_loss": 5.0313,
+    "wall_clock_sec": 131.5,
+    "history": [
+      {
+        "epoch": 1,
+        "train_loss": 5.8004,
+        "val_loss": 5.5978,
+        "train_perplexity": 330.431,
+        "val_perplexity": 269.823,
+        "wall_clock_sec": 28.5
+      },
+      {
+        "epoch": 2,
+        "train_loss": 5.2525,
+        "val_loss": 5.3168,
+        "train_perplexity": 191.036,
+        "val_perplexity": 203.731,
+        "wall_clock_sec": 31.0
+      },
+      {
+        "epoch": 3,
+        "train_loss": 5.0725,
+        "val_loss": 5.2053,
+        "train_perplexity": 159.572,
+        "val_perplexity": 182.227,
+        "wall_clock_sec": 24.7
+      },
+      {
+        "epoch": 4,
+        "train_loss": 4.9637,
+        "val_loss": 5.0903,
+        "train_perplexity": 143.12,
+        "val_perplexity": 162.433,
+        "wall_clock_sec": 23.2
+      },
+      {
+        "epoch": 5,
+        "train_loss": 4.8826,
+        "val_loss": 5.0313,
+        "train_perplexity": 131.973,
+        "val_perplexity": 153.131,
+        "wall_clock_sec": 22.5
+      }
+    ]
+  },
+  "markov1": {
+    "params": 0,
+    "train_perplexity": 279.73,
+    "val_perplexity": 325.377,
+    "test_perplexity": 355.003,
+    "train_loss": 5.6338,
+    "val_loss": 5.785,
+    "test_loss": 5.8721,
+    "wall_clock_sec": 9.1,
+    "fit_sec": 3.0,
+    "score_sec": 6.2
+  },
+  "markov2": {
+    "params": 0,
+    "train_perplexity": 252.831,
+    "val_perplexity": 301.264,
+    "test_perplexity": 332.666,
+    "train_loss": 5.5327,
+    "val_loss": 5.708,
+    "test_loss": 5.8071,
+    "wall_clock_sec": 9.2,
+    "fit_sec": 3.0,
+    "score_sec": 6.2
+  },
+  "heuristic": {
+    "params": 0,
+    "train_perplexity": 394.002,
+    "val_perplexity": 425.572,
+    "test_perplexity": 438.863,
+    "train_loss": 5.9764,
+    "val_loss": 6.0534,
+    "test_loss": 6.0842,
+    "wall_clock_sec": 0.7,
+    "fit_sec": 0.3,
+    "score_sec": 0.4
+  },
+  "comparisons": {
+    "pitchgpt_vs_lstm_pct": 12.72,
+    "pitchgpt_vs_markov2_pct": 55.45,
+    "pitchgpt_vs_heuristic_pct": 66.23
+  },
+  "thresholds": {
+    "lstm_pct": 15.0,
+    "markov2_pct": 20.0,
+    "heuristic_pct": 25.0
+  },
+  "pass": {
+    "vs_lstm": false,
+    "vs_markov2": true,
+    "vs_heuristic": true,
+    "overall": false
+  },
+  "verdict": {
+    "vs_lstm": "FAIL \u2014 PitchGPT is 12.7% better than LSTM (spec requires \u226515%).",
+    "vs_markov2": "PASS \u2014 PitchGPT is 55.5% better than Markov-2 (spec requires \u226520%).",
+    "vs_heuristic": "PASS \u2014 PitchGPT is 66.2% better than Heuristic (spec requires \u226525%).",
+    "overall": "FAIL \u2014 PitchGPT does NOT beat every baseline above spec threshold."
+  },
+  "perplexity_improvement_pct": 12.72,
+  "spec_threshold_15pct": false
+}
