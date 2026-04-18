@@ -1,0 +1,455 @@
+{
+  "config": {
+    "train_start": 2015,
+    "train_end": 2022,
+    "test_start": 2023,
+    "test_end": 2024,
+    "pa_min": 100,
+    "ip_min": 20,
+    "n_bootstrap_train": 20,
+    "n_bootstrap_ci": 500,
+    "random_state": 42
+  },
+  "train_metrics": {
+    "outcome_nuisance_r2": 0.0009,
+    "n_observations": 1232865,
+    "n_players_estimated": 1697,
+    "n_bootstrap": 20,
+    "n_splits": 5,
+    "mean_residual_variance": 0.267427,
+    "train_start_year": 2015,
+    "train_end_year": 2022
+  },
+  "test_metrics": {
+    "test_nuisance_r2": 0.0007,
+    "test_rmse_residuals": 0.515281,
+    "n_test_observations": 368418,
+    "n_test_players": 746,
+    "n_test_players_sparse": 89,
+    "pa_min_test_qualifying": 50,
+    "test_start_year": 2023,
+    "test_end_year": 2024
+  },
+  "metrics_batters": {
+    "n": 574,
+    "pearson_r": 0.9569,
+    "pearson_r_ci": [
+      0.9423,
+      0.9669
+    ],
+    "spearman_rho": 0.9285,
+    "spearman_rho_ci": [
+      0.9119,
+      0.9414
+    ],
+    "rmse": 1.0826,
+    "mae": 0.8512,
+    "label": "batters"
+  },
+  "metrics_pitchers": {
+    "n": 0,
+    "pearson_r": null,
+    "pearson_r_ci": null,
+    "spearman_rho": null,
+    "spearman_rho_ci": null,
+    "rmse": null,
+    "mae": null,
+    "label": "pitchers"
+  },
+  "metrics_combined": {
+    "n": 574,
+    "pearson_r": 0.9569,
+    "pearson_r_ci": [
+      0.9423,
+      0.9669
+    ],
+    "spearman_rho": 0.9285,
+    "spearman_rho_ci": [
+      0.9119,
+      0.9414
+    ],
+    "rmse": 1.0826,
+    "mae": 0.8512,
+    "label": "combined"
+  },
+  "spec_threshold": {
+    "pearson_r_required": 0.5,
+    "spearman_rho_required": 0.6,
+    "pass": true
+  },
+  "biggest_movers_over_valued": [
+    {
+      "player_id": 669911,
+      "name": "Michael Toglia",
+      "position": "batter",
+      "pa_total": 610.0,
+      "ip_total": NaN,
+      "causal_war": -1.12,
+      "trad_war": 0.07960439179050176,
+      "rank_causal": 438,
+      "rank_trad": 156,
+      "rank_diff": -282
+    },
+    {
+      "player_id": 691026,
+      "name": "Masyn Winn",
+      "position": "batter",
+      "pa_total": 774.0,
+      "ip_total": NaN,
+      "causal_war": -1.04,
+      "trad_war": -0.7725210128199183,
+      "rank_causal": 418,
+      "rank_trad": 245,
+      "rank_diff": -173
+    },
+    {
+      "player_id": 691016,
+      "name": "Tyler Soderstrom",
+      "position": "batter",
+      "pa_total": 351.0,
+      "ip_total": NaN,
+      "causal_war": -1.11,
+      "trad_war": -1.1023045499817543,
+      "rank_causal": 436,
+      "rank_trad": 281,
+      "rank_diff": -155
+    },
+    {
+      "player_id": 686668,
+      "name": "Brenton Doyle",
+      "position": "batter",
+      "pa_total": 1034.0,
+      "ip_total": NaN,
+      "causal_war": -1.53,
+      "trad_war": -1.5050644816910446,
+      "rank_causal": 498,
+      "rank_trad": 347,
+      "rank_diff": -151
+    },
+    {
+      "player_id": 668800,
+      "name": "Andrew Knizner",
+      "position": "batter",
+      "pa_total": 334.0,
+      "ip_total": 3.0,
+      "causal_war": -1.27,
+      "trad_war": -1.2807812766605644,
+      "rank_causal": 464,
+      "rank_trad": 314,
+      "rank_diff": -150
+    },
+    {
+      "player_id": 595909,
+      "name": "Jake Cave",
+      "position": "batter",
+      "pa_total": 552.0,
+      "ip_total": NaN,
+      "causal_war": -1.53,
+      "trad_war": -1.5837129012385642,
+      "rank_causal": 498,
+      "rank_trad": 356,
+      "rank_diff": -142
+    },
+    {
+      "player_id": 666160,
+      "name": "Mickey Moniak",
+      "position": "batter",
+      "pa_total": 741.0,
+      "ip_total": NaN,
+      "causal_war": -1.05,
+      "trad_war": -1.1425402224181782,
+      "rank_causal": 424,
+      "rank_trad": 289,
+      "rank_diff": -135
+    },
+    {
+      "player_id": 696100,
+      "name": "Hunter Goodman",
+      "position": "batter",
+      "pa_total": 301.0,
+      "ip_total": NaN,
+      "causal_war": -1.26,
+      "trad_war": -1.3273265879140235,
+      "rank_causal": 458,
+      "rank_trad": 323,
+      "rank_diff": -135
+    },
+    {
+      "player_id": 681297,
+      "name": "Colton Cowser",
+      "position": "batter",
+      "pa_total": 645.0,
+      "ip_total": NaN,
+      "causal_war": -0.3,
+      "trad_war": 0.7080827024573515,
+      "rank_causal": 249,
+      "rank_trad": 116,
+      "rank_diff": -133
+    },
+    {
+      "player_id": 663853,
+      "name": "Romy Gonzalez",
+      "position": "batter",
+      "pa_total": 311.0,
+      "ip_total": NaN,
+      "causal_war": -0.72,
+      "trad_war": -0.6287488637379477,
+      "rank_causal": 355,
+      "rank_trad": 224,
+      "rank_diff": -131
+    },
+    {
+      "player_id": 641343,
+      "name": "Jake Bauers",
+      "position": "batter",
+      "pa_total": 624.0,
+      "ip_total": 4.0,
+      "causal_war": -1.38,
+      "trad_war": -1.5590930475496438,
+      "rank_causal": 481,
+      "rank_trad": 353,
+      "rank_diff": -128
+    },
+    {
+      "player_id": 607680,
+      "name": "Kevin Pillar",
+      "position": "batter",
+      "pa_total": 527.0,
+      "ip_total": NaN,
+      "causal_war": -1.48,
+      "trad_war": -1.6431488093395554,
+      "rank_causal": 491,
+      "rank_trad": 364,
+      "rank_diff": -127
+    },
+    {
+      "player_id": 592696,
+      "name": "Eddie Rosario",
+      "position": "batter",
+      "pa_total": 842.0,
+      "ip_total": NaN,
+      "causal_war": -2.41,
+      "trad_war": -2.133578060464988,
+      "rank_causal": 555,
+      "rank_trad": 430,
+      "rank_diff": -125
+    },
+    {
+      "player_id": 665019,
+      "name": "Kody Clemens",
+      "position": "batter",
+      "pa_total": 273.0,
+      "ip_total": 3.200000047683716,
+      "causal_war": -0.76,
+      "trad_war": -0.7713834373056886,
+      "rank_causal": 364,
+      "rank_trad": 244,
+      "rank_diff": -120
+    },
+    {
+      "player_id": 663550,
+      "name": "Trey Cabbage",
+      "position": "batter",
+      "pa_total": 147.0,
+      "ip_total": NaN,
+      "causal_war": -0.9,
+      "trad_war": -0.9474058339804072,
+      "rank_causal": 389,
+      "rank_trad": 269,
+      "rank_diff": -120
+    }
+  ],
+  "biggest_movers_under_valued": [
+    {
+      "player_id": 669743,
+      "name": "Alex Call",
+      "position": "batter",
+      "pa_total": 552.0,
+      "ip_total": NaN,
+      "causal_war": -0.03,
+      "trad_war": -3.432465307332192,
+      "rank_causal": 202,
+      "rank_trad": 540,
+      "rank_diff": 338
+    },
+    {
+      "player_id": 663538,
+      "name": "Nico Hoerner",
+      "position": "batter",
+      "pa_total": 1329.0,
+      "ip_total": NaN,
+      "causal_war": 1.15,
+      "trad_war": -1.4604544413249716,
+      "rank_causal": 96,
+      "rank_trad": 338,
+      "rank_diff": 242
+    },
+    {
+      "player_id": 408234,
+      "name": "Miguel Cabrera",
+      "position": "batter",
+      "pa_total": 370.0,
+      "ip_total": NaN,
+      "causal_war": -0.32,
+      "trad_war": -2.3381011379803573,
+      "rank_causal": 251,
+      "rank_trad": 457,
+      "rank_diff": 206
+    },
+    {
+      "player_id": 665161,
+      "name": "Jeremy Pe\u00f1a",
+      "position": "batter",
+      "pa_total": 1334.0,
+      "ip_total": NaN,
+      "causal_war": -0.49,
+      "trad_war": -2.683129628215299,
+      "rank_causal": 292,
+      "rank_trad": 492,
+      "rank_diff": 200
+    },
+    {
+      "player_id": 669707,
+      "name": "Jared Triolo",
+      "position": "batter",
+      "pa_total": 655.0,
+      "ip_total": NaN,
+      "causal_war": -0.54,
+      "trad_war": -2.721261944429994,
+      "rank_causal": 299,
+      "rank_trad": 496,
+      "rank_diff": 197
+    },
+    {
+      "player_id": 543807,
+      "name": "George Springer",
+      "position": "batter",
+      "pa_total": 1303.0,
+      "ip_total": NaN,
+      "causal_war": -0.48,
+      "trad_war": -2.303996380107964,
+      "rank_causal": 289,
+      "rank_trad": 450,
+      "rank_diff": 161
+    },
+    {
+      "player_id": 462101,
+      "name": "Elvis Andrus",
+      "position": "batter",
+      "pa_total": 406.0,
+      "ip_total": NaN,
+      "causal_war": -0.75,
+      "trad_war": -2.9614424079861763,
+      "rank_causal": 360,
+      "rank_trad": 515,
+      "rank_diff": 155
+    },
+    {
+      "player_id": 663757,
+      "name": "Trent Grisham",
+      "position": "batter",
+      "pa_total": 764.0,
+      "ip_total": NaN,
+      "causal_war": -0.83,
+      "trad_war": -3.082002919718395,
+      "rank_causal": 376,
+      "rank_trad": 525,
+      "rank_diff": 149
+    },
+    {
+      "player_id": 666165,
+      "name": "Blake Sabol",
+      "position": "batter",
+      "pa_total": 382.0,
+      "ip_total": NaN,
+      "causal_war": 0.04,
+      "trad_war": -1.4759165084087764,
+      "rank_causal": 191,
+      "rank_trad": 339,
+      "rank_diff": 148
+    },
+    {
+      "player_id": 672640,
+      "name": "Otto Lopez",
+      "position": "batter",
+      "pa_total": 434.0,
+      "ip_total": NaN,
+      "causal_war": -0.02,
+      "trad_war": -1.5015082833200566,
+      "rank_causal": 200,
+      "rank_trad": 345,
+      "rank_diff": 145
+    },
+    {
+      "player_id": 676914,
+      "name": "Davis Schneider",
+      "position": "batter",
+      "pa_total": 592.0,
+      "ip_total": NaN,
+      "causal_war": -0.59,
+      "trad_war": -2.2629127130533497,
+      "rank_causal": 311,
+      "rank_trad": 442,
+      "rank_diff": 131
+    },
+    {
+      "player_id": 672724,
+      "name": "Oswald Peraza",
+      "position": "batter",
+      "pa_total": 202.0,
+      "ip_total": NaN,
+      "causal_war": -0.9,
+      "trad_war": -2.981693826804225,
+      "rank_causal": 389,
+      "rank_trad": 519,
+      "rank_diff": 130
+    },
+    {
+      "player_id": 622110,
+      "name": "Matt Duffy",
+      "position": "batter",
+      "pa_total": 219.0,
+      "ip_total": 2.0,
+      "causal_war": -0.4,
+      "trad_war": -1.9169041265083415,
+      "rank_causal": 269,
+      "rank_trad": 395,
+      "rank_diff": 126
+    },
+    {
+      "player_id": 673490,
+      "name": "Ha-Seong Kim",
+      "position": "batter",
+      "pa_total": 1096.0,
+      "ip_total": NaN,
+      "causal_war": 0.67,
+      "trad_war": -0.8211679525247199,
+      "rank_causal": 129,
+      "rank_trad": 253,
+      "rank_diff": 124
+    },
+    {
+      "player_id": 630105,
+      "name": "Jake Cronenworth",
+      "position": "batter",
+      "pa_total": 1203.0,
+      "ip_total": NaN,
+      "causal_war": -0.56,
+      "trad_war": -2.093526432166716,
+      "rank_causal": 302,
+      "rank_trad": 425,
+      "rank_diff": 123
+    }
+  ],
+  "artifacts": {
+    "csv": "results\\causal_war_baseline_comparison_2023_2024.csv",
+    "metrics_json": "results\\causal_war_baseline_comparison_2023_2024_metrics.json",
+    "scatter_html": "results\\causal_war_baseline_scatter.html"
+  },
+  "data_quality": {
+    "batter_war_source": "proxy_from_ops_and_pa",
+    "pitcher_war_source": "proxy_from_era_and_ip",
+    "n_test_effects": 746,
+    "n_merged_rows": 574
+  }
+}
