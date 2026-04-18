@@ -1,0 +1,9 @@
+{
+  "n_healthy_seasons": 298,
+  "pct_breach_50": 52.68456375838926,
+  "pct_breach_70": 19.12751677852349,
+  "pct_breach_85": 12.080536912751679,
+  "saturation_pct_ge_85": 12.080536912751679,
+  "saturation_pct_ge_95": 9.731543624161073,
+  "healthy_max_vwr_median": 50.415149584639465
+}

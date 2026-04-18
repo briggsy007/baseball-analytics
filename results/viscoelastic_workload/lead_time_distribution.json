@@ -1,0 +1,29 @@
+{
+  "lead_time_t50": {
+    "n_breached": 21,
+    "n_total": 53,
+    "fraction_breached": 0.39622641509433965,
+    "median_days": 55.0,
+    "mean_days": 47.095238095238095,
+    "p25_days": 28.0,
+    "p75_days": 64.0
+  },
+  "lead_time_t70": {
+    "n_breached": 17,
+    "n_total": 53,
+    "fraction_breached": 0.32075471698113206,
+    "median_days": 38.0,
+    "mean_days": 37.94117647058823,
+    "p25_days": 23.0,
+    "p75_days": 50.0
+  },
+  "lead_time_t85": {
+    "n_breached": 14,
+    "n_total": 53,
+    "fraction_breached": 0.2641509433962264,
+    "median_days": 36.0,
+    "mean_days": 35.0,
+    "p25_days": 23.25,
+    "p75_days": 45.0
+  }
+}
