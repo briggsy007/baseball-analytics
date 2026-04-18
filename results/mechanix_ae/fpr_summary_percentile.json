@@ -1,0 +1,7 @@
+{
+  "n_healthy_seasons": 50,
+  "score_mode": "percentile",
+  "pct_breach_60": 100.0,
+  "pct_breach_70": 100.0,
+  "pct_breach_80": 100.0
+}

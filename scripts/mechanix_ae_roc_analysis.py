@@ -74,8 +74,17 @@ CHECKPOINTS_DIR = ROOT / "models" / "mechanix_ae" / "per_pitcher"
 
 SEED = 42
 
-THRESHOLDS_LEAD_TIME = [60, 70, 80]
-ROC_THRESHOLDS = list(range(0, 101, 5))
+THRESHOLDS_LEAD_TIME_PERCENTILE = [60, 70, 80]
+ROC_THRESHOLDS_PERCENTILE = list(range(0, 101, 5))
+
+# Z-score variant: 1σ, 2σ, 3σ above the healthy baseline mean are the
+# "percentile-like" buckets.  ROC sweep is a dense grid in the same range.
+THRESHOLDS_LEAD_TIME_ZSCORE = [1.0, 2.0, 3.0]
+ROC_THRESHOLDS_ZSCORE = [round(x, 2) for x in np.linspace(-2.0, 6.0, 41).tolist()]
+
+# Backwards-compatible aliases — set on argparse based on --score-mode.
+THRESHOLDS_LEAD_TIME = THRESHOLDS_LEAD_TIME_PERCENTILE
+ROC_THRESHOLDS = ROC_THRESHOLDS_PERCENTILE
 
 # Train-time hyperparameters.  A per-pitcher VAE converges fast.
 EPOCHS = 15
@@ -266,6 +275,27 @@ def compute_mdi_from_errors(
     return np.clip(ranks / max(len(srt), 1) * 100.0, 0.0, 100.0)
 
 
+def compute_zscore_from_errors(
+    errors: np.ndarray,
+    baseline_errors: np.ndarray,
+    eps: float = 1e-6,
+) -> np.ndarray:
+    """Magnitude-based MDI: z = (error - baseline_mean) / max(baseline_std, eps).
+
+    Higher z = more mechanical drift above the pitcher's healthy baseline.
+    Unbounded; z=1/2/3 are the recommended 1σ/2σ/3σ threshold buckets.
+    """
+    if len(errors) == 0:
+        return np.array([], dtype=np.float32)
+    if len(baseline_errors) == 0:
+        # Degenerate case — self-normalise (returns zero-centred z)
+        baseline_errors = errors
+    mu = float(np.mean(baseline_errors))
+    sigma = float(np.std(baseline_errors))
+    denom = max(sigma, eps)
+    return (np.asarray(errors, dtype=float) - mu) / denom
+
+
 # ──────────────────────────────────────────────────────────────────────────
 # Step 2 — lead-time analysis
 # ──────────────────────────────────────────────────────────────────────────
@@ -282,11 +312,18 @@ def per_day_mdi_series(
     dates: np.ndarray,
     window_errors: np.ndarray,
     baseline_errors: np.ndarray,
+    score_mode: str = "percentile",
 ) -> pd.DataFrame:
     """Aggregate window-level errors into per-game-day MDI.
 
     ``window_errors`` is aligned such that window i ends at pitch index (i + W - 1).
-    The MDI for a given date is the percentile of the highest error ending on that date.
+    The MDI for a given date is the max score of any window ending on that date.
+
+    Args:
+        dates: pitch-level game dates aligned with the underlying feature matrix.
+        window_errors: per-window reconstruction errors.
+        baseline_errors: healthy training-set reconstruction errors.
+        score_mode: "percentile" (rank vs baseline) or "zscore" (magnitude).
     """
     if len(window_errors) == 0:
         return pd.DataFrame(columns=["game_date", "mdi", "recon_error"])
@@ -297,7 +334,10 @@ def per_day_mdi_series(
         m = min(len(end_dates), len(window_errors))
         end_dates = end_dates[:m]
         window_errors = window_errors[:m]
-    mdi_vals = compute_mdi_from_errors(window_errors, baseline_errors)
+    if score_mode == "zscore":
+        mdi_vals = compute_zscore_from_errors(window_errors, baseline_errors)
+    else:
+        mdi_vals = compute_mdi_from_errors(window_errors, baseline_errors)
     df = pd.DataFrame({
         "game_date": pd.to_datetime(end_dates),
         "mdi": mdi_vals,
@@ -330,12 +370,13 @@ def first_breach(
 def roc_from_scores(
     y_true: np.ndarray,
     scores: np.ndarray,
-    thresholds: list[int] | None = None,
+    thresholds: list[int] | list[float] | None = None,
 ) -> dict:
     """Compute ROC curve (TPR/FPR for each threshold) and AUC via trapezoid.
 
-    Scores are MDI-like values in [0, 100].  A prediction is positive iff
-    ``score >= threshold``.
+    Scores are MDI-like values.  A prediction is positive iff ``score >= threshold``.
+    Thresholds are treated as float; percentile-mode passes ints in [0,100],
+    z-score mode passes floats spanning roughly [-2, 6].
     """
     if thresholds is None:
         thresholds = ROC_THRESHOLDS
@@ -493,10 +534,35 @@ def run_pipeline(
     skip_train: bool = False,
     n_healthy_roc: int = 50,
     n_healthy_fpr: int = 100,
+    score_mode: str = "percentile",
 ) -> dict:
+    """Run the MechanixAE validation pipeline.
+
+    Args:
+        score_mode: "percentile" (legacy, self-rank) or "zscore" (magnitude
+            normalised by healthy baseline mean/std).  Only the scoring
+            function changes between modes; the checkpoints and per-pitcher
+            windows are identical.
+    """
+    if score_mode not in ("percentile", "zscore"):
+        raise ValueError(f"Unknown score_mode: {score_mode!r}")
+
     set_seeds(SEED)
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
     CHECKPOINTS_DIR.mkdir(parents=True, exist_ok=True)
+
+    # Mode-specific thresholds and file suffixes so both runs can coexist.
+    if score_mode == "zscore":
+        lead_thresholds: list = list(THRESHOLDS_LEAD_TIME_ZSCORE)
+        roc_thresholds: list = list(ROC_THRESHOLDS_ZSCORE)
+        suffix = "_zscore"
+        # FPR buckets map to the same z-values for "breached_60/70/80" naming.
+        # We re-label them below so the legacy column names stay intact and
+        # the JSON summary gets z=1/2/3 keys as well.
+    else:
+        lead_thresholds = list(THRESHOLDS_LEAD_TIME_PERCENTILE)
+        roc_thresholds = list(ROC_THRESHOLDS_PERCENTILE)
+        suffix = "_percentile"
 
     t0_total = time.time()
     logger.info("Loading cohort from %s", LABELS_PATH)
@@ -669,7 +735,9 @@ def run_pipeline(
         if len(pre_windows) == 0:
             continue
         pre_errors = recon_errors_for_windows(art["model"], pre_windows)
-        daily = per_day_mdi_series(pre_dates, pre_errors, art["baseline_errors"])
+        daily = per_day_mdi_series(
+            pre_dates, pre_errors, art["baseline_errors"], score_mode=score_mode,
+        )
         if daily.empty:
             continue
         # Velocity daily for baseline
@@ -678,21 +746,21 @@ def run_pipeline(
 
         rec: dict = {"pitcher_id": pid, "injury_type": art["injury_type"],
                      "il_date": str(il_date.date()), "n_pre_il_days": int(len(daily))}
-        for th in THRESHOLDS_LEAD_TIME:
+        for th in lead_thresholds:
             rec[f"lead_time_t{th}"] = first_breach(daily, th, il_date)
         lead_rows.append(rec)
         pre_il_windowed[pid] = daily
 
     lead_df = pd.DataFrame(lead_rows)
     # Ensure required columns exist even when empty
-    for th in THRESHOLDS_LEAD_TIME:
+    for th in lead_thresholds:
         col = f"lead_time_t{th}"
         if col not in lead_df.columns:
             lead_df[col] = pd.Series(dtype=float)
-    lead_df.to_csv(RESULTS_DIR / "lead_time_per_pitcher.csv", index=False)
+    lead_df.to_csv(RESULTS_DIR / f"lead_time_per_pitcher{suffix}.csv", index=False)
 
     lead_summary: dict = {}
-    for th in THRESHOLDS_LEAD_TIME:
+    for th in lead_thresholds:
         key = f"lead_time_t{th}"
         vals = lead_df[key].dropna()
         lead_summary[key] = {
@@ -704,7 +772,7 @@ def run_pipeline(
             "p25_days": float(vals.quantile(0.25)) if len(vals) else None,
             "p75_days": float(vals.quantile(0.75)) if len(vals) else None,
         }
-    (RESULTS_DIR / "lead_time_distribution.json").write_text(
+    (RESULTS_DIR / f"lead_time_distribution{suffix}.json").write_text(
         json.dumps(lead_summary, indent=2)
     )
 
@@ -712,20 +780,23 @@ def run_pipeline(
     try:
         import plotly.graph_objects as go
         fig = go.Figure()
-        for th in THRESHOLDS_LEAD_TIME:
+        for th in lead_thresholds:
             vals = lead_df[f"lead_time_t{th}"].dropna().values
             if len(vals) == 0:
                 continue
+            label_prefix = "z" if score_mode == "zscore" else "MDI"
             fig.add_trace(go.Histogram(
-                x=vals, name=f"MDI>={th}", nbinsx=20, opacity=0.6,
+                x=vals, name=f"{label_prefix}>={th}", nbinsx=20, opacity=0.6,
             ))
+        mode_title = "z-score" if score_mode == "zscore" else "percentile"
         fig.update_layout(
             barmode="overlay",
-            title="MechanixAE Lead-Time Distribution (days before IL placement)",
+            title=f"MechanixAE Lead-Time Distribution ({mode_title}) "
+                  "(days before IL placement)",
             xaxis_title="Lead time (days)",
             yaxis_title="Number of pitchers",
         )
-        fig.write_html(RESULTS_DIR / "lead_time_distribution.html")
+        fig.write_html(RESULTS_DIR / f"lead_time_distribution{suffix}.html")
     except Exception as exc:
         logger.warning("Plotly lead-time plot failed: %s", exc)
 
@@ -789,7 +860,7 @@ def run_pipeline(
         base = recon_errors_for_windows(model, train_windows)
         eval_windows = build_sliding_windows(eval_feats, WINDOW_SIZE)
         errs = recon_errors_for_windows(model, eval_windows)
-        daily = per_day_mdi_series(eval_dates, errs, base)
+        daily = per_day_mdi_series(eval_dates, errs, base, score_mode=score_mode)
         if daily.empty:
             continue
         daily_vel = daily_velocity_score(eval_dates, eval_speeds, window=10)
@@ -814,15 +885,23 @@ def run_pipeline(
     s_mdi = np.concatenate([np.array(pos_mdi), neg_mdi])
     s_vel = np.concatenate([np.array(pos_vel), neg_vel])
 
-    # Normalize vel scores to [0, 100] for comparable threshold sweep plotting.
-    if len(s_vel) > 0 and np.nanmax(s_vel) > 0:
-        s_vel_scaled = 100.0 * (s_vel / np.nanpercentile(s_vel, 99) if np.nanpercentile(s_vel, 99) > 0 else 1.0)
-        s_vel_scaled = np.clip(s_vel_scaled, 0, 100)
-    else:
+    # Scale velocity scores to a comparable range for plotting only.  AUC is
+    # invariant to monotone transforms, so the reported AUC doesn't change.
+    if score_mode == "zscore":
+        # Leave vel scores on native scale; sweep uses wide threshold grid.
         s_vel_scaled = s_vel
+        vel_thresholds = [round(v, 2) for v in np.linspace(0.0, 6.0, 31).tolist()]
+    else:
+        if len(s_vel) > 0 and np.nanmax(s_vel) > 0:
+            p99 = np.nanpercentile(s_vel, 99)
+            s_vel_scaled = 100.0 * (s_vel / p99 if p99 > 0 else 1.0)
+            s_vel_scaled = np.clip(s_vel_scaled, 0, 100)
+        else:
+            s_vel_scaled = s_vel
+        vel_thresholds = roc_thresholds
 
-    roc_mdi = roc_from_scores(y, s_mdi)
-    roc_vel = roc_from_scores(y, s_vel_scaled)
+    roc_mdi = roc_from_scores(y, s_mdi, thresholds=roc_thresholds)
+    roc_vel = roc_from_scores(y, s_vel_scaled, thresholds=vel_thresholds)
     ci_lo, ci_hi = bootstrap_auc_ci(y, s_mdi, n_iter=200)
     ci_vel_lo, ci_vel_hi = bootstrap_auc_ci(y, s_vel_scaled, n_iter=200)
 
@@ -850,15 +929,17 @@ def run_pipeline(
             else roc_mdi["auc"] - roc_vel["auc"]
         ),
     }
-    (RESULTS_DIR / "roc_curve.json").write_text(json.dumps(roc_out, indent=2))
+    roc_out["score_mode"] = score_mode
+    (RESULTS_DIR / f"roc_curve{suffix}.json").write_text(json.dumps(roc_out, indent=2))
 
     # Plotly ROC
     try:
         import plotly.graph_objects as go
         fig = go.Figure()
+        mdi_label = "MDI (z)" if score_mode == "zscore" else "MDI"
         fig.add_trace(go.Scatter(
             x=roc_mdi["fpr"], y=roc_mdi["tpr"], mode="lines+markers",
-            name=f"MDI (AUC={roc_mdi['auc']:.3f})",
+            name=f"{mdi_label} (AUC={roc_mdi['auc']:.3f})",
         ))
         fig.add_trace(go.Scatter(
             x=roc_vel["fpr"], y=roc_vel["tpr"], mode="lines+markers",
@@ -868,51 +949,65 @@ def run_pipeline(
             x=[0, 1], y=[0, 1], mode="lines", name="Random",
             line=dict(dash="dash", color="grey"),
         ))
+        mode_title = "z-score" if score_mode == "zscore" else "percentile"
         fig.update_layout(
-            title=f"MechanixAE 30-day pre-IL ROC  (n_pos={roc_mdi['n_pos']}, n_neg={roc_mdi['n_neg']})",
+            title=f"MechanixAE 30-day pre-IL ROC ({mode_title}) "
+                  f"(n_pos={roc_mdi['n_pos']}, n_neg={roc_mdi['n_neg']})",
             xaxis_title="False-positive rate",
             yaxis_title="True-positive rate",
         )
-        fig.write_html(RESULTS_DIR / "roc_curve.html")
+        fig.write_html(RESULTS_DIR / f"roc_curve{suffix}.html")
     except Exception as exc:
         logger.warning("Plotly ROC plot failed: %s", exc)
 
     # ── Step 5: FPR on healthy pitcher-seasons ───────────────────────────
     logger.info("Step 5: FPR on healthy seasons")
-    # Reuse healthy artifacts; extend if needed up to n_healthy_fpr.
-    # We'll check each healthy pitcher-season's MDI over the evaluation-window daily series.
+    # For z-score mode, the "percentile-like" buckets are z=1, 2, 3.
+    # For percentile mode, the legacy 60/70/80 buckets are retained.
+    if score_mode == "zscore":
+        fpr_thresholds = [1.0, 2.0, 3.0]
+        th_labels = ["z1", "z2", "z3"]
+    else:
+        fpr_thresholds = [60.0, 70.0, 80.0]
+        th_labels = ["60", "70", "80"]
+
     fpr_rows = []
     for key, daily in healthy_artifacts.items():
         pid, season = key
-        fpr_rows.append({
+        row: dict = {
             "pitcher_id": pid,
             "season": season,
             "max_mdi": float(daily["mdi"].max()) if len(daily) else None,
-            "pct_days_above_60": float((daily["mdi"] >= 60).mean() * 100),
-            "pct_days_above_70": float((daily["mdi"] >= 70).mean() * 100),
-            "pct_days_above_80": float((daily["mdi"] >= 80).mean() * 100),
-            "breached_60": bool((daily["mdi"] >= 60).any()),
-            "breached_70": bool((daily["mdi"] >= 70).any()),
-            "breached_80": bool((daily["mdi"] >= 80).any()),
-        })
+        }
+        for th, lab in zip(fpr_thresholds, th_labels):
+            row[f"pct_days_above_{lab}"] = float((daily["mdi"] >= th).mean() * 100) if len(daily) else 0.0
+            row[f"breached_{lab}"] = bool((daily["mdi"] >= th).any()) if len(daily) else False
+        fpr_rows.append(row)
+
     fpr_df = pd.DataFrame(fpr_rows)
-    fpr_df.to_csv(RESULTS_DIR / "fpr_healthy_seasons.csv", index=False)
-    fpr_summary = {
-        "n_healthy_seasons": int(len(fpr_df)),
-        "pct_breach_60": float(fpr_df["breached_60"].mean() * 100) if len(fpr_df) else None,
-        "pct_breach_70": float(fpr_df["breached_70"].mean() * 100) if len(fpr_df) else None,
-        "pct_breach_80": float(fpr_df["breached_80"].mean() * 100) if len(fpr_df) else None,
-    }
-    (RESULTS_DIR / "fpr_summary.json").write_text(json.dumps(fpr_summary, indent=2))
+    fpr_df.to_csv(RESULTS_DIR / f"fpr_healthy_seasons{suffix}.csv", index=False)
+    fpr_summary: dict = {"n_healthy_seasons": int(len(fpr_df)), "score_mode": score_mode}
+    for lab in th_labels:
+        col = f"breached_{lab}"
+        fpr_summary[f"pct_breach_{lab}"] = (
+            float(fpr_df[col].mean() * 100) if len(fpr_df) else None
+        )
+    (RESULTS_DIR / f"fpr_summary{suffix}.json").write_text(json.dumps(fpr_summary, indent=2))
 
     # ── Summary JSON ─────────────────────────────────────────────────────
     summary = {
         "cohort": coverage,
+        "score_mode": score_mode,
         "lead_time_summary": lead_summary,
         "roc": roc_out,
         "fpr": fpr_summary,
         "wall_clock_minutes": round((time.time() - t0_total) / 60, 2),
     }
+    (RESULTS_DIR / f"summary{suffix}.json").write_text(
+        json.dumps(summary, indent=2, default=str)
+    )
+    # Also write the legacy unsuffixed summary.json to point to the latest run,
+    # preserving the "current result" expectation of downstream readers.
     (RESULTS_DIR / "summary.json").write_text(json.dumps(summary, indent=2, default=str))
 
     conn.close()
@@ -930,19 +1025,31 @@ if __name__ == "__main__":
                    help="Reuse existing checkpoints when available.")
     p.add_argument("--n-healthy-roc", type=int, default=50)
     p.add_argument("--n-healthy-fpr", type=int, default=100)
+    p.add_argument("--score-mode", type=str, default="zscore",
+                   choices=["percentile", "zscore"],
+                   help="MDI scoring formulation.  Default: zscore (post-rescue).")
     args = p.parse_args()
     summary = run_pipeline(
         max_pitchers=args.max_pitchers,
         skip_train=args.skip_train,
         n_healthy_roc=args.n_healthy_roc,
         n_healthy_fpr=args.n_healthy_fpr,
+        score_mode=args.score_mode,
     )
+    # Pick the "primary" thresholds for the printed summary based on mode.
+    if args.score_mode == "zscore":
+        lead_key = "lead_time_t2.0"
+        fpr_key = "pct_breach_z2"
+    else:
+        lead_key = "lead_time_t70"
+        fpr_key = "pct_breach_70"
     print(json.dumps({
+        "score_mode": args.score_mode,
         "n_trained": summary["cohort"]["n_trained"],
-        "median_lead_t70": summary["lead_time_summary"]["lead_time_t70"]["median_days"],
+        f"median_{lead_key}": summary["lead_time_summary"].get(lead_key, {}).get("median_days"),
         "auc_mdi": summary["roc"]["mdi"]["auc"],
         "auc_vel": summary["roc"]["velocity_drop"]["auc"],
         "delta_auc": summary["roc"]["delta_auc"],
-        "pct_breach_80_healthy": summary["fpr"]["pct_breach_80"],
+        fpr_key: summary["fpr"].get(fpr_key),
         "wall_minutes": summary["wall_clock_minutes"],
     }, indent=2, default=str))

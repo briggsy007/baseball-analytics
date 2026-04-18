@@ -1,0 +1,7 @@
+{
+  "n_healthy_seasons": 50,
+  "score_mode": "zscore",
+  "pct_breach_z1": 100.0,
+  "pct_breach_z2": 96.0,
+  "pct_breach_z3": 88.0
+}

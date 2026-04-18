@@ -2,7 +2,7 @@
   "n_cohort": 111,
   "n_trained": 111,
   "n_skipped": 0,
-  "wall_train_minutes": 3.4,
+  "wall_train_minutes": 0.06,
   "per_injury_trained": {
     "shoulder": 37,
     "elbow": 30,

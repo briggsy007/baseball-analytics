@@ -20,7 +20,7 @@ from __future__ import annotations
 import logging
 import math
 from pathlib import Path
-from typing import Optional
+from typing import Literal, Optional
 
 import numpy as np
 import pandas as pd
@@ -30,6 +30,8 @@ import torch.nn.functional as F
 from torch.utils.data import DataLoader, TensorDataset
 
 from src.analytics.base import BaseAnalyticsModel
+
+ScoreMode = Literal["percentile", "zscore"]
 
 logger = logging.getLogger(__name__)
 
@@ -512,6 +514,13 @@ def train_mechanix_ae(
                 epoch + 1, epochs, avg_loss, avg_recon, avg_kl,
             )
 
+    # Compute healthy baseline reconstruction-error stats so inference-time
+    # z-score scoring (score_mode="zscore") can normalise against them.
+    model.eval()
+    baseline_errors = _compute_reconstruction_errors(model, windows)
+    healthy_recon_mean = float(baseline_errors.mean()) if len(baseline_errors) else 0.0
+    healthy_recon_std = float(baseline_errors.std()) if len(baseline_errors) else 0.0
+
     # Save model
     MODELS_DIR.mkdir(parents=True, exist_ok=True)
     tag = str(pitcher_id) if pitcher_id else "universal"
@@ -522,6 +531,8 @@ def train_mechanix_ae(
         "n_features": N_FEATURES,
         "window_size": WINDOW_SIZE,
         "latent_dim": LATENT_DIM,
+        "healthy_recon_mean": healthy_recon_mean,
+        "healthy_recon_std": healthy_recon_std,
     }, save_path)
     logger.info("Model saved to %s", save_path)
 
@@ -605,16 +616,54 @@ def _compute_reconstruction_errors(
     return errors
 
 
+def compute_mdi_zscore(
+    errors: np.ndarray,
+    healthy_mean: float,
+    healthy_std: float,
+    eps: float = 1e-6,
+) -> np.ndarray:
+    """Convert raw reconstruction errors to a magnitude-based z-score.
+
+    ``z = (error - healthy_mean) / max(healthy_std, eps)``.  Higher z values
+    indicate stronger mechanical drift relative to the pitcher's healthy
+    baseline distribution.  Unlike percentile-rank MDI, z-scores are not
+    bounded to [0, 100] and do not saturate at the top of each evaluation
+    window.
+
+    Args:
+        errors: 1-D array of reconstruction errors.
+        healthy_mean: Mean reconstruction error on the healthy training set.
+        healthy_std: Std of reconstruction errors on the healthy training set.
+        eps: Minimum denominator to avoid division by zero.
+
+    Returns:
+        1-D array of z-scores (same length as ``errors``).
+    """
+    if len(errors) == 0:
+        return np.array([], dtype=np.float32)
+    denom = max(float(healthy_std), eps)
+    return (np.asarray(errors, dtype=float) - float(healthy_mean)) / denom
+
+
 def calculate_mdi(
     conn,
     pitcher_id: int,
     game_pk: int | None = None,
     model: MechanixVAE | None = None,
     checkpoint: dict | None = None,
+    score_mode: ScoreMode = "percentile",
 ) -> dict:
     """Calculate the Mechanical Drift Index for a pitcher.
 
-    MDI = reconstruction-error percentile (0--100) on recent 20-pitch windows.
+    Two scoring modes are supported:
+
+    - ``"percentile"`` (default, legacy): MDI is the percentile rank (0-100)
+      of the most recent window's reconstruction error among all windows in
+      the evaluation series.  Self-ranked — saturates at ~100 for every
+      series, regardless of injury state.
+    - ``"zscore"``: MDI is ``z = (error - healthy_mean) / max(healthy_std, eps)``
+      against the pitcher's stored healthy baseline.  Higher z = more drift.
+      Unbounded above; z=1/2/3 correspond to 1/2/3σ breaches.
 
     Args:
         conn: Open DuckDB connection.
@@ -622,10 +671,13 @@ def calculate_mdi(
         game_pk: If given, restrict to pitches from this game.
         model: Pre-loaded model (optional; loaded from disk if None).
         checkpoint: Pre-loaded checkpoint dict (optional).
+        score_mode: Either "percentile" (legacy) or "zscore" (magnitude).
 
     Returns:
         Dictionary with ``mdi``, ``recon_errors``, ``n_windows``, and
-        per-window detail.
+        per-window detail.  When ``score_mode="zscore"``, ``mdi`` is the
+        z-score of the latest window; thresholds z=1/2/3 are recommended
+        bucket boundaries.
     """
     if model is None or checkpoint is None:
         model, checkpoint = _load_model(pitcher_id)
@@ -669,15 +721,40 @@ def calculate_mdi(
         }
 
     errors = _compute_reconstruction_errors(model, windows)
+    latest_error = errors[-1]
+
+    if score_mode == "zscore":
+        healthy_mean = checkpoint.get("healthy_recon_mean")
+        healthy_std = checkpoint.get("healthy_recon_std")
+        if healthy_mean is None or healthy_std is None:
+            # Checkpoint predates z-score era — fall back to errors themselves
+            # as a self-baseline.  Callers with stored baseline stats should
+            # populate the checkpoint to get the "real" z.
+            healthy_mean = float(np.mean(errors))
+            healthy_std = float(np.std(errors))
+        z = compute_mdi_zscore(errors, healthy_mean, healthy_std)
+        mdi_val = float(z[-1])
+        return {
+            "pitcher_id": pitcher_id,
+            "mdi": round(mdi_val, 3),
+            "score_mode": "zscore",
+            "latest_recon_error": round(float(latest_error), 6),
+            "mean_recon_error": round(float(errors.mean()), 6),
+            "healthy_mean": round(float(healthy_mean), 6),
+            "healthy_std": round(float(healthy_std), 6),
+            "n_windows": len(windows),
+            "recon_errors": [round(float(e), 6) for e in errors],
+            "z_scores": [round(float(v), 3) for v in z],
+        }
 
     # MDI = percentile rank of the most recent window's error among all windows
-    latest_error = errors[-1]
     mdi = float(np.mean(errors <= latest_error) * 100.0)
     mdi = float(np.clip(mdi, 0.0, 100.0))
 
     return {
         "pitcher_id": pitcher_id,
         "mdi": round(mdi, 1),
+        "score_mode": "percentile",
         "latest_recon_error": round(float(latest_error), 6),
         "mean_recon_error": round(float(errors.mean()), 6),
         "n_windows": len(windows),
