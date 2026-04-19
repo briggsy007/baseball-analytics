@@ -46,6 +46,7 @@ from src.dashboard.views import live_game, matchups, bullpen, anomalies, phillie
 from src.dashboard.views import causal_war, sharpe_lineup, kinetic_half_life, mesi, volatility_surface, pset  # noqa: E402
 from src.dashboard.views import alpha_decay, loft, pitch_decay, allostatic_load, viscoelastic_workload, baserunner_gravity  # noqa: E402
 from src.dashboard.views import chemnet_view, pitchgpt_view, mechanix_ae, defensive_pressing  # noqa: E402
+from src.dashboard.views import contrarian_leaderboards  # noqa: E402
 from src.dashboard.db_helper import get_db_connection, has_data, get_data_status  # noqa: E402
 
 # ---------------------------------------------------------------------------
@@ -145,6 +146,7 @@ def _render_sidebar() -> str:
                 "Data Management",
                 "───────────────",
                 "CausalWAR",
+                "Contrarian Leaderboards",
                 "Lineup Optimizer",
                 "Pitch Decay (K½)",
                 "Pitch Stability (MESI)",
@@ -188,6 +190,7 @@ def main() -> None:
         "Phillies Hub": phillies.render,
         "Data Management": data_management.render,
         "CausalWAR": causal_war.render,
+        "Contrarian Leaderboards": contrarian_leaderboards.render,
         "Lineup Optimizer": sharpe_lineup.render,
         "Pitch Decay (K½)": kinetic_half_life.render,
         "Pitch Stability (MESI)": mesi.render,

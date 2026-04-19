@@ -140,6 +140,9 @@ def _make_trad_pitchers(players: list[dict]) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
+_EMPTY_CAUSAL = pd.DataFrame(columns=["player_id", "causal_war", "pa"])
+
+
 class TestMergeWithTraditional:
     def test_basic_batter_merge(self):
         causal = _make_causal_df([
@@ -151,15 +154,19 @@ class TestMergeWithTraditional:
             {"player_id": 2, "trad_war": 0.9},
         ])
         trad_p = _make_trad_pitchers([])
-        merged = merge_with_traditional(causal, trad_b, trad_p, pa_min=100)
+        merged = merge_with_traditional(
+            causal, _EMPTY_CAUSAL, trad_b, trad_p, pa_min=100,
+        )
         assert set(merged["player_id"]) == {1, 2}
         assert (merged["position"] == "batter").all()
         assert merged["rank_diff"].abs().sum() == 0  # ranks align
 
-    def test_pitcher_classification_via_pitcher_ids(self):
-        causal = _make_causal_df([
-            {"player_id": 10, "causal_war": 2.5, "pa": 5},
+    def test_pitcher_cohort_via_pitcher_causal_df(self):
+        causal_b = _make_causal_df([
             {"player_id": 20, "causal_war": 3.0},
+        ])
+        causal_p = _make_causal_df([
+            {"player_id": 10, "causal_war": 2.5, "pa": 800},
         ])
         trad_b = _make_trad_batters([
             {"player_id": 20, "trad_war": 2.9},
@@ -168,7 +175,8 @@ class TestMergeWithTraditional:
             {"player_id": 10, "trad_war": 2.4, "ip_total": 120.0},
         ])
         merged = merge_with_traditional(
-            causal, trad_b, trad_p, pitcher_ids={10}, pa_min=100, ip_min=20,
+            causal_b, causal_p, trad_b, trad_p,
+            pitcher_ids={10}, pa_min=100, ip_min=20,
         )
         got = merged.set_index("player_id")
         assert got.loc[10, "position"] == "pitcher"
@@ -184,7 +192,9 @@ class TestMergeWithTraditional:
         ])
         trad_b = _make_trad_batters([{"player_id": 1, "trad_war": 2.8}])
         trad_p = _make_trad_pitchers([])
-        merged = merge_with_traditional(causal, trad_b, trad_p, pa_min=100)
+        merged = merge_with_traditional(
+            causal, _EMPTY_CAUSAL, trad_b, trad_p, pa_min=100,
+        )
         assert 99 not in set(merged["player_id"])
         assert 1 in set(merged["player_id"])
 
@@ -198,7 +208,9 @@ class TestMergeWithTraditional:
             {"player_id": 2, "trad_war": 0.1, "pa_total": 400},
         ])
         trad_p = _make_trad_pitchers([])
-        merged = merge_with_traditional(causal, trad_b, trad_p, pa_min=100)
+        merged = merge_with_traditional(
+            causal, _EMPTY_CAUSAL, trad_b, trad_p, pa_min=100,
+        )
         assert set(merged["player_id"]) == {2}
 
     def test_ranks_are_computed(self):
@@ -209,7 +221,9 @@ class TestMergeWithTraditional:
             {"player_id": i, "trad_war": float(6 - i)} for i in [1, 2, 3, 4, 5]
         ])
         trad_p = _make_trad_pitchers([])
-        merged = merge_with_traditional(causal, trad_b, trad_p, pa_min=100)
+        merged = merge_with_traditional(
+            causal, _EMPTY_CAUSAL, trad_b, trad_p, pa_min=100,
+        )
         # rank_causal: 1->5, 5->1; rank_trad: 1->1, 5->5
         got = merged.set_index("player_id")
         assert got.loc[5, "rank_causal"] == 1

@@ -335,7 +335,7 @@ class CausalWARModel(BaseAnalyticsModel):
         test_r2 = float(r2_score(Y_test, Y_pred_test))
         test_rmse_residuals = float(np.sqrt(mean_squared_error(Y_test, Y_pred_test)))
 
-        # Aggregate per-player test effects
+        # Aggregate per-player test effects (batter perspective)
         test_effects = _aggregate_player_effects(
             Y_res_test,
             player_ids_test,
@@ -343,7 +343,23 @@ class CausalWARModel(BaseAnalyticsModel):
             pa_min=10,
         )
 
+        # Aggregate per-pitcher test effects.  The DML residual Y_res = Y -
+        # E[Y|W] is the wOBA value above expectation given park / platoon /
+        # base-out / etc.  From the pitcher's perspective the same residual
+        # signed-flips: a positive batter residual is a negative pitcher
+        # residual (the pitcher allowed more wOBA than expected).  Aggregate
+        # -Y_res by pitcher_id to get per-pitcher run-prevention effects on
+        # the same WAR scale.
+        pitcher_ids_test = pa_df_test["pitcher_id"].to_numpy().astype(int)
+        test_pitcher_effects = _aggregate_player_effects(
+            -Y_res_test,
+            pitcher_ids_test,
+            pa_df_test,
+            pa_min=50,  # pitchers face many PAs; higher floor avoids one-game pop-ins
+        )
+
         n_test_players = len(test_effects)
+        n_test_pitchers = len(test_pitcher_effects)
         n_test_players_sparse = sum(
             1 for e in test_effects.values()
             if e.get("pa", 0) < self.config.pa_min_test_qualifying
@@ -354,6 +370,7 @@ class CausalWARModel(BaseAnalyticsModel):
             "test_rmse_residuals": round(test_rmse_residuals, 6),
             "n_test_observations": int(len(Y_test)),
             "n_test_players": int(n_test_players),
+            "n_test_pitchers": int(n_test_pitchers),
             "n_test_players_sparse": int(n_test_players_sparse),
             "pa_min_test_qualifying": self.config.pa_min_test_qualifying,
             "test_start_year": test_start,
@@ -370,6 +387,11 @@ class CausalWARModel(BaseAnalyticsModel):
         )
         test_player_effects = _effects_to_df(
             test_effects,
+            season_label=f"{test_start}-{test_end}",
+            pa_min_qualifying=self.config.pa_min_test_qualifying,
+        )
+        test_pitcher_player_effects = _effects_to_df(
+            test_pitcher_effects,
             season_label=f"{test_start}-{test_end}",
             pa_min_qualifying=self.config.pa_min_test_qualifying,
         )
@@ -413,6 +435,7 @@ class CausalWARModel(BaseAnalyticsModel):
             "test_metrics": test_metrics,
             "train_player_effects": train_player_effects,
             "test_player_effects": test_player_effects,
+            "test_pitcher_effects": test_pitcher_player_effects,
             "artifact_path": str(artifact_path),
         }
 

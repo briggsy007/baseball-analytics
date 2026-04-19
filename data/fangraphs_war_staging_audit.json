@@ -1,6 +1,6 @@
 {
-  "n_fetched_total": 16583,
-  "n_matched": 16583,
+  "n_fetched_total": 18129,
+  "n_matched": 18129,
   "n_unmatched": 0,
   "match_rate": 1.0,
   "per_year": [
@@ -143,12 +143,26 @@
       "war_mean_pit": 0.48056271981242676,
       "war_min_pit": -1.87,
       "war_max_pit": 6.66
+    },
+    {
+      "season": 2025,
+      "batters": 673,
+      "pitchers": 873,
+      "batters_nonnull_war": 673,
+      "pitchers_nonnull_war": 873,
+      "war_mean_bat": 0.8769539375928679,
+      "war_std_bat": 1.6859172716898776,
+      "war_min_bat": -1.7,
+      "war_max_bat": 9.7,
+      "war_mean_pit": 0.46974799541809853,
+      "war_min_pit": -1.7400000000000002,
+      "war_max_pit": 7.99
     }
   ],
-  "batter_war_p01": -1.31,
-  "batter_war_p99": 6.490100000000003,
+  "batter_war_p01": -1.32,
+  "batter_war_p99": 6.4684000000000195,
   "n_batter_war_neg_gt_3": 1,
   "n_batter_war_gt_10": 4,
-  "pitcher_war_p01": -1.2618,
-  "pitcher_war_p99": 5.201800000000003
+  "pitcher_war_p01": -1.26,
+  "pitcher_war_p99": 5.2
 }

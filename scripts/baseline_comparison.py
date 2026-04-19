@@ -349,7 +349,8 @@ def _spearman_rho(x: np.ndarray, y: np.ndarray) -> float:
 # ---------------------------------------------------------------------------
 
 def merge_with_traditional(
-    causal_df: pd.DataFrame,
+    causal_batters_df: pd.DataFrame,
+    causal_pitchers_df: pd.DataFrame,
     trad_batters: pd.DataFrame,
     trad_pitchers: pd.DataFrame,
     *,
@@ -359,76 +360,87 @@ def merge_with_traditional(
 ) -> pd.DataFrame:
     """Join the CausalWAR test-set effects with traditional WAR proxies.
 
-    Position is decided by whether the player appears in the pitcher set;
-    players in both tables (two-way players) are classified by whichever
-    workload is larger (PA vs 2.5 * IP).
+    Batters and pitchers are merged independently against their respective
+    traditional-WAR tables, then concatenated.  Two-way players (rare) appear
+    twice, once per perspective.
     """
-    causal_df = causal_df.copy()
+    causal_batters_df = causal_batters_df.copy()
+    causal_pitchers_df = causal_pitchers_df.copy()
     trad_batters = trad_batters.copy()
     trad_pitchers = trad_pitchers.copy()
 
     pitcher_set = set() if pitcher_ids is None else set(int(p) for p in pitcher_ids)
 
-    # Combine traditional frames; prefer pitcher row for known pitchers.
-    # Normalise empty frames so the rename / column-select below never KeyErrors.
+    # ---- Slim trad tables -------------------------------------------------
     if trad_batters.empty:
         trad_batters_slim = pd.DataFrame(
-            columns=["player_id", "trad_war_batter", "pa_total", "war_source_bat"]
+            columns=["player_id", "trad_war", "pa_total", "war_source"]
         )
     else:
-        tb = trad_batters.rename(
-            columns={"pa_total": "pa_total", "trad_war": "trad_war_batter"}
-        )
-        if "war_source" in tb.columns:
-            tb = tb.rename(columns={"war_source": "war_source_bat"})
-        else:
-            tb["war_source_bat"] = None
-        trad_batters_slim = tb[
-            ["player_id", "trad_war_batter", "pa_total", "war_source_bat"]
-        ]
+        tb = trad_batters.copy()
+        if "war_source" not in tb.columns:
+            tb["war_source"] = None
+        trad_batters_slim = tb[["player_id", "trad_war", "pa_total", "war_source"]]
 
     if trad_pitchers.empty:
         trad_pitchers_slim = pd.DataFrame(
-            columns=["player_id", "trad_war_pitcher", "ip_total", "war_source_pit"]
+            columns=["player_id", "trad_war", "ip_total", "war_source"]
         )
     else:
-        tp = trad_pitchers.rename(
-            columns={"ip_total": "ip_total", "trad_war": "trad_war_pitcher"}
+        tp = trad_pitchers.copy()
+        if "war_source" not in tp.columns:
+            tp["war_source"] = None
+        trad_pitchers_slim = tp[["player_id", "trad_war", "ip_total", "war_source"]]
+
+    # ---- Merge batters ----------------------------------------------------
+    if causal_batters_df.empty:
+        merged_bat = pd.DataFrame()
+    else:
+        merged_bat = causal_batters_df.merge(
+            trad_batters_slim, on="player_id", how="left",
         )
-        if "war_source" in tp.columns:
-            tp = tp.rename(columns={"war_source": "war_source_pit"})
-        else:
-            tp["war_source_pit"] = None
-        trad_pitchers_slim = tp[
-            ["player_id", "trad_war_pitcher", "ip_total", "war_source_pit"]
-        ]
+        merged_bat["position"] = "batter"
+        merged_bat["ip_total"] = np.nan
+        # Drop pitchers that snuck into the batter cohort (rare AL/NL pitcher PAs).
+        # A "real" pitcher has IP-dominant workload OR is in the pitcher_set
+        # AND has insufficient PA to be a qualified batter.
+        if pitcher_set:
+            pa_bat = merged_bat["pa_total"].fillna(0).astype(float)
+            is_pitcher_only = (
+                merged_bat["player_id"].isin(pitcher_set) & (pa_bat < pa_min)
+            )
+            merged_bat = merged_bat[~is_pitcher_only].copy()
 
-    merged = causal_df.merge(
-        trad_batters_slim, on="player_id", how="left",
-    ).merge(
-        trad_pitchers_slim, on="player_id", how="left",
-    )
+    # ---- Merge pitchers ---------------------------------------------------
+    if causal_pitchers_df.empty:
+        merged_pit = pd.DataFrame()
+    else:
+        merged_pit = causal_pitchers_df.merge(
+            trad_pitchers_slim, on="player_id", how="left",
+        )
+        merged_pit["position"] = "pitcher"
+        merged_pit["pa_total"] = np.nan
+        # Restrict pitcher cohort to the canonical pitcher set so pinch-hitter
+        # noise doesn't contaminate it.
+        if pitcher_set:
+            merged_pit = merged_pit[
+                merged_pit["player_id"].isin(pitcher_set)
+            ].copy()
 
-    # Assign position: pitcher if in pitcher_set OR has meaningful IP but little PA.
+    # ---- Combine ----------------------------------------------------------
+    if merged_bat.empty and merged_pit.empty:
+        return pd.DataFrame(
+            columns=[
+                "player_id", "causal_war", "trad_war", "position",
+                "pa_total", "ip_total", "war_source",
+                "rank_causal", "rank_trad", "rank_diff",
+            ]
+        )
+
+    merged = pd.concat([merged_bat, merged_pit], ignore_index=True, sort=False)
+
     pa_total = merged["pa_total"].fillna(0).astype(float)
     ip_total = merged["ip_total"].fillna(0).astype(float)
-
-    is_pitcher_ids = merged["player_id"].isin(pitcher_set)
-    ip_dominant = ip_total * 2.5 > pa_total
-    is_pitcher = is_pitcher_ids & ip_dominant & (ip_total >= ip_min)
-    # Fall back to IP-dominance for anyone not in the pitcher set but
-    # clearly pitching (covers DB gaps in pitcher-ID enumeration).
-    is_pitcher = is_pitcher | ((ip_total >= ip_min) & (pa_total < pa_min))
-
-    merged["position"] = np.where(is_pitcher, "pitcher", "batter")
-    merged["trad_war"] = np.where(
-        is_pitcher, merged["trad_war_pitcher"], merged["trad_war_batter"]
-    )
-    merged["war_source"] = np.where(
-        is_pitcher,
-        merged["war_source_pit"].fillna("missing"),
-        merged["war_source_bat"].fillna("missing"),
-    )
 
     # Qualification: batter needs pa>=pa_min, pitcher needs ip>=ip_min.
     qualifies = (
@@ -440,9 +452,20 @@ def merge_with_traditional(
     # Drop rows where trad_war couldn't be computed.
     merged = merged.dropna(subset=["trad_war", "causal_war"]).copy()
 
-    # Ranks
-    merged["rank_causal"] = merged["causal_war"].rank(ascending=False, method="min").astype(int)
-    merged["rank_trad"] = merged["trad_war"].rank(ascending=False, method="min").astype(int)
+    if merged.empty:
+        return merged.reset_index(drop=True)
+
+    # Ranks (computed within position so cross-position comparison is fair).
+    merged["rank_causal"] = (
+        merged.groupby("position")["causal_war"]
+        .rank(ascending=False, method="min")
+        .astype(int)
+    )
+    merged["rank_trad"] = (
+        merged.groupby("position")["trad_war"]
+        .rank(ascending=False, method="min")
+        .astype(int)
+    )
     merged["rank_diff"] = merged["rank_trad"] - merged["rank_causal"]
 
     return merged.reset_index(drop=True)
@@ -592,12 +615,16 @@ def run_comparison(cfg: BaselineComparisonConfig) -> dict[str, Any]:
         test_split=(cfg.test_start, cfg.test_end),
     )
     test_effects: pd.DataFrame = split["test_player_effects"]
+    test_pitcher_effects: pd.DataFrame = split.get(
+        "test_pitcher_effects", pd.DataFrame(columns=test_effects.columns)
+    )
     train_metrics = split["train_metrics"]
     test_metrics = split["test_metrics"]
     logger.info(
-        "Train/test split done: train players=%d, test players=%d",
+        "Train/test split done: train players=%d, test batters=%d, test pitchers=%d",
         int(train_metrics.get("n_players_estimated", 0)),
         int(test_metrics.get("n_test_players", 0)),
+        int(test_metrics.get("n_test_pitchers", 0)),
     )
 
     # ---- 2. Traditional WAR proxies ---------------------------------------
@@ -613,6 +640,7 @@ def run_comparison(cfg: BaselineComparisonConfig) -> dict[str, Any]:
     # ---- 3. Merge ---------------------------------------------------------
     merged = merge_with_traditional(
         test_effects,
+        test_pitcher_effects,
         trad_batters,
         trad_pitchers,
         pa_min=cfg.pa_min,
@@ -726,7 +754,8 @@ def run_comparison(cfg: BaselineComparisonConfig) -> dict[str, Any]:
             "pitcher_war_source": (
                 trad_pitchers["war_source"].iloc[0] if len(trad_pitchers) else None
             ),
-            "n_test_effects": int(len(test_effects)),
+            "n_test_effects_batters": int(len(test_effects)),
+            "n_test_effects_pitchers": int(len(test_pitcher_effects)),
             "n_merged_rows": int(len(merged)),
         },
     }
