@@ -1,0 +1,1250 @@
+{
+  "Andrew Painter": {
+    "pitcher_id": 691725,
+    "team": "PHI",
+    "n_starts": 2,
+    "n_pitches": 174,
+    "overall_mix": {
+      "FF": 0.3678,
+      "SL": 0.2011,
+      "SI": 0.1609,
+      "CU": 0.1149,
+      "CH": 0.0805,
+      "ST": 0.0517,
+      "FS": 0.023
+    },
+    "observed_per_count": {
+      "0-0": {
+        "FF": 0.3571,
+        "SL": 0.3095,
+        "SI": 0.1667,
+        "CU": 0.0952,
+        "CH": 0.0476,
+        "ST": 0.0238,
+        "__n_pitches__": 42
+      },
+      "0-1": {
+        "FF": 0.4737,
+        "SI": 0.1579,
+        "SL": 0.1579,
+        "CH": 0.1579,
+        "FS": 0.0526,
+        "__n_pitches__": 19
+      },
+      "1-1": {
+        "SI": 0.2632,
+        "FF": 0.2632,
+        "CU": 0.2632,
+        "SL": 0.1053,
+        "CH": 0.0526,
+        "ST": 0.0526,
+        "__n_pitches__": 19
+      },
+      "2-1": {
+        "FF": 0.5,
+        "SI": 0.1429,
+        "ST": 0.1429,
+        "SL": 0.0714,
+        "CH": 0.0714,
+        "CU": 0.0714,
+        "__n_pitches__": 14
+      },
+      "3-1": {
+        "FF": 0.4286,
+        "SI": 0.2857,
+        "SL": 0.1429,
+        "ST": 0.1429,
+        "__n_pitches__": 7
+      },
+      "3-2": {
+        "FF": 0.3333,
+        "SI": 0.3333,
+        "ST": 0.1111,
+        "CH": 0.1111,
+        "CU": 0.1111,
+        "__n_pitches__": 9
+      },
+      "0-2": {
+        "FF": 0.8333,
+        "CH": 0.1667,
+        "__n_pitches__": 6
+      },
+      "1-2": {
+        "FF": 0.3571,
+        "SL": 0.2143,
+        "CU": 0.2143,
+        "CH": 0.2143,
+        "__n_pitches__": 14
+      },
+      "2-2": {
+        "SL": 0.3125,
+        "FF": 0.25,
+        "CU": 0.1875,
+        "CH": 0.125,
+        "ST": 0.0625,
+        "FS": 0.0625,
+        "__n_pitches__": 16
+      },
+      "1-0": {
+        "SL": 0.3,
+        "SI": 0.2,
+        "FF": 0.2,
+        "CU": 0.15,
+        "FS": 0.1,
+        "ST": 0.05,
+        "__n_pitches__": 20
+      },
+      "2-0": {
+        "FF": 0.4286,
+        "SI": 0.2857,
+        "ST": 0.1429,
+        "SL": 0.1429,
+        "__n_pitches__": 7
+      },
+      "3-0": {
+        "FF": 1.0,
+        "__n_pitches__": 1
+      }
+    },
+    "predicted_per_count": {
+      "0-1": {
+        "FF": 0.3749,
+        "SI": 0.1484,
+        "FC": 0.012,
+        "SL": 0.1958,
+        "CU": 0.1355,
+        "CH": 0.1107,
+        "FS": 0.0051,
+        "KC": 0.0081,
+        "ST": 0.0074,
+        "__entropy__": 1.5258,
+        "__n_predictions__": 19
+      },
+      "0-0": {
+        "FF": 0.3956,
+        "SI": 0.1261,
+        "FC": 0.0075,
+        "SL": 0.2262,
+        "CU": 0.1373,
+        "CH": 0.0804,
+        "FS": 0.0083,
+        "ST": 0.0125,
+        "__entropy__": 1.5037,
+        "__n_predictions__": 40
+      },
+      "1-1": {
+        "FF": 0.3574,
+        "SI": 0.1451,
+        "FC": 0.0067,
+        "SL": 0.2113,
+        "CU": 0.1436,
+        "CH": 0.1078,
+        "FS": 0.0052,
+        "ST": 0.0173,
+        "__entropy__": 1.5299,
+        "__n_predictions__": 19
+      },
+      "2-1": {
+        "FF": 0.3644,
+        "SI": 0.2194,
+        "FC": 0.0062,
+        "SL": 0.2091,
+        "CU": 0.0858,
+        "CH": 0.0742,
+        "ST": 0.0324,
+        "__entropy__": 1.4551,
+        "__n_predictions__": 14
+      },
+      "3-1": {
+        "FF": 0.4452,
+        "SI": 0.1807,
+        "FC": 0.0076,
+        "SL": 0.1989,
+        "CU": 0.0471,
+        "CH": 0.0831,
+        "ST": 0.0276,
+        "__entropy__": 1.4175,
+        "__n_predictions__": 7
+      },
+      "3-2": {
+        "FF": 0.3703,
+        "SI": 0.2202,
+        "FC": 0.0073,
+        "SL": 0.2285,
+        "CU": 0.0843,
+        "CH": 0.0623,
+        "FS": 0.0088,
+        "ST": 0.0123,
+        "__entropy__": 1.5122,
+        "__n_predictions__": 9
+      },
+      "0-2": {
+        "FF": 0.3883,
+        "SI": 0.116,
+        "FC": 0.0058,
+        "SL": 0.2353,
+        "CU": 0.1564,
+        "CH": 0.0828,
+        "ST": 0.0087,
+        "__entropy__": 1.4501,
+        "__n_predictions__": 6
+      },
+      "1-2": {
+        "FF": 0.3903,
+        "SI": 0.0939,
+        "FC": 0.0056,
+        "SL": 0.2247,
+        "CU": 0.1762,
+        "CH": 0.0911,
+        "ST": 0.0099,
+        "__entropy__": 1.4708,
+        "__n_predictions__": 14
+      },
+      "2-2": {
+        "FF": 0.3568,
+        "SI": 0.1376,
+        "SL": 0.2366,
+        "CU": 0.1664,
+        "CH": 0.0811,
+        "ST": 0.0097,
+        "__entropy__": 1.5147,
+        "__n_predictions__": 16
+      },
+      "1-0": {
+        "FF": 0.3284,
+        "SI": 0.1664,
+        "FC": 0.0053,
+        "SL": 0.2537,
+        "CU": 0.109,
+        "CH": 0.1196,
+        "FS": 0.005,
+        "ST": 0.0095,
+        "__entropy__": 1.4916,
+        "__n_predictions__": 20
+      },
+      "2-0": {
+        "FF": 0.3338,
+        "SI": 0.2159,
+        "FC": 0.0053,
+        "SL": 0.259,
+        "CU": 0.0793,
+        "CH": 0.0884,
+        "FS": 0.0052,
+        "ST": 0.0096,
+        "__entropy__": 1.4741,
+        "__n_predictions__": 7
+      },
+      "3-0": {
+        "FF": 0.408,
+        "SI": 0.1794,
+        "FC": 0.0063,
+        "SL": 0.2116,
+        "CU": 0.0571,
+        "CH": 0.1204,
+        "FS": 0.0078,
+        "ST": 0.0052,
+        "__entropy__": 1.5462,
+        "__n_predictions__": 1
+      }
+    },
+    "league_dev_per_count": {
+      "0-0": [
+        {
+          "pitch_type": "SL",
+          "obs": 0.3095,
+          "league": 0.1419,
+          "delta": 0.1676
+        },
+        {
+          "pitch_type": "FC",
+          "obs": 0.0,
+          "league": 0.0867,
+          "delta": -0.0867
+        },
+        {
+          "pitch_type": "ST",
+          "obs": 0.0238,
+          "league": 0.0692,
+          "delta": -0.0454
+        },
+        {
+          "pitch_type": "FF",
+          "obs": 0.3571,
+          "league": 0.328,
+          "delta": 0.0291
+        },
+        {
+          "pitch_type": "SI",
+          "obs": 0.1667,
+          "league": 0.1896,
+          "delta": -0.0229
+        }
+      ],
+      "0-1": [
+        {
+          "pitch_type": "FF",
+          "obs": 0.4737,
+          "league": 0.2819,
+          "delta": 0.1918
+        },
+        {
+          "pitch_type": "ST",
+          "obs": 0.0,
+          "league": 0.0819,
+          "delta": -0.0819
+        },
+        {
+          "pitch_type": "FC",
+          "obs": 0.0,
+          "league": 0.0736,
+          "delta": -0.0736
+        },
+        {
+          "pitch_type": "CU",
+          "obs": 0.0,
+          "league": 0.0659,
+          "delta": -0.0659
+        },
+        {
+          "pitch_type": "CH",
+          "obs": 0.1579,
+          "league": 0.1343,
+          "delta": 0.0236
+        }
+      ],
+      "1-1": [
+        {
+          "pitch_type": "CU",
+          "obs": 0.2632,
+          "league": 0.0657,
+          "delta": 0.1975
+        },
+        {
+          "pitch_type": "SI",
+          "obs": 0.2632,
+          "league": 0.1457,
+          "delta": 0.1175
+        },
+        {
+          "pitch_type": "CH",
+          "obs": 0.0526,
+          "league": 0.1388,
+          "delta": -0.0862
+        },
+        {
+          "pitch_type": "FC",
+          "obs": 0.0,
+          "league": 0.0764,
+          "delta": -0.0764
+        },
+        {
+          "pitch_type": "FS",
+          "obs": 0.0,
+          "league": 0.0431,
+          "delta": -0.0431
+        }
+      ],
+      "2-1": [
+        {
+          "pitch_type": "FF",
+          "obs": 0.5,
+          "league": 0.3124,
+          "delta": 0.1876
+        },
+        {
+          "pitch_type": "FC",
+          "obs": 0.0,
+          "league": 0.0925,
+          "delta": -0.0925
+        },
+        {
+          "pitch_type": "ST",
+          "obs": 0.1429,
+          "league": 0.0574,
+          "delta": 0.0855
+        },
+        {
+          "pitch_type": "SL",
+          "obs": 0.0714,
+          "league": 0.1484,
+          "delta": -0.077
+        },
+        {
+          "pitch_type": "CH",
+          "obs": 0.0714,
+          "league": 0.1099,
+          "delta": -0.0385
+        }
+      ],
+      "3-1": [
+        {
+          "pitch_type": "ST",
+          "obs": 0.1429,
+          "league": 0.029,
+          "delta": 0.1139
+        },
+        {
+          "pitch_type": "FC",
+          "obs": 0.0,
+          "league": 0.106,
+          "delta": -0.106
+        },
+        {
+          "pitch_type": "CH",
+          "obs": 0.0,
+          "league": 0.0553,
+          "delta": -0.0553
+        },
+        {
+          "pitch_type": "SI",
+          "obs": 0.2857,
+          "league": 0.2309,
+          "delta": 0.0548
+        },
+        {
+          "pitch_type": "SL",
+          "obs": 0.1429,
+          "league": 0.1057,
+          "delta": 0.0372
+        }
+      ],
+      "3-2": [
+        {
+          "pitch_type": "SI",
+          "obs": 0.3333,
+          "league": 0.1703,
+          "delta": 0.163
+        },
+        {
+          "pitch_type": "SL",
+          "obs": 0.0,
+          "league": 0.145,
+          "delta": -0.145
+        },
+        {
+          "pitch_type": "FC",
+          "obs": 0.0,
+          "league": 0.0799,
+          "delta": -0.0799
+        },
+        {
+          "pitch_type": "CU",
+          "obs": 0.1111,
+          "league": 0.048,
+          "delta": 0.0631
+        },
+        {
+          "pitch_type": "ST",
+          "obs": 0.1111,
+          "league": 0.0602,
+          "delta": 0.0509
+        }
+      ],
+      "0-2": [
+        {
+          "pitch_type": "FF",
+          "obs": 0.8333,
+          "league": 0.3169,
+          "delta": 0.5164
+        },
+        {
+          "pitch_type": "SL",
+          "obs": 0.0,
+          "league": 0.1743,
+          "delta": -0.1743
+        },
+        {
+          "pitch_type": "ST",
+          "obs": 0.0,
+          "league": 0.104,
+          "delta": -0.104
+        },
+        {
+          "pitch_type": "CU",
+          "obs": 0.0,
+          "league": 0.0908,
+          "delta": -0.0908
+        },
+        {
+          "pitch_type": "SI",
+          "obs": 0.0,
+          "league": 0.0657,
+          "delta": -0.0657
+        }
+      ],
+      "1-2": [
+        {
+          "pitch_type": "CU",
+          "obs": 0.2143,
+          "league": 0.088,
+          "delta": 0.1263
+        },
+        {
+          "pitch_type": "ST",
+          "obs": 0.0,
+          "league": 0.0946,
+          "delta": -0.0946
+        },
+        {
+          "pitch_type": "CH",
+          "obs": 0.2143,
+          "league": 0.1267,
+          "delta": 0.0876
+        },
+        {
+          "pitch_type": "SI",
+          "obs": 0.0,
+          "league": 0.0867,
+          "delta": -0.0867
+        },
+        {
+          "pitch_type": "FF",
+          "obs": 0.3571,
+          "league": 0.304,
+          "delta": 0.0531
+        }
+      ],
+      "2-2": [
+        {
+          "pitch_type": "SL",
+          "obs": 0.3125,
+          "league": 0.1549,
+          "delta": 0.1576
+        },
+        {
+          "pitch_type": "SI",
+          "obs": 0.0,
+          "league": 0.119,
+          "delta": -0.119
+        },
+        {
+          "pitch_type": "CU",
+          "obs": 0.1875,
+          "league": 0.0782,
+          "delta": 0.1093
+        },
+        {
+          "pitch_type": "FF",
+          "obs": 0.25,
+          "league": 0.3067,
+          "delta": -0.0567
+        },
+        {
+          "pitch_type": "FC",
+          "obs": 0.0,
+          "league": 0.0562,
+          "delta": -0.0562
+        }
+      ],
+      "1-0": [
+        {
+          "pitch_type": "SL",
+          "obs": 0.3,
+          "league": 0.1441,
+          "delta": 0.1559
+        },
+        {
+          "pitch_type": "FF",
+          "obs": 0.2,
+          "league": 0.3109,
+          "delta": -0.1109
+        },
+        {
+          "pitch_type": "CH",
+          "obs": 0.0,
+          "league": 0.1038,
+          "delta": -0.1038
+        },
+        {
+          "pitch_type": "CU",
+          "obs": 0.15,
+          "league": 0.0515,
+          "delta": 0.0985
+        },
+        {
+          "pitch_type": "FC",
+          "obs": 0.0,
+          "league": 0.0956,
+          "delta": -0.0956
+        }
+      ],
+      "2-0": [
+        {
+          "pitch_type": "FC",
+          "obs": 0.0,
+          "league": 0.1098,
+          "delta": -0.1098
+        },
+        {
+          "pitch_type": "ST",
+          "obs": 0.1429,
+          "league": 0.0374,
+          "delta": 0.1055
+        },
+        {
+          "pitch_type": "CH",
+          "obs": 0.0,
+          "league": 0.0738,
+          "delta": -0.0738
+        },
+        {
+          "pitch_type": "SI",
+          "obs": 0.2857,
+          "league": 0.2189,
+          "delta": 0.0668
+        },
+        {
+          "pitch_type": "FF",
+          "obs": 0.4286,
+          "league": 0.3753,
+          "delta": 0.0533
+        }
+      ],
+      "3-0": [
+        {
+          "pitch_type": "FF",
+          "obs": 1.0,
+          "league": 0.651,
+          "delta": 0.349
+        },
+        {
+          "pitch_type": "SI",
+          "obs": 0.0,
+          "league": 0.2292,
+          "delta": -0.2292
+        },
+        {
+          "pitch_type": "FC",
+          "obs": 0.0,
+          "league": 0.0548,
+          "delta": -0.0548
+        },
+        {
+          "pitch_type": "SL",
+          "obs": 0.0,
+          "league": 0.032,
+          "delta": -0.032
+        },
+        {
+          "pitch_type": "CH",
+          "obs": 0.0,
+          "league": 0.0137,
+          "delta": -0.0137
+        }
+      ]
+    }
+  },
+  "Grant Holmes": {
+    "pitcher_id": 656550,
+    "team": "ATL",
+    "n_starts": 5,
+    "n_pitches": 419,
+    "overall_mix": {
+      "SL": 0.3699,
+      "FF": 0.3437,
+      "CU": 0.1241,
+      "FC": 0.0811,
+      "SI": 0.0453,
+      "CH": 0.0358
+    },
+    "observed_per_count": {
+      "0-0": {
+        "FF": 0.375,
+        "SL": 0.2857,
+        "CU": 0.1429,
+        "FC": 0.0982,
+        "SI": 0.0893,
+        "CH": 0.0089,
+        "__n_pitches__": 112
+      },
+      "1-0": {
+        "FF": 0.4186,
+        "SL": 0.3256,
+        "FC": 0.1163,
+        "SI": 0.093,
+        "CU": 0.0465,
+        "__n_pitches__": 43
+      },
+      "0-1": {
+        "SL": 0.3673,
+        "CU": 0.1837,
+        "FF": 0.1837,
+        "FC": 0.1429,
+        "CH": 0.102,
+        "SI": 0.0204,
+        "__n_pitches__": 49
+      },
+      "0-2": {
+        "SL": 0.6154,
+        "FF": 0.2308,
+        "CU": 0.1538,
+        "__n_pitches__": 26
+      },
+      "1-2": {
+        "SL": 0.5294,
+        "FF": 0.2647,
+        "CU": 0.1765,
+        "CH": 0.0294,
+        "__n_pitches__": 34
+      },
+      "2-2": {
+        "SL": 0.4634,
+        "FF": 0.2683,
+        "CU": 0.1951,
+        "FC": 0.0244,
+        "CH": 0.0244,
+        "SI": 0.0244,
+        "__n_pitches__": 41
+      },
+      "2-0": {
+        "FF": 0.5,
+        "SL": 0.3571,
+        "FC": 0.0714,
+        "SI": 0.0714,
+        "__n_pitches__": 14
+      },
+      "2-1": {
+        "SL": 0.4167,
+        "FF": 0.4167,
+        "FC": 0.0833,
+        "SI": 0.0417,
+        "CU": 0.0417,
+        "__n_pitches__": 24
+      },
+      "3-1": {
+        "FF": 0.8889,
+        "FC": 0.1111,
+        "__n_pitches__": 9
+      },
+      "3-2": {
+        "FF": 0.4737,
+        "SL": 0.3684,
+        "FC": 0.1053,
+        "SI": 0.0526,
+        "__n_pitches__": 19
+      },
+      "1-1": {
+        "SL": 0.3571,
+        "FF": 0.2381,
+        "CH": 0.1667,
+        "CU": 0.1429,
+        "FC": 0.0952,
+        "__n_pitches__": 42
+      },
+      "3-0": {
+        "FF": 0.8333,
+        "SL": 0.1667,
+        "__n_pitches__": 6
+      }
+    },
+    "predicted_per_count": {
+      "1-0": {
+        "FF": 0.3048,
+        "SI": 0.1556,
+        "FC": 0.0881,
+        "SL": 0.2499,
+        "CU": 0.0872,
+        "CH": 0.1016,
+        "KC": 0.0059,
+        "__entropy__": 1.495,
+        "__n_predictions__": 43
+      },
+      "0-0": {
+        "FF": 0.293,
+        "SI": 0.1164,
+        "FC": 0.0888,
+        "SL": 0.298,
+        "CU": 0.117,
+        "CH": 0.0766,
+        "__entropy__": 1.5085,
+        "__n_predictions__": 107
+      },
+      "0-1": {
+        "FF": 0.2672,
+        "SI": 0.1217,
+        "FC": 0.1095,
+        "SL": 0.2521,
+        "CU": 0.1289,
+        "CH": 0.1105,
+        "__entropy__": 1.5646,
+        "__n_predictions__": 49
+      },
+      "0-2": {
+        "FF": 0.2848,
+        "SI": 0.0944,
+        "FC": 0.0725,
+        "SL": 0.3364,
+        "CU": 0.1195,
+        "CH": 0.0819,
+        "__entropy__": 1.4755,
+        "__n_predictions__": 26
+      },
+      "1-2": {
+        "FF": 0.2275,
+        "SI": 0.0923,
+        "FC": 0.1286,
+        "SL": 0.295,
+        "CU": 0.1636,
+        "CH": 0.0857,
+        "__entropy__": 1.5563,
+        "__n_predictions__": 34
+      },
+      "2-2": {
+        "FF": 0.2832,
+        "SI": 0.1219,
+        "FC": 0.1084,
+        "SL": 0.2985,
+        "CU": 0.1179,
+        "CH": 0.0629,
+        "__entropy__": 1.4971,
+        "__n_predictions__": 41
+      },
+      "2-0": {
+        "FF": 0.347,
+        "SI": 0.151,
+        "FC": 0.0821,
+        "SL": 0.2671,
+        "CU": 0.0774,
+        "CH": 0.0658,
+        "__entropy__": 1.4574,
+        "__n_predictions__": 14
+      },
+      "2-1": {
+        "FF": 0.373,
+        "SI": 0.1211,
+        "FC": 0.0656,
+        "SL": 0.2559,
+        "CU": 0.0842,
+        "CH": 0.0915,
+        "__entropy__": 1.4382,
+        "__n_predictions__": 24
+      },
+      "3-1": {
+        "FF": 0.3684,
+        "SI": 0.0943,
+        "FC": 0.1077,
+        "SL": 0.3006,
+        "CU": 0.074,
+        "CH": 0.0495,
+        "__entropy__": 1.4306,
+        "__n_predictions__": 9
+      },
+      "3-2": {
+        "FF": 0.3171,
+        "SI": 0.095,
+        "FC": 0.1154,
+        "SL": 0.2984,
+        "CU": 0.0976,
+        "CH": 0.0693,
+        "__entropy__": 1.488,
+        "__n_predictions__": 19
+      },
+      "1-1": {
+        "FF": 0.2854,
+        "SI": 0.124,
+        "FC": 0.0999,
+        "SL": 0.2536,
+        "CU": 0.1126,
+        "CH": 0.1142,
+        "__entropy__": 1.5006,
+        "__n_predictions__": 42
+      },
+      "3-0": {
+        "FF": 0.419,
+        "SI": 0.1687,
+        "FC": 0.074,
+        "SL": 0.2471,
+        "CU": 0.0371,
+        "CH": 0.049,
+        "__entropy__": 1.3738,
+        "__n_predictions__": 6
+      }
+    },
+    "league_dev_per_count": {
+      "0-0": [
+        {
+          "pitch_type": "SL",
+          "obs": 0.2857,
+          "league": 0.1419,
+          "delta": 0.1438
+        },
+        {
+          "pitch_type": "SI",
+          "obs": 0.0893,
+          "league": 0.1896,
+          "delta": -0.1003
+        },
+        {
+          "pitch_type": "ST",
+          "obs": 0.0,
+          "league": 0.0692,
+          "delta": -0.0692
+        },
+        {
+          "pitch_type": "CU",
+          "obs": 0.1429,
+          "league": 0.0759,
+          "delta": 0.067
+        },
+        {
+          "pitch_type": "CH",
+          "obs": 0.0089,
+          "league": 0.0643,
+          "delta": -0.0554
+        }
+      ],
+      "1-0": [
+        {
+          "pitch_type": "SL",
+          "obs": 0.3256,
+          "league": 0.1441,
+          "delta": 0.1815
+        },
+        {
+          "pitch_type": "FF",
+          "obs": 0.4186,
+          "league": 0.3109,
+          "delta": 0.1077
+        },
+        {
+          "pitch_type": "CH",
+          "obs": 0.0,
+          "league": 0.1038,
+          "delta": -0.1038
+        },
+        {
+          "pitch_type": "SI",
+          "obs": 0.093,
+          "league": 0.1906,
+          "delta": -0.0976
+        },
+        {
+          "pitch_type": "ST",
+          "obs": 0.0,
+          "league": 0.0564,
+          "delta": -0.0564
+        }
+      ],
+      "0-1": [
+        {
+          "pitch_type": "SL",
+          "obs": 0.3673,
+          "league": 0.1485,
+          "delta": 0.2188
+        },
+        {
+          "pitch_type": "SI",
+          "obs": 0.0204,
+          "league": 0.1439,
+          "delta": -0.1235
+        },
+        {
+          "pitch_type": "CU",
+          "obs": 0.1837,
+          "league": 0.0659,
+          "delta": 0.1178
+        },
+        {
+          "pitch_type": "FF",
+          "obs": 0.1837,
+          "league": 0.2819,
+          "delta": -0.0982
+        },
+        {
+          "pitch_type": "ST",
+          "obs": 0.0,
+          "league": 0.0819,
+          "delta": -0.0819
+        }
+      ],
+      "0-2": [
+        {
+          "pitch_type": "SL",
+          "obs": 0.6154,
+          "league": 0.1743,
+          "delta": 0.4411
+        },
+        {
+          "pitch_type": "CH",
+          "obs": 0.0,
+          "league": 0.1195,
+          "delta": -0.1195
+        },
+        {
+          "pitch_type": "ST",
+          "obs": 0.0,
+          "league": 0.104,
+          "delta": -0.104
+        },
+        {
+          "pitch_type": "FF",
+          "obs": 0.2308,
+          "league": 0.3169,
+          "delta": -0.0861
+        },
+        {
+          "pitch_type": "SI",
+          "obs": 0.0,
+          "league": 0.0657,
+          "delta": -0.0657
+        }
+      ],
+      "1-2": [
+        {
+          "pitch_type": "SL",
+          "obs": 0.5294,
+          "league": 0.1674,
+          "delta": 0.362
+        },
+        {
+          "pitch_type": "CH",
+          "obs": 0.0294,
+          "league": 0.1267,
+          "delta": -0.0973
+        },
+        {
+          "pitch_type": "ST",
+          "obs": 0.0,
+          "league": 0.0946,
+          "delta": -0.0946
+        },
+        {
+          "pitch_type": "CU",
+          "obs": 0.1765,
+          "league": 0.088,
+          "delta": 0.0885
+        },
+        {
+          "pitch_type": "SI",
+          "obs": 0.0,
+          "league": 0.0867,
+          "delta": -0.0867
+        }
+      ],
+      "2-2": [
+        {
+          "pitch_type": "SL",
+          "obs": 0.4634,
+          "league": 0.1549,
+          "delta": 0.3085
+        },
+        {
+          "pitch_type": "CU",
+          "obs": 0.1951,
+          "league": 0.0782,
+          "delta": 0.1169
+        },
+        {
+          "pitch_type": "CH",
+          "obs": 0.0244,
+          "league": 0.1237,
+          "delta": -0.0993
+        },
+        {
+          "pitch_type": "SI",
+          "obs": 0.0244,
+          "league": 0.119,
+          "delta": -0.0946
+        },
+        {
+          "pitch_type": "ST",
+          "obs": 0.0,
+          "league": 0.0828,
+          "delta": -0.0828
+        }
+      ],
+      "2-0": [
+        {
+          "pitch_type": "SL",
+          "obs": 0.3571,
+          "league": 0.1243,
+          "delta": 0.2328
+        },
+        {
+          "pitch_type": "SI",
+          "obs": 0.0714,
+          "league": 0.2189,
+          "delta": -0.1475
+        },
+        {
+          "pitch_type": "FF",
+          "obs": 0.5,
+          "league": 0.3753,
+          "delta": 0.1247
+        },
+        {
+          "pitch_type": "CH",
+          "obs": 0.0,
+          "league": 0.0738,
+          "delta": -0.0738
+        },
+        {
+          "pitch_type": "FC",
+          "obs": 0.0714,
+          "league": 0.1098,
+          "delta": -0.0384
+        }
+      ],
+      "2-1": [
+        {
+          "pitch_type": "SL",
+          "obs": 0.4167,
+          "league": 0.1484,
+          "delta": 0.2683
+        },
+        {
+          "pitch_type": "SI",
+          "obs": 0.0417,
+          "league": 0.1804,
+          "delta": -0.1387
+        },
+        {
+          "pitch_type": "CH",
+          "obs": 0.0,
+          "league": 0.1099,
+          "delta": -0.1099
+        },
+        {
+          "pitch_type": "FF",
+          "obs": 0.4167,
+          "league": 0.3124,
+          "delta": 0.1043
+        },
+        {
+          "pitch_type": "ST",
+          "obs": 0.0,
+          "league": 0.0574,
+          "delta": -0.0574
+        }
+      ],
+      "3-1": [
+        {
+          "pitch_type": "FF",
+          "obs": 0.8889,
+          "league": 0.4281,
+          "delta": 0.4608
+        },
+        {
+          "pitch_type": "SI",
+          "obs": 0.0,
+          "league": 0.2309,
+          "delta": -0.2309
+        },
+        {
+          "pitch_type": "SL",
+          "obs": 0.0,
+          "league": 0.1057,
+          "delta": -0.1057
+        },
+        {
+          "pitch_type": "CH",
+          "obs": 0.0,
+          "league": 0.0553,
+          "delta": -0.0553
+        },
+        {
+          "pitch_type": "ST",
+          "obs": 0.0,
+          "league": 0.029,
+          "delta": -0.029
+        }
+      ],
+      "3-2": [
+        {
+          "pitch_type": "SL",
+          "obs": 0.3684,
+          "league": 0.145,
+          "delta": 0.2234
+        },
+        {
+          "pitch_type": "SI",
+          "obs": 0.0526,
+          "league": 0.1703,
+          "delta": -0.1177
+        },
+        {
+          "pitch_type": "FF",
+          "obs": 0.4737,
+          "league": 0.371,
+          "delta": 0.1027
+        },
+        {
+          "pitch_type": "CH",
+          "obs": 0.0,
+          "league": 0.0805,
+          "delta": -0.0805
+        },
+        {
+          "pitch_type": "ST",
+          "obs": 0.0,
+          "league": 0.0602,
+          "delta": -0.0602
+        }
+      ],
+      "1-1": [
+        {
+          "pitch_type": "SL",
+          "obs": 0.3571,
+          "league": 0.1469,
+          "delta": 0.2102
+        },
+        {
+          "pitch_type": "SI",
+          "obs": 0.0,
+          "league": 0.1457,
+          "delta": -0.1457
+        },
+        {
+          "pitch_type": "CU",
+          "obs": 0.1429,
+          "league": 0.0657,
+          "delta": 0.0772
+        },
+        {
+          "pitch_type": "ST",
+          "obs": 0.0,
+          "league": 0.0764,
+          "delta": -0.0764
+        },
+        {
+          "pitch_type": "FS",
+          "obs": 0.0,
+          "league": 0.0431,
+          "delta": -0.0431
+        }
+      ],
+      "3-0": [
+        {
+          "pitch_type": "SI",
+          "obs": 0.0,
+          "league": 0.2292,
+          "delta": -0.2292
+        },
+        {
+          "pitch_type": "FF",
+          "obs": 0.8333,
+          "league": 0.651,
+          "delta": 0.1823
+        },
+        {
+          "pitch_type": "SL",
+          "obs": 0.1667,
+          "league": 0.032,
+          "delta": 0.1347
+        },
+        {
+          "pitch_type": "FC",
+          "obs": 0.0,
+          "league": 0.0548,
+          "delta": -0.0548
+        },
+        {
+          "pitch_type": "CH",
+          "obs": 0.0,
+          "league": 0.0137,
+          "delta": -0.0137
+        }
+      ]
+    }
+  }
+}

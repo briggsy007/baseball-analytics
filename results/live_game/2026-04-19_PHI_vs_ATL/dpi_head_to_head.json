@@ -1,0 +1,37 @@
+{
+  "PHI": {
+    "team": "PHI",
+    "season": 2025,
+    "dpi_mean": 0.417,
+    "dpi_total": 71.718,
+    "dpi_rank": 24,
+    "team_oaa": 8.0,
+    "oaa_rank": 10,
+    "rank_diff_dpi_minus_oaa": 14,
+    "babip_against_2025": 0.2979443772672309,
+    "extra_base_prevention": 0.673,
+    "rp_proxy_runs": 68.32900102878921,
+    "disagreement_direction": "OAA-only positive (OAA over-rates relative to DPI)"
+  },
+  "ATL": {
+    "team": "ATL",
+    "season": 2025,
+    "dpi_mean": 0.677,
+    "dpi_total": 113.717,
+    "dpi_rank": 12,
+    "team_oaa": 7.0,
+    "oaa_rank": 12,
+    "rank_diff_dpi_minus_oaa": 0,
+    "babip_against_2025": 0.2947290274684484,
+    "extra_base_prevention": 0.668,
+    "rp_proxy_runs": -6.357997113373131,
+    "disagreement_direction": "DPI and OAA agree (rank_diff = 0)"
+  },
+  "gap_analysis": {
+    "dpi_mean_gap_atl_minus_phi": 0.26,
+    "dpi_rank_gap_atl_better_by": 12,
+    "oaa_gap_atl_minus_phi": -1.0,
+    "babip_against_gap_atl_minus_phi": -0.0032
+  },
+  "note": "PHI is OAA-only positive (rank diff +14 means DPI is 14 ranks WORSE than OAA): Statcast positioning credit not cashing out in BIP outcomes. ATL DPI 12 / OAA 12 \u2014 perfect agreement at near-median."
+}

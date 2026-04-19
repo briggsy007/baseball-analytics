@@ -1,0 +1,26 @@
+{
+  "date": "2026-04-19",
+  "first_pitch_local": "7:20 PM EDT",
+  "first_pitch_utc": "2026-04-19T23:20:00Z",
+  "game_pk": 823475,
+  "home_team": "PHI",
+  "away_team": "ATL",
+  "home_team_full": "Philadelphia Phillies",
+  "away_team_full": "Atlanta Braves",
+  "venue": "Citizens Bank Park",
+  "venue_id": 2681,
+  "venue_city": "Philadelphia, PA",
+  "home_starter": {
+    "id": 691725,
+    "name": "Andrew Painter",
+    "role": "PHI starter"
+  },
+  "away_starter": {
+    "id": 656550,
+    "name": "Grant Holmes",
+    "role": "ATL starter"
+  },
+  "weather_pregame": "Not yet posted by MLB feed (typical >2h pre-game). Will populate at first pitch.",
+  "data_source": "MLB StatsAPI v1.1 feed/live + schedule hydrate=probablePitcher,team,venue",
+  "fetched_at": "2026-04-19T16:30:00-04:00"
+}

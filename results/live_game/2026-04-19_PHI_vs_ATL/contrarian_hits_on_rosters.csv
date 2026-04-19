@@ -1,0 +1,5 @@
+player_id,name,team,direction,mechanism_tag,baseline_year,baseline_2024_war_per_leaderboard,baseline_2024_war_actual,causal_war_2024,predicted_delta_war_2024_to_2025,actual_2025_war_full_season,actual_2025_pa_or_ip,actual_delta_war_realised_2024_to_2025,hit_per_committed_artifact,position
+660670,Ronald Acuña,ATL,Buy-Low,OTHER,2024,0.02,0.02,0.29,0.27,2.97,412.0,2.95,True,batter
+641680,Jonah Heim,ATL,Over-Valued,DEFENSE GAP,2024,1.36,1.36,-2.44,-3.8,0.37,433.0,-0.99,True,batter
+527048,Martín Pérez,ATL,Over-Valued,PARK FACTOR,2024,0.88,0.88,-1.39,-2.27,1.31,56.0,0.43,False,pitcher
+681082,Bryson Stott,PHI,Over-Valued,DEFENSE GAP,2024,2.3,2.3,-1.12,-3.42,2.23,560.0,-0.07,True,batter
