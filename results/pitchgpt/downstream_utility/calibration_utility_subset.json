@@ -1,0 +1,293 @@
+{
+  "primary_threshold": 0.5,
+  "percentile_cutoff_value": 0.08189466595649719,
+  "percentile": 90.0,
+  "top1_prob_holdout_stats": {
+    "min": 0.008077519945800304,
+    "mean": 0.053013190627098083,
+    "max": 0.5612485408782959,
+    "p50": 0.04727581515908241,
+    "p75": 0.062320586293935776,
+    "p90": 0.08189466595649719,
+    "p95": 0.09799078106880188,
+    "p99": 0.14499345421791077
+  },
+  "n_total_holdout": 51925,
+  "subsets": {
+    "abs_threshold_0.5": {
+      "threshold": 0.5,
+      "n": 1,
+      "pct_of_total": 0.0
+    },
+    "abs_threshold_0.10": {
+      "threshold": 0.1,
+      "n": 2389,
+      "pct_of_total": 4.6,
+      "variants": {
+        "null_situational_only": {
+          "log_loss": {
+            "point": 1.514241,
+            "ci95_lo": 1.496508,
+            "ci95_hi": 1.53235
+          },
+          "brier": {
+            "point": 0.757958,
+            "ci95_lo": 0.749474,
+            "ci95_hi": 0.767567
+          },
+          "accuracy": {
+            "point": 0.365425,
+            "ci95_lo": 0.346369,
+            "ci95_hi": 0.383843
+          },
+          "n": 2389
+        },
+        "pitchgpt_plus_situational": {
+          "log_loss": {
+            "point": 1.513262,
+            "ci95_lo": 1.495792,
+            "ci95_hi": 1.529211
+          },
+          "brier": {
+            "point": 0.758455,
+            "ci95_lo": 0.750294,
+            "ci95_hi": 0.766894
+          },
+          "accuracy": {
+            "point": 0.366681,
+            "ci95_lo": 0.347844,
+            "ci95_hi": 0.387191
+          },
+          "n": 2389
+        },
+        "lstm_plus_situational": {
+          "log_loss": {
+            "point": 1.511576,
+            "ci95_lo": 1.494013,
+            "ci95_hi": 1.528069
+          },
+          "brier": {
+            "point": 0.757153,
+            "ci95_lo": 0.74935,
+            "ci95_hi": 0.765868
+          },
+          "accuracy": {
+            "point": 0.368355,
+            "ci95_lo": 0.350555,
+            "ci95_hi": 0.388028
+          },
+          "n": 2389
+        }
+      },
+      "pair_deltas": {
+        "pitchgpt_vs_lstm": {
+          "log_loss": {
+            "delta_point": 0.001686,
+            "delta_ci95_lo": -0.001882,
+            "delta_ci95_hi": 0.005946,
+            "n_bootstrap": 500
+          },
+          "brier": {
+            "delta_point": 0.001302,
+            "delta_ci95_lo": -0.000482,
+            "delta_ci95_hi": 0.003186,
+            "n_bootstrap": 500
+          },
+          "accuracy": {
+            "delta_point": -0.001674,
+            "delta_ci95_lo": -0.006697,
+            "delta_ci95_hi": 0.00315,
+            "n_bootstrap": 500
+          }
+        },
+        "pitchgpt_vs_null": {
+          "log_loss": {
+            "delta_point": -0.000979,
+            "delta_ci95_lo": -0.006765,
+            "delta_ci95_hi": 0.00482,
+            "n_bootstrap": 500
+          },
+          "brier": {
+            "delta_point": 0.000497,
+            "delta_ci95_lo": -0.001882,
+            "delta_ci95_hi": 0.002693,
+            "n_bootstrap": 500
+          },
+          "accuracy": {
+            "delta_point": 0.001256,
+            "delta_ci95_lo": -0.004824,
+            "delta_ci95_hi": 0.007116,
+            "n_bootstrap": 500
+          }
+        },
+        "lstm_vs_null": {
+          "log_loss": {
+            "delta_point": -0.002666,
+            "delta_ci95_lo": -0.0075,
+            "delta_ci95_hi": 0.002494,
+            "n_bootstrap": 500
+          },
+          "brier": {
+            "delta_point": -0.000805,
+            "delta_ci95_lo": -0.002857,
+            "delta_ci95_hi": 0.001484,
+            "n_bootstrap": 500
+          },
+          "accuracy": {
+            "delta_point": 0.00293,
+            "delta_ci95_lo": -0.002313,
+            "delta_ci95_hi": 0.008372,
+            "n_bootstrap": 500
+          }
+        }
+      },
+      "class_counts": {
+        "swinging_strike": 284,
+        "foul": 438,
+        "ball": 874,
+        "called_strike": 351,
+        "in_play": 442
+      }
+    },
+    "abs_threshold_0.20": {
+      "threshold": 0.2,
+      "n": 100,
+      "pct_of_total": 0.19
+    },
+    "abs_threshold_0.30": {
+      "threshold": 0.3,
+      "n": 6,
+      "pct_of_total": 0.01
+    },
+    "top_10pct_by_top1": {
+      "threshold": 0.08189466595649719,
+      "n": 5193,
+      "pct_of_total": 10.0,
+      "variants": {
+        "null_situational_only": {
+          "log_loss": {
+            "point": 1.517478,
+            "ci95_lo": 1.505821,
+            "ci95_hi": 1.528321
+          },
+          "brier": {
+            "point": 0.760175,
+            "ci95_lo": 0.754546,
+            "ci95_hi": 0.76537
+          },
+          "accuracy": {
+            "point": 0.362604,
+            "ci95_lo": 0.351049,
+            "ci95_hi": 0.376276
+          },
+          "n": 5193
+        },
+        "pitchgpt_plus_situational": {
+          "log_loss": {
+            "point": 1.516561,
+            "ci95_lo": 1.50478,
+            "ci95_hi": 1.528577
+          },
+          "brier": {
+            "point": 0.760243,
+            "ci95_lo": 0.754159,
+            "ci95_hi": 0.765841
+          },
+          "accuracy": {
+            "point": 0.361641,
+            "ci95_lo": 0.348445,
+            "ci95_hi": 0.373975
+          },
+          "n": 5193
+        },
+        "lstm_plus_situational": {
+          "log_loss": {
+            "point": 1.515822,
+            "ci95_lo": 1.504928,
+            "ci95_hi": 1.527143
+          },
+          "brier": {
+            "point": 0.759682,
+            "ci95_lo": 0.754355,
+            "ci95_hi": 0.765712
+          },
+          "accuracy": {
+            "point": 0.362796,
+            "ci95_lo": 0.350077,
+            "ci95_hi": 0.377065
+          },
+          "n": 5193
+        }
+      },
+      "pair_deltas": {
+        "pitchgpt_vs_lstm": {
+          "log_loss": {
+            "delta_point": 0.000738,
+            "delta_ci95_lo": -0.001564,
+            "delta_ci95_hi": 0.003188,
+            "n_bootstrap": 500
+          },
+          "brier": {
+            "delta_point": 0.000561,
+            "delta_ci95_lo": -0.000537,
+            "delta_ci95_hi": 0.001664,
+            "n_bootstrap": 500
+          },
+          "accuracy": {
+            "delta_point": -0.001155,
+            "delta_ci95_lo": -0.004236,
+            "delta_ci95_hi": 0.001926,
+            "n_bootstrap": 500
+          }
+        },
+        "pitchgpt_vs_null": {
+          "log_loss": {
+            "delta_point": -0.000917,
+            "delta_ci95_lo": -0.00415,
+            "delta_ci95_hi": 0.002229,
+            "n_bootstrap": 500
+          },
+          "brier": {
+            "delta_point": 6.7e-05,
+            "delta_ci95_lo": -0.001229,
+            "delta_ci95_hi": 0.001427,
+            "n_bootstrap": 500
+          },
+          "accuracy": {
+            "delta_point": -0.000963,
+            "delta_ci95_lo": -0.005007,
+            "delta_ci95_hi": 0.002503,
+            "n_bootstrap": 500
+          }
+        },
+        "lstm_vs_null": {
+          "log_loss": {
+            "delta_point": -0.001655,
+            "delta_ci95_lo": -0.005011,
+            "delta_ci95_hi": 0.001613,
+            "n_bootstrap": 500
+          },
+          "brier": {
+            "delta_point": -0.000493,
+            "delta_ci95_lo": -0.001947,
+            "delta_ci95_hi": 0.000658,
+            "n_bootstrap": 500
+          },
+          "accuracy": {
+            "delta_point": 0.000193,
+            "delta_ci95_lo": -0.002889,
+            "delta_ci95_hi": 0.003081,
+            "n_bootstrap": 500
+          }
+        }
+      },
+      "class_counts": {
+        "ball": 1883,
+        "swinging_strike": 581,
+        "foul": 953,
+        "in_play": 976,
+        "called_strike": 800
+      }
+    }
+  }
+}

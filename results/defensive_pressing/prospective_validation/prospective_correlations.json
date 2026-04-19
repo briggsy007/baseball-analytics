@@ -1,0 +1,503 @@
+{
+  "ran_at": "2026-04-19T02:47:29.250716+00:00",
+  "xout_checkpoint": {
+    "path": "C:\\Users\\hunte\\projects\\baseball\\models\\defensive_pressing\\xout_v1.pkl",
+    "train_seasons": [
+      2015,
+      2016,
+      2017,
+      2018,
+      2019,
+      2020,
+      2021,
+      2022
+    ]
+  },
+  "windows": [
+    {
+      "year_n": 2023,
+      "year_n1": 2024
+    },
+    {
+      "year_n": 2024,
+      "year_n1": 2025
+    }
+  ],
+  "leakage_audit": {
+    "train_seasons": [
+      2015,
+      2016,
+      2017,
+      2018,
+      2019,
+      2020,
+      2021,
+      2022
+    ],
+    "predictor_years": [
+      2023,
+      2024
+    ],
+    "outcome_years": [
+      2024,
+      2025
+    ],
+    "overlap": [],
+    "pass": true
+  },
+  "data_n": {
+    "panel_rows": 60
+  },
+  "results_by_window": {
+    "2023_2024": {
+      "n_teams": 30,
+      "targets": {
+        "ra9_n1": {
+          "dpi_n": {
+            "n": 30,
+            "pearson_r": -0.6027,
+            "pearson_r_ci": [
+              -0.7852,
+              -0.3275
+            ],
+            "spearman_rho": -0.574,
+            "spearman_rho_ci": [
+              -0.746,
+              -0.3361
+            ]
+          },
+          "oaa_n": {
+            "n": 30,
+            "pearson_r": -0.2253,
+            "pearson_r_ci": [
+              -0.5886,
+              0.1117
+            ],
+            "spearman_rho": -0.2733,
+            "spearman_rho_ci": [
+              -0.6265,
+              0.1448
+            ]
+          },
+          "ar1_ra9": {
+            "n": 30,
+            "pearson_r": 0.6106,
+            "pearson_r_ci": [
+              0.2754,
+              0.8381
+            ],
+            "spearman_rho": 0.5558,
+            "spearman_rho_ci": [
+              0.2437,
+              0.7764
+            ]
+          }
+        },
+        "babip_n1": {
+          "dpi_n": {
+            "n": 30,
+            "pearson_r": -0.4657,
+            "pearson_r_ci": [
+              -0.7256,
+              -0.1791
+            ],
+            "spearman_rho": -0.522,
+            "spearman_rho_ci": [
+              -0.7218,
+              -0.2206
+            ]
+          },
+          "oaa_n": {
+            "n": 30,
+            "pearson_r": -0.0762,
+            "pearson_r_ci": [
+              -0.4145,
+              0.2627
+            ],
+            "spearman_rho": -0.1293,
+            "spearman_rho_ci": [
+              -0.4754,
+              0.2475
+            ]
+          },
+          "ar1_babip": {
+            "n": 30,
+            "pearson_r": 0.6335,
+            "pearson_r_ci": [
+              0.4364,
+              0.7968
+            ],
+            "spearman_rho": 0.6578,
+            "spearman_rho_ci": [
+              0.4136,
+              0.8248
+            ]
+          }
+        }
+      },
+      "deltas": {
+        "ra9_n1": {
+          "dpi_minus_oaa": {
+            "delta_abs_r_point": 0.3774,
+            "delta_abs_r_ci": [
+              -0.0196,
+              0.6975
+            ],
+            "p_delta_gt_0": 0.963,
+            "n": 30
+          },
+          "dpi_minus_ar1": {
+            "delta_abs_r_point": -0.008,
+            "delta_abs_r_ci": [
+              -0.2101,
+              0.2033
+            ],
+            "p_delta_gt_0": 0.447,
+            "n": 30
+          },
+          "oaa_minus_ar1": {
+            "delta_abs_r_point": -0.3853,
+            "delta_abs_r_ci": [
+              -0.7458,
+              0.1648
+            ],
+            "p_delta_gt_0": 0.102,
+            "n": 30
+          }
+        },
+        "babip_n1": {
+          "dpi_minus_oaa": {
+            "delta_abs_r_point": 0.3896,
+            "delta_abs_r_ci": [
+              -0.0664,
+              0.6206
+            ],
+            "p_delta_gt_0": 0.953,
+            "n": 30
+          },
+          "dpi_minus_ar1": {
+            "delta_abs_r_point": -0.1678,
+            "delta_abs_r_ci": [
+              -0.3503,
+              -0.0064
+            ],
+            "p_delta_gt_0": 0.022,
+            "n": 30
+          },
+          "oaa_minus_ar1": {
+            "delta_abs_r_point": -0.5574,
+            "delta_abs_r_ci": [
+              -0.7457,
+              -0.1881
+            ],
+            "p_delta_gt_0": 0.0,
+            "n": 30
+          }
+        }
+      }
+    },
+    "2024_2025": {
+      "n_teams": 30,
+      "targets": {
+        "ra9_n1": {
+          "dpi_n": {
+            "n": 30,
+            "pearson_r": -0.3924,
+            "pearson_r_ci": [
+              -0.5701,
+              -0.1621
+            ],
+            "spearman_rho": -0.4002,
+            "spearman_rho_ci": [
+              -0.6467,
+              -0.0641
+            ]
+          },
+          "oaa_n": {
+            "n": 30,
+            "pearson_r": -0.3034,
+            "pearson_r_ci": [
+              -0.7002,
+              -0.0256
+            ],
+            "spearman_rho": -0.3834,
+            "spearman_rho_ci": [
+              -0.6887,
+              -0.0022
+            ]
+          },
+          "ar1_ra9": {
+            "n": 30,
+            "pearson_r": 0.741,
+            "pearson_r_ci": [
+              0.4085,
+              0.8902
+            ],
+            "spearman_rho": 0.5942,
+            "spearman_rho_ci": [
+              0.2483,
+              0.8096
+            ]
+          }
+        },
+        "babip_n1": {
+          "dpi_n": {
+            "n": 30,
+            "pearson_r": -0.3165,
+            "pearson_r_ci": [
+              -0.5576,
+              -0.052
+            ],
+            "spearman_rho": -0.2699,
+            "spearman_rho_ci": [
+              -0.561,
+              0.074
+            ]
+          },
+          "oaa_n": {
+            "n": 30,
+            "pearson_r": -0.1748,
+            "pearson_r_ci": [
+              -0.4253,
+              0.0555
+            ],
+            "spearman_rho": -0.2871,
+            "spearman_rho_ci": [
+              -0.538,
+              0.0121
+            ]
+          },
+          "ar1_babip": {
+            "n": 30,
+            "pearson_r": 0.5718,
+            "pearson_r_ci": [
+              0.2386,
+              0.7781
+            ],
+            "spearman_rho": 0.4576,
+            "spearman_rho_ci": [
+              0.1232,
+              0.6925
+            ]
+          }
+        }
+      },
+      "deltas": {
+        "ra9_n1": {
+          "dpi_minus_oaa": {
+            "delta_abs_r_point": 0.089,
+            "delta_abs_r_ci": [
+              -0.3602,
+              0.3788
+            ],
+            "p_delta_gt_0": 0.688,
+            "n": 30
+          },
+          "dpi_minus_ar1": {
+            "delta_abs_r_point": -0.3486,
+            "delta_abs_r_ci": [
+              -0.5916,
+              0.017
+            ],
+            "p_delta_gt_0": 0.035,
+            "n": 30
+          },
+          "oaa_minus_ar1": {
+            "delta_abs_r_point": -0.4375,
+            "delta_abs_r_ci": [
+              -0.7804,
+              0.136
+            ],
+            "p_delta_gt_0": 0.074,
+            "n": 30
+          }
+        },
+        "babip_n1": {
+          "dpi_minus_oaa": {
+            "delta_abs_r_point": 0.1417,
+            "delta_abs_r_ci": [
+              -0.1818,
+              0.3944
+            ],
+            "p_delta_gt_0": 0.795,
+            "n": 30
+          },
+          "dpi_minus_ar1": {
+            "delta_abs_r_point": -0.2553,
+            "delta_abs_r_ci": [
+              -0.4511,
+              0.0105
+            ],
+            "p_delta_gt_0": 0.029,
+            "n": 30
+          },
+          "oaa_minus_ar1": {
+            "delta_abs_r_point": -0.397,
+            "delta_abs_r_ci": [
+              -0.7024,
+              0.0726
+            ],
+            "p_delta_gt_0": 0.055,
+            "n": 30
+          }
+        }
+      }
+    }
+  },
+  "pooled": {
+    "n_teams": 60,
+    "targets": {
+      "ra9_n1": {
+        "dpi_n": {
+          "n": 60,
+          "pearson_r": -0.4602,
+          "pearson_r_ci": [
+            -0.6318,
+            -0.2869
+          ],
+          "spearman_rho": -0.4749,
+          "spearman_rho_ci": [
+            -0.63,
+            -0.2892
+          ]
+        },
+        "oaa_n": {
+          "n": 60,
+          "pearson_r": -0.2631,
+          "pearson_r_ci": [
+            -0.5233,
+            -0.0418
+          ],
+          "spearman_rho": -0.3427,
+          "spearman_rho_ci": [
+            -0.5547,
+            -0.0949
+          ]
+        },
+        "ar1_ra9": {
+          "n": 60,
+          "pearson_r": 0.6343,
+          "pearson_r_ci": [
+            0.4306,
+            0.7939
+          ],
+          "spearman_rho": 0.5723,
+          "spearman_rho_ci": [
+            0.3681,
+            0.7254
+          ]
+        }
+      },
+      "babip_n1": {
+        "dpi_n": {
+          "n": 60,
+          "pearson_r": -0.3883,
+          "pearson_r_ci": [
+            -0.5764,
+            -0.1975
+          ],
+          "spearman_rho": -0.3822,
+          "spearman_rho_ci": [
+            -0.5531,
+            -0.1671
+          ]
+        },
+        "oaa_n": {
+          "n": 60,
+          "pearson_r": -0.1232,
+          "pearson_r_ci": [
+            -0.3323,
+            0.0793
+          ],
+          "spearman_rho": -0.1781,
+          "spearman_rho_ci": [
+            -0.3838,
+            0.0626
+          ]
+        },
+        "ar1_babip": {
+          "n": 60,
+          "pearson_r": 0.5843,
+          "pearson_r_ci": [
+            0.4007,
+            0.7289
+          ],
+          "spearman_rho": 0.5694,
+          "spearman_rho_ci": [
+            0.3916,
+            0.6997
+          ]
+        }
+      }
+    },
+    "deltas": {
+      "ra9_n1": {
+        "dpi_minus_oaa": {
+          "delta_abs_r_point": 0.1971,
+          "delta_abs_r_ci": [
+            -0.1012,
+            0.4498
+          ],
+          "p_delta_gt_0": 0.901,
+          "n": 60
+        },
+        "dpi_minus_ar1": {
+          "delta_abs_r_point": -0.1741,
+          "delta_abs_r_ci": [
+            -0.3523,
+            0.0295
+          ],
+          "p_delta_gt_0": 0.047,
+          "n": 60
+        },
+        "oaa_minus_ar1": {
+          "delta_abs_r_point": -0.3712,
+          "delta_abs_r_ci": [
+            -0.6884,
+            -0.0046
+          ],
+          "p_delta_gt_0": 0.024,
+          "n": 60
+        }
+      },
+      "babip_n1": {
+        "dpi_minus_oaa": {
+          "delta_abs_r_point": 0.2652,
+          "delta_abs_r_ci": [
+            0.0158,
+            0.4679
+          ],
+          "p_delta_gt_0": 0.98,
+          "n": 60
+        },
+        "dpi_minus_ar1": {
+          "delta_abs_r_point": -0.196,
+          "delta_abs_r_ci": [
+            -0.3423,
+            -0.0475
+          ],
+          "p_delta_gt_0": 0.005,
+          "n": 60
+        },
+        "oaa_minus_ar1": {
+          "delta_abs_r_point": -0.4612,
+          "delta_abs_r_ci": [
+            -0.6717,
+            -0.2009
+          ],
+          "p_delta_gt_0": 0.001,
+          "n": 60
+        }
+      }
+    }
+  },
+  "notes": {
+    "sign_convention": "RA/9 and BABIP-against are 'bad' outcomes (lower = better defense). Good defensive metrics will correlate NEGATIVELY with these. Predictive strength is compared on |r|.",
+    "comparison_windows": 2,
+    "caveat": "With only 2 windows (60 pooled rows), CI widths are large; this is an early read, not a definitive answer."
+  },
+  "artifacts": {
+    "panel_csv": "C:\\Users\\hunte\\projects\\baseball\\results\\defensive_pressing\\prospective_validation\\team_predictions_by_year.csv",
+    "residuals_csv": "C:\\Users\\hunte\\projects\\baseball\\results\\defensive_pressing\\prospective_validation\\team_residuals.csv"
+  }
+}

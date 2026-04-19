@@ -1,0 +1,848 @@
+{
+  "2022_to_2023": {
+    "buy_low": {
+      "overall": {
+        "n_in_leaderboard": 25,
+        "n_evaluated": 24,
+        "hits": 20,
+        "hit_rate": 0.8333333333333334,
+        "avg_actual_delta_war": 0.80625
+      },
+      "position_bucket": {
+        "IF": {
+          "n_in_leaderboard": 4,
+          "n_evaluated": 4,
+          "hits": 3,
+          "hit_rate": 0.75,
+          "avg_actual_delta_war": 0.6575000000000001
+        },
+        "OF": {
+          "n_in_leaderboard": 5,
+          "n_evaluated": 5,
+          "hits": 5,
+          "hit_rate": 1.0,
+          "avg_actual_delta_war": 0.882
+        },
+        "RP": {
+          "n_in_leaderboard": 14,
+          "n_evaluated": 14,
+          "hits": 11,
+          "hit_rate": 0.7857142857142857,
+          "avg_actual_delta_war": 0.6292857142857142
+        },
+        "SP": {
+          "n_in_leaderboard": 2,
+          "n_evaluated": 1,
+          "hits": 1,
+          "hit_rate": 1.0,
+          "avg_actual_delta_war": 3.5
+        }
+      },
+      "mechanism_tag": {
+        "GENUINE EDGE?": {
+          "n_in_leaderboard": 3,
+          "n_evaluated": 3,
+          "hits": 3,
+          "hit_rate": 1.0,
+          "avg_actual_delta_war": 1.36
+        },
+        "OTHER": {
+          "n_in_leaderboard": 12,
+          "n_evaluated": 11,
+          "hits": 9,
+          "hit_rate": 0.8181818181818182,
+          "avg_actual_delta_war": 0.9490909090909092
+        },
+        "RELIEVER LEVERAGE GAP": {
+          "n_in_leaderboard": 10,
+          "n_evaluated": 10,
+          "hits": 8,
+          "hit_rate": 0.8,
+          "avg_actual_delta_war": 0.48299999999999993
+        }
+      },
+      "baseline_war_bucket": {
+        "[-1,0]": {
+          "n_in_leaderboard": 17,
+          "n_evaluated": 16,
+          "hits": 14,
+          "hit_rate": 0.875,
+          "avg_actual_delta_war": 0.99125
+        },
+        "[0,1]": {
+          "n_in_leaderboard": 8,
+          "n_evaluated": 8,
+          "hits": 6,
+          "hit_rate": 0.75,
+          "avg_actual_delta_war": 0.43624999999999997
+        }
+      },
+      "age_bucket": {
+        "25-28": {
+          "n_in_leaderboard": 13,
+          "n_evaluated": 13,
+          "hits": 10,
+          "hit_rate": 0.7692307692307693,
+          "avg_actual_delta_war": 0.8484615384615384
+        },
+        "29-32": {
+          "n_in_leaderboard": 6,
+          "n_evaluated": 5,
+          "hits": 5,
+          "hit_rate": 1.0,
+          "avg_actual_delta_war": 0.33399999999999996
+        },
+        "33+": {
+          "n_in_leaderboard": 3,
+          "n_evaluated": 3,
+          "hits": 2,
+          "hit_rate": 0.6666666666666666,
+          "avg_actual_delta_war": 0.8699999999999998
+        },
+        "<25": {
+          "n_in_leaderboard": 3,
+          "n_evaluated": 3,
+          "hits": 3,
+          "hit_rate": 1.0,
+          "avg_actual_delta_war": 1.3466666666666667
+        }
+      }
+    },
+    "over_valued": {
+      "overall": {
+        "n_in_leaderboard": 25,
+        "n_evaluated": 25,
+        "hits": 20,
+        "hit_rate": 0.8,
+        "avg_actual_delta_war": -0.8603999999999999
+      },
+      "position_bucket": {
+        "IF": {
+          "n_in_leaderboard": 7,
+          "n_evaluated": 7,
+          "hits": 7,
+          "hit_rate": 1.0,
+          "avg_actual_delta_war": -1.5657142857142858
+        },
+        "OF": {
+          "n_in_leaderboard": 5,
+          "n_evaluated": 5,
+          "hits": 4,
+          "hit_rate": 0.8,
+          "avg_actual_delta_war": -1.37
+        },
+        "RP": {
+          "n_in_leaderboard": 1,
+          "n_evaluated": 1,
+          "hits": 1,
+          "hit_rate": 1.0,
+          "avg_actual_delta_war": -0.93
+        },
+        "SP": {
+          "n_in_leaderboard": 12,
+          "n_evaluated": 12,
+          "hits": 8,
+          "hit_rate": 0.6666666666666666,
+          "avg_actual_delta_war": -0.23083333333333322
+        }
+      },
+      "mechanism_tag": {
+        "DEFENSE GAP": {
+          "n_in_leaderboard": 8,
+          "n_evaluated": 8,
+          "hits": 8,
+          "hit_rate": 1.0,
+          "avg_actual_delta_war": -1.6287500000000001
+        },
+        "OTHER": {
+          "n_in_leaderboard": 4,
+          "n_evaluated": 4,
+          "hits": 3,
+          "hit_rate": 0.75,
+          "avg_actual_delta_war": -1.195
+        },
+        "PARK FACTOR": {
+          "n_in_leaderboard": 13,
+          "n_evaluated": 13,
+          "hits": 9,
+          "hit_rate": 0.6923076923076923,
+          "avg_actual_delta_war": -0.28461538461538455
+        }
+      },
+      "baseline_war_bucket": {
+        "[0,1]": {
+          "n_in_leaderboard": 5,
+          "n_evaluated": 5,
+          "hits": 3,
+          "hit_rate": 0.6,
+          "avg_actual_delta_war": -0.12600000000000003
+        },
+        "[1,3]": {
+          "n_in_leaderboard": 18,
+          "n_evaluated": 18,
+          "hits": 15,
+          "hit_rate": 0.8333333333333334,
+          "avg_actual_delta_war": -0.9649999999999999
+        },
+        "[3,5]": {
+          "n_in_leaderboard": 2,
+          "n_evaluated": 2,
+          "hits": 2,
+          "hit_rate": 1.0,
+          "avg_actual_delta_war": -1.7550000000000001
+        }
+      },
+      "age_bucket": {
+        "25-28": {
+          "n_in_leaderboard": 14,
+          "n_evaluated": 14,
+          "hits": 11,
+          "hit_rate": 0.7857142857142857,
+          "avg_actual_delta_war": -1.037857142857143
+        },
+        "29-32": {
+          "n_in_leaderboard": 6,
+          "n_evaluated": 6,
+          "hits": 5,
+          "hit_rate": 0.8333333333333334,
+          "avg_actual_delta_war": -0.8383333333333333
+        },
+        "33+": {
+          "n_in_leaderboard": 3,
+          "n_evaluated": 3,
+          "hits": 3,
+          "hit_rate": 1.0,
+          "avg_actual_delta_war": -1.15
+        },
+        "<25": {
+          "n_in_leaderboard": 2,
+          "n_evaluated": 2,
+          "hits": 1,
+          "hit_rate": 0.5,
+          "avg_actual_delta_war": 0.75
+        }
+      }
+    }
+  },
+  "2023_to_2024": {
+    "buy_low": {
+      "overall": {
+        "n_in_leaderboard": 25,
+        "n_evaluated": 22,
+        "hits": 14,
+        "hit_rate": 0.6363636363636364,
+        "avg_actual_delta_war": 0.26681818181818184
+      },
+      "position_bucket": {
+        "OF": {
+          "n_in_leaderboard": 5,
+          "n_evaluated": 5,
+          "hits": 2,
+          "hit_rate": 0.4,
+          "avg_actual_delta_war": 0.24000000000000005
+        },
+        "RP": {
+          "n_in_leaderboard": 19,
+          "n_evaluated": 17,
+          "hits": 12,
+          "hit_rate": 0.7058823529411765,
+          "avg_actual_delta_war": 0.27470588235294113
+        },
+        "SP": {
+          "n_in_leaderboard": 1,
+          "n_evaluated": 0,
+          "hits": 0,
+          "hit_rate": null,
+          "avg_actual_delta_war": null
+        }
+      },
+      "mechanism_tag": {
+        "GENUINE EDGE?": {
+          "n_in_leaderboard": 4,
+          "n_evaluated": 4,
+          "hits": 2,
+          "hit_rate": 0.5,
+          "avg_actual_delta_war": 0.5275000000000001
+        },
+        "OTHER": {
+          "n_in_leaderboard": 7,
+          "n_evaluated": 6,
+          "hits": 4,
+          "hit_rate": 0.6666666666666666,
+          "avg_actual_delta_war": -0.08833333333333333
+        },
+        "RELIEVER LEVERAGE GAP": {
+          "n_in_leaderboard": 14,
+          "n_evaluated": 12,
+          "hits": 8,
+          "hit_rate": 0.6666666666666666,
+          "avg_actual_delta_war": 0.3575
+        }
+      },
+      "baseline_war_bucket": {
+        "[-1,0]": {
+          "n_in_leaderboard": 14,
+          "n_evaluated": 11,
+          "hits": 8,
+          "hit_rate": 0.7272727272727273,
+          "avg_actual_delta_war": 0.41818181818181815
+        },
+        "[0,1]": {
+          "n_in_leaderboard": 11,
+          "n_evaluated": 11,
+          "hits": 6,
+          "hit_rate": 0.5454545454545454,
+          "avg_actual_delta_war": 0.11545454545454549
+        }
+      },
+      "age_bucket": {
+        "25-28": {
+          "n_in_leaderboard": 6,
+          "n_evaluated": 4,
+          "hits": 2,
+          "hit_rate": 0.5,
+          "avg_actual_delta_war": -0.23749999999999996
+        },
+        "29-32": {
+          "n_in_leaderboard": 11,
+          "n_evaluated": 10,
+          "hits": 9,
+          "hit_rate": 0.9,
+          "avg_actual_delta_war": 0.8530000000000001
+        },
+        "33+": {
+          "n_in_leaderboard": 7,
+          "n_evaluated": 7,
+          "hits": 3,
+          "hit_rate": 0.42857142857142855,
+          "avg_actual_delta_war": -0.14142857142857143
+        },
+        "<25": {
+          "n_in_leaderboard": 1,
+          "n_evaluated": 1,
+          "hits": 0,
+          "hit_rate": 0.0,
+          "avg_actual_delta_war": -0.72
+        }
+      }
+    },
+    "over_valued": {
+      "overall": {
+        "n_in_leaderboard": 25,
+        "n_evaluated": 23,
+        "hits": 14,
+        "hit_rate": 0.6086956521739131,
+        "avg_actual_delta_war": -0.022608695652173855
+      },
+      "position_bucket": {
+        "IF": {
+          "n_in_leaderboard": 3,
+          "n_evaluated": 3,
+          "hits": 1,
+          "hit_rate": 0.3333333333333333,
+          "avg_actual_delta_war": 0.9800000000000001
+        },
+        "OF": {
+          "n_in_leaderboard": 3,
+          "n_evaluated": 3,
+          "hits": 2,
+          "hit_rate": 0.6666666666666666,
+          "avg_actual_delta_war": 0.26666666666666683
+        },
+        "SP": {
+          "n_in_leaderboard": 19,
+          "n_evaluated": 17,
+          "hits": 11,
+          "hit_rate": 0.6470588235294118,
+          "avg_actual_delta_war": -0.25058823529411756
+        }
+      },
+      "mechanism_tag": {
+        "DEFENSE GAP": {
+          "n_in_leaderboard": 6,
+          "n_evaluated": 6,
+          "hits": 3,
+          "hit_rate": 0.5,
+          "avg_actual_delta_war": 0.6233333333333335
+        },
+        "PARK FACTOR": {
+          "n_in_leaderboard": 19,
+          "n_evaluated": 17,
+          "hits": 11,
+          "hit_rate": 0.6470588235294118,
+          "avg_actual_delta_war": -0.25058823529411756
+        }
+      },
+      "baseline_war_bucket": {
+        "[0,1]": {
+          "n_in_leaderboard": 7,
+          "n_evaluated": 7,
+          "hits": 2,
+          "hit_rate": 0.2857142857142857,
+          "avg_actual_delta_war": 1.4900000000000002
+        },
+        "[1,3]": {
+          "n_in_leaderboard": 14,
+          "n_evaluated": 12,
+          "hits": 10,
+          "hit_rate": 0.8333333333333334,
+          "avg_actual_delta_war": -0.5741666666666665
+        },
+        "[3,5]": {
+          "n_in_leaderboard": 4,
+          "n_evaluated": 4,
+          "hits": 2,
+          "hit_rate": 0.5,
+          "avg_actual_delta_war": -1.015
+        }
+      },
+      "age_bucket": {
+        "25-28": {
+          "n_in_leaderboard": 13,
+          "n_evaluated": 12,
+          "hits": 7,
+          "hit_rate": 0.5833333333333334,
+          "avg_actual_delta_war": -0.0024999999999999467
+        },
+        "29-32": {
+          "n_in_leaderboard": 4,
+          "n_evaluated": 4,
+          "hits": 3,
+          "hit_rate": 0.75,
+          "avg_actual_delta_war": -0.33499999999999985
+        },
+        "33+": {
+          "n_in_leaderboard": 3,
+          "n_evaluated": 2,
+          "hits": 2,
+          "hit_rate": 1.0,
+          "avg_actual_delta_war": -2.34
+        },
+        "<25": {
+          "n_in_leaderboard": 5,
+          "n_evaluated": 5,
+          "hits": 2,
+          "hit_rate": 0.4,
+          "avg_actual_delta_war": 1.106
+        }
+      }
+    }
+  },
+  "2024_to_2025": {
+    "buy_low": {
+      "overall": {
+        "n_in_leaderboard": 25,
+        "n_evaluated": 22,
+        "hits": 18,
+        "hit_rate": 0.8181818181818182,
+        "avg_actual_delta_war": 0.8599999999999999
+      },
+      "position_bucket": {
+        "IF": {
+          "n_in_leaderboard": 4,
+          "n_evaluated": 4,
+          "hits": 3,
+          "hit_rate": 0.75,
+          "avg_actual_delta_war": 0.49000000000000005
+        },
+        "OF": {
+          "n_in_leaderboard": 4,
+          "n_evaluated": 3,
+          "hits": 2,
+          "hit_rate": 0.6666666666666666,
+          "avg_actual_delta_war": 1.43
+        },
+        "RP": {
+          "n_in_leaderboard": 16,
+          "n_evaluated": 14,
+          "hits": 12,
+          "hit_rate": 0.8571428571428571,
+          "avg_actual_delta_war": 0.8099999999999999
+        },
+        "SP": {
+          "n_in_leaderboard": 1,
+          "n_evaluated": 1,
+          "hits": 1,
+          "hit_rate": 1.0,
+          "avg_actual_delta_war": 1.33
+        }
+      },
+      "mechanism_tag": {
+        "GENUINE EDGE?": {
+          "n_in_leaderboard": 2,
+          "n_evaluated": 2,
+          "hits": 2,
+          "hit_rate": 1.0,
+          "avg_actual_delta_war": 0.935
+        },
+        "OTHER": {
+          "n_in_leaderboard": 12,
+          "n_evaluated": 10,
+          "hits": 7,
+          "hit_rate": 0.7,
+          "avg_actual_delta_war": 0.6839999999999999
+        },
+        "RELIEVER LEVERAGE GAP": {
+          "n_in_leaderboard": 11,
+          "n_evaluated": 10,
+          "hits": 9,
+          "hit_rate": 0.9,
+          "avg_actual_delta_war": 1.0210000000000001
+        }
+      },
+      "baseline_war_bucket": {
+        "[-1,0]": {
+          "n_in_leaderboard": 18,
+          "n_evaluated": 15,
+          "hits": 12,
+          "hit_rate": 0.8,
+          "avg_actual_delta_war": 0.7113333333333334
+        },
+        "[0,1]": {
+          "n_in_leaderboard": 7,
+          "n_evaluated": 7,
+          "hits": 6,
+          "hit_rate": 0.8571428571428571,
+          "avg_actual_delta_war": 1.1785714285714286
+        }
+      },
+      "age_bucket": {
+        "25-28": {
+          "n_in_leaderboard": 10,
+          "n_evaluated": 9,
+          "hits": 7,
+          "hit_rate": 0.7777777777777778,
+          "avg_actual_delta_war": 1.087777777777778
+        },
+        "29-32": {
+          "n_in_leaderboard": 8,
+          "n_evaluated": 6,
+          "hits": 5,
+          "hit_rate": 0.8333333333333334,
+          "avg_actual_delta_war": 0.415
+        },
+        "33+": {
+          "n_in_leaderboard": 6,
+          "n_evaluated": 6,
+          "hits": 5,
+          "hit_rate": 0.8333333333333334,
+          "avg_actual_delta_war": 0.7566666666666667
+        },
+        "<25": {
+          "n_in_leaderboard": 1,
+          "n_evaluated": 1,
+          "hits": 1,
+          "hit_rate": 1.0,
+          "avg_actual_delta_war": 2.1
+        }
+      }
+    },
+    "over_valued": {
+      "overall": {
+        "n_in_leaderboard": 25,
+        "n_evaluated": 25,
+        "hits": 19,
+        "hit_rate": 0.76,
+        "avg_actual_delta_war": -0.8760000000000001
+      },
+      "position_bucket": {
+        "C": {
+          "n_in_leaderboard": 3,
+          "n_evaluated": 3,
+          "hits": 3,
+          "hit_rate": 1.0,
+          "avg_actual_delta_war": -0.9333333333333336
+        },
+        "IF": {
+          "n_in_leaderboard": 7,
+          "n_evaluated": 7,
+          "hits": 4,
+          "hit_rate": 0.5714285714285714,
+          "avg_actual_delta_war": -0.11142857142857134
+        },
+        "OF": {
+          "n_in_leaderboard": 2,
+          "n_evaluated": 2,
+          "hits": 2,
+          "hit_rate": 1.0,
+          "avg_actual_delta_war": -2.185
+        },
+        "SP": {
+          "n_in_leaderboard": 13,
+          "n_evaluated": 13,
+          "hits": 10,
+          "hit_rate": 0.7692307692307693,
+          "avg_actual_delta_war": -1.0730769230769233
+        }
+      },
+      "mechanism_tag": {
+        "DEFENSE GAP": {
+          "n_in_leaderboard": 10,
+          "n_evaluated": 10,
+          "hits": 8,
+          "hit_rate": 0.8,
+          "avg_actual_delta_war": -0.9979999999999999
+        },
+        "OTHER": {
+          "n_in_leaderboard": 2,
+          "n_evaluated": 2,
+          "hits": 1,
+          "hit_rate": 0.5,
+          "avg_actual_delta_war": 1.015
+        },
+        "PARK FACTOR": {
+          "n_in_leaderboard": 13,
+          "n_evaluated": 13,
+          "hits": 10,
+          "hit_rate": 0.7692307692307693,
+          "avg_actual_delta_war": -1.0730769230769233
+        }
+      },
+      "baseline_war_bucket": {
+        "[0,1]": {
+          "n_in_leaderboard": 4,
+          "n_evaluated": 4,
+          "hits": 2,
+          "hit_rate": 0.5,
+          "avg_actual_delta_war": -0.28500000000000003
+        },
+        "[1,3]": {
+          "n_in_leaderboard": 15,
+          "n_evaluated": 15,
+          "hits": 13,
+          "hit_rate": 0.8666666666666667,
+          "avg_actual_delta_war": -1.0533333333333335
+        },
+        "[3,5]": {
+          "n_in_leaderboard": 6,
+          "n_evaluated": 6,
+          "hits": 4,
+          "hit_rate": 0.6666666666666666,
+          "avg_actual_delta_war": -0.8266666666666667
+        }
+      },
+      "age_bucket": {
+        "25-28": {
+          "n_in_leaderboard": 12,
+          "n_evaluated": 12,
+          "hits": 10,
+          "hit_rate": 0.8333333333333334,
+          "avg_actual_delta_war": -0.9666666666666668
+        },
+        "29-32": {
+          "n_in_leaderboard": 5,
+          "n_evaluated": 5,
+          "hits": 4,
+          "hit_rate": 0.8,
+          "avg_actual_delta_war": -1.328
+        },
+        "33+": {
+          "n_in_leaderboard": 3,
+          "n_evaluated": 3,
+          "hits": 2,
+          "hit_rate": 0.6666666666666666,
+          "avg_actual_delta_war": -0.7966666666666667
+        },
+        "<25": {
+          "n_in_leaderboard": 5,
+          "n_evaluated": 5,
+          "hits": 3,
+          "hit_rate": 0.6,
+          "avg_actual_delta_war": -0.254
+        }
+      }
+    }
+  },
+  "cross_window_by_tag": {
+    "DEFENSE GAP": {
+      "2022_to_2023__buy_low": {
+        "n_in_leaderboard": 0,
+        "n_evaluated": 0,
+        "hits": 0,
+        "hit_rate": null
+      },
+      "2022_to_2023__over_valued": {
+        "n_in_leaderboard": 8,
+        "n_evaluated": 8,
+        "hits": 8,
+        "hit_rate": 1.0
+      },
+      "2023_to_2024__buy_low": {
+        "n_in_leaderboard": 0,
+        "n_evaluated": 0,
+        "hits": 0,
+        "hit_rate": null
+      },
+      "2023_to_2024__over_valued": {
+        "n_in_leaderboard": 6,
+        "n_evaluated": 6,
+        "hits": 3,
+        "hit_rate": 0.5
+      },
+      "2024_to_2025__buy_low": {
+        "n_in_leaderboard": 0,
+        "n_evaluated": 0,
+        "hits": 0,
+        "hit_rate": null
+      },
+      "2024_to_2025__over_valued": {
+        "n_in_leaderboard": 10,
+        "n_evaluated": 10,
+        "hits": 8,
+        "hit_rate": 0.8
+      }
+    },
+    "GENUINE EDGE?": {
+      "2022_to_2023__buy_low": {
+        "n_in_leaderboard": 3,
+        "n_evaluated": 3,
+        "hits": 3,
+        "hit_rate": 1.0
+      },
+      "2022_to_2023__over_valued": {
+        "n_in_leaderboard": 0,
+        "n_evaluated": 0,
+        "hits": 0,
+        "hit_rate": null
+      },
+      "2023_to_2024__buy_low": {
+        "n_in_leaderboard": 4,
+        "n_evaluated": 4,
+        "hits": 2,
+        "hit_rate": 0.5
+      },
+      "2023_to_2024__over_valued": {
+        "n_in_leaderboard": 0,
+        "n_evaluated": 0,
+        "hits": 0,
+        "hit_rate": null
+      },
+      "2024_to_2025__buy_low": {
+        "n_in_leaderboard": 2,
+        "n_evaluated": 2,
+        "hits": 2,
+        "hit_rate": 1.0
+      },
+      "2024_to_2025__over_valued": {
+        "n_in_leaderboard": 0,
+        "n_evaluated": 0,
+        "hits": 0,
+        "hit_rate": null
+      }
+    },
+    "OTHER": {
+      "2022_to_2023__buy_low": {
+        "n_in_leaderboard": 12,
+        "n_evaluated": 11,
+        "hits": 9,
+        "hit_rate": 0.8181818181818182
+      },
+      "2022_to_2023__over_valued": {
+        "n_in_leaderboard": 4,
+        "n_evaluated": 4,
+        "hits": 3,
+        "hit_rate": 0.75
+      },
+      "2023_to_2024__buy_low": {
+        "n_in_leaderboard": 7,
+        "n_evaluated": 6,
+        "hits": 4,
+        "hit_rate": 0.6666666666666666
+      },
+      "2023_to_2024__over_valued": {
+        "n_in_leaderboard": 0,
+        "n_evaluated": 0,
+        "hits": 0,
+        "hit_rate": null
+      },
+      "2024_to_2025__buy_low": {
+        "n_in_leaderboard": 12,
+        "n_evaluated": 10,
+        "hits": 7,
+        "hit_rate": 0.7
+      },
+      "2024_to_2025__over_valued": {
+        "n_in_leaderboard": 2,
+        "n_evaluated": 2,
+        "hits": 1,
+        "hit_rate": 0.5
+      }
+    },
+    "PARK FACTOR": {
+      "2022_to_2023__buy_low": {
+        "n_in_leaderboard": 0,
+        "n_evaluated": 0,
+        "hits": 0,
+        "hit_rate": null
+      },
+      "2022_to_2023__over_valued": {
+        "n_in_leaderboard": 13,
+        "n_evaluated": 13,
+        "hits": 9,
+        "hit_rate": 0.6923076923076923
+      },
+      "2023_to_2024__buy_low": {
+        "n_in_leaderboard": 0,
+        "n_evaluated": 0,
+        "hits": 0,
+        "hit_rate": null
+      },
+      "2023_to_2024__over_valued": {
+        "n_in_leaderboard": 19,
+        "n_evaluated": 17,
+        "hits": 11,
+        "hit_rate": 0.6470588235294118
+      },
+      "2024_to_2025__buy_low": {
+        "n_in_leaderboard": 0,
+        "n_evaluated": 0,
+        "hits": 0,
+        "hit_rate": null
+      },
+      "2024_to_2025__over_valued": {
+        "n_in_leaderboard": 13,
+        "n_evaluated": 13,
+        "hits": 10,
+        "hit_rate": 0.7692307692307693
+      }
+    },
+    "RELIEVER LEVERAGE GAP": {
+      "2022_to_2023__buy_low": {
+        "n_in_leaderboard": 10,
+        "n_evaluated": 10,
+        "hits": 8,
+        "hit_rate": 0.8
+      },
+      "2022_to_2023__over_valued": {
+        "n_in_leaderboard": 0,
+        "n_evaluated": 0,
+        "hits": 0,
+        "hit_rate": null
+      },
+      "2023_to_2024__buy_low": {
+        "n_in_leaderboard": 14,
+        "n_evaluated": 12,
+        "hits": 8,
+        "hit_rate": 0.6666666666666666
+      },
+      "2023_to_2024__over_valued": {
+        "n_in_leaderboard": 0,
+        "n_evaluated": 0,
+        "hits": 0,
+        "hit_rate": null
+      },
+      "2024_to_2025__buy_low": {
+        "n_in_leaderboard": 11,
+        "n_evaluated": 10,
+        "hits": 9,
+        "hit_rate": 0.9
+      },
+      "2024_to_2025__over_valued": {
+        "n_in_leaderboard": 0,
+        "n_evaluated": 0,
+        "hits": 0,
+        "hit_rate": null
+      }
+    }
+  }
+}

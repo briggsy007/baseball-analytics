@@ -58,3 +58,6 @@ bash.exe.stackdump
 results/**/_run.log
 results/**/run.log
 results/**/_*_cache.csv
+
+# Per-script intermediate caches (can be large — e.g. PitchGPT downstream feature cache)
+results/**/_cache/

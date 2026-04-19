@@ -1,0 +1,316 @@
+{
+  "window": "2023_to_2024",
+  "description": "Recompute WAR-matched naive lift after excluding the worst-performing cohort (n>=4). Reports the filtered pick list and whether it now beats naive.",
+  "notes": [],
+  "scenarios": [
+    {
+      "n_picks": 25,
+      "n_picks_evaluated": 22,
+      "n_hits": 14,
+      "model_rate": 0.6363636363636364,
+      "matched_naive_rate": 0.6647178411318926,
+      "lift_pp": -2.835420476825623,
+      "n_neighbour_comparisons": 22,
+      "war_window": 0.3,
+      "filter": "no filter (baseline)",
+      "label": "buy_low_baseline_no_filter"
+    },
+    {
+      "n_picks": 21,
+      "n_picks_evaluated": 18,
+      "n_hits": 12,
+      "model_rate": 0.6666666666666666,
+      "matched_naive_rate": 0.652667717424566,
+      "lift_pp": 1.3998949242100656,
+      "n_neighbour_comparisons": 18,
+      "war_window": 0.3,
+      "filter": "excluded tag=GENUINE EDGE?",
+      "label": "buy_low_excl_tag_GENUINE EDGE?"
+    },
+    {
+      "n_picks": 20,
+      "n_picks_evaluated": 17,
+      "n_hits": 12,
+      "model_rate": 0.7058823529411765,
+      "matched_naive_rate": 0.6643219681821607,
+      "lift_pp": 4.15603847590158,
+      "n_neighbour_comparisons": 17,
+      "war_window": 0.3,
+      "filter": "excluded position_bucket=OF",
+      "label": "buy_low_excl_pos_OF"
+    },
+    {
+      "n_picks": 14,
+      "n_picks_evaluated": 11,
+      "n_hits": 8,
+      "model_rate": 0.7272727272727273,
+      "matched_naive_rate": 0.8315040749809359,
+      "lift_pp": -10.423134770820862,
+      "n_neighbour_comparisons": 11,
+      "war_window": 0.3,
+      "filter": "excluded war_bucket=[0,1]",
+      "label": "buy_low_excl_war_[0,1]"
+    },
+    {
+      "n_picks": 18,
+      "n_picks_evaluated": 15,
+      "n_hits": 11,
+      "model_rate": 0.7333333333333333,
+      "matched_naive_rate": 0.7174173892241154,
+      "lift_pp": 1.5915944109217928,
+      "n_neighbour_comparisons": 15,
+      "war_window": 0.3,
+      "filter": "excluded age_bucket=33+",
+      "label": "buy_low_excl_age_33+"
+    },
+    {
+      "n_picks": 25,
+      "n_picks_evaluated": 23,
+      "n_hits": 14,
+      "model_rate": 0.6086956521739131,
+      "matched_naive_rate": 0.6951074974863356,
+      "lift_pp": -8.641184531242253,
+      "n_neighbour_comparisons": 23,
+      "war_window": 0.3,
+      "filter": "no filter (baseline)",
+      "label": "over_valued_baseline_no_filter"
+    },
+    {
+      "n_picks": 19,
+      "n_picks_evaluated": 17,
+      "n_hits": 11,
+      "model_rate": 0.6470588235294118,
+      "matched_naive_rate": 0.6875684746232199,
+      "lift_pp": -4.050965109380811,
+      "n_neighbour_comparisons": 17,
+      "war_window": 0.3,
+      "filter": "excluded tag=DEFENSE GAP",
+      "label": "over_valued_excl_tag_DEFENSE GAP"
+    },
+    {
+      "n_picks": 6,
+      "n_picks_evaluated": 6,
+      "n_hits": 3,
+      "model_rate": 0.5,
+      "matched_naive_rate": 0.7164680622651637,
+      "lift_pp": -21.646806226516368,
+      "n_neighbour_comparisons": 6,
+      "war_window": 0.3,
+      "filter": "excluded position_bucket=SP",
+      "label": "over_valued_excl_pos_SP"
+    },
+    {
+      "n_picks": 18,
+      "n_picks_evaluated": 16,
+      "n_hits": 12,
+      "model_rate": 0.75,
+      "matched_naive_rate": 0.7451193902821742,
+      "lift_pp": 0.4880609717825779,
+      "n_neighbour_comparisons": 16,
+      "war_window": 0.3,
+      "filter": "excluded war_bucket=[0,1]",
+      "label": "over_valued_excl_war_[0,1]"
+    },
+    {
+      "n_picks": 20,
+      "n_picks_evaluated": 18,
+      "n_hits": 12,
+      "model_rate": 0.6666666666666666,
+      "matched_naive_rate": 0.684669148217442,
+      "lift_pp": -1.8002481550775329,
+      "n_neighbour_comparisons": 18,
+      "war_window": 0.3,
+      "filter": "excluded age_bucket=<25",
+      "label": "over_valued_excl_age_<25"
+    }
+  ],
+  "worst_cohorts": {
+    "buy_low": {
+      "tag": {
+        "label": "GENUINE EDGE?",
+        "stats": {
+          "n": 4,
+          "hits": 2,
+          "hit_rate": 0.5
+        }
+      },
+      "position_bucket": {
+        "label": "OF",
+        "stats": {
+          "n": 5,
+          "hits": 2,
+          "hit_rate": 0.4
+        }
+      },
+      "war_bucket": {
+        "label": "[0,1]",
+        "stats": {
+          "n": 11,
+          "hits": 6,
+          "hit_rate": 0.5454545454545454
+        }
+      },
+      "age_bucket": {
+        "label": "33+",
+        "stats": {
+          "n": 7,
+          "hits": 3,
+          "hit_rate": 0.42857142857142855
+        }
+      }
+    },
+    "over_valued": {
+      "tag": {
+        "label": "DEFENSE GAP",
+        "stats": {
+          "n": 6,
+          "hits": 3,
+          "hit_rate": 0.5
+        }
+      },
+      "position_bucket": {
+        "label": "SP",
+        "stats": {
+          "n": 17,
+          "hits": 11,
+          "hit_rate": 0.6470588235294118
+        }
+      },
+      "war_bucket": {
+        "label": "[0,1]",
+        "stats": {
+          "n": 7,
+          "hits": 2,
+          "hit_rate": 0.2857142857142857
+        }
+      },
+      "age_bucket": {
+        "label": "<25",
+        "stats": {
+          "n": 5,
+          "hits": 2,
+          "hit_rate": 0.4
+        }
+      }
+    }
+  },
+  "season_context": {
+    "2022_to_2023": {
+      "y0": 2022,
+      "y1": 2023,
+      "all": {
+        "n": 929,
+        "mean_delta": -0.2336490850376749,
+        "median_delta": -0.18999999999999995,
+        "frac_war_improved_or_held": 0.45855758880516684,
+        "frac_war_declined": 0.5414424111948332
+      },
+      "batter": {
+        "n": 466,
+        "mean_delta": -0.27856223175965666,
+        "median_delta": -0.29500000000000004,
+        "frac_war_improved_or_held": 0.4313304721030043,
+        "frac_war_declined": 0.5686695278969958
+      },
+      "pitcher": {
+        "n": 463,
+        "mean_delta": -0.18844492440604751,
+        "median_delta": -0.08999999999999986,
+        "frac_war_improved_or_held": 0.48596112311015116,
+        "frac_war_declined": 0.5140388768898488
+      },
+      "reliever_ip_lt_60": {
+        "n": 213,
+        "mean_delta": 0.20352112676056336,
+        "median_delta": 0.2499999999999999,
+        "frac_war_improved_or_held": 0.6056338028169014,
+        "frac_war_declined": 0.39436619718309857
+      },
+      "starter_ip_ge_60": {
+        "n": 250,
+        "mean_delta": -0.5224000000000001,
+        "median_delta": -0.575,
+        "frac_war_improved_or_held": 0.384,
+        "frac_war_declined": 0.616
+      }
+    },
+    "2023_to_2024": {
+      "y0": 2023,
+      "y1": 2024,
+      "all": {
+        "n": 900,
+        "mean_delta": -0.21184444444444447,
+        "median_delta": -0.225,
+        "frac_war_improved_or_held": 0.4477777777777778,
+        "frac_war_declined": 0.5522222222222222
+      },
+      "batter": {
+        "n": 443,
+        "mean_delta": -0.23564334085778785,
+        "median_delta": -0.32000000000000006,
+        "frac_war_improved_or_held": 0.4401805869074492,
+        "frac_war_declined": 0.5598194130925508
+      },
+      "pitcher": {
+        "n": 457,
+        "mean_delta": -0.1887746170678337,
+        "median_delta": -0.14,
+        "frac_war_improved_or_held": 0.4551422319474836,
+        "frac_war_declined": 0.5448577680525164
+      },
+      "reliever_ip_lt_60": {
+        "n": 209,
+        "mean_delta": 0.020717703349282305,
+        "median_delta": -0.010000000000000009,
+        "frac_war_improved_or_held": 0.49760765550239233,
+        "frac_war_declined": 0.5023923444976076
+      },
+      "starter_ip_ge_60": {
+        "n": 248,
+        "mean_delta": -0.36532258064516127,
+        "median_delta": -0.495,
+        "frac_war_improved_or_held": 0.41935483870967744,
+        "frac_war_declined": 0.5806451612903226
+      }
+    },
+    "2024_to_2025": {
+      "y0": 2024,
+      "y1": 2025,
+      "all": {
+        "n": 911,
+        "mean_delta": -0.18422612513721184,
+        "median_delta": -0.18,
+        "frac_war_improved_or_held": 0.45773874862788144,
+        "frac_war_declined": 0.5422612513721186
+      },
+      "batter": {
+        "n": 460,
+        "mean_delta": -0.21791304347826082,
+        "median_delta": -0.07500000000000004,
+        "frac_war_improved_or_held": 0.47608695652173916,
+        "frac_war_declined": 0.5239130434782608
+      },
+      "pitcher": {
+        "n": 451,
+        "mean_delta": -0.14986696230598667,
+        "median_delta": -0.21000000000000002,
+        "frac_war_improved_or_held": 0.43902439024390244,
+        "frac_war_declined": 0.5609756097560976
+      },
+      "reliever_ip_lt_60": {
+        "n": 205,
+        "mean_delta": 0.1851707317073171,
+        "median_delta": 0.14,
+        "frac_war_improved_or_held": 0.526829268292683,
+        "frac_war_declined": 0.47317073170731705
+      },
+      "starter_ip_ge_60": {
+        "n": 246,
+        "mean_delta": -0.42906504065040646,
+        "median_delta": -0.5349999999999999,
+        "frac_war_improved_or_held": 0.36585365853658536,
+        "frac_war_declined": 0.6341463414634146
+      }
+    }
+  }
+}
