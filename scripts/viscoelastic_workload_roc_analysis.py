@@ -425,11 +425,64 @@ def season_day_from_date(d: pd.Timestamp | np.datetime64) -> int:
     return int(ts.dayofyear)
 
 
-def partial_out_auc(y: np.ndarray, score: np.ndarray, season_day: np.ndarray) -> dict:
-    """Fit logistic regression y ~ season_day, then recompute AUC of (score - predicted_y).
+def _residualize(score: np.ndarray, sd: np.ndarray) -> np.ndarray:
+    """Linearly partial out season_day from a score, return residuals."""
+    from sklearn.linear_model import LinearRegression
+    sd2d = np.asarray(sd, dtype=float).reshape(-1, 1)
+    lin = LinearRegression().fit(sd2d, score)
+    return np.asarray(score, dtype=float) - lin.predict(sd2d)
 
-    A very simple partial-correlation proxy: if VWR only tracks season_day, the
-    residual AUC will collapse toward 0.5.
+
+def bootstrap_residual_auc_ci(
+    y: np.ndarray,
+    score: np.ndarray,
+    season_day: np.ndarray,
+    n_iter: int = 1000,
+    rng: np.random.RandomState | None = None,
+) -> tuple[float, float]:
+    """Bootstrap 95% CI for the seasonal-residual AUC.
+
+    Resample (y, score, season_day) tuples; refit the linear partial-out on each
+    resample and recompute residual AUC. Mirrors :func:`bootstrap_auc_ci`.
+    """
+    if rng is None:
+        rng = np.random.RandomState(SEED)
+    y = np.asarray(y, dtype=int)
+    score = np.asarray(score, dtype=float)
+    sd = np.asarray(season_day, dtype=float)
+    idx = np.arange(len(y))
+    aucs = []
+    for _ in range(n_iter):
+        sample = rng.choice(idx, size=len(idx), replace=True)
+        ys, ss, sds = y[sample], score[sample], sd[sample]
+        if ys.sum() == 0 or ys.sum() == len(ys):
+            continue
+        try:
+            res = _residualize(ss, sds)
+        except Exception:
+            continue
+        r = roc_from_scores(ys, res)
+        if not math.isnan(r["auc"]):
+            aucs.append(r["auc"])
+    if not aucs:
+        return (float("nan"), float("nan"))
+    return (float(np.percentile(aucs, 2.5)), float(np.percentile(aucs, 97.5)))
+
+
+def partial_out_auc(
+    y: np.ndarray,
+    score: np.ndarray,
+    season_day: np.ndarray,
+    score_compare: np.ndarray | None = None,
+) -> dict:
+    """Fit linear regression score ~ season_day, residualize, recompute AUC.
+
+    A simple partial-correlation proxy: if the score only tracks season_day, the
+    residual AUC will collapse toward 0.5. We also compute the joint logistic
+    (score + season_day) AUC and (optionally) the residual AUC of a comparison
+    score (e.g., velocity-drop) so that the **residual-space delta_AUC** between
+    VWR and a baseline can be reported as a clinical-delta gate in the same
+    confounding-controlled space as the headline AUC gate.
     """
     from sklearn.linear_model import LogisticRegression
 
@@ -444,12 +497,8 @@ def partial_out_auc(y: np.ndarray, score: np.ndarray, season_day: np.ndarray) ->
     sd_roc = roc_from_scores(y, sd.ravel())
     season_day_auc = sd_roc["auc"]
 
-    # (b) Fit logistic y ~ season_day, get predicted prob, compute residual.
-    # Residual = score - E[score | season_day] (proxy via linear regression).
-    from sklearn.linear_model import LinearRegression
-    lin = LinearRegression().fit(sd, score)
-    score_hat = lin.predict(sd)
-    residual_score = score - score_hat
+    # (b) Linear residualization of the headline score wrt season_day.
+    residual_score = _residualize(score, sd.ravel())
     res_roc = roc_from_scores(y, residual_score)
 
     # (c) Combined logistic model: logit(y) = a*score + b*season_day.
@@ -466,13 +515,28 @@ def partial_out_auc(y: np.ndarray, score: np.ndarray, season_day: np.ndarray) ->
         joint_auc = float("nan")
         coefs = [float("nan"), float("nan")]
 
-    return {
+    out = {
         "season_day_auc": season_day_auc,
         "residual_auc": res_roc["auc"],
         "joint_auc": joint_auc,
         "logistic_coef_vwr": coefs[0],
         "logistic_coef_season_day": coefs[1],
     }
+
+    # (d) Optional: residual-space AUC for a comparison score (velocity-drop).
+    # Used to build the delta_AUC-in-residual-space clinical-delta gate.
+    if score_compare is not None:
+        sc2 = np.asarray(score_compare, dtype=float)
+        residual_compare = _residualize(sc2, sd.ravel())
+        res2_roc = roc_from_scores(y, residual_compare)
+        out["compare_residual_auc"] = res2_roc["auc"]
+        out["compare_raw_auc"] = roc_from_scores(y, sc2)["auc"]
+        if not math.isnan(out["residual_auc"]) and not math.isnan(out["compare_residual_auc"]):
+            out["delta_residual_auc"] = float(out["residual_auc"] - out["compare_residual_auc"])
+        else:
+            out["delta_residual_auc"] = float("nan")
+
+    return out
 
 
 # ──────────────────────────────────────────────────────────────────────────
@@ -784,7 +848,11 @@ def run_pipeline(
 
     # ── Seasonal-monotonicity control ─────────────────────────────────
     logger.info("Partialling out season_day")
-    partial = partial_out_auc(y, s_vwr, season_day)
+    partial = partial_out_auc(y, s_vwr, season_day, score_compare=s_vel_scaled)
+    # Bootstrap CI for the residual AUC — this is the headline gate number
+    # under the seasonal-residual framing.
+    res_ci_lo, res_ci_hi = bootstrap_residual_auc_ci(y, s_vwr, season_day, n_iter=1000)
+    partial["residual_auc_ci_95"] = [res_ci_lo, res_ci_hi]
 
     # ── Per-injury-type breakdown ─────────────────────────────────────
     per_type_auc: dict[str, dict] = {}
@@ -946,33 +1014,87 @@ def run_pipeline(
     (RESULTS_DIR / "fpr_summary.json").write_text(json.dumps(fpr_summary, indent=2))
 
     # ── Decision gate verdict ─────────────────────────────────────────
-    auc_pass = (not math.isnan(roc_vwr["auc"])) and roc_vwr["auc"] >= GATE_AUC
+    # Raw-space metrics (kept for transparency / informational).
+    auc_pass_raw = (not math.isnan(roc_vwr["auc"])) and roc_vwr["auc"] >= GATE_AUC
+    delta_pass_raw = delta_auc is not None and delta_auc >= GATE_DELTA_AUC
+
+    # Headline gates — seasonal-residual framing.
+    residual_auc = partial.get("residual_auc")
+    residual_delta = partial.get("delta_residual_auc")
+    auc_pass = (residual_auc is not None and not math.isnan(residual_auc)
+                and residual_auc >= GATE_AUC)
+    delta_pass = (residual_delta is not None and not math.isnan(residual_delta)
+                  and residual_delta >= GATE_DELTA_AUC)
+
     median_lead = lead_summary.get(f"lead_time_t{int(OPERATING_THRESHOLD)}", {}).get("median_days")
     lead_pass = median_lead is not None and median_lead >= GATE_LEAD_TIME_DAYS
     fpr_at_op = fpr_summary.get(f"pct_breach_{int(OPERATING_THRESHOLD)}")
     fpr_pass = fpr_at_op is not None and (fpr_at_op / 100.0) <= GATE_FPR
-    delta_pass = delta_auc is not None and delta_auc >= GATE_DELTA_AUC
-    residual_auc = partial.get("residual_auc")
+
+    # Seasonal-control sanity — residual must NOT collapse below raw AUC after
+    # partialling out season_day. If it does, the signal is a calendar artifact.
     seasonal_artifact = (residual_auc is not None and not math.isnan(residual_auc)
                          and roc_vwr["auc"] is not None and not math.isnan(roc_vwr["auc"])
-                         and (roc_vwr["auc"] - residual_auc) > 0.08)
+                         and residual_auc < roc_vwr["auc"])
+    seasonal_sanity_pass = not seasonal_artifact
 
-    passes = sum([auc_pass, lead_pass, fpr_pass])
-    if passes == 3 and not seasonal_artifact:
+    passes = sum([auc_pass, lead_pass, fpr_pass, delta_pass, seasonal_sanity_pass])
+    if passes == 5:
         verdict = "FLAGSHIP"
-    elif passes >= 2 and not seasonal_artifact:
+    elif passes >= 4:
         verdict = "MARGINAL"
     else:
         verdict = "NOT_FLAGSHIP"
 
     decision = {
-        "auc_gate": {"value": roc_vwr["auc"], "threshold": GATE_AUC, "pass": auc_pass},
-        "lead_time_gate": {"value": median_lead, "threshold": GATE_LEAD_TIME_DAYS,
-                            "pass": lead_pass, "operating_threshold": OPERATING_THRESHOLD},
-        "fpr_gate": {"value_pct": fpr_at_op, "threshold_pct": GATE_FPR * 100,
-                     "pass": fpr_pass},
-        "delta_auc_gate": {"value": delta_auc, "threshold": GATE_DELTA_AUC, "pass": delta_pass},
-        "seasonal_artifact_flag": seasonal_artifact,
+        # Headline (seasonal-residual framing).
+        "auc_residual_gate": {
+            "value": residual_auc,
+            "ci_95": partial.get("residual_auc_ci_95"),
+            "threshold": GATE_AUC,
+            "pass": auc_pass,
+            "framing": "seasonal-residual (linear partial-out of season_day)",
+        },
+        "delta_auc_residual_gate": {
+            "value": residual_delta,
+            "vwr_residual_auc": residual_auc,
+            "veldrop_residual_auc": partial.get("compare_residual_auc"),
+            "threshold": GATE_DELTA_AUC,
+            "pass": delta_pass,
+            "framing": "delta(residual_auc): VWR vs velocity-drop, both partialled-out of season_day",
+        },
+        "lead_time_gate": {
+            "value": median_lead,
+            "threshold": GATE_LEAD_TIME_DAYS,
+            "pass": lead_pass,
+            "operating_threshold": OPERATING_THRESHOLD,
+        },
+        "fpr_gate": {
+            "value_pct": fpr_at_op,
+            "threshold_pct": GATE_FPR * 100,
+            "pass": fpr_pass,
+        },
+        "seasonal_sanity_gate": {
+            "raw_auc": roc_vwr["auc"],
+            "residual_auc": residual_auc,
+            "season_day_alone_auc": partial.get("season_day_auc"),
+            "rule": "residual_auc must NOT be lower than raw_auc",
+            "pass": seasonal_sanity_pass,
+        },
+        # Raw-space numbers (informational / transparency).
+        "auc_raw": {
+            "value": roc_vwr["auc"],
+            "ci_95": [ci_lo, ci_hi],
+            "threshold": GATE_AUC,
+            "pass": auc_pass_raw,
+            "note": "informational — superseded by seasonal-residual headline gate",
+        },
+        "delta_auc_raw": {
+            "value": delta_auc,
+            "threshold": GATE_DELTA_AUC,
+            "pass": delta_pass_raw,
+            "note": "informational — superseded by delta-in-residual-space gate",
+        },
         "verdict": verdict,
     }
 
@@ -1004,13 +1126,16 @@ if __name__ == "__main__":
     d = summary["decision_gate"]
     print(json.dumps({
         "verdict": d["verdict"],
-        "auc": d["auc_gate"]["value"],
-        "auc_ci": summary["roc"]["vwr"]["auc_ci_95"],
-        "delta_auc": d["delta_auc_gate"]["value"],
+        "auc_residual": d["auc_residual_gate"]["value"],
+        "auc_residual_ci": d["auc_residual_gate"].get("ci_95"),
+        "delta_auc_residual": d["delta_auc_residual_gate"]["value"],
         "median_lead": d["lead_time_gate"]["value"],
         "fpr_pct": d["fpr_gate"]["value_pct"],
-        "residual_auc": summary["roc"]["seasonal_control"].get("residual_auc"),
+        "auc_raw": d["auc_raw"]["value"],
+        "delta_auc_raw": d["delta_auc_raw"]["value"],
         "season_day_auc": summary["roc"]["seasonal_control"].get("season_day_auc"),
+        "joint_auc": summary["roc"]["seasonal_control"].get("joint_auc"),
+        "veldrop_residual_auc": summary["roc"]["seasonal_control"].get("compare_residual_auc"),
         "n_injured": summary["cohort"]["n_injured_fit"],
         "n_healthy": summary["cohort"]["n_healthy_fit"],
         "wall_min": summary["wall_clock_minutes"],
