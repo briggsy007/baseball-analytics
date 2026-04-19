@@ -41,3 +41,12 @@ logs/*.jsonl
 # Uncomment below to exclude model files:
 # models/*.pkl
 # models/*.pt
+
+# VWR per-pitcher fits — regenerable from scripts/viscoelastic_workload_2025_holdout.py
+models/viscoelastic/per_pitcher/
+
+# Crash dumps and run logs
+bash.exe.stackdump
+results/**/_run.log
+results/**/run.log
+results/**/_*_cache.csv

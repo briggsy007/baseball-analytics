@@ -1,0 +1,140 @@
+[
+  {
+    "baseline_year": 2022,
+    "followup_year": 2023,
+    "buy_low": {
+      "side": "buy_low",
+      "baseline_year": 2022,
+      "followup_year": 2023,
+      "n_leaderboard": 25,
+      "n_evaluated": 24,
+      "hits": 20,
+      "hit_rate": 0.8333333333333334,
+      "ci_95_low": 0.6666666666666666,
+      "ci_95_high": 0.9583333333333334
+    },
+    "over_valued": {
+      "side": "over_valued",
+      "baseline_year": 2022,
+      "followup_year": 2023,
+      "n_leaderboard": 25,
+      "n_evaluated": 25,
+      "hits": 20,
+      "hit_rate": 0.8,
+      "ci_95_low": 0.64,
+      "ci_95_high": 0.96
+    },
+    "naive_baseline": {
+      "buy_low": {
+        "side": "buy_low",
+        "model_rate_war_only": 0.8076923076923077,
+        "matched_naive_rate": 0.7301921706021693,
+        "lift_pp": 7.750013709013837,
+        "n_model_picks_with_followup_war": 26,
+        "n_neighbour_comparisons": 26,
+        "war_window": 0.3
+      },
+      "over_valued": {
+        "side": "over_valued",
+        "model_rate_war_only": 0.8148148148148148,
+        "matched_naive_rate": 0.7159662661686211,
+        "lift_pp": 9.884854864619363,
+        "n_model_picks_with_followup_war": 27,
+        "n_neighbour_comparisons": 27,
+        "war_window": 0.3
+      }
+    }
+  },
+  {
+    "baseline_year": 2023,
+    "followup_year": 2024,
+    "buy_low": {
+      "side": "buy_low",
+      "baseline_year": 2023,
+      "followup_year": 2024,
+      "n_leaderboard": 25,
+      "n_evaluated": 22,
+      "hits": 14,
+      "hit_rate": 0.6363636363636364,
+      "ci_95_low": 0.4534090909090919,
+      "ci_95_high": 0.8181818181818182
+    },
+    "over_valued": {
+      "side": "over_valued",
+      "baseline_year": 2023,
+      "followup_year": 2024,
+      "n_leaderboard": 25,
+      "n_evaluated": 23,
+      "hits": 14,
+      "hit_rate": 0.6086956521739131,
+      "ci_95_low": 0.391304347826087,
+      "ci_95_high": 0.782608695652174
+    },
+    "naive_baseline": {
+      "buy_low": {
+        "side": "buy_low",
+        "model_rate_war_only": 0.6363636363636364,
+        "matched_naive_rate": 0.6647178411318926,
+        "lift_pp": -2.835420476825623,
+        "n_model_picks_with_followup_war": 22,
+        "n_neighbour_comparisons": 22,
+        "war_window": 0.3
+      },
+      "over_valued": {
+        "side": "over_valued",
+        "model_rate_war_only": 0.6086956521739131,
+        "matched_naive_rate": 0.6951074974863356,
+        "lift_pp": -8.641184531242253,
+        "n_model_picks_with_followup_war": 23,
+        "n_neighbour_comparisons": 23,
+        "war_window": 0.3
+      }
+    }
+  },
+  {
+    "baseline_year": 2024,
+    "followup_year": 2025,
+    "buy_low": {
+      "side": "buy_low",
+      "baseline_year": 2024,
+      "followup_year": 2025,
+      "n_leaderboard": 25,
+      "n_evaluated": 22,
+      "hits": 18,
+      "hit_rate": 0.8181818181818182,
+      "ci_95_low": 0.6363636363636364,
+      "ci_95_high": 0.9545454545454546
+    },
+    "over_valued": {
+      "side": "over_valued",
+      "baseline_year": 2024,
+      "followup_year": 2025,
+      "n_leaderboard": 25,
+      "n_evaluated": 25,
+      "hits": 19,
+      "hit_rate": 0.76,
+      "ci_95_low": 0.56,
+      "ci_95_high": 0.92
+    },
+    "naive_baseline": {
+      "buy_low": {
+        "side": "buy_low",
+        "model_rate_war_only": 0.8181818181818182,
+        "matched_naive_rate": 0.7101862559352825,
+        "lift_pp": 10.799556224653573,
+        "n_model_picks_with_followup_war": 22,
+        "n_neighbour_comparisons": 22,
+        "war_window": 0.3
+      },
+      "over_valued": {
+        "side": "over_valued",
+        "model_rate_war_only": 0.76,
+        "matched_naive_rate": 0.6848394031005947,
+        "lift_pp": 7.516059689940535,
+        "n_model_picks_with_followup_war": 25,
+        "n_neighbour_comparisons": 25,
+        "war_window": 0.3
+      }
+    }
+  }
+]

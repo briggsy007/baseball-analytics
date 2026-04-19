@@ -1,0 +1,350 @@
+{
+  "ran_at": "2026-04-19T00:43:01.440025+00:00",
+  "xout_checkpoint": {
+    "path": "C:\\Users\\hunte\\projects\\baseball\\models\\defensive_pressing\\xout_v1.pkl",
+    "train_seasons": [
+      2015,
+      2016,
+      2017,
+      2018,
+      2019,
+      2020,
+      2021,
+      2022
+    ],
+    "auc_on_train_holdout": 0.8936
+  },
+  "test_seasons": [
+    2023,
+    2024,
+    2025
+  ],
+  "leakage_check": {
+    "train_test_overlap": [],
+    "pass": true
+  },
+  "yearly": {
+    "2023": {
+      "dpi_vs_oaa": {
+        "n": 30,
+        "pearson_r": 0.5798,
+        "pearson_r_ci": [
+          0.2638,
+          0.7976
+        ],
+        "spearman_rho": 0.5524,
+        "spearman_rho_ci": [
+          0.167,
+          0.7971
+        ]
+      },
+      "dpi_vs_frp": {
+        "n": 30,
+        "pearson_r": 0.5704,
+        "pearson_r_ci": [
+          0.2337,
+          0.804
+        ],
+        "spearman_rho": 0.554,
+        "spearman_rho_ci": [
+          0.1847,
+          0.7982
+        ]
+      },
+      "top5_agreement": {
+        "season": 2023,
+        "k": 5,
+        "dpi_top_k": [
+          "BAL",
+          "CHC",
+          "DET",
+          "MIL",
+          "NYY"
+        ],
+        "oaa_top_k": [
+          "AZ",
+          "CLE",
+          "MIL",
+          "SD",
+          "TEX"
+        ],
+        "overlap_count": 1,
+        "overlap_teams": [
+          "MIL"
+        ]
+      }
+    },
+    "2024": {
+      "dpi_vs_oaa": {
+        "n": 30,
+        "pearson_r": 0.5567,
+        "pearson_r_ci": [
+          0.2657,
+          0.8027
+        ],
+        "spearman_rho": 0.5485,
+        "spearman_rho_ci": [
+          0.2091,
+          0.8104
+        ]
+      },
+      "dpi_vs_frp": {
+        "n": 30,
+        "pearson_r": 0.588,
+        "pearson_r_ci": [
+          0.3168,
+          0.7999
+        ],
+        "spearman_rho": 0.5906,
+        "spearman_rho_ci": [
+          0.2633,
+          0.8244
+        ]
+      },
+      "top5_agreement": {
+        "season": 2024,
+        "k": 5,
+        "dpi_top_k": [
+          "KC",
+          "LAD",
+          "MIL",
+          "SEA",
+          "TEX"
+        ],
+        "oaa_top_k": [
+          "AZ",
+          "DET",
+          "KC",
+          "MIL",
+          "TEX"
+        ],
+        "overlap_count": 3,
+        "overlap_teams": [
+          "KC",
+          "MIL",
+          "TEX"
+        ]
+      }
+    },
+    "2025": {
+      "dpi_vs_oaa": {
+        "n": 30,
+        "pearson_r": 0.6406,
+        "pearson_r_ci": [
+          0.4209,
+          0.7922
+        ],
+        "spearman_rho": 0.6018,
+        "spearman_rho_ci": [
+          0.2783,
+          0.8098
+        ]
+      },
+      "dpi_vs_frp": {
+        "n": 30,
+        "pearson_r": 0.6547,
+        "pearson_r_ci": [
+          0.4431,
+          0.8023
+        ],
+        "spearman_rho": 0.6019,
+        "spearman_rho_ci": [
+          0.2675,
+          0.8069
+        ]
+      },
+      "top5_agreement": {
+        "season": 2025,
+        "k": 5,
+        "dpi_top_k": [
+          "CHC",
+          "MIA",
+          "MIL",
+          "PIT",
+          "TEX"
+        ],
+        "oaa_top_k": [
+          "CHC",
+          "HOU",
+          "KC",
+          "MIL",
+          "STL"
+        ],
+        "overlap_count": 2,
+        "overlap_teams": [
+          "CHC",
+          "MIL"
+        ]
+      }
+    }
+  },
+  "pooled_2023_2025": {
+    "n": 90,
+    "pearson_r": 0.4869,
+    "pearson_r_ci": [
+      0.3174,
+      0.635
+    ],
+    "spearman_rho": 0.4602,
+    "spearman_rho_ci": [
+      0.2888,
+      0.6032
+    ]
+  },
+  "gates": {
+    "dpi_vs_oaa_2025_pearson_r_ge_0.45": {
+      "threshold": 0.45,
+      "measured": 0.6406,
+      "ci95": [
+        0.4209,
+        0.7922
+      ],
+      "pass": true
+    },
+    "dpi_vs_oaa_2025_pearson_r_ge_0.40": {
+      "threshold": 0.4,
+      "measured": 0.6406,
+      "ci95": [
+        0.4209,
+        0.7922
+      ],
+      "pass": true
+    }
+  },
+  "disagreement_2025_top10": [
+    {
+      "team_id": "HOU",
+      "season": 2025,
+      "dpi_mean": 0.517,
+      "team_oaa": 28,
+      "team_frp": 24,
+      "babip_against": 0.2804466372370813,
+      "rp_proxy": 26.37800155149307,
+      "dpi_rank": 22,
+      "oaa_rank": 3,
+      "rank_diff": 19,
+      "z_diff": -1.6429695994841185
+    },
+    {
+      "team_id": "SEA",
+      "season": 2025,
+      "dpi_mean": 0.727,
+      "team_oaa": -21,
+      "team_frp": -17,
+      "babip_against": 0.28568212516884284,
+      "rp_proxy": 37.915003411471844,
+      "dpi_rank": 8,
+      "oaa_rank": 24,
+      "rank_diff": -16,
+      "z_diff": 1.427929549862836
+    },
+    {
+      "team_id": "PHI",
+      "season": 2025,
+      "dpi_mean": 0.417,
+      "team_oaa": 8,
+      "team_frp": 4,
+      "babip_against": 0.29794437726723094,
+      "rp_proxy": 68.32900102878921,
+      "dpi_rank": 24,
+      "oaa_rank": 10,
+      "rank_diff": 14,
+      "z_diff": -1.2051277548058288
+    },
+    {
+      "team_id": "STL",
+      "season": 2025,
+      "dpi_mean": 0.631,
+      "team_oaa": 34,
+      "team_frp": 25,
+      "babip_against": 0.298728323699422,
+      "rp_proxy": -4.798998876940459,
+      "dpi_rank": 16,
+      "oaa_rank": 2,
+      "rank_diff": 14,
+      "z_diff": -1.4054261596780404
+    },
+    {
+      "team_id": "PIT",
+      "season": 2025,
+      "dpi_mean": 0.829,
+      "team_oaa": 2,
+      "team_frp": -2,
+      "babip_against": 0.27986179664363275,
+      "rp_proxy": 74.55500115675386,
+      "dpi_rank": 3,
+      "oaa_rank": 14,
+      "rank_diff": -11,
+      "z_diff": 0.8673203819146557
+    },
+    {
+      "team_id": "KC",
+      "season": 2025,
+      "dpi_mean": 0.672,
+      "team_oaa": 28,
+      "team_frp": 20,
+      "babip_against": 0.2842809364548495,
+      "rp_proxy": 22.56800049962476,
+      "dpi_rank": 14,
+      "oaa_rank": 3,
+      "rank_diff": 11,
+      "z_diff": -0.9622686596331351
+    },
+    {
+      "team_id": "CWS",
+      "season": 2025,
+      "dpi_mean": 0.614,
+      "team_oaa": -24,
+      "team_frp": -21,
+      "babip_against": 0.28880252611124607,
+      "rp_proxy": -80.51099841587711,
+      "dpi_rank": 17,
+      "oaa_rank": 26,
+      "rank_diff": -9,
+      "z_diff": 1.0632271678200866
+    },
+    {
+      "team_id": "NYY",
+      "season": 2025,
+      "dpi_mean": 0.719,
+      "team_oaa": -13,
+      "team_frp": -10,
+      "babip_against": 0.2799807738524393,
+      "rp_proxy": 40.94900124426931,
+      "dpi_rank": 10,
+      "oaa_rank": 19,
+      "rank_diff": -9,
+      "z_diff": 1.0419951015860542
+    },
+    {
+      "team_id": "TB",
+      "season": 2025,
+      "dpi_mean": 0.522,
+      "team_oaa": -34,
+      "team_frp": -28,
+      "babip_against": 0.2822868810617662,
+      "rp_proxy": 24.140001170686446,
+      "dpi_rank": 21,
+      "oaa_rank": 29,
+      "rank_diff": -8,
+      "z_diff": 1.0977000935544492
+    },
+    {
+      "team_id": "CIN",
+      "season": 2025,
+      "dpi_mean": 0.723,
+      "team_oaa": -9,
+      "team_frp": -8,
+      "babip_against": 0.2780499755022048,
+      "rp_proxy": -0.5489993643714115,
+      "dpi_rank": 9,
+      "oaa_rank": 17,
+      "rank_diff": -8,
+      "z_diff": 0.8841608291819076
+    }
+  ],
+  "artifacts": {
+    "team_rankings_2025_csv": "C:\\Users\\hunte\\projects\\baseball\\results\\defensive_pressing\\2025_validation\\team_rankings_2025.csv",
+    "team_rankings_all_years_csv": "C:\\Users\\hunte\\projects\\baseball\\results\\defensive_pressing\\2025_validation\\team_rankings_all_years.csv"
+  }
+}

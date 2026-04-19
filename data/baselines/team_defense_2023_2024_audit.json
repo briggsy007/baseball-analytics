@@ -1,0 +1,20 @@
+{
+  "fetched_at": "2026-04-18T22:10:22.681310+00:00",
+  "source": "Baseball Savant Outs Above Average leaderboard CSV (player-level), aggregated to team via display_team_name -> team_abbr mapping.",
+  "n_rows": 60,
+  "seasons": [
+    2023,
+    2024
+  ],
+  "n_teams_per_season": {
+    "2023": 30,
+    "2024": 30
+  },
+  "metric_columns": [
+    "team_oaa (sum of player OAA)",
+    "team_frp (sum of player Fielding Runs Prevented)"
+  ],
+  "team_oaa_definition": "Sum of outs_above_average across all players for that team-season (Baseball Savant Statcast OAA).",
+  "team_frp_definition": "Sum of fielding_runs_prevented (Statcast FRP) across all players for that team-season.",
+  "note": "Multi-team-during-season players are counted under each team they appeared for (Baseball Savant splits player rows by team)."
+}

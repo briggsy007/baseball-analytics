@@ -1,0 +1,23 @@
+{
+  "fetched_at": "2026-04-19T00:21:01.203411+00:00",
+  "source": "Baseball Savant Outs Above Average leaderboard via pybaseball.statcast_outs_above_average (per-player, min_att=0, all non-catcher positions 3-9, filter display_team_name != '---', sum to team-season).",
+  "n_rows": 90,
+  "seasons": [
+    2023,
+    2024,
+    2025
+  ],
+  "n_teams_per_season": {
+    "2023": 30,
+    "2024": 30,
+    "2025": 30
+  },
+  "metric_columns": [
+    "team_oaa (sum of player OAA)",
+    "team_frp (sum of player Fielding Runs Prevented)"
+  ],
+  "team_oaa_definition": "Sum of outs_above_average across all players for that team-season (Baseball Savant Statcast OAA).",
+  "team_frp_definition": "Sum of fielding_runs_prevented (Statcast FRP) across all players for that team-season.",
+  "note": "Multi-team-during-season players are counted under each team they appeared for (Baseball Savant splits player rows by team).",
+  "output_path": "data\\baselines\\team_defense_2023_2025.parquet"
+}

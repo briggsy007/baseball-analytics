@@ -1,0 +1,128 @@
+[
+  {
+    "baseline_year": 2022,
+    "followup_year": 2023,
+    "buy_low_tags": {
+      "GENUINE EDGE?": {
+        "n_in_leaderboard": 3,
+        "n_evaluated": 3,
+        "hits": 3,
+        "hit_rate": 1.0
+      },
+      "OTHER": {
+        "n_in_leaderboard": 12,
+        "n_evaluated": 11,
+        "hits": 9,
+        "hit_rate": 0.8181818181818182
+      },
+      "RELIEVER LEVERAGE GAP": {
+        "n_in_leaderboard": 10,
+        "n_evaluated": 10,
+        "hits": 8,
+        "hit_rate": 0.8
+      }
+    },
+    "over_valued_tags": {
+      "DEFENSE GAP": {
+        "n_in_leaderboard": 8,
+        "n_evaluated": 8,
+        "hits": 8,
+        "hit_rate": 1.0
+      },
+      "OTHER": {
+        "n_in_leaderboard": 4,
+        "n_evaluated": 4,
+        "hits": 3,
+        "hit_rate": 0.75
+      },
+      "PARK FACTOR": {
+        "n_in_leaderboard": 13,
+        "n_evaluated": 13,
+        "hits": 9,
+        "hit_rate": 0.6923076923076923
+      }
+    }
+  },
+  {
+    "baseline_year": 2023,
+    "followup_year": 2024,
+    "buy_low_tags": {
+      "GENUINE EDGE?": {
+        "n_in_leaderboard": 4,
+        "n_evaluated": 4,
+        "hits": 2,
+        "hit_rate": 0.5
+      },
+      "OTHER": {
+        "n_in_leaderboard": 7,
+        "n_evaluated": 6,
+        "hits": 4,
+        "hit_rate": 0.6666666666666666
+      },
+      "RELIEVER LEVERAGE GAP": {
+        "n_in_leaderboard": 14,
+        "n_evaluated": 12,
+        "hits": 8,
+        "hit_rate": 0.6666666666666666
+      }
+    },
+    "over_valued_tags": {
+      "DEFENSE GAP": {
+        "n_in_leaderboard": 6,
+        "n_evaluated": 6,
+        "hits": 3,
+        "hit_rate": 0.5
+      },
+      "PARK FACTOR": {
+        "n_in_leaderboard": 19,
+        "n_evaluated": 17,
+        "hits": 11,
+        "hit_rate": 0.6470588235294118
+      }
+    }
+  },
+  {
+    "baseline_year": 2024,
+    "followup_year": 2025,
+    "buy_low_tags": {
+      "GENUINE EDGE?": {
+        "n_in_leaderboard": 2,
+        "n_evaluated": 2,
+        "hits": 2,
+        "hit_rate": 1.0
+      },
+      "OTHER": {
+        "n_in_leaderboard": 12,
+        "n_evaluated": 10,
+        "hits": 7,
+        "hit_rate": 0.7
+      },
+      "RELIEVER LEVERAGE GAP": {
+        "n_in_leaderboard": 11,
+        "n_evaluated": 10,
+        "hits": 9,
+        "hit_rate": 0.9
+      }
+    },
+    "over_valued_tags": {
+      "DEFENSE GAP": {
+        "n_in_leaderboard": 10,
+        "n_evaluated": 10,
+        "hits": 8,
+        "hit_rate": 0.8
+      },
+      "OTHER": {
+        "n_in_leaderboard": 2,
+        "n_evaluated": 2,
+        "hits": 1,
+        "hit_rate": 0.5
+      },
+      "PARK FACTOR": {
+        "n_in_leaderboard": 13,
+        "n_evaluated": 13,
+        "hits": 10,
+        "hit_rate": 0.7692307692307693
+      }
+    }
+  }
+]

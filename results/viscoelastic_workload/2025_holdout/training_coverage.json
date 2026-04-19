@@ -1,0 +1,51 @@
+{
+  "train_cohort_n": 1030,
+  "train_fits": 563,
+  "train_skipped": 467,
+  "train_skipped_reasons": {
+    "insufficient_fit_pitches": 467
+  },
+  "train_per_injury_type": {
+    "shoulder": 196,
+    "elbow": 167,
+    "forearm": 88,
+    "other_arm": 78,
+    "rotator_cuff": 15,
+    "ucl_sprain": 10,
+    "tommy_john": 8,
+    "labrum": 1
+  },
+  "train_per_year": {
+    "2017": 86,
+    "2018": 85,
+    "2019": 80,
+    "2020": 44,
+    "2021": 55,
+    "2022": 65,
+    "2023": 64,
+    "2024": 84
+  },
+  "holdout_cohort_n": 115,
+  "holdout_fits": 52,
+  "holdout_skipped": 63,
+  "holdout_skipped_reasons": {
+    "insufficient_fit_pitches": 63
+  },
+  "holdout_per_injury_type": {
+    "elbow": 22,
+    "shoulder": 18,
+    "forearm": 7,
+    "other_arm": 2,
+    "rotator_cuff": 2,
+    "tommy_john": 1
+  },
+  "healthy_pool_n": 876,
+  "healthy_sample_n": 400,
+  "healthy_fits": 400,
+  "healthy_skipped": 0,
+  "healthy_control_seasons": [
+    2024,
+    2025
+  ],
+  "wall_fit_minutes": 32.32
+}

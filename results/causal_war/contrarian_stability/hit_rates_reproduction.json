@@ -1,0 +1,401 @@
+{
+  "source_csv": "C:\\Users\\hunte\\projects\\baseball\\results\\validate_causal_war_20260418T194415Z\\causal_war_baseline_comparison_2023_2024.csv",
+  "followup_season": 2025,
+  "top_n": 25,
+  "buy_low": {
+    "side": "buy_low",
+    "hits": 13,
+    "n_evaluated": 19,
+    "hit_rate": 0.6842105263157895,
+    "ci_95_low": 0.47368421052631576,
+    "ci_95_high": 0.8434210526315777,
+    "rows": [
+      {
+        "player": "Josh Sborz",
+        "hit": null,
+        "basis": "no_record"
+      },
+      {
+        "player": "Trevor Richards",
+        "position": "pitcher",
+        "baseline_war": -0.2263802140951156,
+        "followup_war": -0.09000000357627869,
+        "hit": true,
+        "basis": "war_delta"
+      },
+      {
+        "player": "Michael Tonkin",
+        "position": "pitcher",
+        "baseline_war": 0.0564846247434616,
+        "followup_war": 0.23999999463558197,
+        "hit": true,
+        "basis": "war_delta"
+      },
+      {
+        "player": "Robert Garcia",
+        "position": "pitcher",
+        "baseline_war": 0.0624561421573162,
+        "followup_war": 0.47999998927116394,
+        "hit": true,
+        "basis": "war_delta"
+      },
+      {
+        "player": "Kyle Hendricks",
+        "position": "pitcher",
+        "baseline_war": -0.2325523793697357,
+        "followup_war": 1.6799999475479126,
+        "hit": true,
+        "basis": "war_delta"
+      },
+      {
+        "player": "Will Smith",
+        "hit": null,
+        "basis": "no_record"
+      },
+      {
+        "player": "Evan Phillips",
+        "position": "pitcher",
+        "baseline_war": 0.542823851108551,
+        "followup_war": 0.4099999964237213,
+        "hit": true,
+        "basis": "war_delta"
+      },
+      {
+        "player": "Yimi Garc\u00eda",
+        "position": "pitcher",
+        "baseline_war": 0.1611404418945312,
+        "followup_war": 0.09000000357627869,
+        "hit": true,
+        "basis": "war_delta"
+      },
+      {
+        "player": "Joe Mantiply",
+        "position": "pitcher",
+        "baseline_war": 0.3439848124980926,
+        "followup_war": -0.8199999928474426,
+        "hit": false,
+        "basis": "war_delta"
+      },
+      {
+        "player": "Austin Voth",
+        "hit": null,
+        "basis": "no_record"
+      },
+      {
+        "player": "Pavin Smith",
+        "position": "batter",
+        "baseline_war": -0.2569017474837507,
+        "followup_war": 0.4300000071525574,
+        "hit": true,
+        "basis": "war_delta"
+      },
+      {
+        "player": "Randy Rodr\u00edguez",
+        "position": "pitcher",
+        "baseline_war": -0.1899999976158142,
+        "followup_war": 1.909999966621399,
+        "hit": true,
+        "basis": "war_delta"
+      },
+      {
+        "player": "Yency Almonte",
+        "hit": null,
+        "basis": "no_record"
+      },
+      {
+        "player": "Tony Gonsolin",
+        "position": "pitcher",
+        "baseline_war": -0.2199999988079071,
+        "followup_war": 0.0,
+        "hit": true,
+        "basis": "war_delta"
+      },
+      {
+        "player": "Jordan Walker",
+        "position": "batter",
+        "baseline_war": -0.3093157025694291,
+        "followup_war": -1.690000057220459,
+        "hit": false,
+        "basis": "war_delta"
+      },
+      {
+        "player": "Ryan Pressly",
+        "position": "pitcher",
+        "baseline_war": 0.261349469423294,
+        "followup_war": -0.6100000143051147,
+        "hit": false,
+        "basis": "war_delta"
+      },
+      {
+        "player": "Scott Barlow",
+        "position": "pitcher",
+        "baseline_war": 0.0307317096740007,
+        "followup_war": 0.7200000286102295,
+        "hit": true,
+        "basis": "war_delta"
+      },
+      {
+        "player": "Josh Bell",
+        "position": "batter",
+        "baseline_war": -0.1982084756674615,
+        "followup_war": 0.5,
+        "hit": true,
+        "basis": "war_delta"
+      },
+      {
+        "player": "Cody Bradford",
+        "hit": null,
+        "basis": "no_record"
+      },
+      {
+        "player": "Ryne Stanek",
+        "position": "pitcher",
+        "baseline_war": -0.1317988187074661,
+        "followup_war": -1.0099999904632568,
+        "hit": false,
+        "basis": "war_delta"
+      },
+      {
+        "player": "Jos\u00e9 Leclerc",
+        "position": "pitcher",
+        "baseline_war": 0.5553812384605408,
+        "followup_war": -0.05000000074505806,
+        "hit": false,
+        "basis": "war_delta"
+      },
+      {
+        "player": "Mark Leiter",
+        "position": "pitcher",
+        "baseline_war": 0.1548742055892944,
+        "followup_war": -0.5899999737739563,
+        "hit": false,
+        "basis": "war_delta"
+      },
+      {
+        "player": "Victor Gonz\u00e1lez",
+        "hit": null,
+        "basis": "no_record"
+      },
+      {
+        "player": "Shelby Miller",
+        "position": "pitcher",
+        "baseline_war": 0.6932258605957031,
+        "followup_war": 1.440000057220459,
+        "hit": true,
+        "basis": "war_delta"
+      },
+      {
+        "player": "Fernando Cruz",
+        "position": "pitcher",
+        "baseline_war": 0.3000302314758301,
+        "followup_war": 0.3400000035762787,
+        "hit": true,
+        "basis": "war_delta"
+      }
+    ]
+  },
+  "over_valued": {
+    "side": "over_valued",
+    "hits": 14,
+    "n_evaluated": 23,
+    "hit_rate": 0.6086956521739131,
+    "ci_95_low": 0.43478260869565216,
+    "ci_95_high": 0.8260869565217391,
+    "rows": [
+      {
+        "player": "Austin Gomber",
+        "position": "pitcher",
+        "baseline_war": 1.7029935121536257,
+        "followup_war": -0.7099999785423279,
+        "hit": true,
+        "basis": "war_delta"
+      },
+      {
+        "player": "Graham Ashcraft",
+        "position": "pitcher",
+        "baseline_war": 1.769230842590332,
+        "followup_war": 0.23999999463558197,
+        "hit": true,
+        "basis": "war_delta"
+      },
+      {
+        "player": "Josiah Gray",
+        "hit": null,
+        "basis": "no_record"
+      },
+      {
+        "player": "Brayan Bello",
+        "position": "pitcher",
+        "baseline_war": 2.1443371772766118,
+        "followup_war": 2.309999942779541,
+        "hit": false,
+        "basis": "war_delta"
+      },
+      {
+        "player": "JP Sears",
+        "position": "pitcher",
+        "baseline_war": 2.566808223724365,
+        "followup_war": 0.6800000071525574,
+        "hit": true,
+        "basis": "war_delta"
+      },
+      {
+        "player": "Andr\u00e9s Gim\u00e9nez",
+        "position": "batter",
+        "baseline_war": 4.482226528059706,
+        "followup_war": 1.100000023841858,
+        "hit": true,
+        "basis": "war_delta"
+      },
+      {
+        "player": "Brice Turang",
+        "position": "batter",
+        "baseline_war": 3.401835922605437,
+        "followup_war": 5.610000133514404,
+        "hit": false,
+        "basis": "war_delta"
+      },
+      {
+        "player": "Taijuan Walker",
+        "position": "pitcher",
+        "baseline_war": 1.2611119747161863,
+        "followup_war": 1.4800000190734863,
+        "hit": false,
+        "basis": "war_delta"
+      },
+      {
+        "player": "Daulton Varsho",
+        "position": "batter",
+        "baseline_war": 4.165875831007087,
+        "followup_war": 2.7699999809265137,
+        "hit": false,
+        "basis": "war_delta"
+      },
+      {
+        "player": "Lucas Giolito",
+        "position": "pitcher",
+        "baseline_war": 1.5800000429153442,
+        "followup_war": 2.0799999237060547,
+        "hit": false,
+        "basis": "war_delta"
+      },
+      {
+        "player": "Anthony Volpe",
+        "position": "batter",
+        "baseline_war": 3.383076358141945,
+        "followup_war": 1.6200000047683716,
+        "hit": true,
+        "basis": "war_delta"
+      },
+      {
+        "player": "Brady Singer",
+        "position": "pitcher",
+        "baseline_war": 1.667264103889465,
+        "followup_war": 3.0999999046325684,
+        "hit": false,
+        "basis": "war_delta"
+      },
+      {
+        "player": "MacKenzie Gore",
+        "position": "pitcher",
+        "baseline_war": 1.3183785676956177,
+        "followup_war": 2.9800000190734863,
+        "hit": false,
+        "basis": "war_delta"
+      },
+      {
+        "player": "Cal Quantrill",
+        "position": "pitcher",
+        "baseline_war": 1.055984616279602,
+        "followup_war": -0.6000000238418579,
+        "hit": true,
+        "basis": "war_delta"
+      },
+      {
+        "player": "Alex Cobb",
+        "hit": null,
+        "basis": "no_record"
+      },
+      {
+        "player": "Mitch Spence",
+        "position": "pitcher",
+        "baseline_war": 1.6100000143051147,
+        "followup_war": -0.6000000238418579,
+        "hit": true,
+        "basis": "war_delta"
+      },
+      {
+        "player": "David Peterson",
+        "position": "pitcher",
+        "baseline_war": 1.7831913232803345,
+        "followup_war": 1.3899999856948853,
+        "hit": false,
+        "basis": "war_delta"
+      },
+      {
+        "player": "Jonah Heim",
+        "position": "batter",
+        "baseline_war": 2.2909124721812395,
+        "followup_war": 0.3700000047683716,
+        "hit": true,
+        "basis": "war_delta"
+      },
+      {
+        "player": "Kyle Freeland",
+        "position": "pitcher",
+        "baseline_war": 0.8688557744026184,
+        "followup_war": 1.399999976158142,
+        "hit": false,
+        "basis": "war_delta"
+      },
+      {
+        "player": "Jack Flaherty",
+        "position": "pitcher",
+        "baseline_war": 2.1946651935577397,
+        "followup_war": 0.8600000143051147,
+        "hit": true,
+        "basis": "war_delta"
+      },
+      {
+        "player": "Charlie Morton",
+        "position": "pitcher",
+        "baseline_war": 2.0390584468841557,
+        "followup_war": -0.7699999809265137,
+        "hit": true,
+        "basis": "war_delta"
+      },
+      {
+        "player": "Bryce Elder",
+        "position": "pitcher",
+        "baseline_war": 1.9842820167541504,
+        "followup_war": -0.4399999976158142,
+        "hit": true,
+        "basis": "war_delta"
+      },
+      {
+        "player": "Jonathan Cannon",
+        "position": "pitcher",
+        "baseline_war": 1.8799999952316284,
+        "followup_war": -0.47999998927116394,
+        "hit": true,
+        "basis": "war_delta"
+      },
+      {
+        "player": "Mike Clevinger",
+        "position": "pitcher",
+        "baseline_war": 2.8277974128723145,
+        "followup_war": -0.17000000178813934,
+        "hit": true,
+        "basis": "war_delta"
+      },
+      {
+        "player": "J. P. France",
+        "position": "pitcher",
+        "baseline_war": 1.295931696891785,
+        "followup_war": 0.07999999821186066,
+        "hit": true,
+        "basis": "war_delta"
+      }
+    ]
+  }
+}
