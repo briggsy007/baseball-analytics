@@ -39,6 +39,11 @@ Thumbs.db
 
 # Logs
 logs/*.jsonl
+logs/*.log
+
+# Smoke-test validation runs (preliminary, disposable)
+results/*_smoke*/
+results/smoke_*/
 
 # Model artifacts (tracked via releases, not git)
 # Uncomment below to exclude model files:
