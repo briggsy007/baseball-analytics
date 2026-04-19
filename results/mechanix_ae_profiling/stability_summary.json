@@ -1,0 +1,10 @@
+{
+  "n_pitchers_with_stability": 111,
+  "median_pearson_r": 0.834925,
+  "mean_pearson_r": 0.817295,
+  "p25_pearson_r": 0.759916,
+  "p75_pearson_r": 0.896534,
+  "n_total_game_pairs": 14748,
+  "min_game_windows": 3,
+  "pass": true
+}

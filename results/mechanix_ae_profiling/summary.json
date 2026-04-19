@@ -1,0 +1,37 @@
+{
+  "n_checkpoints_processed": 111,
+  "wall_clock_seconds": 85.76,
+  "gates": {
+    "gate1_recon_fit": {
+      "threshold": ">=80% with mean_recon_mse <= 0.50",
+      "measured_pct_passing": 0.0,
+      "pass": false,
+      "n_pitchers": 111
+    },
+    "gate2_mdi_well_formedness": {
+      "threshold": ">=90% well-formed",
+      "measured_pct_passing": 0.963964,
+      "pass": true,
+      "n_pitchers": 111
+    },
+    "gate3_coverage": {
+      "threshold": "coverage_pct >= 0.75",
+      "measured_pct": 0.05646,
+      "pass": false,
+      "n_qualified": 1966,
+      "n_loadable": 111
+    },
+    "gate4_intra_pitcher_stability": {
+      "threshold": "median_pearson_r >= 0.70",
+      "measured_median_r": 0.834925,
+      "pass": true,
+      "n_pitchers": 111
+    },
+    "gate5_attribution": {
+      "threshold": "cohort_pct_in_mechanical_set >= 0.60",
+      "measured_pct": 0.527012,
+      "pass": false,
+      "n_top_decile_windows": 58900
+    }
+  }
+}

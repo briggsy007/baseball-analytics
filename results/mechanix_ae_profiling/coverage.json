@@ -1,0 +1,10 @@
+{
+  "n_qualified_pitchers": 1966,
+  "n_with_checkpoint": 111,
+  "n_loadable": 111,
+  "n_produces_mdi": 111,
+  "coverage_pct": 0.05646,
+  "min_healthy_pitches": 200,
+  "n_checkpoints_on_disk": 111,
+  "pass": false
+}

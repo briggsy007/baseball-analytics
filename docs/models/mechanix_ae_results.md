@@ -231,3 +231,87 @@ suite as a descriptive mechanics anomaly score, not as a predictive model.
   if the baseline itself contains pre-symptom mechanical drift, the z-score
   under-flags. This is fixable only with longer pre-injury horizons we don't
   yet have in the 2015–2016 label slice.
+
+
+---
+
+## Validation run 2026-04-18T13:11:37Z
+
+**Invocation:** `/validate-model mechanix_ae`
+**Summary JSON:** `results/validate_mechanix_ae_20260418T131137Z/validation_summary.json`
+**Score mode:** zscore
+**Hardware:** torch 2.11.0+cu126 / NVIDIA GeForce RTX 3050 Laptop GPU (CUDA available)
+
+| Gate | Threshold | Measured | Verdict |
+|---|---|---|---|
+| Leakage check | injured-cohort 30-day pre-IL excluded; per-pitcher checkpoints, --skip-train | confirmed | PASS |
+| AUC(MDI) | >= 0.65 | 0.387 (95% CI 0.356-0.414) | FAIL (HARD FAIL + PIVOT, < 0.58) |
+| delta_AUC (MDI - VelDrop) | >= 0.10 | 0.119 | PASS |
+| Median lead-time | >= 10 days | 48.0 days (z=2.0; t1.0=59.5, t3.0=43.0) | PASS |
+| FPR at MDI >= 80 | <= 0.20 | 1.00 (z-score breach z2=96%, z3=86%; legacy MDI80=100%) | FAIL |
+
+**Overall:** FAIL
+
+**Failed gates:** auc_mdi, fpr_at_mdi_80
+
+**Artifacts:**
+- `results/validate_mechanix_ae_20260418T131137Z/validation_summary.json`
+- `results/validate_mechanix_ae_20260418T131137Z/summary.json`
+- `results/validate_mechanix_ae_20260418T131137Z/roc_curve.json`
+- `results/validate_mechanix_ae_20260418T131137Z/roc_curve.html`
+- `results/validate_mechanix_ae_20260418T131137Z/lead_time_per_pitcher.csv`
+- `results/validate_mechanix_ae_20260418T131137Z/lead_time_distribution.json`
+- `results/validate_mechanix_ae_20260418T131137Z/lead_time_distribution.html`
+- `results/validate_mechanix_ae_20260418T131137Z/fpr_summary.json`
+- `results/validate_mechanix_ae_20260418T131137Z/fpr_healthy_seasons.csv`
+- `results/validate_mechanix_ae_20260418T131137Z/step_2_roc.log`
+
+**Notes:** DECISION GATE TRIGGERED per spec section D — AUC(MDI)=0.387 is below the 0.58 PIVOT threshold AND below random (0.5), implying MDI in z-score mode is anti-correlated with injury labels on this 111-pitcher cohort (n_pos_windows=613, n_neg_windows=644). PIVOT recommendation: reframe MechanixAE from "injury early-warning" to "mechanical profiling" (descriptive utility for outlier identification and return-from-injury benchmarking) per the spec's contingency. The two passing gates (delta_AUC and lead-time) and the failed FPR gate (100% of healthy seasons breach all percentile thresholds) suggest MDI is a "high-sensitivity, low-specificity" mechanical-deviation detector rather than a discriminative injury predictor. Wall clock 426s on RTX 3050 Laptop (50 healthy-baseline VAEs trained on GPU + inference). Cohort-level checkpoints reused via `--skip-train`; no model retraining occurred.
+
+---
+
+## Spec reframe 2026-04-18
+
+After two consecutive supervised-validation rounds (Sections 1 and 2 above) returned AUC < 0.50 on the 2015–2016 arm-injury cohort, the validation spec at `docs/models/mechanix_ae_validation_spec.md` was rewritten to align with the model's demonstrated capability rather than its original injury-detection ambition. All injury-discrimination gates (AUC ≥ 0.65, lead-time ≥ 10 days, FPR ≤ 20%, PIVOT band) have been removed. The model is now formally validated as a **descriptive per-pitcher mechanical-profiling tool** that powers the dashboard view at `src/dashboard/views/mechanix_ae.py`. The historical Section 1 and Section 2 evidence remains in this document so reviewers see the full evidence trail; only the spec's forward-looking gates have changed.
+
+**New gates** (full thresholds and source-of-truth artifacts in `docs/models/mechanix_ae_validation_spec.md` Section C):
+
+1. **Per-pitcher VAE reconstruction fit** — ≥ 80% of per-pitcher checkpoints achieve `final_recon_loss ≤ 0.50` on standardized features.
+2. **MDI distribution well-formedness** — ≥ 90% of per-pitcher z-score MDI distributions are non-degenerate (`std > 0.10`, `|skew| ≤ 5`, range exercised across `|z| ≥ 1` and `|z| ≤ 0.5`).
+3. **Coverage of qualified pitchers** — ≥ 75% of pitchers with ≥ 200 healthy pitches have a loadable per-pitcher checkpoint that produces a non-`None` MDI.
+4. **Intra-pitcher MDI stability** — median Pearson correlation of MDI across consecutive within-game windows ≥ 0.70.
+5. **Feature-attribution interpretability proxy** — for top-decile MDI windows, the dominant attributed feature is in `{release_pos_x, release_pos_z, arm_angle, release_extension, spin_axis}` in ≥ 60% of cases.
+
+The `validate-model` skill at `.claude/skills/validate-model/SKILL.md` will be updated separately by the PM to call these gates instead of the legacy injury-detection ones; until that update lands, manual `/validate-model mechanix_ae` invocations will continue to report HARD FAIL against the obsolete gates and should be ignored.
+
+---
+
+## Validation run 2026-04-18T16:21:32Z (descriptive-profiling reframe — first pass)
+
+**Invocation:** `/validate-model mechanix_ae`
+**Producer:** `scripts/mechanix_ae_profiling_analysis.py` (new — replaces the PENDING placeholder under SKILL.md Step 4c)
+**Summary JSON:** `results/validate_mechanix_ae_20260418T162132Z/validation_summary.json`
+
+| Gate | Threshold | Measured | Verdict |
+|---|---|---|---|
+| 1. Per-pitcher VAE recon fit | >=80% with mean recon MSE <= 0.50 | 0/111 (0.0%); median MSE = 0.892, range [0.614, 1.019] | FAIL |
+| 2. MDI distribution well-formedness | >=90% well-formed | 107/111 (96.4%) | PASS |
+| 3. Coverage of qualified pitchers | coverage_pct >= 0.75 over n>=200 healthy pitches | 111/1966 (5.6%) | FAIL |
+| 4. Intra-pitcher MDI stability | median Pearson r >= 0.70 (consecutive within-game windows) | median r = 0.835 across 111 pitchers | PASS |
+| 5. Feature-attribution interpretability | >=60% top-decile windows in mechanical feature set | 52.7% across 58,900 top-decile windows | FAIL |
+
+**Overall:** FAIL (2/5 gates pass)
+
+**Failed gates:** gate1_per_pitcher_recon_fit, gate3_coverage_qualified_pitchers, gate5_feature_attribution_interpretability
+
+**Artifacts:**
+- `results/validate_mechanix_ae_20260418T162132Z/per_pitcher_fit.csv`
+- `results/validate_mechanix_ae_20260418T162132Z/mdi_distribution.csv`
+- `results/validate_mechanix_ae_20260418T162132Z/coverage.json`
+- `results/validate_mechanix_ae_20260418T162132Z/intra_pitcher_stability.csv`
+- `results/validate_mechanix_ae_20260418T162132Z/stability_summary.json`
+- `results/validate_mechanix_ae_20260418T162132Z/feature_attribution_top_decile.csv`
+- `results/validate_mechanix_ae_20260418T162132Z/attribution_summary.json`
+- `results/validate_mechanix_ae_20260418T162132Z/summary.json`
+
+**Notes:** First measured pass under the new spec. Gate 1 measures recon MSE on the standardised 10-D feature space across each pitcher's full pitch history (including post-IL pitches, hence slightly worse than the persisted training-time `final_recon_loss` of ~0.80). The 0.50 threshold from the spec is not achieved by any of the 111 checkpoints; either the spec ceiling needs revising to ~0.90 (a band the population actually inhabits) or the VAE needs deeper training / richer architecture to reach 0.50. Gate 3 fails on cohort scope: only the 111 arm-injury-cohort checkpoints exist on disk, vs 1,966 pitchers with >=200 healthy pitches in DuckDB. Expanding to the qualified universe is a refit/coverage-build task. Gate 5 misses the 60% bar by 7.3 pp (52.7% measured); FLAG B in the spec (latent pitch-type entanglement) is the likely structural cause -- non-mechanical features like `pfx_x`, `pfx_z`, and `effective_speed` capture pitch-mix shifts that surface as dominant in top-decile windows. Gates 2 and 4 pass cleanly and confirm the score is non-degenerate and reliable within a start. Wall-clock 86s on RTX 3050 (inference only, no training). Caveat: per-pitcher checkpoints predate the z-score era and lack persisted `healthy_recon_mean`/`healthy_recon_std`; Gate 2 falls back to the same self-baseline that `calculate_mdi(score_mode="zscore")` uses in production -- transparent, but a future refit should persist baseline stats.
