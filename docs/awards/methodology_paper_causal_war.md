@@ -205,4 +205,32 @@ The ρ=0.62 correlation is the *floor*, and bWAR agreement is specifically *not*
 
 ---
 
+## Addendum — mechanism ablation (2026-04-19)
+
+Sections 3 and 6 of this paper flagged a mechanism-tag ablation as a follow-up: if a tag's defining feature is dropped from the DML nuisance matrix `W` and the tag's hit rate collapses, that is evidence the feature is a *causal driver* of the disagreement — not just a rule that happens to correlate with other drivers. We ran that ablation on the only mechanism-relevant feature present in `W`: **inning bucket**, the sole implicit role indicator in an otherwise position-agnostic confounder vector (CausalWAR has no explicit `position==RP` feature in `W`; the reliever signature comes from the tag's own rule, not from residualization). Retraining the full 5-fold cross-fitted nuisance on 2015-2022 with `inning_bucket` masked produced `models/causal_war/causal_war_trainsplit_2015_2022_noRP.pkl`, and the three-year Buy-Low / Over-Valued leaderboards were re-scored under the ablated model.
+
+**Result.** All three mechanism-tagged cores held essentially unchanged across the 2022→23 / 2023→24 / 2024→25 windows:
+
+| Tag | Side | Original rate | Ablated rate | Δ (pp) |
+|---|---|---:|---:|---:|
+| RELIEVER LEVERAGE GAP | Buy-Low | 78.1% (25/32) | 78.4% (29/37) | +0.3 |
+| PARK FACTOR | Over-Valued | 69.8% (30/43) | 70.2% (33/47) | +0.4 |
+| DEFENSE GAP | Over-Valued | 79.2% (19/24) | 73.7% (14/19) | −5.5 |
+
+The RELIEVER LEVERAGE GAP and PARK FACTOR deltas are statistically indistinguishable from zero. DEFENSE GAP's −5.5pp drop is on a small cell (n=19 ablated) with a wide CI and is also consistent with zero.
+
+**Verdict.** The stronger "mechanism demonstrated" claim is **not warranted** by this ablation. The paper's existing §3.4 framing — "consistent with a causal driver" — is the defensible description, and remains so after the ablation. The inning-bucket residualization is not the load-bearing lever for the leaderboard edge.
+
+**Load-bearing honesty note.** The null above has a second possible interpretation that shifts where the edge comes from. RELIEVER LEVERAGE GAP's 78% hit rate might be carried in substantial part by the *tag's own filter* (`position==pitcher AND ip_total<60`), since bWAR is known to overweight leverage on short-IP samples — meaning a short-IP reliever cohort would tend to regress toward league-average leverage in year N+1 regardless of what CausalWAR said about them. If that were the dominant driver, the honest attribution of the contrarian edge would shift from "CausalWAR's DML disagreement with bWAR" to "the tag filter identifies a cohort bWAR over-fits, and any sensible ranker on top of that filter would work." We ran the base-rate study to separate these.
+
+**Base-rate resolution.** Four comparator groups were scored over the three windows: (A) CausalWAR Buy-Low RELIEVER LEVERAGE GAP picks — the historical 78.1% (CI [0.625, 0.906]); (B) the tag-filter universe with no CausalWAR input, natural base rate **56.9%** (659/1,159, CI [0.542, 0.597]); (C) 1,000 random n=32 samples from Group B, mean **56.9%** (CI [0.406, 0.750]); (D) top-N by year-N bWAR within the filter — **10.0%** (3/30, CI [0.000, 0.233]). Group A sits +21.2pp above Group C's mean, and its CI does not overlap Group D's at all. The trivial "short-IP reliever + positive bWAR" heuristic produces a near-chance hit rate inside the tag's filter; CausalWAR's DML residual rank step is doing the selection work.
+
+Group D's result is load-bearing on its own: high-bWAR short-IP relievers are the *worst* Buy-Low cohort — they regress sharply. CausalWAR systematically avoids them. Mean year-N WAR for Group A picks is **−0.26**; for Group D, **+1.80**. CausalWAR selects low-WAR / callup / bad-luck short-IP relievers, not the ERA-leaders. That the `inning_bucket` ablation did not break this pattern is consistent with the selection being encoded in residual patterns distributed across the confounder matrix, not localized in one role feature.
+
+**Reframed verdict.** The contrarian edge is **not** an artifact of the tag's filter. CausalWAR's DML residual is doing real selection work within the short-IP-reliever cohort — cutting the regression rate by roughly half relative to random-within-filter. The §3.4 framing "consistent with a causal driver" remains the defensible description; the stronger "role features are the load-bearing driver" claim is not warranted by the ablation, but neither is it needed — the tag + CausalWAR combination demonstrably outperforms tag + any naive ranker. Robustness caveat: Group A's n=32 gives the ±21pp gap over C a wide CI; the qualitative verdict holds across all nine (IP threshold × WAR filter) configurations tested in the base-rate study.
+
+**Artifacts.** Mechanism ablation: `results/causal_war/mechanism_ablation/report.md`; `ablation_comparison.json`; `scripts/causal_war_mechanism_ablation.py`; `models/causal_war/causal_war_trainsplit_2015_2022_noRP.pkl`. Base-rate study: `results/causal_war/tag_filter_baserate/report.md`; `hit_rates_comparison.json`; `group_d_topN_picks.csv`; `cohort_definitions.json`; `scripts/causal_war_tag_filter_baserate.py`.
+
+---
+
 **End of paper.**

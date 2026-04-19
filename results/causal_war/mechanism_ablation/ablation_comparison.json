@@ -1,0 +1,458 @@
+{
+  "ablation_description": "Zeroed out the role-indicator feature (inning_bucket, index 6) in the CausalWAR outcome nuisance confounder matrix for both training (2015-2022) and inference (per-season prediction).",
+  "ablated_feature_index": 6,
+  "ablated_feature_name": "inning_bucket",
+  "train_split": [
+    2015,
+    2022
+  ],
+  "n_bootstrap": 1000,
+  "random_state": 42,
+  "per_window_ablated": [
+    {
+      "baseline_year": 2022,
+      "followup_year": 2023,
+      "buy_low_tags": {
+        "GENUINE EDGE?": {
+          "n_in_leaderboard": 3,
+          "n_evaluated": 3,
+          "hits": 3,
+          "hit_rate": 1.0
+        },
+        "OTHER": {
+          "n_in_leaderboard": 9,
+          "n_evaluated": 9,
+          "hits": 7,
+          "hit_rate": 0.7777777777777778
+        },
+        "RELIEVER LEVERAGE GAP": {
+          "n_in_leaderboard": 13,
+          "n_evaluated": 13,
+          "hits": 11,
+          "hit_rate": 0.8461538461538461
+        }
+      },
+      "over_valued_tags": {
+        "DEFENSE GAP": {
+          "n_in_leaderboard": 7,
+          "n_evaluated": 7,
+          "hits": 7,
+          "hit_rate": 1.0
+        },
+        "OTHER": {
+          "n_in_leaderboard": 4,
+          "n_evaluated": 4,
+          "hits": 3,
+          "hit_rate": 0.75
+        },
+        "PARK FACTOR": {
+          "n_in_leaderboard": 14,
+          "n_evaluated": 14,
+          "hits": 8,
+          "hit_rate": 0.5714285714285714
+        }
+      }
+    },
+    {
+      "baseline_year": 2023,
+      "followup_year": 2024,
+      "buy_low_tags": {
+        "GENUINE EDGE?": {
+          "n_in_leaderboard": 4,
+          "n_evaluated": 4,
+          "hits": 2,
+          "hit_rate": 0.5
+        },
+        "OTHER": {
+          "n_in_leaderboard": 8,
+          "n_evaluated": 7,
+          "hits": 6,
+          "hit_rate": 0.8571428571428571
+        },
+        "RELIEVER LEVERAGE GAP": {
+          "n_in_leaderboard": 13,
+          "n_evaluated": 12,
+          "hits": 8,
+          "hit_rate": 0.6666666666666666
+        }
+      },
+      "over_valued_tags": {
+        "DEFENSE GAP": {
+          "n_in_leaderboard": 4,
+          "n_evaluated": 4,
+          "hits": 1,
+          "hit_rate": 0.25
+        },
+        "PARK FACTOR": {
+          "n_in_leaderboard": 21,
+          "n_evaluated": 18,
+          "hits": 13,
+          "hit_rate": 0.7222222222222222
+        }
+      }
+    },
+    {
+      "baseline_year": 2024,
+      "followup_year": 2025,
+      "buy_low_tags": {
+        "GENUINE EDGE?": {
+          "n_in_leaderboard": 1,
+          "n_evaluated": 1,
+          "hits": 1,
+          "hit_rate": 1.0
+        },
+        "OTHER": {
+          "n_in_leaderboard": 11,
+          "n_evaluated": 10,
+          "hits": 7,
+          "hit_rate": 0.7
+        },
+        "RELIEVER LEVERAGE GAP": {
+          "n_in_leaderboard": 13,
+          "n_evaluated": 12,
+          "hits": 10,
+          "hit_rate": 0.8333333333333334
+        }
+      },
+      "over_valued_tags": {
+        "DEFENSE GAP": {
+          "n_in_leaderboard": 8,
+          "n_evaluated": 8,
+          "hits": 6,
+          "hit_rate": 0.75
+        },
+        "OTHER": {
+          "n_in_leaderboard": 2,
+          "n_evaluated": 2,
+          "hits": 1,
+          "hit_rate": 0.5
+        },
+        "PARK FACTOR": {
+          "n_in_leaderboard": 15,
+          "n_evaluated": 15,
+          "hits": 12,
+          "hit_rate": 0.8
+        }
+      }
+    }
+  ],
+  "per_window_baseline": [
+    {
+      "baseline_year": 2022,
+      "followup_year": 2023,
+      "buy_low_tags": {
+        "GENUINE EDGE?": {
+          "n_in_leaderboard": 3,
+          "n_evaluated": 3,
+          "hits": 3,
+          "hit_rate": 1.0
+        },
+        "OTHER": {
+          "n_in_leaderboard": 12,
+          "n_evaluated": 11,
+          "hits": 9,
+          "hit_rate": 0.8181818181818182
+        },
+        "RELIEVER LEVERAGE GAP": {
+          "n_in_leaderboard": 10,
+          "n_evaluated": 10,
+          "hits": 8,
+          "hit_rate": 0.8
+        }
+      },
+      "over_valued_tags": {
+        "DEFENSE GAP": {
+          "n_in_leaderboard": 8,
+          "n_evaluated": 8,
+          "hits": 8,
+          "hit_rate": 1.0
+        },
+        "OTHER": {
+          "n_in_leaderboard": 4,
+          "n_evaluated": 4,
+          "hits": 3,
+          "hit_rate": 0.75
+        },
+        "PARK FACTOR": {
+          "n_in_leaderboard": 13,
+          "n_evaluated": 13,
+          "hits": 9,
+          "hit_rate": 0.6923076923076923
+        }
+      }
+    },
+    {
+      "baseline_year": 2023,
+      "followup_year": 2024,
+      "buy_low_tags": {
+        "GENUINE EDGE?": {
+          "n_in_leaderboard": 4,
+          "n_evaluated": 4,
+          "hits": 2,
+          "hit_rate": 0.5
+        },
+        "OTHER": {
+          "n_in_leaderboard": 7,
+          "n_evaluated": 6,
+          "hits": 4,
+          "hit_rate": 0.6666666666666666
+        },
+        "RELIEVER LEVERAGE GAP": {
+          "n_in_leaderboard": 14,
+          "n_evaluated": 12,
+          "hits": 8,
+          "hit_rate": 0.6666666666666666
+        }
+      },
+      "over_valued_tags": {
+        "DEFENSE GAP": {
+          "n_in_leaderboard": 6,
+          "n_evaluated": 6,
+          "hits": 3,
+          "hit_rate": 0.5
+        },
+        "PARK FACTOR": {
+          "n_in_leaderboard": 19,
+          "n_evaluated": 17,
+          "hits": 11,
+          "hit_rate": 0.6470588235294118
+        }
+      }
+    },
+    {
+      "baseline_year": 2024,
+      "followup_year": 2025,
+      "buy_low_tags": {
+        "GENUINE EDGE?": {
+          "n_in_leaderboard": 2,
+          "n_evaluated": 2,
+          "hits": 2,
+          "hit_rate": 1.0
+        },
+        "OTHER": {
+          "n_in_leaderboard": 12,
+          "n_evaluated": 10,
+          "hits": 7,
+          "hit_rate": 0.7
+        },
+        "RELIEVER LEVERAGE GAP": {
+          "n_in_leaderboard": 11,
+          "n_evaluated": 10,
+          "hits": 9,
+          "hit_rate": 0.9
+        }
+      },
+      "over_valued_tags": {
+        "DEFENSE GAP": {
+          "n_in_leaderboard": 10,
+          "n_evaluated": 10,
+          "hits": 8,
+          "hit_rate": 0.8
+        },
+        "OTHER": {
+          "n_in_leaderboard": 2,
+          "n_evaluated": 2,
+          "hits": 1,
+          "hit_rate": 0.5
+        },
+        "PARK FACTOR": {
+          "n_in_leaderboard": 13,
+          "n_evaluated": 13,
+          "hits": 10,
+          "hit_rate": 0.7692307692307693
+        }
+      }
+    }
+  ],
+  "mechanism_tag_comparison": {
+    "RELIEVER LEVERAGE GAP (Buy-Low)": {
+      "baseline": {
+        "hits": 25,
+        "n": 32,
+        "rate": 0.78125
+      },
+      "ablated": {
+        "hits": 29,
+        "n": 37,
+        "rate": 0.7837837837837838
+      },
+      "delta": 0.0025337837837837718,
+      "delta_ci_95": [
+        -0.19510135135135132,
+        0.18612753378378355
+      ],
+      "per_window_baseline": [
+        {
+          "year": 2022,
+          "n_in_leaderboard": 10,
+          "n_evaluated": 10,
+          "hits": 8,
+          "hit_rate": 0.8
+        },
+        {
+          "year": 2023,
+          "n_in_leaderboard": 14,
+          "n_evaluated": 12,
+          "hits": 8,
+          "hit_rate": 0.6666666666666666
+        },
+        {
+          "year": 2024,
+          "n_in_leaderboard": 11,
+          "n_evaluated": 10,
+          "hits": 9,
+          "hit_rate": 0.9
+        }
+      ],
+      "per_window_ablated": [
+        {
+          "year": 2022,
+          "n_in_leaderboard": 13,
+          "n_evaluated": 13,
+          "hits": 11,
+          "hit_rate": 0.8461538461538461
+        },
+        {
+          "year": 2023,
+          "n_in_leaderboard": 13,
+          "n_evaluated": 12,
+          "hits": 8,
+          "hit_rate": 0.6666666666666666
+        },
+        {
+          "year": 2024,
+          "n_in_leaderboard": 13,
+          "n_evaluated": 12,
+          "hits": 10,
+          "hit_rate": 0.8333333333333334
+        }
+      ]
+    },
+    "PARK FACTOR (Over-Valued)": {
+      "baseline": {
+        "hits": 30,
+        "n": 43,
+        "rate": 0.6976744186046512
+      },
+      "ablated": {
+        "hits": 33,
+        "n": 47,
+        "rate": 0.7021276595744681
+      },
+      "delta": 0.004453240969816918,
+      "delta_ci_95": [
+        -0.17367639782285993,
+        0.223156853043048
+      ],
+      "per_window_baseline": [
+        {
+          "year": 2022,
+          "n_in_leaderboard": 13,
+          "n_evaluated": 13,
+          "hits": 9,
+          "hit_rate": 0.6923076923076923
+        },
+        {
+          "year": 2023,
+          "n_in_leaderboard": 19,
+          "n_evaluated": 17,
+          "hits": 11,
+          "hit_rate": 0.6470588235294118
+        },
+        {
+          "year": 2024,
+          "n_in_leaderboard": 13,
+          "n_evaluated": 13,
+          "hits": 10,
+          "hit_rate": 0.7692307692307693
+        }
+      ],
+      "per_window_ablated": [
+        {
+          "year": 2022,
+          "n_in_leaderboard": 14,
+          "n_evaluated": 14,
+          "hits": 8,
+          "hit_rate": 0.5714285714285714
+        },
+        {
+          "year": 2023,
+          "n_in_leaderboard": 21,
+          "n_evaluated": 18,
+          "hits": 13,
+          "hit_rate": 0.7222222222222222
+        },
+        {
+          "year": 2024,
+          "n_in_leaderboard": 15,
+          "n_evaluated": 15,
+          "hits": 12,
+          "hit_rate": 0.8
+        }
+      ]
+    },
+    "DEFENSE GAP (Over-Valued)": {
+      "baseline": {
+        "hits": 19,
+        "n": 24,
+        "rate": 0.7916666666666666
+      },
+      "ablated": {
+        "hits": 14,
+        "n": 19,
+        "rate": 0.7368421052631579
+      },
+      "delta": -0.054824561403508776,
+      "delta_ci_95": [
+        -0.3070175438596492,
+        0.19523026315789468
+      ],
+      "per_window_baseline": [
+        {
+          "year": 2022,
+          "n_in_leaderboard": 8,
+          "n_evaluated": 8,
+          "hits": 8,
+          "hit_rate": 1.0
+        },
+        {
+          "year": 2023,
+          "n_in_leaderboard": 6,
+          "n_evaluated": 6,
+          "hits": 3,
+          "hit_rate": 0.5
+        },
+        {
+          "year": 2024,
+          "n_in_leaderboard": 10,
+          "n_evaluated": 10,
+          "hits": 8,
+          "hit_rate": 0.8
+        }
+      ],
+      "per_window_ablated": [
+        {
+          "year": 2022,
+          "n_in_leaderboard": 7,
+          "n_evaluated": 7,
+          "hits": 7,
+          "hit_rate": 1.0
+        },
+        {
+          "year": 2023,
+          "n_in_leaderboard": 4,
+          "n_evaluated": 4,
+          "hits": 1,
+          "hit_rate": 0.25
+        },
+        {
+          "year": 2024,
+          "n_in_leaderboard": 8,
+          "n_evaluated": 8,
+          "hits": 6,
+          "hit_rate": 0.75
+        }
+      ]
+    }
+  }
+}

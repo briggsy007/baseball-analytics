@@ -1,0 +1,2771 @@
+{
+  "per_window": {
+    "ip50_war_positive": {
+      "2022_to_2023": {
+        "A_dashboard": {
+          "group": "A_causalwar_picks_dashboard",
+          "n": 10,
+          "hits": 8,
+          "hit_rate": 0.8,
+          "ci_95_low": 0.5,
+          "ci_95_high": 1.0,
+          "basis": "war_delta"
+        },
+        "A_drop": {
+          "group": "A_causalwar_picks_drop",
+          "n": 10,
+          "hits": 2,
+          "hit_rate": 0.2,
+          "ci_95_low": 0.0,
+          "ci_95_high": 0.5,
+          "basis": "war_delta"
+        },
+        "B_dashboard": {
+          "group": "B_tag_filter_universe_dashboard",
+          "n": 163,
+          "hits": 61,
+          "hit_rate": 0.37423312883435583,
+          "ci_95_low": 0.294478527607362,
+          "ci_95_high": 0.44785276073619634,
+          "basis": "war_delta"
+        },
+        "B_drop": {
+          "group": "B_tag_filter_universe_drop",
+          "n": 163,
+          "hits": 102,
+          "hit_rate": 0.6257668711656442,
+          "ci_95_low": 0.5521472392638037,
+          "ci_95_high": 0.7055214723926381,
+          "basis": "war_delta"
+        },
+        "C_dashboard": {
+          "group": "C_random_within_filter",
+          "n_sample": 10,
+          "n_universe": 163,
+          "n_boot": 1000,
+          "mean_hit_rate": 0.3784,
+          "ci_95_low": 0.1,
+          "ci_95_high": 0.7,
+          "replace": false
+        },
+        "C_drop": {
+          "group": "C_random_within_filter",
+          "n_sample": 10,
+          "n_universe": 163,
+          "n_boot": 1000,
+          "mean_hit_rate": 0.6216,
+          "ci_95_low": 0.3,
+          "ci_95_high": 0.9,
+          "replace": false
+        },
+        "D_dashboard": {
+          "group": "D_topN_by_bwar_dashboard",
+          "n": 8,
+          "hits": 1,
+          "hit_rate": 0.125,
+          "ci_95_low": 0.0,
+          "ci_95_high": 0.375,
+          "basis": "war_delta"
+        },
+        "D_drop": {
+          "group": "D_topN_by_bwar_drop",
+          "n": 8,
+          "hits": 7,
+          "hit_rate": 0.875,
+          "ci_95_low": 0.625,
+          "ci_95_high": 1.0,
+          "basis": "war_delta"
+        }
+      },
+      "2023_to_2024": {
+        "A_dashboard": {
+          "group": "A_causalwar_picks_dashboard",
+          "n": 12,
+          "hits": 8,
+          "hit_rate": 0.6666666666666666,
+          "ci_95_low": 0.4166666666666667,
+          "ci_95_high": 0.9166666666666666,
+          "basis": "war_delta"
+        },
+        "A_drop": {
+          "group": "A_causalwar_picks_drop",
+          "n": 12,
+          "hits": 4,
+          "hit_rate": 0.3333333333333333,
+          "ci_95_low": 0.08333333333333333,
+          "ci_95_high": 0.5833333333333334,
+          "basis": "war_delta"
+        },
+        "B_dashboard": {
+          "group": "B_tag_filter_universe_dashboard",
+          "n": 165,
+          "hits": 68,
+          "hit_rate": 0.4121212121212121,
+          "ci_95_low": 0.3333333333333333,
+          "ci_95_high": 0.4849999999999999,
+          "basis": "war_delta"
+        },
+        "B_drop": {
+          "group": "B_tag_filter_universe_drop",
+          "n": 165,
+          "hits": 97,
+          "hit_rate": 0.5878787878787879,
+          "ci_95_low": 0.5150000000000001,
+          "ci_95_high": 0.6666666666666666,
+          "basis": "war_delta"
+        },
+        "C_dashboard": {
+          "group": "C_random_within_filter",
+          "n_sample": 12,
+          "n_universe": 165,
+          "n_boot": 1000,
+          "mean_hit_rate": 0.419,
+          "ci_95_low": 0.16666666666666666,
+          "ci_95_high": 0.6666666666666666,
+          "replace": false
+        },
+        "C_drop": {
+          "group": "C_random_within_filter",
+          "n_sample": 12,
+          "n_universe": 165,
+          "n_boot": 1000,
+          "mean_hit_rate": 0.581,
+          "ci_95_low": 0.3333333333333333,
+          "ci_95_high": 0.8333333333333334,
+          "replace": false
+        },
+        "D_dashboard": {
+          "group": "D_topN_by_bwar_dashboard",
+          "n": 11,
+          "hits": 2,
+          "hit_rate": 0.18181818181818182,
+          "ci_95_low": 0.0,
+          "ci_95_high": 0.45454545454545453,
+          "basis": "war_delta"
+        },
+        "D_drop": {
+          "group": "D_topN_by_bwar_drop",
+          "n": 11,
+          "hits": 9,
+          "hit_rate": 0.8181818181818182,
+          "ci_95_low": 0.5454545454545454,
+          "ci_95_high": 1.0,
+          "basis": "war_delta"
+        }
+      },
+      "2024_to_2025": {
+        "A_dashboard": {
+          "group": "A_causalwar_picks_dashboard",
+          "n": 10,
+          "hits": 9,
+          "hit_rate": 0.9,
+          "ci_95_low": 0.7,
+          "ci_95_high": 1.0,
+          "basis": "war_delta"
+        },
+        "A_drop": {
+          "group": "A_causalwar_picks_drop",
+          "n": 10,
+          "hits": 1,
+          "hit_rate": 0.1,
+          "ci_95_low": 0.0,
+          "ci_95_high": 0.3,
+          "basis": "war_delta"
+        },
+        "B_dashboard": {
+          "group": "B_tag_filter_universe_dashboard",
+          "n": 169,
+          "hits": 68,
+          "hit_rate": 0.40236686390532544,
+          "ci_95_low": 0.33136094674556216,
+          "ci_95_high": 0.47352071005917146,
+          "basis": "war_delta"
+        },
+        "B_drop": {
+          "group": "B_tag_filter_universe_drop",
+          "n": 169,
+          "hits": 101,
+          "hit_rate": 0.5976331360946746,
+          "ci_95_low": 0.5264792899408286,
+          "ci_95_high": 0.6686390532544378,
+          "basis": "war_delta"
+        },
+        "C_dashboard": {
+          "group": "C_random_within_filter",
+          "n_sample": 10,
+          "n_universe": 169,
+          "n_boot": 1000,
+          "mean_hit_rate": 0.4075,
+          "ci_95_low": 0.1,
+          "ci_95_high": 0.7,
+          "replace": false
+        },
+        "C_drop": {
+          "group": "C_random_within_filter",
+          "n_sample": 10,
+          "n_universe": 169,
+          "n_boot": 1000,
+          "mean_hit_rate": 0.5925,
+          "ci_95_low": 0.3,
+          "ci_95_high": 0.9,
+          "replace": false
+        },
+        "D_dashboard": {
+          "group": "D_topN_by_bwar_dashboard",
+          "n": 9,
+          "hits": 1,
+          "hit_rate": 0.1111111111111111,
+          "ci_95_low": 0.0,
+          "ci_95_high": 0.3333333333333333,
+          "basis": "war_delta"
+        },
+        "D_drop": {
+          "group": "D_topN_by_bwar_drop",
+          "n": 9,
+          "hits": 8,
+          "hit_rate": 0.8888888888888888,
+          "ci_95_low": 0.6666666666666666,
+          "ci_95_high": 1.0,
+          "basis": "war_delta"
+        }
+      }
+    },
+    "ip60_war_positive": {
+      "2022_to_2023": {
+        "A_dashboard": {
+          "group": "A_causalwar_picks_dashboard",
+          "n": 10,
+          "hits": 8,
+          "hit_rate": 0.8,
+          "ci_95_low": 0.5,
+          "ci_95_high": 1.0,
+          "basis": "war_delta"
+        },
+        "A_drop": {
+          "group": "A_causalwar_picks_drop",
+          "n": 10,
+          "hits": 2,
+          "hit_rate": 0.2,
+          "ci_95_low": 0.0,
+          "ci_95_high": 0.5,
+          "basis": "war_delta"
+        },
+        "B_dashboard": {
+          "group": "B_tag_filter_universe_dashboard",
+          "n": 206,
+          "hits": 80,
+          "hit_rate": 0.3883495145631068,
+          "ci_95_low": 0.3251213592233011,
+          "ci_95_high": 0.45145631067961167,
+          "basis": "war_delta"
+        },
+        "B_drop": {
+          "group": "B_tag_filter_universe_drop",
+          "n": 206,
+          "hits": 126,
+          "hit_rate": 0.6116504854368932,
+          "ci_95_low": 0.5485436893203883,
+          "ci_95_high": 0.6748786407766989,
+          "basis": "war_delta"
+        },
+        "C_dashboard": {
+          "group": "C_random_within_filter",
+          "n_sample": 10,
+          "n_universe": 206,
+          "n_boot": 1000,
+          "mean_hit_rate": 0.39120000000000005,
+          "ci_95_low": 0.1,
+          "ci_95_high": 0.7,
+          "replace": false
+        },
+        "C_drop": {
+          "group": "C_random_within_filter",
+          "n_sample": 10,
+          "n_universe": 206,
+          "n_boot": 1000,
+          "mean_hit_rate": 0.6088,
+          "ci_95_low": 0.3,
+          "ci_95_high": 0.9,
+          "replace": false
+        },
+        "D_dashboard": {
+          "group": "D_topN_by_bwar_dashboard",
+          "n": 9,
+          "hits": 1,
+          "hit_rate": 0.1111111111111111,
+          "ci_95_low": 0.0,
+          "ci_95_high": 0.3333333333333333,
+          "basis": "war_delta"
+        },
+        "D_drop": {
+          "group": "D_topN_by_bwar_drop",
+          "n": 9,
+          "hits": 8,
+          "hit_rate": 0.8888888888888888,
+          "ci_95_low": 0.6666666666666666,
+          "ci_95_high": 1.0,
+          "basis": "war_delta"
+        }
+      },
+      "2023_to_2024": {
+        "A_dashboard": {
+          "group": "A_causalwar_picks_dashboard",
+          "n": 12,
+          "hits": 8,
+          "hit_rate": 0.6666666666666666,
+          "ci_95_low": 0.4166666666666667,
+          "ci_95_high": 0.9166666666666666,
+          "basis": "war_delta"
+        },
+        "A_drop": {
+          "group": "A_causalwar_picks_drop",
+          "n": 12,
+          "hits": 4,
+          "hit_rate": 0.3333333333333333,
+          "ci_95_low": 0.08333333333333333,
+          "ci_95_high": 0.5833333333333334,
+          "basis": "war_delta"
+        },
+        "B_dashboard": {
+          "group": "B_tag_filter_universe_dashboard",
+          "n": 216,
+          "hits": 81,
+          "hit_rate": 0.375,
+          "ci_95_low": 0.3101851851851852,
+          "ci_95_high": 0.4398148148148148,
+          "basis": "war_delta"
+        },
+        "B_drop": {
+          "group": "B_tag_filter_universe_drop",
+          "n": 216,
+          "hits": 135,
+          "hit_rate": 0.625,
+          "ci_95_low": 0.5601851851851852,
+          "ci_95_high": 0.6898148148148148,
+          "basis": "war_delta"
+        },
+        "C_dashboard": {
+          "group": "C_random_within_filter",
+          "n_sample": 12,
+          "n_universe": 216,
+          "n_boot": 1000,
+          "mean_hit_rate": 0.372,
+          "ci_95_low": 0.16458333333333344,
+          "ci_95_high": 0.6666666666666666,
+          "replace": false
+        },
+        "C_drop": {
+          "group": "C_random_within_filter",
+          "n_sample": 12,
+          "n_universe": 216,
+          "n_boot": 1000,
+          "mean_hit_rate": 0.628,
+          "ci_95_low": 0.3333333333333333,
+          "ci_95_high": 0.8354166666666648,
+          "replace": false
+        },
+        "D_dashboard": {
+          "group": "D_topN_by_bwar_dashboard",
+          "n": 12,
+          "hits": 1,
+          "hit_rate": 0.08333333333333333,
+          "ci_95_low": 0.0,
+          "ci_95_high": 0.25,
+          "basis": "war_delta"
+        },
+        "D_drop": {
+          "group": "D_topN_by_bwar_drop",
+          "n": 12,
+          "hits": 11,
+          "hit_rate": 0.9166666666666666,
+          "ci_95_low": 0.75,
+          "ci_95_high": 1.0,
+          "basis": "war_delta"
+        }
+      },
+      "2024_to_2025": {
+        "A_dashboard": {
+          "group": "A_causalwar_picks_dashboard",
+          "n": 10,
+          "hits": 9,
+          "hit_rate": 0.9,
+          "ci_95_low": 0.7,
+          "ci_95_high": 1.0,
+          "basis": "war_delta"
+        },
+        "A_drop": {
+          "group": "A_causalwar_picks_drop",
+          "n": 10,
+          "hits": 1,
+          "hit_rate": 0.1,
+          "ci_95_low": 0.0,
+          "ci_95_high": 0.3,
+          "basis": "war_delta"
+        },
+        "B_dashboard": {
+          "group": "B_tag_filter_universe_dashboard",
+          "n": 216,
+          "hits": 86,
+          "hit_rate": 0.39814814814814814,
+          "ci_95_low": 0.3333333333333333,
+          "ci_95_high": 0.4583333333333333,
+          "basis": "war_delta"
+        },
+        "B_drop": {
+          "group": "B_tag_filter_universe_drop",
+          "n": 216,
+          "hits": 130,
+          "hit_rate": 0.6018518518518519,
+          "ci_95_low": 0.5416666666666666,
+          "ci_95_high": 0.6666666666666666,
+          "basis": "war_delta"
+        },
+        "C_dashboard": {
+          "group": "C_random_within_filter",
+          "n_sample": 10,
+          "n_universe": 216,
+          "n_boot": 1000,
+          "mean_hit_rate": 0.39840000000000003,
+          "ci_95_low": 0.1,
+          "ci_95_high": 0.7,
+          "replace": false
+        },
+        "C_drop": {
+          "group": "C_random_within_filter",
+          "n_sample": 10,
+          "n_universe": 216,
+          "n_boot": 1000,
+          "mean_hit_rate": 0.6015999999999999,
+          "ci_95_low": 0.3,
+          "ci_95_high": 0.9,
+          "replace": false
+        },
+        "D_dashboard": {
+          "group": "D_topN_by_bwar_dashboard",
+          "n": 9,
+          "hits": 1,
+          "hit_rate": 0.1111111111111111,
+          "ci_95_low": 0.0,
+          "ci_95_high": 0.3333333333333333,
+          "basis": "war_delta"
+        },
+        "D_drop": {
+          "group": "D_topN_by_bwar_drop",
+          "n": 9,
+          "hits": 8,
+          "hit_rate": 0.8888888888888888,
+          "ci_95_low": 0.6666666666666666,
+          "ci_95_high": 1.0,
+          "basis": "war_delta"
+        }
+      }
+    },
+    "ip70_war_positive": {
+      "2022_to_2023": {
+        "A_dashboard": {
+          "group": "A_causalwar_picks_dashboard",
+          "n": 10,
+          "hits": 8,
+          "hit_rate": 0.8,
+          "ci_95_low": 0.5,
+          "ci_95_high": 1.0,
+          "basis": "war_delta"
+        },
+        "A_drop": {
+          "group": "A_causalwar_picks_drop",
+          "n": 10,
+          "hits": 2,
+          "hit_rate": 0.2,
+          "ci_95_low": 0.0,
+          "ci_95_high": 0.5,
+          "basis": "war_delta"
+        },
+        "B_dashboard": {
+          "group": "B_tag_filter_universe_dashboard",
+          "n": 268,
+          "hits": 99,
+          "hit_rate": 0.3694029850746269,
+          "ci_95_low": 0.31333955223880605,
+          "ci_95_high": 0.4253731343283582,
+          "basis": "war_delta"
+        },
+        "B_drop": {
+          "group": "B_tag_filter_universe_drop",
+          "n": 268,
+          "hits": 169,
+          "hit_rate": 0.6305970149253731,
+          "ci_95_low": 0.5746268656716418,
+          "ci_95_high": 0.686660447761194,
+          "basis": "war_delta"
+        },
+        "C_dashboard": {
+          "group": "C_random_within_filter",
+          "n_sample": 10,
+          "n_universe": 268,
+          "n_boot": 1000,
+          "mean_hit_rate": 0.37389999999999995,
+          "ci_95_low": 0.1,
+          "ci_95_high": 0.7,
+          "replace": false
+        },
+        "C_drop": {
+          "group": "C_random_within_filter",
+          "n_sample": 10,
+          "n_universe": 268,
+          "n_boot": 1000,
+          "mean_hit_rate": 0.6260999999999999,
+          "ci_95_low": 0.3,
+          "ci_95_high": 0.9,
+          "replace": false
+        },
+        "D_dashboard": {
+          "group": "D_topN_by_bwar_dashboard",
+          "n": 9,
+          "hits": 0,
+          "hit_rate": 0.0,
+          "ci_95_low": 0.0,
+          "ci_95_high": 0.0,
+          "basis": "war_delta"
+        },
+        "D_drop": {
+          "group": "D_topN_by_bwar_drop",
+          "n": 9,
+          "hits": 9,
+          "hit_rate": 1.0,
+          "ci_95_low": 1.0,
+          "ci_95_high": 1.0,
+          "basis": "war_delta"
+        }
+      },
+      "2023_to_2024": {
+        "A_dashboard": {
+          "group": "A_causalwar_picks_dashboard",
+          "n": 12,
+          "hits": 8,
+          "hit_rate": 0.6666666666666666,
+          "ci_95_low": 0.4166666666666667,
+          "ci_95_high": 0.9166666666666666,
+          "basis": "war_delta"
+        },
+        "A_drop": {
+          "group": "A_causalwar_picks_drop",
+          "n": 12,
+          "hits": 4,
+          "hit_rate": 0.3333333333333333,
+          "ci_95_low": 0.08333333333333333,
+          "ci_95_high": 0.5833333333333334,
+          "basis": "war_delta"
+        },
+        "B_dashboard": {
+          "group": "B_tag_filter_universe_dashboard",
+          "n": 270,
+          "hits": 98,
+          "hit_rate": 0.362962962962963,
+          "ci_95_low": 0.3073148148148149,
+          "ci_95_high": 0.4185185185185185,
+          "basis": "war_delta"
+        },
+        "B_drop": {
+          "group": "B_tag_filter_universe_drop",
+          "n": 270,
+          "hits": 172,
+          "hit_rate": 0.6370370370370371,
+          "ci_95_low": 0.5814814814814815,
+          "ci_95_high": 0.6926851851851851,
+          "basis": "war_delta"
+        },
+        "C_dashboard": {
+          "group": "C_random_within_filter",
+          "n_sample": 12,
+          "n_universe": 270,
+          "n_boot": 1000,
+          "mean_hit_rate": 0.3645,
+          "ci_95_low": 0.08333333333333333,
+          "ci_95_high": 0.6666666666666666,
+          "replace": false
+        },
+        "C_drop": {
+          "group": "C_random_within_filter",
+          "n_sample": 12,
+          "n_universe": 270,
+          "n_boot": 1000,
+          "mean_hit_rate": 0.6355,
+          "ci_95_low": 0.3333333333333333,
+          "ci_95_high": 0.9166666666666666,
+          "replace": false
+        },
+        "D_dashboard": {
+          "group": "D_topN_by_bwar_dashboard",
+          "n": 10,
+          "hits": 1,
+          "hit_rate": 0.1,
+          "ci_95_low": 0.0,
+          "ci_95_high": 0.3,
+          "basis": "war_delta"
+        },
+        "D_drop": {
+          "group": "D_topN_by_bwar_drop",
+          "n": 10,
+          "hits": 9,
+          "hit_rate": 0.9,
+          "ci_95_low": 0.7,
+          "ci_95_high": 1.0,
+          "basis": "war_delta"
+        }
+      },
+      "2024_to_2025": {
+        "A_dashboard": {
+          "group": "A_causalwar_picks_dashboard",
+          "n": 10,
+          "hits": 9,
+          "hit_rate": 0.9,
+          "ci_95_low": 0.7,
+          "ci_95_high": 1.0,
+          "basis": "war_delta"
+        },
+        "A_drop": {
+          "group": "A_causalwar_picks_drop",
+          "n": 10,
+          "hits": 1,
+          "hit_rate": 0.1,
+          "ci_95_low": 0.0,
+          "ci_95_high": 0.3,
+          "basis": "war_delta"
+        },
+        "B_dashboard": {
+          "group": "B_tag_filter_universe_dashboard",
+          "n": 265,
+          "hits": 102,
+          "hit_rate": 0.3849056603773585,
+          "ci_95_low": 0.3282075471698114,
+          "ci_95_high": 0.44528301886792454,
+          "basis": "war_delta"
+        },
+        "B_drop": {
+          "group": "B_tag_filter_universe_drop",
+          "n": 265,
+          "hits": 163,
+          "hit_rate": 0.6150943396226415,
+          "ci_95_low": 0.5547169811320755,
+          "ci_95_high": 0.6717924528301885,
+          "basis": "war_delta"
+        },
+        "C_dashboard": {
+          "group": "C_random_within_filter",
+          "n_sample": 10,
+          "n_universe": 265,
+          "n_boot": 1000,
+          "mean_hit_rate": 0.3867,
+          "ci_95_low": 0.1,
+          "ci_95_high": 0.7,
+          "replace": false
+        },
+        "C_drop": {
+          "group": "C_random_within_filter",
+          "n_sample": 10,
+          "n_universe": 265,
+          "n_boot": 1000,
+          "mean_hit_rate": 0.6133,
+          "ci_95_low": 0.3,
+          "ci_95_high": 0.9,
+          "replace": false
+        },
+        "D_dashboard": {
+          "group": "D_topN_by_bwar_dashboard",
+          "n": 10,
+          "hits": 1,
+          "hit_rate": 0.1,
+          "ci_95_low": 0.0,
+          "ci_95_high": 0.3,
+          "basis": "war_delta"
+        },
+        "D_drop": {
+          "group": "D_topN_by_bwar_drop",
+          "n": 10,
+          "hits": 9,
+          "hit_rate": 0.9,
+          "ci_95_low": 0.7,
+          "ci_95_high": 1.0,
+          "basis": "war_delta"
+        }
+      }
+    },
+    "ip50_war_any": {
+      "2022_to_2023": {
+        "A_dashboard": {
+          "group": "A_causalwar_picks_dashboard",
+          "n": 10,
+          "hits": 8,
+          "hit_rate": 0.8,
+          "ci_95_low": 0.5,
+          "ci_95_high": 1.0,
+          "basis": "war_delta"
+        },
+        "A_drop": {
+          "group": "A_causalwar_picks_drop",
+          "n": 10,
+          "hits": 2,
+          "hit_rate": 0.2,
+          "ci_95_low": 0.0,
+          "ci_95_high": 0.5,
+          "basis": "war_delta"
+        },
+        "B_dashboard": {
+          "group": "B_tag_filter_universe_dashboard",
+          "n": 318,
+          "hits": 189,
+          "hit_rate": 0.5943396226415094,
+          "ci_95_low": 0.5440251572327044,
+          "ci_95_high": 0.6477987421383647,
+          "basis": "war_delta"
+        },
+        "B_drop": {
+          "group": "B_tag_filter_universe_drop",
+          "n": 318,
+          "hits": 129,
+          "hit_rate": 0.4056603773584906,
+          "ci_95_low": 0.3522012578616352,
+          "ci_95_high": 0.4559748427672956,
+          "basis": "war_delta"
+        },
+        "C_dashboard": {
+          "group": "C_random_within_filter",
+          "n_sample": 10,
+          "n_universe": 318,
+          "n_boot": 1000,
+          "mean_hit_rate": 0.591,
+          "ci_95_low": 0.3,
+          "ci_95_high": 0.9,
+          "replace": false
+        },
+        "C_drop": {
+          "group": "C_random_within_filter",
+          "n_sample": 10,
+          "n_universe": 318,
+          "n_boot": 1000,
+          "mean_hit_rate": 0.409,
+          "ci_95_low": 0.1,
+          "ci_95_high": 0.7,
+          "replace": false
+        },
+        "D_dashboard": {
+          "group": "D_topN_by_bwar_dashboard",
+          "n": 8,
+          "hits": 1,
+          "hit_rate": 0.125,
+          "ci_95_low": 0.0,
+          "ci_95_high": 0.375,
+          "basis": "war_delta"
+        },
+        "D_drop": {
+          "group": "D_topN_by_bwar_drop",
+          "n": 8,
+          "hits": 7,
+          "hit_rate": 0.875,
+          "ci_95_low": 0.625,
+          "ci_95_high": 1.0,
+          "basis": "war_delta"
+        }
+      },
+      "2023_to_2024": {
+        "A_dashboard": {
+          "group": "A_causalwar_picks_dashboard",
+          "n": 12,
+          "hits": 8,
+          "hit_rate": 0.6666666666666666,
+          "ci_95_low": 0.4166666666666667,
+          "ci_95_high": 0.9166666666666666,
+          "basis": "war_delta"
+        },
+        "A_drop": {
+          "group": "A_causalwar_picks_drop",
+          "n": 12,
+          "hits": 4,
+          "hit_rate": 0.3333333333333333,
+          "ci_95_low": 0.08333333333333333,
+          "ci_95_high": 0.5833333333333334,
+          "basis": "war_delta"
+        },
+        "B_dashboard": {
+          "group": "B_tag_filter_universe_dashboard",
+          "n": 317,
+          "hits": 184,
+          "hit_rate": 0.580441640378549,
+          "ci_95_low": 0.526813880126183,
+          "ci_95_high": 0.6340694006309149,
+          "basis": "war_delta"
+        },
+        "B_drop": {
+          "group": "B_tag_filter_universe_drop",
+          "n": 317,
+          "hits": 133,
+          "hit_rate": 0.4195583596214511,
+          "ci_95_low": 0.3659305993690852,
+          "ci_95_high": 0.47318611987381703,
+          "basis": "war_delta"
+        },
+        "C_dashboard": {
+          "group": "C_random_within_filter",
+          "n_sample": 12,
+          "n_universe": 317,
+          "n_boot": 1000,
+          "mean_hit_rate": 0.58725,
+          "ci_95_low": 0.3333333333333333,
+          "ci_95_high": 0.8333333333333334,
+          "replace": false
+        },
+        "C_drop": {
+          "group": "C_random_within_filter",
+          "n_sample": 12,
+          "n_universe": 317,
+          "n_boot": 1000,
+          "mean_hit_rate": 0.41275,
+          "ci_95_low": 0.16666666666666666,
+          "ci_95_high": 0.6666666666666666,
+          "replace": false
+        },
+        "D_dashboard": {
+          "group": "D_topN_by_bwar_dashboard",
+          "n": 10,
+          "hits": 2,
+          "hit_rate": 0.2,
+          "ci_95_low": 0.0,
+          "ci_95_high": 0.5,
+          "basis": "war_delta"
+        },
+        "D_drop": {
+          "group": "D_topN_by_bwar_drop",
+          "n": 10,
+          "hits": 8,
+          "hit_rate": 0.8,
+          "ci_95_low": 0.5,
+          "ci_95_high": 1.0,
+          "basis": "war_delta"
+        }
+      },
+      "2024_to_2025": {
+        "A_dashboard": {
+          "group": "A_causalwar_picks_dashboard",
+          "n": 10,
+          "hits": 9,
+          "hit_rate": 0.9,
+          "ci_95_low": 0.7,
+          "ci_95_high": 1.0,
+          "basis": "war_delta"
+        },
+        "A_drop": {
+          "group": "A_causalwar_picks_drop",
+          "n": 10,
+          "hits": 1,
+          "hit_rate": 0.1,
+          "ci_95_low": 0.0,
+          "ci_95_high": 0.3,
+          "basis": "war_delta"
+        },
+        "B_dashboard": {
+          "group": "B_tag_filter_universe_dashboard",
+          "n": 316,
+          "hits": 178,
+          "hit_rate": 0.5632911392405063,
+          "ci_95_low": 0.509493670886076,
+          "ci_95_high": 0.620253164556962,
+          "basis": "war_delta"
+        },
+        "B_drop": {
+          "group": "B_tag_filter_universe_drop",
+          "n": 316,
+          "hits": 138,
+          "hit_rate": 0.43670886075949367,
+          "ci_95_low": 0.379746835443038,
+          "ci_95_high": 0.49050632911392406,
+          "basis": "war_delta"
+        },
+        "C_dashboard": {
+          "group": "C_random_within_filter",
+          "n_sample": 10,
+          "n_universe": 316,
+          "n_boot": 1000,
+          "mean_hit_rate": 0.5630999999999999,
+          "ci_95_low": 0.3,
+          "ci_95_high": 0.9,
+          "replace": false
+        },
+        "C_drop": {
+          "group": "C_random_within_filter",
+          "n_sample": 10,
+          "n_universe": 316,
+          "n_boot": 1000,
+          "mean_hit_rate": 0.43689999999999996,
+          "ci_95_low": 0.1,
+          "ci_95_high": 0.7,
+          "replace": false
+        },
+        "D_dashboard": {
+          "group": "D_topN_by_bwar_dashboard",
+          "n": 9,
+          "hits": 1,
+          "hit_rate": 0.1111111111111111,
+          "ci_95_low": 0.0,
+          "ci_95_high": 0.3333333333333333,
+          "basis": "war_delta"
+        },
+        "D_drop": {
+          "group": "D_topN_by_bwar_drop",
+          "n": 9,
+          "hits": 8,
+          "hit_rate": 0.8888888888888888,
+          "ci_95_low": 0.6666666666666666,
+          "ci_95_high": 1.0,
+          "basis": "war_delta"
+        }
+      }
+    },
+    "ip60_war_any": {
+      "2022_to_2023": {
+        "A_dashboard": {
+          "group": "A_causalwar_picks_dashboard",
+          "n": 10,
+          "hits": 8,
+          "hit_rate": 0.8,
+          "ci_95_low": 0.5,
+          "ci_95_high": 1.0,
+          "basis": "war_delta"
+        },
+        "A_drop": {
+          "group": "A_causalwar_picks_drop",
+          "n": 10,
+          "hits": 2,
+          "hit_rate": 0.2,
+          "ci_95_low": 0.0,
+          "ci_95_high": 0.5,
+          "basis": "war_delta"
+        },
+        "B_dashboard": {
+          "group": "B_tag_filter_universe_dashboard",
+          "n": 384,
+          "hits": 229,
+          "hit_rate": 0.5963541666666666,
+          "ci_95_low": 0.5494791666666666,
+          "ci_95_high": 0.6458333333333334,
+          "basis": "war_delta"
+        },
+        "B_drop": {
+          "group": "B_tag_filter_universe_drop",
+          "n": 384,
+          "hits": 155,
+          "hit_rate": 0.4036458333333333,
+          "ci_95_low": 0.3541666666666667,
+          "ci_95_high": 0.4505208333333333,
+          "basis": "war_delta"
+        },
+        "C_dashboard": {
+          "group": "C_random_within_filter",
+          "n_sample": 10,
+          "n_universe": 384,
+          "n_boot": 1000,
+          "mean_hit_rate": 0.5937,
+          "ci_95_low": 0.3,
+          "ci_95_high": 0.9,
+          "replace": false
+        },
+        "C_drop": {
+          "group": "C_random_within_filter",
+          "n_sample": 10,
+          "n_universe": 384,
+          "n_boot": 1000,
+          "mean_hit_rate": 0.4063,
+          "ci_95_low": 0.1,
+          "ci_95_high": 0.7,
+          "replace": false
+        },
+        "D_dashboard": {
+          "group": "D_topN_by_bwar_dashboard",
+          "n": 9,
+          "hits": 1,
+          "hit_rate": 0.1111111111111111,
+          "ci_95_low": 0.0,
+          "ci_95_high": 0.3333333333333333,
+          "basis": "war_delta"
+        },
+        "D_drop": {
+          "group": "D_topN_by_bwar_drop",
+          "n": 9,
+          "hits": 8,
+          "hit_rate": 0.8888888888888888,
+          "ci_95_low": 0.6666666666666666,
+          "ci_95_high": 1.0,
+          "basis": "war_delta"
+        }
+      },
+      "2023_to_2024": {
+        "A_dashboard": {
+          "group": "A_causalwar_picks_dashboard",
+          "n": 12,
+          "hits": 8,
+          "hit_rate": 0.6666666666666666,
+          "ci_95_low": 0.4166666666666667,
+          "ci_95_high": 0.9166666666666666,
+          "basis": "war_delta"
+        },
+        "A_drop": {
+          "group": "A_causalwar_picks_drop",
+          "n": 12,
+          "hits": 4,
+          "hit_rate": 0.3333333333333333,
+          "ci_95_low": 0.08333333333333333,
+          "ci_95_high": 0.5833333333333334,
+          "basis": "war_delta"
+        },
+        "B_dashboard": {
+          "group": "B_tag_filter_universe_dashboard",
+          "n": 387,
+          "hits": 215,
+          "hit_rate": 0.5555555555555556,
+          "ci_95_low": 0.5038759689922481,
+          "ci_95_high": 0.6047157622739017,
+          "basis": "war_delta"
+        },
+        "B_drop": {
+          "group": "B_tag_filter_universe_drop",
+          "n": 387,
+          "hits": 172,
+          "hit_rate": 0.4444444444444444,
+          "ci_95_low": 0.3952842377260982,
+          "ci_95_high": 0.49612403100775193,
+          "basis": "war_delta"
+        },
+        "C_dashboard": {
+          "group": "C_random_within_filter",
+          "n_sample": 12,
+          "n_universe": 387,
+          "n_boot": 1000,
+          "mean_hit_rate": 0.5591666666666667,
+          "ci_95_low": 0.3333333333333333,
+          "ci_95_high": 0.8333333333333334,
+          "replace": false
+        },
+        "C_drop": {
+          "group": "C_random_within_filter",
+          "n_sample": 12,
+          "n_universe": 387,
+          "n_boot": 1000,
+          "mean_hit_rate": 0.44083333333333335,
+          "ci_95_low": 0.16666666666666666,
+          "ci_95_high": 0.6666666666666666,
+          "replace": false
+        },
+        "D_dashboard": {
+          "group": "D_topN_by_bwar_dashboard",
+          "n": 12,
+          "hits": 1,
+          "hit_rate": 0.08333333333333333,
+          "ci_95_low": 0.0,
+          "ci_95_high": 0.25,
+          "basis": "war_delta"
+        },
+        "D_drop": {
+          "group": "D_topN_by_bwar_drop",
+          "n": 12,
+          "hits": 11,
+          "hit_rate": 0.9166666666666666,
+          "ci_95_low": 0.75,
+          "ci_95_high": 1.0,
+          "basis": "war_delta"
+        }
+      },
+      "2024_to_2025": {
+        "A_dashboard": {
+          "group": "A_causalwar_picks_dashboard",
+          "n": 10,
+          "hits": 9,
+          "hit_rate": 0.9,
+          "ci_95_low": 0.7,
+          "ci_95_high": 1.0,
+          "basis": "war_delta"
+        },
+        "A_drop": {
+          "group": "A_causalwar_picks_drop",
+          "n": 10,
+          "hits": 1,
+          "hit_rate": 0.1,
+          "ci_95_low": 0.0,
+          "ci_95_high": 0.3,
+          "basis": "war_delta"
+        },
+        "B_dashboard": {
+          "group": "B_tag_filter_universe_dashboard",
+          "n": 388,
+          "hits": 215,
+          "hit_rate": 0.5541237113402062,
+          "ci_95_low": 0.5077319587628866,
+          "ci_95_high": 0.6030927835051546,
+          "basis": "war_delta"
+        },
+        "B_drop": {
+          "group": "B_tag_filter_universe_drop",
+          "n": 388,
+          "hits": 173,
+          "hit_rate": 0.44587628865979384,
+          "ci_95_low": 0.39690721649484534,
+          "ci_95_high": 0.49226804123711343,
+          "basis": "war_delta"
+        },
+        "C_dashboard": {
+          "group": "C_random_within_filter",
+          "n_sample": 10,
+          "n_universe": 388,
+          "n_boot": 1000,
+          "mean_hit_rate": 0.555,
+          "ci_95_low": 0.2,
+          "ci_95_high": 0.8,
+          "replace": false
+        },
+        "C_drop": {
+          "group": "C_random_within_filter",
+          "n_sample": 10,
+          "n_universe": 388,
+          "n_boot": 1000,
+          "mean_hit_rate": 0.445,
+          "ci_95_low": 0.2,
+          "ci_95_high": 0.8,
+          "replace": false
+        },
+        "D_dashboard": {
+          "group": "D_topN_by_bwar_dashboard",
+          "n": 9,
+          "hits": 1,
+          "hit_rate": 0.1111111111111111,
+          "ci_95_low": 0.0,
+          "ci_95_high": 0.3333333333333333,
+          "basis": "war_delta"
+        },
+        "D_drop": {
+          "group": "D_topN_by_bwar_drop",
+          "n": 9,
+          "hits": 8,
+          "hit_rate": 0.8888888888888888,
+          "ci_95_low": 0.6666666666666666,
+          "ci_95_high": 1.0,
+          "basis": "war_delta"
+        }
+      }
+    },
+    "ip70_war_any": {
+      "2022_to_2023": {
+        "A_dashboard": {
+          "group": "A_causalwar_picks_dashboard",
+          "n": 10,
+          "hits": 8,
+          "hit_rate": 0.8,
+          "ci_95_low": 0.5,
+          "ci_95_high": 1.0,
+          "basis": "war_delta"
+        },
+        "A_drop": {
+          "group": "A_causalwar_picks_drop",
+          "n": 10,
+          "hits": 2,
+          "hit_rate": 0.2,
+          "ci_95_low": 0.0,
+          "ci_95_high": 0.5,
+          "basis": "war_delta"
+        },
+        "B_dashboard": {
+          "group": "B_tag_filter_universe_dashboard",
+          "n": 457,
+          "hits": 259,
+          "hit_rate": 0.5667396061269147,
+          "ci_95_low": 0.525109409190372,
+          "ci_95_high": 0.6105032822757112,
+          "basis": "war_delta"
+        },
+        "B_drop": {
+          "group": "B_tag_filter_universe_drop",
+          "n": 457,
+          "hits": 198,
+          "hit_rate": 0.43326039387308535,
+          "ci_95_low": 0.38949671772428884,
+          "ci_95_high": 0.474890590809628,
+          "basis": "war_delta"
+        },
+        "C_dashboard": {
+          "group": "C_random_within_filter",
+          "n_sample": 10,
+          "n_universe": 457,
+          "n_boot": 1000,
+          "mean_hit_rate": 0.5675999999999999,
+          "ci_95_low": 0.3,
+          "ci_95_high": 0.9,
+          "replace": false
+        },
+        "C_drop": {
+          "group": "C_random_within_filter",
+          "n_sample": 10,
+          "n_universe": 457,
+          "n_boot": 1000,
+          "mean_hit_rate": 0.4324,
+          "ci_95_low": 0.1,
+          "ci_95_high": 0.7,
+          "replace": false
+        },
+        "D_dashboard": {
+          "group": "D_topN_by_bwar_dashboard",
+          "n": 9,
+          "hits": 0,
+          "hit_rate": 0.0,
+          "ci_95_low": 0.0,
+          "ci_95_high": 0.0,
+          "basis": "war_delta"
+        },
+        "D_drop": {
+          "group": "D_topN_by_bwar_drop",
+          "n": 9,
+          "hits": 9,
+          "hit_rate": 1.0,
+          "ci_95_low": 1.0,
+          "ci_95_high": 1.0,
+          "basis": "war_delta"
+        }
+      },
+      "2023_to_2024": {
+        "A_dashboard": {
+          "group": "A_causalwar_picks_dashboard",
+          "n": 12,
+          "hits": 8,
+          "hit_rate": 0.6666666666666666,
+          "ci_95_low": 0.4166666666666667,
+          "ci_95_high": 0.9166666666666666,
+          "basis": "war_delta"
+        },
+        "A_drop": {
+          "group": "A_causalwar_picks_drop",
+          "n": 12,
+          "hits": 4,
+          "hit_rate": 0.3333333333333333,
+          "ci_95_low": 0.08333333333333333,
+          "ci_95_high": 0.5833333333333334,
+          "basis": "war_delta"
+        },
+        "B_dashboard": {
+          "group": "B_tag_filter_universe_dashboard",
+          "n": 452,
+          "hits": 242,
+          "hit_rate": 0.5353982300884956,
+          "ci_95_low": 0.4889380530973451,
+          "ci_95_high": 0.5796460176991151,
+          "basis": "war_delta"
+        },
+        "B_drop": {
+          "group": "B_tag_filter_universe_drop",
+          "n": 452,
+          "hits": 210,
+          "hit_rate": 0.4646017699115044,
+          "ci_95_low": 0.42035398230088494,
+          "ci_95_high": 0.5110619469026548,
+          "basis": "war_delta"
+        },
+        "C_dashboard": {
+          "group": "C_random_within_filter",
+          "n_sample": 12,
+          "n_universe": 452,
+          "n_boot": 1000,
+          "mean_hit_rate": 0.5275833333333334,
+          "ci_95_low": 0.25,
+          "ci_95_high": 0.8333333333333334,
+          "replace": false
+        },
+        "C_drop": {
+          "group": "C_random_within_filter",
+          "n_sample": 12,
+          "n_universe": 452,
+          "n_boot": 1000,
+          "mean_hit_rate": 0.47241666666666665,
+          "ci_95_low": 0.16666666666666666,
+          "ci_95_high": 0.75,
+          "replace": false
+        },
+        "D_dashboard": {
+          "group": "D_topN_by_bwar_dashboard",
+          "n": 10,
+          "hits": 1,
+          "hit_rate": 0.1,
+          "ci_95_low": 0.0,
+          "ci_95_high": 0.3,
+          "basis": "war_delta"
+        },
+        "D_drop": {
+          "group": "D_topN_by_bwar_drop",
+          "n": 10,
+          "hits": 9,
+          "hit_rate": 0.9,
+          "ci_95_low": 0.7,
+          "ci_95_high": 1.0,
+          "basis": "war_delta"
+        }
+      },
+      "2024_to_2025": {
+        "A_dashboard": {
+          "group": "A_causalwar_picks_dashboard",
+          "n": 10,
+          "hits": 9,
+          "hit_rate": 0.9,
+          "ci_95_low": 0.7,
+          "ci_95_high": 1.0,
+          "basis": "war_delta"
+        },
+        "A_drop": {
+          "group": "A_causalwar_picks_drop",
+          "n": 10,
+          "hits": 1,
+          "hit_rate": 0.1,
+          "ci_95_low": 0.0,
+          "ci_95_high": 0.3,
+          "basis": "war_delta"
+        },
+        "B_dashboard": {
+          "group": "B_tag_filter_universe_dashboard",
+          "n": 447,
+          "hits": 238,
+          "hit_rate": 0.5324384787472036,
+          "ci_95_low": 0.4854586129753915,
+          "ci_95_high": 0.5794183445190156,
+          "basis": "war_delta"
+        },
+        "B_drop": {
+          "group": "B_tag_filter_universe_drop",
+          "n": 447,
+          "hits": 209,
+          "hit_rate": 0.46756152125279643,
+          "ci_95_low": 0.42058165548098436,
+          "ci_95_high": 0.5145413870246085,
+          "basis": "war_delta"
+        },
+        "C_dashboard": {
+          "group": "C_random_within_filter",
+          "n_sample": 10,
+          "n_universe": 447,
+          "n_boot": 1000,
+          "mean_hit_rate": 0.5319,
+          "ci_95_low": 0.2,
+          "ci_95_high": 0.8,
+          "replace": false
+        },
+        "C_drop": {
+          "group": "C_random_within_filter",
+          "n_sample": 10,
+          "n_universe": 447,
+          "n_boot": 1000,
+          "mean_hit_rate": 0.4681,
+          "ci_95_low": 0.2,
+          "ci_95_high": 0.8,
+          "replace": false
+        },
+        "D_dashboard": {
+          "group": "D_topN_by_bwar_dashboard",
+          "n": 10,
+          "hits": 1,
+          "hit_rate": 0.1,
+          "ci_95_low": 0.0,
+          "ci_95_high": 0.3,
+          "basis": "war_delta"
+        },
+        "D_drop": {
+          "group": "D_topN_by_bwar_drop",
+          "n": 10,
+          "hits": 9,
+          "hit_rate": 0.9,
+          "ci_95_low": 0.7,
+          "ci_95_high": 1.0,
+          "basis": "war_delta"
+        }
+      }
+    },
+    "ip50_war_match_group_a": {
+      "2022_to_2023": {
+        "A_dashboard": {
+          "group": "A_causalwar_picks_dashboard",
+          "n": 10,
+          "hits": 8,
+          "hit_rate": 0.8,
+          "ci_95_low": 0.5,
+          "ci_95_high": 1.0,
+          "basis": "war_delta"
+        },
+        "A_drop": {
+          "group": "A_causalwar_picks_drop",
+          "n": 10,
+          "hits": 2,
+          "hit_rate": 0.2,
+          "ci_95_low": 0.0,
+          "ci_95_high": 0.5,
+          "basis": "war_delta"
+        },
+        "B_dashboard": {
+          "group": "B_tag_filter_universe_dashboard",
+          "n": 273,
+          "hits": 178,
+          "hit_rate": 0.652014652014652,
+          "ci_95_low": 0.6006410256410257,
+          "ci_95_high": 0.706959706959707,
+          "basis": "war_delta"
+        },
+        "B_drop": {
+          "group": "B_tag_filter_universe_drop",
+          "n": 273,
+          "hits": 95,
+          "hit_rate": 0.34798534798534797,
+          "ci_95_low": 0.29304029304029305,
+          "ci_95_high": 0.3993589743589743,
+          "basis": "war_delta"
+        },
+        "C_dashboard": {
+          "group": "C_random_within_filter",
+          "n_sample": 10,
+          "n_universe": 273,
+          "n_boot": 1000,
+          "mean_hit_rate": 0.663,
+          "ci_95_low": 0.4,
+          "ci_95_high": 0.9,
+          "replace": false
+        },
+        "C_drop": {
+          "group": "C_random_within_filter",
+          "n_sample": 10,
+          "n_universe": 273,
+          "n_boot": 1000,
+          "mean_hit_rate": 0.337,
+          "ci_95_low": 0.1,
+          "ci_95_high": 0.6,
+          "replace": false
+        },
+        "D_dashboard": {
+          "group": "D_topN_by_bwar_dashboard",
+          "n": 7,
+          "hits": 1,
+          "hit_rate": 0.14285714285714285,
+          "ci_95_low": 0.0,
+          "ci_95_high": 0.42857142857142855,
+          "basis": "war_delta"
+        },
+        "D_drop": {
+          "group": "D_topN_by_bwar_drop",
+          "n": 7,
+          "hits": 6,
+          "hit_rate": 0.8571428571428571,
+          "ci_95_low": 0.5714285714285714,
+          "ci_95_high": 1.0,
+          "basis": "war_delta"
+        }
+      },
+      "2023_to_2024": {
+        "A_dashboard": {
+          "group": "A_causalwar_picks_dashboard",
+          "n": 12,
+          "hits": 8,
+          "hit_rate": 0.6666666666666666,
+          "ci_95_low": 0.4166666666666667,
+          "ci_95_high": 0.9166666666666666,
+          "basis": "war_delta"
+        },
+        "A_drop": {
+          "group": "A_causalwar_picks_drop",
+          "n": 12,
+          "hits": 4,
+          "hit_rate": 0.3333333333333333,
+          "ci_95_low": 0.08333333333333333,
+          "ci_95_high": 0.5833333333333334,
+          "basis": "war_delta"
+        },
+        "B_dashboard": {
+          "group": "B_tag_filter_universe_dashboard",
+          "n": 271,
+          "hits": 170,
+          "hit_rate": 0.6273062730627307,
+          "ci_95_low": 0.5718634686346864,
+          "ci_95_high": 0.6790590405904058,
+          "basis": "war_delta"
+        },
+        "B_drop": {
+          "group": "B_tag_filter_universe_drop",
+          "n": 271,
+          "hits": 101,
+          "hit_rate": 0.3726937269372694,
+          "ci_95_low": 0.32094095940959416,
+          "ci_95_high": 0.42813653136531354,
+          "basis": "war_delta"
+        },
+        "C_dashboard": {
+          "group": "C_random_within_filter",
+          "n_sample": 12,
+          "n_universe": 271,
+          "n_boot": 1000,
+          "mean_hit_rate": 0.633,
+          "ci_95_low": 0.3333333333333333,
+          "ci_95_high": 0.9166666666666666,
+          "replace": false
+        },
+        "C_drop": {
+          "group": "C_random_within_filter",
+          "n_sample": 12,
+          "n_universe": 271,
+          "n_boot": 1000,
+          "mean_hit_rate": 0.367,
+          "ci_95_low": 0.08333333333333333,
+          "ci_95_high": 0.6666666666666666,
+          "replace": false
+        },
+        "D_dashboard": {
+          "group": "D_topN_by_bwar_dashboard",
+          "n": 6,
+          "hits": 2,
+          "hit_rate": 0.3333333333333333,
+          "ci_95_low": 0.0,
+          "ci_95_high": 0.6666666666666666,
+          "basis": "war_delta"
+        },
+        "D_drop": {
+          "group": "D_topN_by_bwar_drop",
+          "n": 6,
+          "hits": 4,
+          "hit_rate": 0.6666666666666666,
+          "ci_95_low": 0.3333333333333333,
+          "ci_95_high": 1.0,
+          "basis": "war_delta"
+        }
+      },
+      "2024_to_2025": {
+        "A_dashboard": {
+          "group": "A_causalwar_picks_dashboard",
+          "n": 10,
+          "hits": 9,
+          "hit_rate": 0.9,
+          "ci_95_low": 0.7,
+          "ci_95_high": 1.0,
+          "basis": "war_delta"
+        },
+        "A_drop": {
+          "group": "A_causalwar_picks_drop",
+          "n": 10,
+          "hits": 1,
+          "hit_rate": 0.1,
+          "ci_95_low": 0.0,
+          "ci_95_high": 0.3,
+          "basis": "war_delta"
+        },
+        "B_dashboard": {
+          "group": "B_tag_filter_universe_dashboard",
+          "n": 264,
+          "hits": 161,
+          "hit_rate": 0.6098484848484849,
+          "ci_95_low": 0.5492424242424242,
+          "ci_95_high": 0.6667613636363635,
+          "basis": "war_delta"
+        },
+        "B_drop": {
+          "group": "B_tag_filter_universe_drop",
+          "n": 264,
+          "hits": 103,
+          "hit_rate": 0.39015151515151514,
+          "ci_95_low": 0.33323863636363643,
+          "ci_95_high": 0.45075757575757575,
+          "basis": "war_delta"
+        },
+        "C_dashboard": {
+          "group": "C_random_within_filter",
+          "n_sample": 10,
+          "n_universe": 264,
+          "n_boot": 1000,
+          "mean_hit_rate": 0.6166999999999999,
+          "ci_95_low": 0.3,
+          "ci_95_high": 0.9,
+          "replace": false
+        },
+        "C_drop": {
+          "group": "C_random_within_filter",
+          "n_sample": 10,
+          "n_universe": 264,
+          "n_boot": 1000,
+          "mean_hit_rate": 0.3833000000000001,
+          "ci_95_low": 0.1,
+          "ci_95_high": 0.7,
+          "replace": false
+        },
+        "D_dashboard": {
+          "group": "D_topN_by_bwar_dashboard",
+          "n": 7,
+          "hits": 1,
+          "hit_rate": 0.14285714285714285,
+          "ci_95_low": 0.0,
+          "ci_95_high": 0.42857142857142855,
+          "basis": "war_delta"
+        },
+        "D_drop": {
+          "group": "D_topN_by_bwar_drop",
+          "n": 7,
+          "hits": 6,
+          "hit_rate": 0.8571428571428571,
+          "ci_95_low": 0.5714285714285714,
+          "ci_95_high": 1.0,
+          "basis": "war_delta"
+        }
+      }
+    },
+    "ip60_war_match_group_a": {
+      "2022_to_2023": {
+        "A_dashboard": {
+          "group": "A_causalwar_picks_dashboard",
+          "n": 10,
+          "hits": 8,
+          "hit_rate": 0.8,
+          "ci_95_low": 0.5,
+          "ci_95_high": 1.0,
+          "basis": "war_delta"
+        },
+        "A_drop": {
+          "group": "A_causalwar_picks_drop",
+          "n": 10,
+          "hits": 2,
+          "hit_rate": 0.2,
+          "ci_95_low": 0.0,
+          "ci_95_high": 0.5,
+          "basis": "war_delta"
+        },
+        "B_dashboard": {
+          "group": "B_tag_filter_universe_dashboard",
+          "n": 306,
+          "hits": 205,
+          "hit_rate": 0.6699346405228758,
+          "ci_95_low": 0.6142973856209152,
+          "ci_95_high": 0.7222222222222222,
+          "basis": "war_delta"
+        },
+        "B_drop": {
+          "group": "B_tag_filter_universe_drop",
+          "n": 306,
+          "hits": 101,
+          "hit_rate": 0.3300653594771242,
+          "ci_95_low": 0.2777777777777778,
+          "ci_95_high": 0.38570261437908493,
+          "basis": "war_delta"
+        },
+        "C_dashboard": {
+          "group": "C_random_within_filter",
+          "n_sample": 10,
+          "n_universe": 306,
+          "n_boot": 1000,
+          "mean_hit_rate": 0.6672,
+          "ci_95_low": 0.4,
+          "ci_95_high": 0.9,
+          "replace": false
+        },
+        "C_drop": {
+          "group": "C_random_within_filter",
+          "n_sample": 10,
+          "n_universe": 306,
+          "n_boot": 1000,
+          "mean_hit_rate": 0.3328,
+          "ci_95_low": 0.1,
+          "ci_95_high": 0.6,
+          "replace": false
+        },
+        "D_dashboard": {
+          "group": "D_topN_by_bwar_dashboard",
+          "n": 7,
+          "hits": 1,
+          "hit_rate": 0.14285714285714285,
+          "ci_95_low": 0.0,
+          "ci_95_high": 0.42857142857142855,
+          "basis": "war_delta"
+        },
+        "D_drop": {
+          "group": "D_topN_by_bwar_drop",
+          "n": 7,
+          "hits": 6,
+          "hit_rate": 0.8571428571428571,
+          "ci_95_low": 0.5714285714285714,
+          "ci_95_high": 1.0,
+          "basis": "war_delta"
+        }
+      },
+      "2023_to_2024": {
+        "A_dashboard": {
+          "group": "A_causalwar_picks_dashboard",
+          "n": 12,
+          "hits": 8,
+          "hit_rate": 0.6666666666666666,
+          "ci_95_low": 0.4166666666666667,
+          "ci_95_high": 0.9166666666666666,
+          "basis": "war_delta"
+        },
+        "A_drop": {
+          "group": "A_causalwar_picks_drop",
+          "n": 12,
+          "hits": 4,
+          "hit_rate": 0.3333333333333333,
+          "ci_95_low": 0.08333333333333333,
+          "ci_95_high": 0.5833333333333334,
+          "basis": "war_delta"
+        },
+        "B_dashboard": {
+          "group": "B_tag_filter_universe_dashboard",
+          "n": 307,
+          "hits": 193,
+          "hit_rate": 0.6286644951140065,
+          "ci_95_low": 0.5765472312703583,
+          "ci_95_high": 0.6807817589576547,
+          "basis": "war_delta"
+        },
+        "B_drop": {
+          "group": "B_tag_filter_universe_drop",
+          "n": 307,
+          "hits": 114,
+          "hit_rate": 0.3713355048859935,
+          "ci_95_low": 0.31921824104234525,
+          "ci_95_high": 0.4234527687296417,
+          "basis": "war_delta"
+        },
+        "C_dashboard": {
+          "group": "C_random_within_filter",
+          "n_sample": 12,
+          "n_universe": 307,
+          "n_boot": 1000,
+          "mean_hit_rate": 0.6350833333333332,
+          "ci_95_low": 0.3333333333333333,
+          "ci_95_high": 0.8333333333333334,
+          "replace": false
+        },
+        "C_drop": {
+          "group": "C_random_within_filter",
+          "n_sample": 12,
+          "n_universe": 307,
+          "n_boot": 1000,
+          "mean_hit_rate": 0.3649166666666666,
+          "ci_95_low": 0.16666666666666666,
+          "ci_95_high": 0.6666666666666666,
+          "replace": false
+        },
+        "D_dashboard": {
+          "group": "D_topN_by_bwar_dashboard",
+          "n": 7,
+          "hits": 1,
+          "hit_rate": 0.14285714285714285,
+          "ci_95_low": 0.0,
+          "ci_95_high": 0.42857142857142855,
+          "basis": "war_delta"
+        },
+        "D_drop": {
+          "group": "D_topN_by_bwar_drop",
+          "n": 7,
+          "hits": 6,
+          "hit_rate": 0.8571428571428571,
+          "ci_95_low": 0.5714285714285714,
+          "ci_95_high": 1.0,
+          "basis": "war_delta"
+        }
+      },
+      "2024_to_2025": {
+        "A_dashboard": {
+          "group": "A_causalwar_picks_dashboard",
+          "n": 10,
+          "hits": 9,
+          "hit_rate": 0.9,
+          "ci_95_low": 0.7,
+          "ci_95_high": 1.0,
+          "basis": "war_delta"
+        },
+        "A_drop": {
+          "group": "A_causalwar_picks_drop",
+          "n": 10,
+          "hits": 1,
+          "hit_rate": 0.1,
+          "ci_95_low": 0.0,
+          "ci_95_high": 0.3,
+          "basis": "war_delta"
+        },
+        "B_dashboard": {
+          "group": "B_tag_filter_universe_dashboard",
+          "n": 307,
+          "hits": 188,
+          "hit_rate": 0.6123778501628665,
+          "ci_95_low": 0.5570032573289903,
+          "ci_95_high": 0.6677524429967426,
+          "basis": "war_delta"
+        },
+        "B_drop": {
+          "group": "B_tag_filter_universe_drop",
+          "n": 307,
+          "hits": 119,
+          "hit_rate": 0.38762214983713356,
+          "ci_95_low": 0.3322475570032573,
+          "ci_95_high": 0.44299674267100975,
+          "basis": "war_delta"
+        },
+        "C_dashboard": {
+          "group": "C_random_within_filter",
+          "n_sample": 10,
+          "n_universe": 307,
+          "n_boot": 1000,
+          "mean_hit_rate": 0.6132,
+          "ci_95_low": 0.3,
+          "ci_95_high": 0.9,
+          "replace": false
+        },
+        "C_drop": {
+          "group": "C_random_within_filter",
+          "n_sample": 10,
+          "n_universe": 307,
+          "n_boot": 1000,
+          "mean_hit_rate": 0.3868000000000001,
+          "ci_95_low": 0.1,
+          "ci_95_high": 0.7,
+          "replace": false
+        },
+        "D_dashboard": {
+          "group": "D_topN_by_bwar_dashboard",
+          "n": 10,
+          "hits": 2,
+          "hit_rate": 0.2,
+          "ci_95_low": 0.0,
+          "ci_95_high": 0.5,
+          "basis": "war_delta"
+        },
+        "D_drop": {
+          "group": "D_topN_by_bwar_drop",
+          "n": 10,
+          "hits": 8,
+          "hit_rate": 0.8,
+          "ci_95_low": 0.5,
+          "ci_95_high": 1.0,
+          "basis": "war_delta"
+        }
+      }
+    },
+    "ip70_war_match_group_a": {
+      "2022_to_2023": {
+        "A_dashboard": {
+          "group": "A_causalwar_picks_dashboard",
+          "n": 10,
+          "hits": 8,
+          "hit_rate": 0.8,
+          "ci_95_low": 0.5,
+          "ci_95_high": 1.0,
+          "basis": "war_delta"
+        },
+        "A_drop": {
+          "group": "A_causalwar_picks_drop",
+          "n": 10,
+          "hits": 2,
+          "hit_rate": 0.2,
+          "ci_95_low": 0.0,
+          "ci_95_high": 0.5,
+          "basis": "war_delta"
+        },
+        "B_dashboard": {
+          "group": "B_tag_filter_universe_dashboard",
+          "n": 331,
+          "hits": 225,
+          "hit_rate": 0.6797583081570997,
+          "ci_95_low": 0.6283987915407855,
+          "ci_95_high": 0.7341389728096677,
+          "basis": "war_delta"
+        },
+        "B_drop": {
+          "group": "B_tag_filter_universe_drop",
+          "n": 331,
+          "hits": 106,
+          "hit_rate": 0.3202416918429003,
+          "ci_95_low": 0.26586102719033233,
+          "ci_95_high": 0.3716012084592145,
+          "basis": "war_delta"
+        },
+        "C_dashboard": {
+          "group": "C_random_within_filter",
+          "n_sample": 10,
+          "n_universe": 331,
+          "n_boot": 1000,
+          "mean_hit_rate": 0.6821999999999999,
+          "ci_95_low": 0.4,
+          "ci_95_high": 1.0,
+          "replace": false
+        },
+        "C_drop": {
+          "group": "C_random_within_filter",
+          "n_sample": 10,
+          "n_universe": 331,
+          "n_boot": 1000,
+          "mean_hit_rate": 0.3178,
+          "ci_95_low": 0.0,
+          "ci_95_high": 0.6,
+          "replace": false
+        },
+        "D_dashboard": {
+          "group": "D_topN_by_bwar_dashboard",
+          "n": 8,
+          "hits": 3,
+          "hit_rate": 0.375,
+          "ci_95_low": 0.0,
+          "ci_95_high": 0.75,
+          "basis": "war_delta"
+        },
+        "D_drop": {
+          "group": "D_topN_by_bwar_drop",
+          "n": 8,
+          "hits": 5,
+          "hit_rate": 0.625,
+          "ci_95_low": 0.25,
+          "ci_95_high": 1.0,
+          "basis": "war_delta"
+        }
+      },
+      "2023_to_2024": {
+        "A_dashboard": {
+          "group": "A_causalwar_picks_dashboard",
+          "n": 12,
+          "hits": 8,
+          "hit_rate": 0.6666666666666666,
+          "ci_95_low": 0.4166666666666667,
+          "ci_95_high": 0.9166666666666666,
+          "basis": "war_delta"
+        },
+        "A_drop": {
+          "group": "A_causalwar_picks_drop",
+          "n": 12,
+          "hits": 4,
+          "hit_rate": 0.3333333333333333,
+          "ci_95_low": 0.08333333333333333,
+          "ci_95_high": 0.5833333333333334,
+          "basis": "war_delta"
+        },
+        "B_dashboard": {
+          "group": "B_tag_filter_universe_dashboard",
+          "n": 328,
+          "hits": 210,
+          "hit_rate": 0.6402439024390244,
+          "ci_95_low": 0.5884146341463414,
+          "ci_95_high": 0.6920731707317073,
+          "basis": "war_delta"
+        },
+        "B_drop": {
+          "group": "B_tag_filter_universe_drop",
+          "n": 328,
+          "hits": 118,
+          "hit_rate": 0.3597560975609756,
+          "ci_95_low": 0.3079268292682927,
+          "ci_95_high": 0.4115853658536585,
+          "basis": "war_delta"
+        },
+        "C_dashboard": {
+          "group": "C_random_within_filter",
+          "n_sample": 12,
+          "n_universe": 328,
+          "n_boot": 1000,
+          "mean_hit_rate": 0.64625,
+          "ci_95_low": 0.3333333333333333,
+          "ci_95_high": 0.9166666666666666,
+          "replace": false
+        },
+        "C_drop": {
+          "group": "C_random_within_filter",
+          "n_sample": 12,
+          "n_universe": 328,
+          "n_boot": 1000,
+          "mean_hit_rate": 0.35375,
+          "ci_95_low": 0.08333333333333333,
+          "ci_95_high": 0.6666666666666666,
+          "replace": false
+        },
+        "D_dashboard": {
+          "group": "D_topN_by_bwar_dashboard",
+          "n": 6,
+          "hits": 2,
+          "hit_rate": 0.3333333333333333,
+          "ci_95_low": 0.0,
+          "ci_95_high": 0.6666666666666666,
+          "basis": "war_delta"
+        },
+        "D_drop": {
+          "group": "D_topN_by_bwar_drop",
+          "n": 6,
+          "hits": 4,
+          "hit_rate": 0.6666666666666666,
+          "ci_95_low": 0.3333333333333333,
+          "ci_95_high": 1.0,
+          "basis": "war_delta"
+        }
+      },
+      "2024_to_2025": {
+        "A_dashboard": {
+          "group": "A_causalwar_picks_dashboard",
+          "n": 10,
+          "hits": 9,
+          "hit_rate": 0.9,
+          "ci_95_low": 0.7,
+          "ci_95_high": 1.0,
+          "basis": "war_delta"
+        },
+        "A_drop": {
+          "group": "A_causalwar_picks_drop",
+          "n": 10,
+          "hits": 1,
+          "hit_rate": 0.1,
+          "ci_95_low": 0.0,
+          "ci_95_high": 0.3,
+          "basis": "war_delta"
+        },
+        "B_dashboard": {
+          "group": "B_tag_filter_universe_dashboard",
+          "n": 327,
+          "hits": 200,
+          "hit_rate": 0.6116207951070336,
+          "ci_95_low": 0.5626911314984709,
+          "ci_95_high": 0.6605504587155964,
+          "basis": "war_delta"
+        },
+        "B_drop": {
+          "group": "B_tag_filter_universe_drop",
+          "n": 327,
+          "hits": 127,
+          "hit_rate": 0.38837920489296635,
+          "ci_95_low": 0.3394495412844037,
+          "ci_95_high": 0.43730886850152906,
+          "basis": "war_delta"
+        },
+        "C_dashboard": {
+          "group": "C_random_within_filter",
+          "n_sample": 10,
+          "n_universe": 327,
+          "n_boot": 1000,
+          "mean_hit_rate": 0.6173999999999998,
+          "ci_95_low": 0.3,
+          "ci_95_high": 0.9,
+          "replace": false
+        },
+        "C_drop": {
+          "group": "C_random_within_filter",
+          "n_sample": 10,
+          "n_universe": 327,
+          "n_boot": 1000,
+          "mean_hit_rate": 0.3826,
+          "ci_95_low": 0.1,
+          "ci_95_high": 0.7,
+          "replace": false
+        },
+        "D_dashboard": {
+          "group": "D_topN_by_bwar_dashboard",
+          "n": 10,
+          "hits": 2,
+          "hit_rate": 0.2,
+          "ci_95_low": 0.0,
+          "ci_95_high": 0.5,
+          "basis": "war_delta"
+        },
+        "D_drop": {
+          "group": "D_topN_by_bwar_drop",
+          "n": 10,
+          "hits": 8,
+          "hit_rate": 0.8,
+          "ci_95_low": 0.5,
+          "ci_95_high": 1.0,
+          "basis": "war_delta"
+        }
+      }
+    }
+  },
+  "pooled": {
+    "ip50_war_positive": {
+      "A_dashboard": {
+        "group": "A_pooled_dashboard_ip50",
+        "n": 32,
+        "hits": 25,
+        "hit_rate": 0.78125,
+        "ci_95_low": 0.625,
+        "ci_95_high": 0.90625,
+        "basis": "war_delta"
+      },
+      "A_drop": {
+        "group": "A_pooled_drop_ip50",
+        "n": 32,
+        "hits": 7,
+        "hit_rate": 0.21875,
+        "ci_95_low": 0.09375,
+        "ci_95_high": 0.375,
+        "basis": "war_delta"
+      },
+      "D_dashboard": {
+        "group": "D_pooled_dashboard_ip50",
+        "n": 28,
+        "hits": 4,
+        "hit_rate": 0.14285714285714285,
+        "ci_95_low": 0.03571428571428571,
+        "ci_95_high": 0.2857142857142857,
+        "basis": "war_delta"
+      },
+      "D_drop": {
+        "group": "D_pooled_drop_ip50",
+        "n": 28,
+        "hits": 24,
+        "hit_rate": 0.8571428571428571,
+        "ci_95_low": 0.7142857142857143,
+        "ci_95_high": 0.9642857142857143,
+        "basis": "war_delta"
+      },
+      "B_dashboard": {
+        "group": "B_pooled_dashboard_ip50_positive",
+        "n": 497,
+        "hits": 197,
+        "hit_rate": 0.3963782696177062,
+        "ci_95_low": 0.3561368209255533,
+        "ci_95_high": 0.44064386317907445,
+        "basis": "war_delta"
+      },
+      "B_drop": {
+        "group": "B_pooled_drop_ip50_positive",
+        "n": 497,
+        "hits": 300,
+        "hit_rate": 0.6036217303822937,
+        "ci_95_low": 0.5593561368209256,
+        "ci_95_high": 0.6438631790744467,
+        "basis": "war_delta"
+      },
+      "C_dashboard": {
+        "group": "C_random_within_filter",
+        "n_sample": 32,
+        "n_universe": 497,
+        "n_boot": 1000,
+        "mean_hit_rate": 0.39171875,
+        "ci_95_low": 0.25,
+        "ci_95_high": 0.5625,
+        "replace": false
+      },
+      "C_drop": {
+        "group": "C_random_within_filter",
+        "n_sample": 32,
+        "n_universe": 497,
+        "n_boot": 1000,
+        "mean_hit_rate": 0.60828125,
+        "ci_95_low": 0.4375,
+        "ci_95_high": 0.75,
+        "replace": false
+      }
+    },
+    "ip60_war_positive": {
+      "A_dashboard": {
+        "group": "A_pooled_dashboard_ip60",
+        "n": 32,
+        "hits": 25,
+        "hit_rate": 0.78125,
+        "ci_95_low": 0.625,
+        "ci_95_high": 0.90625,
+        "basis": "war_delta"
+      },
+      "A_drop": {
+        "group": "A_pooled_drop_ip60",
+        "n": 32,
+        "hits": 7,
+        "hit_rate": 0.21875,
+        "ci_95_low": 0.09375,
+        "ci_95_high": 0.375,
+        "basis": "war_delta"
+      },
+      "D_dashboard": {
+        "group": "D_pooled_dashboard_ip60",
+        "n": 30,
+        "hits": 3,
+        "hit_rate": 0.1,
+        "ci_95_low": 0.0,
+        "ci_95_high": 0.23333333333333334,
+        "basis": "war_delta"
+      },
+      "D_drop": {
+        "group": "D_pooled_drop_ip60",
+        "n": 30,
+        "hits": 27,
+        "hit_rate": 0.9,
+        "ci_95_low": 0.7666666666666667,
+        "ci_95_high": 1.0,
+        "basis": "war_delta"
+      },
+      "B_dashboard": {
+        "group": "B_pooled_dashboard_ip60_positive",
+        "n": 638,
+        "hits": 247,
+        "hit_rate": 0.3871473354231975,
+        "ci_95_low": 0.3510971786833856,
+        "ci_95_high": 0.42476489028213166,
+        "basis": "war_delta"
+      },
+      "B_drop": {
+        "group": "B_pooled_drop_ip60_positive",
+        "n": 638,
+        "hits": 391,
+        "hit_rate": 0.6128526645768025,
+        "ci_95_low": 0.5752351097178683,
+        "ci_95_high": 0.6489028213166145,
+        "basis": "war_delta"
+      },
+      "C_dashboard": {
+        "group": "C_random_within_filter",
+        "n_sample": 32,
+        "n_universe": 638,
+        "n_boot": 1000,
+        "mean_hit_rate": 0.38875,
+        "ci_95_low": 0.21875,
+        "ci_95_high": 0.5625,
+        "replace": false
+      },
+      "C_drop": {
+        "group": "C_random_within_filter",
+        "n_sample": 32,
+        "n_universe": 638,
+        "n_boot": 1000,
+        "mean_hit_rate": 0.61125,
+        "ci_95_low": 0.4375,
+        "ci_95_high": 0.78125,
+        "replace": false
+      }
+    },
+    "ip70_war_positive": {
+      "A_dashboard": {
+        "group": "A_pooled_dashboard_ip70",
+        "n": 32,
+        "hits": 25,
+        "hit_rate": 0.78125,
+        "ci_95_low": 0.625,
+        "ci_95_high": 0.90625,
+        "basis": "war_delta"
+      },
+      "A_drop": {
+        "group": "A_pooled_drop_ip70",
+        "n": 32,
+        "hits": 7,
+        "hit_rate": 0.21875,
+        "ci_95_low": 0.09375,
+        "ci_95_high": 0.375,
+        "basis": "war_delta"
+      },
+      "D_dashboard": {
+        "group": "D_pooled_dashboard_ip70",
+        "n": 29,
+        "hits": 2,
+        "hit_rate": 0.06896551724137931,
+        "ci_95_low": 0.0,
+        "ci_95_high": 0.1724137931034483,
+        "basis": "war_delta"
+      },
+      "D_drop": {
+        "group": "D_pooled_drop_ip70",
+        "n": 29,
+        "hits": 27,
+        "hit_rate": 0.9310344827586207,
+        "ci_95_low": 0.8275862068965517,
+        "ci_95_high": 1.0,
+        "basis": "war_delta"
+      },
+      "B_dashboard": {
+        "group": "B_pooled_dashboard_ip70_positive",
+        "n": 803,
+        "hits": 299,
+        "hit_rate": 0.3723536737235367,
+        "ci_95_low": 0.33748443337484435,
+        "ci_95_high": 0.40597758405977585,
+        "basis": "war_delta"
+      },
+      "B_drop": {
+        "group": "B_pooled_drop_ip70_positive",
+        "n": 803,
+        "hits": 504,
+        "hit_rate": 0.6276463262764632,
+        "ci_95_low": 0.5940224159402242,
+        "ci_95_high": 0.6625155666251556,
+        "basis": "war_delta"
+      },
+      "C_dashboard": {
+        "group": "C_random_within_filter",
+        "n_sample": 32,
+        "n_universe": 803,
+        "n_boot": 1000,
+        "mean_hit_rate": 0.3748125,
+        "ci_95_low": 0.21875,
+        "ci_95_high": 0.53125,
+        "replace": false
+      },
+      "C_drop": {
+        "group": "C_random_within_filter",
+        "n_sample": 32,
+        "n_universe": 803,
+        "n_boot": 1000,
+        "mean_hit_rate": 0.6251875,
+        "ci_95_low": 0.46875,
+        "ci_95_high": 0.78125,
+        "replace": false
+      }
+    },
+    "ip50_war_any": {
+      "A_dashboard": {
+        "group": "A_pooled_dashboard_ip50",
+        "n": 32,
+        "hits": 25,
+        "hit_rate": 0.78125,
+        "ci_95_low": 0.625,
+        "ci_95_high": 0.90625,
+        "basis": "war_delta"
+      },
+      "A_drop": {
+        "group": "A_pooled_drop_ip50",
+        "n": 32,
+        "hits": 7,
+        "hit_rate": 0.21875,
+        "ci_95_low": 0.09375,
+        "ci_95_high": 0.375,
+        "basis": "war_delta"
+      },
+      "D_dashboard": {
+        "group": "D_pooled_dashboard_ip50",
+        "n": 27,
+        "hits": 4,
+        "hit_rate": 0.14814814814814814,
+        "ci_95_low": 0.037037037037037035,
+        "ci_95_high": 0.2962962962962963,
+        "basis": "war_delta"
+      },
+      "D_drop": {
+        "group": "D_pooled_drop_ip50",
+        "n": 27,
+        "hits": 23,
+        "hit_rate": 0.8518518518518519,
+        "ci_95_low": 0.7037037037037037,
+        "ci_95_high": 0.9629629629629629,
+        "basis": "war_delta"
+      },
+      "B_dashboard": {
+        "group": "B_pooled_dashboard_ip50_any",
+        "n": 951,
+        "hits": 551,
+        "hit_rate": 0.5793901156677181,
+        "ci_95_low": 0.5467928496319664,
+        "ci_95_high": 0.6109358569926393,
+        "basis": "war_delta"
+      },
+      "B_drop": {
+        "group": "B_pooled_drop_ip50_any",
+        "n": 951,
+        "hits": 400,
+        "hit_rate": 0.4206098843322818,
+        "ci_95_low": 0.3890641430073607,
+        "ci_95_high": 0.45320715036803366,
+        "basis": "war_delta"
+      },
+      "C_dashboard": {
+        "group": "C_random_within_filter",
+        "n_sample": 32,
+        "n_universe": 951,
+        "n_boot": 1000,
+        "mean_hit_rate": 0.57846875,
+        "ci_95_low": 0.4375,
+        "ci_95_high": 0.75,
+        "replace": false
+      },
+      "C_drop": {
+        "group": "C_random_within_filter",
+        "n_sample": 32,
+        "n_universe": 951,
+        "n_boot": 1000,
+        "mean_hit_rate": 0.42153125,
+        "ci_95_low": 0.25,
+        "ci_95_high": 0.5625,
+        "replace": false
+      }
+    },
+    "ip60_war_any": {
+      "A_dashboard": {
+        "group": "A_pooled_dashboard_ip60",
+        "n": 32,
+        "hits": 25,
+        "hit_rate": 0.78125,
+        "ci_95_low": 0.625,
+        "ci_95_high": 0.90625,
+        "basis": "war_delta"
+      },
+      "A_drop": {
+        "group": "A_pooled_drop_ip60",
+        "n": 32,
+        "hits": 7,
+        "hit_rate": 0.21875,
+        "ci_95_low": 0.09375,
+        "ci_95_high": 0.375,
+        "basis": "war_delta"
+      },
+      "D_dashboard": {
+        "group": "D_pooled_dashboard_ip60",
+        "n": 30,
+        "hits": 3,
+        "hit_rate": 0.1,
+        "ci_95_low": 0.0,
+        "ci_95_high": 0.23333333333333334,
+        "basis": "war_delta"
+      },
+      "D_drop": {
+        "group": "D_pooled_drop_ip60",
+        "n": 30,
+        "hits": 27,
+        "hit_rate": 0.9,
+        "ci_95_low": 0.7666666666666667,
+        "ci_95_high": 1.0,
+        "basis": "war_delta"
+      },
+      "B_dashboard": {
+        "group": "B_pooled_dashboard_ip60_any",
+        "n": 1159,
+        "hits": 659,
+        "hit_rate": 0.5685936151855048,
+        "ci_95_low": 0.5418464193270061,
+        "ci_95_high": 0.5970664365832614,
+        "basis": "war_delta"
+      },
+      "B_drop": {
+        "group": "B_pooled_drop_ip60_any",
+        "n": 1159,
+        "hits": 500,
+        "hit_rate": 0.4314063848144953,
+        "ci_95_low": 0.4029335634167386,
+        "ci_95_high": 0.45815358067299394,
+        "basis": "war_delta"
+      },
+      "C_dashboard": {
+        "group": "C_random_within_filter",
+        "n_sample": 32,
+        "n_universe": 1159,
+        "n_boot": 1000,
+        "mean_hit_rate": 0.56903125,
+        "ci_95_low": 0.40625,
+        "ci_95_high": 0.75,
+        "replace": false
+      },
+      "C_drop": {
+        "group": "C_random_within_filter",
+        "n_sample": 32,
+        "n_universe": 1159,
+        "n_boot": 1000,
+        "mean_hit_rate": 0.43096875,
+        "ci_95_low": 0.25,
+        "ci_95_high": 0.59375,
+        "replace": false
+      }
+    },
+    "ip70_war_any": {
+      "A_dashboard": {
+        "group": "A_pooled_dashboard_ip70",
+        "n": 32,
+        "hits": 25,
+        "hit_rate": 0.78125,
+        "ci_95_low": 0.625,
+        "ci_95_high": 0.90625,
+        "basis": "war_delta"
+      },
+      "A_drop": {
+        "group": "A_pooled_drop_ip70",
+        "n": 32,
+        "hits": 7,
+        "hit_rate": 0.21875,
+        "ci_95_low": 0.09375,
+        "ci_95_high": 0.375,
+        "basis": "war_delta"
+      },
+      "D_dashboard": {
+        "group": "D_pooled_dashboard_ip70",
+        "n": 29,
+        "hits": 2,
+        "hit_rate": 0.06896551724137931,
+        "ci_95_low": 0.0,
+        "ci_95_high": 0.1724137931034483,
+        "basis": "war_delta"
+      },
+      "D_drop": {
+        "group": "D_pooled_drop_ip70",
+        "n": 29,
+        "hits": 27,
+        "hit_rate": 0.9310344827586207,
+        "ci_95_low": 0.8275862068965517,
+        "ci_95_high": 1.0,
+        "basis": "war_delta"
+      },
+      "B_dashboard": {
+        "group": "B_pooled_dashboard_ip70_any",
+        "n": 1356,
+        "hits": 739,
+        "hit_rate": 0.5449852507374632,
+        "ci_95_low": 0.5191556047197641,
+        "ci_95_high": 0.5700774336283185,
+        "basis": "war_delta"
+      },
+      "B_drop": {
+        "group": "B_pooled_drop_ip70_any",
+        "n": 1356,
+        "hits": 617,
+        "hit_rate": 0.4550147492625369,
+        "ci_95_low": 0.4299225663716814,
+        "ci_95_high": 0.480844395280236,
+        "basis": "war_delta"
+      },
+      "C_dashboard": {
+        "group": "C_random_within_filter",
+        "n_sample": 32,
+        "n_universe": 1356,
+        "n_boot": 1000,
+        "mean_hit_rate": 0.54409375,
+        "ci_95_low": 0.375,
+        "ci_95_high": 0.71875,
+        "replace": false
+      },
+      "C_drop": {
+        "group": "C_random_within_filter",
+        "n_sample": 32,
+        "n_universe": 1356,
+        "n_boot": 1000,
+        "mean_hit_rate": 0.45590625,
+        "ci_95_low": 0.28125,
+        "ci_95_high": 0.625,
+        "replace": false
+      }
+    },
+    "ip50_war_match_group_a": {
+      "A_dashboard": {
+        "group": "A_pooled_dashboard_ip50",
+        "n": 32,
+        "hits": 25,
+        "hit_rate": 0.78125,
+        "ci_95_low": 0.625,
+        "ci_95_high": 0.90625,
+        "basis": "war_delta"
+      },
+      "A_drop": {
+        "group": "A_pooled_drop_ip50",
+        "n": 32,
+        "hits": 7,
+        "hit_rate": 0.21875,
+        "ci_95_low": 0.09375,
+        "ci_95_high": 0.375,
+        "basis": "war_delta"
+      },
+      "D_dashboard": {
+        "group": "D_pooled_dashboard_ip50",
+        "n": 20,
+        "hits": 4,
+        "hit_rate": 0.2,
+        "ci_95_low": 0.05,
+        "ci_95_high": 0.4,
+        "basis": "war_delta"
+      },
+      "D_drop": {
+        "group": "D_pooled_drop_ip50",
+        "n": 20,
+        "hits": 16,
+        "hit_rate": 0.8,
+        "ci_95_low": 0.6,
+        "ci_95_high": 0.95,
+        "basis": "war_delta"
+      },
+      "B_dashboard": {
+        "group": "B_pooled_dashboard_ip50_match_group_a",
+        "n": 808,
+        "hits": 509,
+        "hit_rate": 0.629950495049505,
+        "ci_95_low": 0.5965037128712871,
+        "ci_95_high": 0.6646039603960396,
+        "basis": "war_delta"
+      },
+      "B_drop": {
+        "group": "B_pooled_drop_ip50_match_group_a",
+        "n": 808,
+        "hits": 299,
+        "hit_rate": 0.37004950495049505,
+        "ci_95_low": 0.3353960396039604,
+        "ci_95_high": 0.4034962871287129,
+        "basis": "war_delta"
+      },
+      "C_dashboard": {
+        "group": "C_random_within_filter",
+        "n_sample": 32,
+        "n_universe": 808,
+        "n_boot": 1000,
+        "mean_hit_rate": 0.63459375,
+        "ci_95_low": 0.46875,
+        "ci_95_high": 0.78125,
+        "replace": false
+      },
+      "C_drop": {
+        "group": "C_random_within_filter",
+        "n_sample": 32,
+        "n_universe": 808,
+        "n_boot": 1000,
+        "mean_hit_rate": 0.36540625,
+        "ci_95_low": 0.21875,
+        "ci_95_high": 0.53125,
+        "replace": false
+      }
+    },
+    "ip60_war_match_group_a": {
+      "A_dashboard": {
+        "group": "A_pooled_dashboard_ip60",
+        "n": 32,
+        "hits": 25,
+        "hit_rate": 0.78125,
+        "ci_95_low": 0.625,
+        "ci_95_high": 0.90625,
+        "basis": "war_delta"
+      },
+      "A_drop": {
+        "group": "A_pooled_drop_ip60",
+        "n": 32,
+        "hits": 7,
+        "hit_rate": 0.21875,
+        "ci_95_low": 0.09375,
+        "ci_95_high": 0.375,
+        "basis": "war_delta"
+      },
+      "D_dashboard": {
+        "group": "D_pooled_dashboard_ip60",
+        "n": 24,
+        "hits": 4,
+        "hit_rate": 0.16666666666666666,
+        "ci_95_low": 0.041666666666666664,
+        "ci_95_high": 0.3333333333333333,
+        "basis": "war_delta"
+      },
+      "D_drop": {
+        "group": "D_pooled_drop_ip60",
+        "n": 24,
+        "hits": 20,
+        "hit_rate": 0.8333333333333334,
+        "ci_95_low": 0.6666666666666666,
+        "ci_95_high": 0.9583333333333334,
+        "basis": "war_delta"
+      },
+      "B_dashboard": {
+        "group": "B_pooled_dashboard_ip60_match_group_a",
+        "n": 920,
+        "hits": 586,
+        "hit_rate": 0.6369565217391304,
+        "ci_95_low": 0.6043478260869565,
+        "ci_95_high": 0.6663315217391304,
+        "basis": "war_delta"
+      },
+      "B_drop": {
+        "group": "B_pooled_drop_ip60_match_group_a",
+        "n": 920,
+        "hits": 334,
+        "hit_rate": 0.3630434782608696,
+        "ci_95_low": 0.3336684782608696,
+        "ci_95_high": 0.39565217391304347,
+        "basis": "war_delta"
+      },
+      "C_dashboard": {
+        "group": "C_random_within_filter",
+        "n_sample": 32,
+        "n_universe": 920,
+        "n_boot": 1000,
+        "mean_hit_rate": 0.63834375,
+        "ci_95_low": 0.46875,
+        "ci_95_high": 0.8125,
+        "replace": false
+      },
+      "C_drop": {
+        "group": "C_random_within_filter",
+        "n_sample": 32,
+        "n_universe": 920,
+        "n_boot": 1000,
+        "mean_hit_rate": 0.36165625,
+        "ci_95_low": 0.1875,
+        "ci_95_high": 0.53125,
+        "replace": false
+      }
+    },
+    "ip70_war_match_group_a": {
+      "A_dashboard": {
+        "group": "A_pooled_dashboard_ip70",
+        "n": 32,
+        "hits": 25,
+        "hit_rate": 0.78125,
+        "ci_95_low": 0.625,
+        "ci_95_high": 0.90625,
+        "basis": "war_delta"
+      },
+      "A_drop": {
+        "group": "A_pooled_drop_ip70",
+        "n": 32,
+        "hits": 7,
+        "hit_rate": 0.21875,
+        "ci_95_low": 0.09375,
+        "ci_95_high": 0.375,
+        "basis": "war_delta"
+      },
+      "D_dashboard": {
+        "group": "D_pooled_dashboard_ip70",
+        "n": 24,
+        "hits": 7,
+        "hit_rate": 0.2916666666666667,
+        "ci_95_low": 0.125,
+        "ci_95_high": 0.5,
+        "basis": "war_delta"
+      },
+      "D_drop": {
+        "group": "D_pooled_drop_ip70",
+        "n": 24,
+        "hits": 17,
+        "hit_rate": 0.7083333333333334,
+        "ci_95_low": 0.5,
+        "ci_95_high": 0.875,
+        "basis": "war_delta"
+      },
+      "B_dashboard": {
+        "group": "B_pooled_dashboard_ip70_match_group_a",
+        "n": 986,
+        "hits": 635,
+        "hit_rate": 0.6440162271805274,
+        "ci_95_low": 0.6156186612576064,
+        "ci_95_high": 0.6724137931034483,
+        "basis": "war_delta"
+      },
+      "B_drop": {
+        "group": "B_pooled_drop_ip70_match_group_a",
+        "n": 986,
+        "hits": 351,
+        "hit_rate": 0.35598377281947263,
+        "ci_95_low": 0.3275862068965517,
+        "ci_95_high": 0.3843813387423935,
+        "basis": "war_delta"
+      },
+      "C_dashboard": {
+        "group": "C_random_within_filter",
+        "n_sample": 32,
+        "n_universe": 986,
+        "n_boot": 1000,
+        "mean_hit_rate": 0.64109375,
+        "ci_95_low": 0.46875,
+        "ci_95_high": 0.8125,
+        "replace": false
+      },
+      "C_drop": {
+        "group": "C_random_within_filter",
+        "n_sample": 32,
+        "n_universe": 986,
+        "n_boot": 1000,
+        "mean_hit_rate": 0.35890625,
+        "ci_95_low": 0.1875,
+        "ci_95_high": 0.53125,
+        "replace": false
+      }
+    }
+  },
+  "notes": [
+    "Group A: CausalWAR Buy-Low historical picks tagged RELIEVER LEVERAGE GAP.",
+    "Group B: tag-filter universe (short-IP reliever, WAR filter varies).",
+    "Group C: 1000 random samples of size n_A drawn from Group B.",
+    "Group D: top-n_A by year-N bWAR within Group B.",
+    "hit_dashboard = (WAR_N+1 >= WAR_N)  -- dashboard Buy-Low rule, matches the 78%% story.",
+    "hit_drop      = (WAR_N+1 <  WAR_N)  -- literal 'bWAR dropped'.",
+    "WAR filter 'positive' corresponds to the prompt's original definition.",
+    "WAR filter 'any' is the MOST honest comparator (CausalWAR picks span negative WAR).",
+    "WAR filter 'match_group_a' matches Group A's empirical WAR range [-1.5, 0.5]."
+  ]
+}

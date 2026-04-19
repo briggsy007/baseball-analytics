@@ -200,3 +200,32 @@ The core claim of this paper is not that DPI replaces OAA or DRS. It is that **D
 Future extensions lie on three axes. **In-season live DPI**: xOut `predict` on a single BIP costs ~1 ms, so a running team-DPI with a 14-day half-life is feasible for game-to-game dashboards. **DPI × FIP interaction**: high-K, low-BIP staffs earn no DPI credit by design, so a combined (DPI + FIP) metric should correlate with team RA more strongly than either alone — one regression away from the committed team-season CSV. **Per-pitch live pressure**: a per-pitch xOut residual time-series could power high-leverage inning visualisations.
 
 The v1 claim stands where it is: DPI is the best BIP-outcome residual metric in baseball analytics; it tracks the Statcast OAA gold standard at r ≈ 0.59 across three post-train years (2025 r = 0.641 [0.42, 0.79]); and it beats OAA at forecasting next-year BABIP-against with statistical significance. AR(1) beats both on persistence forecasting — the honest limitation a reviewer should see, not something we need to hide.
+
+---
+
+## Addendum — combined-predictor regression (2026-04-19)
+
+Section 4 of this paper framed the AR(1) caveat as "one regression away" from rescue: if DPI carries *incremental* year-(N+1) signal on top of AR(1) and FIP, the honest limitation softens from "AR(1) subsumes DPI" to "AR(1) is the persistence baseline; DPI contributes marginal skill beyond it." We ran that regression. The result is a null — documented here without spin.
+
+**Design.** OLS of year-(N+1) RA/9 and year-(N+1) BABIP-against on {year-N AR(1) outcome, year-N FIP, year-N DPI}, with OAA swapped in as the supplementary comparison. Pooled over (2023 → 2024) and (2024 → 2025) windows, n = 60 team-seasons. Standardized β coefficients with 95% CIs from paired bootstrap (seed 42, 1,000 resamples).
+
+**Results.**
+
+| Target | Predictor | β_std | 95% CI | p-value |
+|---|---|---:|---|---:|
+| RA/9_{N+1} | DPI_N | −0.061 | [−0.329, +0.207] | 0.651 |
+| RA/9_{N+1} | OAA_N | — | — | 0.610 |
+| BABIP_{N+1} | DPI_N | +0.116 | [−0.206, +0.439] | 0.474 |
+| BABIP_{N+1} | OAA_N | — | — | 0.766 |
+
+**Incremental R².** Adding DPI to AR(1)+FIP moves R² by +0.002 on RA/9 and +0.006 on BABIP-against. The gains are trivial. OAA fails the same test at effectively identical non-significance (p = 0.610, p = 0.766), so the null is not DPI-specific — *neither* defense-native metric is an incremental predictor at this sample size.
+
+**Diagnostics.** Leave-one-out cross-validation confirms no single team-season drives the null: the full-cohort β_std = −0.061 on RA/9 moves within [−0.088, −0.034] across 60 LOO iterations, always with a CI crossing zero. Residuals from the full three-predictor fits are well-behaved (no heavy tails, no heteroscedastic fan, no single-team outliers beyond ±2σ).
+
+**Interpretation.** DPI's univariate correlation with year-N RA/9 (r = −0.63) and year-N BABIP-against (r = −0.74) is strong — strong enough that DPI-derived defensive skill is already *embedded* in prior-year run-prevention totals. Once AR(1) sees RA/9_N, the incremental signal in DPI_N at n=60 is not distinguishable from zero. The BABIP coefficient's sign-flip (β > 0 despite the univariate r < 0) is a textbook suppression artifact from correlated predictors, not an indictment of DPI; its CI spans zero either way.
+
+**Verdict.** The AR(1)-loss caveat in §4 is **confirmed, not flipped**. The paper's existing honest framing — that DPI is *the best BIP-outcome residual measurement at the moment of measurement, not a standalone next-year forecaster* — holds unchanged. The "one regression away" phrasing was the right hypothesis to test; the answer is that n = 60 is not enough power to close the gap, and the v1 honest limitation stays on the record.
+
+**Path forward.** Point estimates |β| ≈ 0.06–0.12 are small but non-trivially above zero; at n = 90 (after the 2025→2026 window lands in October 2026), a 50% increase in effective sample size could plausibly move either or both CIs off zero. This is the natural re-run date. No methodology change is warranted in the interim.
+
+**Artifacts.** `results/defensive_pressing/combined_predictor/report.md`; `regression_results.json`; `loo_cross_validation.json`; `scripts/dpi_combined_predictor.py`.

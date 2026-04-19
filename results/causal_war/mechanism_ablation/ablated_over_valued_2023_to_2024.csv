@@ -1,0 +1,26 @@
+player_id,causal_war,point_estimate_per_pa,pa,trad_war,pa_total,position,ip_total,rank_causal,rank_trad,rank_diff,name,baseline_year,tag,hit,basis
+678394,-1.33,-0.0249,666,3.14,,pitcher,157.0,508,31,-477,Brayan Bello,2023,PARK FACTOR,True,war_delta
+676664,-1.02,-0.0174,732,2.9,,pitcher,172.33333333333334,487,39,-448,JP Sears,2023,PARK FACTOR,True,war_delta
+668933,-0.98,-0.0198,620,2.56,,pitcher,145.66666666666666,483,55,-428,Graham Ashcraft,2023,PARK FACTOR,True,war_delta
+607536,-2.58,-0.0497,650,1.4,,pitcher,155.66666666666666,544,141,-403,Kyle Freeland,2023,PARK FACTOR,True,war_delta
+608337,-1.42,-0.0225,788,1.58,,pitcher,184.33333333333334,517,122,-395,Lucas Giolito,2023,PARK FACTOR,,no_followup_record
+680686,-0.56,-0.01,696,3.04,,pitcher,159.0,420,33,-387,Josiah Gray,2023,PARK FACTOR,True,war_delta
+669022,-0.96,-0.0207,580,1.89,,pitcher,136.33333333333334,481,96,-385,MacKenzie Gore,2023,PARK FACTOR,True,war_delta
+502171,-0.64,-0.0124,645,2.5,,pitcher,151.33333333333334,436,61,-375,Alex Cobb,2023,PARK FACTOR,True,war_delta
+656302,-0.69,-0.0114,759,2.19,,pitcher,177.0,442,74,-368,Dylan Cease,2023,PARK FACTOR,False,war_delta
+571945,-0.76,-0.0113,838,1.92,,pitcher,201.33333333333334,456,94,-362,Miles Mikolas,2023,PARK FACTOR,True,war_delta
+662139,-1.09,-0.0236,576,3.59,581.0,batter,,413,52,-361,Daulton Varsho,2023,DEFENSE GAP,False,war_delta
+683011,-1.27,-0.0266,597,3.25,601.0,batter,,430,74,-356,Anthony Volpe,2023,DEFENSE GAP,False,war_delta
+596295,-2.32,-0.0488,595,0.84,,pitcher,139.0,539,207,-332,Austin Gomber,2023,PARK FACTOR,False,war_delta
+621112,-0.75,-0.0202,463,1.55,,pitcher,103.66666666666667,454,127,-327,Paul Blackburn,2023,PARK FACTOR,True,war_delta
+656427,-1.79,-0.0341,658,0.7899999999999999,,pitcher,144.33333333333334,532,215,-317,Jack Flaherty,2023,PARK FACTOR,False,war_delta
+425844,-1.03,-0.0226,567,1.08,,pitcher,142.33333333333334,489,173,-316,Zack Greinke,2023,PARK FACTOR,,no_followup_record
+668881,-1.08,-0.0283,477,0.99,,pitcher,112.0,492,185,-307,Hunter Greene,2023,PARK FACTOR,False,war_delta
+670912,-0.26,-0.0042,776,2.21,,pitcher,177.66666666666666,360,71,-289,Johan Oviedo,2023,PARK FACTOR,,no_followup_record
+571760,-0.92,-0.0168,686,0.95,,pitcher,147.33333333333334,478,192,-286,Andrew Heaney,2023,PARK FACTOR,True,war_delta
+668930,-2.04,-0.0576,444,1.51,448.0,batter,,459,177,-282,Brice Turang,2023,DEFENSE GAP,False,war_delta
+656629,-2.13,-0.045,591,0.59,,pitcher,129.33333333333334,538,257,-281,Michael Kopech,2023,PARK FACTOR,False,war_delta
+656731,-1.69,-0.0372,567,0.61,,pitcher,126.33333333333333,530,252,-278,Tylor Megill,2023,PARK FACTOR,True,war_delta
+641585,-0.41,-0.0087,594,1.62,,pitcher,136.33333333333334,394,117,-277,J. P. France,2023,PARK FACTOR,True,war_delta
+665152,-0.53,-0.0089,747,1.41,,pitcher,172.66666666666666,415,138,-277,Dean Kremer,2023,PARK FACTOR,True,war_delta
+656775,-0.76,-0.0208,457,2.78,455.0,batter,,368,92,-276,Cedric Mullins,2023,DEFENSE GAP,True,war_delta

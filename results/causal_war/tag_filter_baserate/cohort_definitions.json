@@ -1,0 +1,276 @@
+{
+  "description": "RELIEVER LEVERAGE GAP Buy-Low cohort: position==pitcher AND year-N ip_total < IP_THRESHOLD. Stress-tested across IP thresholds [50, 60, 70] AND three WAR filters:\n  - 'positive'       : year-N WAR > 0 (prompt's suggested definition;\n                       does NOT match CausalWAR picks -- most have WAR < 0).\n  - 'any'            : no WAR filter (MOST honest comparator).\n  - 'match_group_a'  : year-N WAR in [-1.5, 0.5] (tight match to\n                       CausalWAR picks' empirical range).",
+  "windows": [
+    {
+      "baseline": 2022,
+      "followup": 2023
+    },
+    {
+      "baseline": 2023,
+      "followup": 2024
+    },
+    {
+      "baseline": 2024,
+      "followup": 2025
+    }
+  ],
+  "ip_thresholds": [
+    50,
+    60,
+    70
+  ],
+  "war_filters": [
+    "positive",
+    "any",
+    "match_group_a"
+  ],
+  "primary_ip_threshold": 60,
+  "primary_war_filter": "any",
+  "hit_rules": {
+    "dashboard": "year-N+1 bWAR >= year-N bWAR (Buy-Low: model's bullish call held)",
+    "drop": "year-N+1 bWAR <  year-N bWAR (literal 'bWAR dropped')"
+  },
+  "group_a_empirical_war_range": {
+    "mean": -0.26,
+    "median": -0.19,
+    "min": -1.03,
+    "max": 0.27,
+    "note": "71% of Group A picks have year-N WAR < 0. The 'positive WAR' filter excludes most CausalWAR picks."
+  },
+  "n_per_year_per_group_per_config": {
+    "ip50_war_positive": {
+      "2022_to_2023": {
+        "group_A_dashboard_n": 10,
+        "group_A_drop_n": 10,
+        "group_B_dashboard_n": 163,
+        "group_B_drop_n": 163,
+        "group_D_n": 8,
+        "universe_size": 246
+      },
+      "2023_to_2024": {
+        "group_A_dashboard_n": 12,
+        "group_A_drop_n": 12,
+        "group_B_dashboard_n": 165,
+        "group_B_drop_n": 165,
+        "group_D_n": 11,
+        "universe_size": 234
+      },
+      "2024_to_2025": {
+        "group_A_dashboard_n": 10,
+        "group_A_drop_n": 10,
+        "group_B_dashboard_n": 169,
+        "group_B_drop_n": 169,
+        "group_D_n": 9,
+        "universe_size": 251
+      }
+    },
+    "ip60_war_positive": {
+      "2022_to_2023": {
+        "group_A_dashboard_n": 10,
+        "group_A_drop_n": 10,
+        "group_B_dashboard_n": 206,
+        "group_B_drop_n": 206,
+        "group_D_n": 9,
+        "universe_size": 292
+      },
+      "2023_to_2024": {
+        "group_A_dashboard_n": 12,
+        "group_A_drop_n": 12,
+        "group_B_dashboard_n": 216,
+        "group_B_drop_n": 216,
+        "group_D_n": 12,
+        "universe_size": 291
+      },
+      "2024_to_2025": {
+        "group_A_dashboard_n": 10,
+        "group_A_drop_n": 10,
+        "group_B_dashboard_n": 216,
+        "group_B_drop_n": 216,
+        "group_D_n": 9,
+        "universe_size": 302
+      }
+    },
+    "ip70_war_positive": {
+      "2022_to_2023": {
+        "group_A_dashboard_n": 10,
+        "group_A_drop_n": 10,
+        "group_B_dashboard_n": 268,
+        "group_B_drop_n": 268,
+        "group_D_n": 9,
+        "universe_size": 362
+      },
+      "2023_to_2024": {
+        "group_A_dashboard_n": 12,
+        "group_A_drop_n": 12,
+        "group_B_dashboard_n": 270,
+        "group_B_drop_n": 270,
+        "group_D_n": 10,
+        "universe_size": 352
+      },
+      "2024_to_2025": {
+        "group_A_dashboard_n": 10,
+        "group_A_drop_n": 10,
+        "group_B_dashboard_n": 265,
+        "group_B_drop_n": 265,
+        "group_D_n": 10,
+        "universe_size": 356
+      }
+    },
+    "ip50_war_any": {
+      "2022_to_2023": {
+        "group_A_dashboard_n": 10,
+        "group_A_drop_n": 10,
+        "group_B_dashboard_n": 318,
+        "group_B_drop_n": 318,
+        "group_D_n": 8,
+        "universe_size": 524
+      },
+      "2023_to_2024": {
+        "group_A_dashboard_n": 12,
+        "group_A_drop_n": 12,
+        "group_B_dashboard_n": 317,
+        "group_B_drop_n": 317,
+        "group_D_n": 10,
+        "universe_size": 506
+      },
+      "2024_to_2025": {
+        "group_A_dashboard_n": 10,
+        "group_A_drop_n": 10,
+        "group_B_dashboard_n": 316,
+        "group_B_drop_n": 316,
+        "group_D_n": 9,
+        "universe_size": 502
+      }
+    },
+    "ip60_war_any": {
+      "2022_to_2023": {
+        "group_A_dashboard_n": 10,
+        "group_A_drop_n": 10,
+        "group_B_dashboard_n": 384,
+        "group_B_drop_n": 384,
+        "group_D_n": 9,
+        "universe_size": 598
+      },
+      "2023_to_2024": {
+        "group_A_dashboard_n": 12,
+        "group_A_drop_n": 12,
+        "group_B_dashboard_n": 387,
+        "group_B_drop_n": 387,
+        "group_D_n": 12,
+        "universe_size": 590
+      },
+      "2024_to_2025": {
+        "group_A_dashboard_n": 10,
+        "group_A_drop_n": 10,
+        "group_B_dashboard_n": 388,
+        "group_B_drop_n": 388,
+        "group_D_n": 9,
+        "universe_size": 583
+      }
+    },
+    "ip70_war_any": {
+      "2022_to_2023": {
+        "group_A_dashboard_n": 10,
+        "group_A_drop_n": 10,
+        "group_B_dashboard_n": 457,
+        "group_B_drop_n": 457,
+        "group_D_n": 9,
+        "universe_size": 683
+      },
+      "2023_to_2024": {
+        "group_A_dashboard_n": 12,
+        "group_A_drop_n": 12,
+        "group_B_dashboard_n": 452,
+        "group_B_drop_n": 452,
+        "group_D_n": 10,
+        "universe_size": 664
+      },
+      "2024_to_2025": {
+        "group_A_dashboard_n": 10,
+        "group_A_drop_n": 10,
+        "group_B_dashboard_n": 447,
+        "group_B_drop_n": 447,
+        "group_D_n": 10,
+        "universe_size": 649
+      }
+    },
+    "ip50_war_match_group_a": {
+      "2022_to_2023": {
+        "group_A_dashboard_n": 10,
+        "group_A_drop_n": 10,
+        "group_B_dashboard_n": 273,
+        "group_B_drop_n": 273,
+        "group_D_n": 7,
+        "universe_size": 472
+      },
+      "2023_to_2024": {
+        "group_A_dashboard_n": 12,
+        "group_A_drop_n": 12,
+        "group_B_dashboard_n": 271,
+        "group_B_drop_n": 271,
+        "group_D_n": 6,
+        "universe_size": 452
+      },
+      "2024_to_2025": {
+        "group_A_dashboard_n": 10,
+        "group_A_drop_n": 10,
+        "group_B_dashboard_n": 264,
+        "group_B_drop_n": 264,
+        "group_D_n": 7,
+        "universe_size": 438
+      }
+    },
+    "ip60_war_match_group_a": {
+      "2022_to_2023": {
+        "group_A_dashboard_n": 10,
+        "group_A_drop_n": 10,
+        "group_B_dashboard_n": 306,
+        "group_B_drop_n": 306,
+        "group_D_n": 7,
+        "universe_size": 511
+      },
+      "2023_to_2024": {
+        "group_A_dashboard_n": 12,
+        "group_A_drop_n": 12,
+        "group_B_dashboard_n": 307,
+        "group_B_drop_n": 307,
+        "group_D_n": 7,
+        "universe_size": 498
+      },
+      "2024_to_2025": {
+        "group_A_dashboard_n": 10,
+        "group_A_drop_n": 10,
+        "group_B_dashboard_n": 307,
+        "group_B_drop_n": 307,
+        "group_D_n": 10,
+        "universe_size": 488
+      }
+    },
+    "ip70_war_match_group_a": {
+      "2022_to_2023": {
+        "group_A_dashboard_n": 10,
+        "group_A_drop_n": 10,
+        "group_B_dashboard_n": 331,
+        "group_B_drop_n": 331,
+        "group_D_n": 8,
+        "universe_size": 545
+      },
+      "2023_to_2024": {
+        "group_A_dashboard_n": 12,
+        "group_A_drop_n": 12,
+        "group_B_dashboard_n": 328,
+        "group_B_drop_n": 328,
+        "group_D_n": 6,
+        "universe_size": 524
+      },
+      "2024_to_2025": {
+        "group_A_dashboard_n": 10,
+        "group_A_drop_n": 10,
+        "group_B_dashboard_n": 327,
+        "group_B_drop_n": 327,
+        "group_D_n": 10,
+        "universe_size": 510
+      }
+    }
+  }
+}

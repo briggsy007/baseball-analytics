@@ -1,0 +1,26 @@
+player_id,causal_war,point_estimate_per_pa,pa,trad_war,pa_total,position,ip_total,rank_causal,rank_trad,rank_diff,name,baseline_year,tag,hit,basis
+615698,-1.95,-0.0374,652,1.77,,pitcher,148.33333333333334,534,102,-432,Cal Quantrill,2024,PARK FACTOR,True,war_delta
+596295,-0.8,-0.0144,695,2.43,,pitcher,165.0,480,62,-418,Austin Gomber,2024,PARK FACTOR,True,war_delta
+623167,-2.12,-0.0377,702,1.61,,pitcher,160.0,536,119,-417,Chris Flexen,2024,PARK FACTOR,True,war_delta
+665926,-1.73,-0.0324,669,3.99,633.0,batter,,441,33,-408,Andrés Giménez,2024,DEFENSE GAP,True,war_delta
+656605,-0.77,-0.0124,772,1.97,,pitcher,178.0,477,82,-395,Mitch Keller,2024,PARK FACTOR,True,war_delta
+687765,-0.93,-0.0179,650,1.61,,pitcher,151.33333333333334,496,119,-377,Mitch Spence,2024,PARK FACTOR,True,war_delta
+686563,-0.53,-0.0127,521,1.88,,pitcher,124.33333333333333,445,95,-350,Jonathan Cannon,2024,PARK FACTOR,True,war_delta
+665871,-0.55,-0.0108,633,1.66,,pitcher,147.0,450,112,-338,Javier Assad,2024,PARK FACTOR,True,war_delta
+683011,-1.16,-0.0195,741,3.49,689.0,batter,,390,53,-337,Anthony Volpe,2024,DEFENSE GAP,True,war_delta
+527048,-1.49,-0.0317,588,0.88,,pitcher,135.0,525,193,-332,Martín Pérez,2024,PARK FACTOR,False,war_delta
+663855,-0.92,-0.0241,478,0.98,,pitcher,109.66666666666667,495,181,-314,Jordan Hicks,2024,PARK FACTOR,True,war_delta
+671096,-0.09,-0.002,581,3.3,,pitcher,138.0,336,25,-311,Andrew Abbott,2024,PARK FACTOR,False,war_delta
+668930,-0.82,-0.0166,622,4.76,619.0,batter,,327,21,-306,Brice Turang,2024,DEFENSE GAP,False,war_delta
+662139,-0.79,-0.0193,509,4.83,513.0,batter,,320,20,-300,Daulton Varsho,2024,DEFENSE GAP,True,war_delta
+642350,-1.85,-0.0519,445,1.84,448.0,batter,,446,152,-294,José Siri,2024,OTHER,True,war_delta
+450203,-0.62,-0.0112,698,1.07,,pitcher,165.33333333333334,462,169,-293,Charlie Morton,2024,PARK FACTOR,True,war_delta
+650644,-0.58,-0.0104,697,1.08,,pitcher,161.0,456,167,-289,Aaron Civale,2024,PARK FACTOR,True,war_delta
+573186,-1.63,-0.0303,670,0.62,,pitcher,154.66666666666666,530,249,-281,Marcus Stroman,2024,PARK FACTOR,True,war_delta
+669022,-0.8,-0.0138,727,0.85,,pitcher,166.33333333333334,480,200,-280,MacKenzie Gore,2024,PARK FACTOR,False,war_delta
+607067,-0.49,-0.0087,711,1.11,,pitcher,167.66666666666666,439,162,-277,Colin Rea,2024,PARK FACTOR,True,war_delta
+668939,-0.89,-0.0174,643,3.14,638.0,batter,,341,65,-276,Adley Rutschman,2024,DEFENSE GAP,True,war_delta
+677587,-1.46,-0.0384,476,1.94,442.0,batter,,419,145,-274,Brayan Rocchio,2024,DEFENSE GAP,True,war_delta
+672580,-2.36,-0.0457,645,1.41,626.0,batter,,452,179,-273,Maikel García,2024,OTHER,False,war_delta
+681082,-1.13,-0.0243,581,2.3,571.0,batter,,388,116,-272,Bryson Stott,2024,DEFENSE GAP,True,war_delta
+641487,-1.06,-0.0295,449,2.66,451.0,batter,,372,100,-272,J. P. Crawford,2024,DEFENSE GAP,False,war_delta

@@ -1,0 +1,26 @@
+player_id,causal_war,point_estimate_per_pa,pa,trad_war,pa_total,position,ip_total,rank_causal,rank_trad,rank_diff,name,baseline_year,tag,hit,basis
+607536,-1.68,-0.0275,764,2.34,,pitcher,174.66666666666666,535,71,-464,Kyle Freeland,2022,PARK FACTOR,True,war_delta
+608566,-1.46,-0.0236,776,1.37,,pitcher,181.66666666666666,524,132,-392,Germán Márquez,2022,PARK FACTOR,True,war_delta
+664702,-3.06,-0.0618,619,2.71,596.0,batter,,469,93,-376,Myles Straw,2022,DEFENSE GAP,True,war_delta
+670764,-2.71,-0.0725,468,2.53,466.0,batter,,467,97,-370,Taylor Walls,2022,DEFENSE GAP,True,war_delta
+622761,-1.41,-0.0334,529,3.72,533.0,batter,,426,60,-366,Jorge Mateo,2022,DEFENSE GAP,True,war_delta
+641540,-1.32,-0.0246,671,1.14,,pitcher,153.33333333333334,520,159,-361,Dane Dunning,2022,PARK FACTOR,False,war_delta
+425844,-0.37,-0.0079,584,2.51,,pitcher,137.0,422,64,-358,Zack Greinke,2022,PARK FACTOR,True,war_delta
+663757,-1.55,-0.0346,560,2.68,524.0,batter,,439,94,-345,Trent Grisham,2022,DEFENSE GAP,True,war_delta
+601713,-0.3,-0.0048,770,2.51,,pitcher,179.66666666666666,400,64,-336,Nick Pivetta,2022,PARK FACTOR,True,war_delta
+500743,-1.56,-0.0386,504,2.45,507.0,batter,,440,105,-335,Miguel Rojas,2022,DEFENSE GAP,True,war_delta
+543135,-0.46,-0.0125,456,1.58,,pitcher,109.33333333333333,445,111,-334,Nathan Eovaldi,2022,PARK FACTOR,False,war_delta
+663647,-0.93,-0.021,556,4.48,560.0,batter,,351,34,-317,Ke'Bryan Hayes,2022,OTHER,True,war_delta
+663559,-0.61,-0.0214,353,1.08,,pitcher,84.0,468,166,-302,Bailey Falter,2022,PARK FACTOR,True,war_delta
+643396,-1.09,-0.025,545,2.9,531.0,batter,,385,85,-300,Isiah Kiner-Falefa,2022,DEFENSE GAP,True,war_delta
+645302,-1.5,-0.0475,396,1.78,407.0,batter,,434,144,-290,Víctor Robles,2022,OTHER,True,war_delta
+623205,-2.01,-0.0734,342,1.39,349.0,batter,,457,170,-287,Andrew Velazquez,2022,DEFENSE GAP,True,war_delta
+543475,-1.23,-0.0199,774,0.75,,pitcher,179.0,514,229,-285,Jordan Lyles,2022,PARK FACTOR,True,war_delta
+596001,-0.3,-0.008,475,1.48,,pitcher,112.0,400,119,-281,Jakob Junis,2022,PARK FACTOR,True,war_delta
+680686,-1.55,-0.03,646,0.58,,pitcher,148.66666666666666,531,253,-278,Josiah Gray,2022,PARK FACTOR,False,war_delta
+656605,-0.22,-0.0041,681,1.81,,pitcher,159.0,376,99,-277,Mitch Keller,2022,PARK FACTOR,False,war_delta
+621112,-0.33,-0.009,462,1.32,,pitcher,111.33333333333333,410,138,-272,Paul Blackburn,2022,PARK FACTOR,False,war_delta
+642350,-1.49,-0.0558,334,1.46,325.0,batter,,432,161,-271,José Siri,2022,OTHER,False,war_delta
+663738,-1.64,-0.0344,595,0.55,,pitcher,131.66666666666666,534,265,-269,Daniel Lynch,2022,PARK FACTOR,False,war_delta
+643393,-1.52,-0.0345,552,1.34,558.0,batter,,437,174,-263,Tony Kemp,2022,OTHER,True,war_delta
+622608,-2.15,-0.0664,405,0.41,,pitcher,92.33333333333333,541,284,-257,Antonio Senzatela,2022,PARK FACTOR,True,war_delta
