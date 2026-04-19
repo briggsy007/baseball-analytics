@@ -1,0 +1,334 @@
+{
+  "game_pk": 824777,
+  "pitcher_id": 676979,
+  "pitcher_name": "Garrett Crochet",
+  "n_pitches_scored": 10,
+  "top1_accuracy": 0.5,
+  "top3_accuracy": 0.9,
+  "mean_log_loss_pitch_type": 1.3772,
+  "mean_prob_assigned_to_actual": 0.2754,
+  "n_oov_pitches": 0,
+  "per_pitch_results": [
+    {
+      "pitch_index_in_game": 29,
+      "actual_pitch_type": "ST",
+      "actual_pitch_name": "Sweeper",
+      "actual_velocity": 81.2,
+      "actual_zone": 12,
+      "count_at_pitch": "1-1",
+      "predicted_top1_type": "FF",
+      "predicted_top1_prob": 0.4542,
+      "actual_pitch_type_prob": 0.1495,
+      "match": false,
+      "top3_distribution": [
+        [
+          "FF",
+          0.4542
+        ],
+        [
+          "FC",
+          0.2068
+        ],
+        [
+          "ST",
+          0.1495
+        ]
+      ],
+      "nll": 1.9001,
+      "oov": {
+        "pitch_type_oov": false,
+        "zone_oov": false,
+        "velo_oov": false
+      }
+    },
+    {
+      "pitch_index_in_game": 30,
+      "actual_pitch_type": "FC",
+      "actual_pitch_name": "Cutter",
+      "actual_velocity": 92.3,
+      "actual_zone": 8,
+      "count_at_pitch": "2-1",
+      "predicted_top1_type": "FF",
+      "predicted_top1_prob": 0.3847,
+      "actual_pitch_type_prob": 0.2314,
+      "match": false,
+      "top3_distribution": [
+        [
+          "FF",
+          0.3847
+        ],
+        [
+          "SI",
+          0.2452
+        ],
+        [
+          "FC",
+          0.2314
+        ]
+      ],
+      "nll": 1.4637,
+      "oov": {
+        "pitch_type_oov": false,
+        "zone_oov": false,
+        "velo_oov": false
+      }
+    },
+    {
+      "pitch_index_in_game": 31,
+      "actual_pitch_type": "FF",
+      "actual_pitch_name": "Four-Seam Fastball",
+      "actual_velocity": 94.6,
+      "actual_zone": 14,
+      "count_at_pitch": "3-1",
+      "predicted_top1_type": "FF",
+      "predicted_top1_prob": 0.346,
+      "actual_pitch_type_prob": 0.346,
+      "match": true,
+      "top3_distribution": [
+        [
+          "FF",
+          0.346
+        ],
+        [
+          "FC",
+          0.2717
+        ],
+        [
+          "SI",
+          0.2551
+        ]
+      ],
+      "nll": 1.0612,
+      "oov": {
+        "pitch_type_oov": false,
+        "zone_oov": false,
+        "velo_oov": false
+      }
+    },
+    {
+      "pitch_index_in_game": 32,
+      "actual_pitch_type": "FC",
+      "actual_pitch_name": "Cutter",
+      "actual_velocity": 91.9,
+      "actual_zone": 12,
+      "count_at_pitch": "4-1",
+      "predicted_top1_type": "FF",
+      "predicted_top1_prob": 0.4247,
+      "actual_pitch_type_prob": 0.2447,
+      "match": false,
+      "top3_distribution": [
+        [
+          "FF",
+          0.4247
+        ],
+        [
+          "FC",
+          0.2447
+        ],
+        [
+          "SI",
+          0.2142
+        ]
+      ],
+      "nll": 1.4076,
+      "oov": {
+        "pitch_type_oov": false,
+        "zone_oov": false,
+        "velo_oov": false
+      }
+    },
+    {
+      "pitch_index_in_game": 33,
+      "actual_pitch_type": "FF",
+      "actual_pitch_name": "Four-Seam Fastball",
+      "actual_velocity": 95.6,
+      "actual_zone": 13,
+      "count_at_pitch": "1-0",
+      "predicted_top1_type": "FF",
+      "predicted_top1_prob": 0.3826,
+      "actual_pitch_type_prob": 0.3826,
+      "match": true,
+      "top3_distribution": [
+        [
+          "FF",
+          0.3826
+        ],
+        [
+          "FC",
+          0.2865
+        ],
+        [
+          "SI",
+          0.1887
+        ]
+      ],
+      "nll": 0.9607,
+      "oov": {
+        "pitch_type_oov": false,
+        "zone_oov": false,
+        "velo_oov": false
+      }
+    },
+    {
+      "pitch_index_in_game": 34,
+      "actual_pitch_type": "FF",
+      "actual_pitch_name": "Four-Seam Fastball",
+      "actual_velocity": 96.3,
+      "actual_zone": 7,
+      "count_at_pitch": "1-1",
+      "predicted_top1_type": "FF",
+      "predicted_top1_prob": 0.4264,
+      "actual_pitch_type_prob": 0.4264,
+      "match": true,
+      "top3_distribution": [
+        [
+          "FF",
+          0.4264
+        ],
+        [
+          "FC",
+          0.2767
+        ],
+        [
+          "SI",
+          0.1396
+        ]
+      ],
+      "nll": 0.8525,
+      "oov": {
+        "pitch_type_oov": false,
+        "zone_oov": false,
+        "velo_oov": false
+      }
+    },
+    {
+      "pitch_index_in_game": 35,
+      "actual_pitch_type": "FF",
+      "actual_pitch_name": "Four-Seam Fastball",
+      "actual_velocity": 95.6,
+      "actual_zone": 11,
+      "count_at_pitch": "1-2",
+      "predicted_top1_type": "FF",
+      "predicted_top1_prob": 0.3465,
+      "actual_pitch_type_prob": 0.3465,
+      "match": true,
+      "top3_distribution": [
+        [
+          "FF",
+          0.3465
+        ],
+        [
+          "FC",
+          0.286
+        ],
+        [
+          "SI",
+          0.1741
+        ]
+      ],
+      "nll": 1.0599,
+      "oov": {
+        "pitch_type_oov": false,
+        "zone_oov": false,
+        "velo_oov": false
+      }
+    },
+    {
+      "pitch_index_in_game": 36,
+      "actual_pitch_type": "FF",
+      "actual_pitch_name": "Four-Seam Fastball",
+      "actual_velocity": 96.7,
+      "actual_zone": 12,
+      "count_at_pitch": "1-3",
+      "predicted_top1_type": "FF",
+      "predicted_top1_prob": 0.3399,
+      "actual_pitch_type_prob": 0.3399,
+      "match": true,
+      "top3_distribution": [
+        [
+          "FF",
+          0.3399
+        ],
+        [
+          "FC",
+          0.2847
+        ],
+        [
+          "SI",
+          0.1591
+        ]
+      ],
+      "nll": 1.0792,
+      "oov": {
+        "pitch_type_oov": false,
+        "zone_oov": false,
+        "velo_oov": false
+      }
+    },
+    {
+      "pitch_index_in_game": 37,
+      "actual_pitch_type": "SI",
+      "actual_pitch_name": "Sinker",
+      "actual_velocity": 97.5,
+      "actual_zone": 12,
+      "count_at_pitch": "0-1",
+      "predicted_top1_type": "FF",
+      "predicted_top1_prob": 0.4821,
+      "actual_pitch_type_prob": 0.098,
+      "match": false,
+      "top3_distribution": [
+        [
+          "FF",
+          0.4821
+        ],
+        [
+          "FC",
+          0.2122
+        ],
+        [
+          "ST",
+          0.1507
+        ]
+      ],
+      "nll": 2.3224,
+      "oov": {
+        "pitch_type_oov": false,
+        "zone_oov": false,
+        "velo_oov": false
+      }
+    },
+    {
+      "pitch_index_in_game": 38,
+      "actual_pitch_type": "FC",
+      "actual_pitch_name": "Cutter",
+      "actual_velocity": 91.9,
+      "actual_zone": 3,
+      "count_at_pitch": "0-1",
+      "predicted_top1_type": "FF",
+      "predicted_top1_prob": 0.3789,
+      "actual_pitch_type_prob": 0.1892,
+      "match": false,
+      "top3_distribution": [
+        [
+          "FF",
+          0.3789
+        ],
+        [
+          "SI",
+          0.1906
+        ],
+        [
+          "FC",
+          0.1892
+        ]
+      ],
+      "nll": 1.6651,
+      "oov": {
+        "pitch_type_oov": false,
+        "zone_oov": false,
+        "velo_oov": false
+      }
+    }
+  ],
+  "caveat": "Single-game N=10; live-feed runners not threaded into context (assumed empty); score_diff hard-coded 0."
+}
