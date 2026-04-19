@@ -1,0 +1,47 @@
+{
+  "combined": {
+    "n": 1007,
+    "rmse": 1.5507,
+    "mae": 1.1603,
+    "pearson_r": 0.4959,
+    "spearman_rho": 0.3938,
+    "rmse_marcel": 1.5576,
+    "rmse_delta_vs_marcel": -0.0069,
+    "pearson_marcel": 0.4951,
+    "spearman_marcel": 0.3889
+  },
+  "batters": {
+    "n": 474,
+    "rmse": 1.5928,
+    "mae": 1.1898,
+    "pearson_r": 0.5857,
+    "spearman_rho": 0.5107,
+    "rmse_marcel": 1.6157,
+    "rmse_delta_vs_marcel": -0.0228,
+    "pearson_marcel": 0.5802,
+    "spearman_marcel": 0.5075
+  },
+  "pitchers": {
+    "n": 533,
+    "rmse": 1.5122,
+    "mae": 1.134,
+    "pearson_r": 0.3136,
+    "spearman_rho": 0.2721,
+    "rmse_marcel": 1.5041,
+    "rmse_delta_vs_marcel": 0.0081,
+    "pearson_marcel": 0.3183,
+    "spearman_marcel": 0.2657
+  },
+  "calibration_3war_to_2p5_actual": {
+    "n_projected_geq_3": 83,
+    "hit_rate": 0.6867,
+    "mean_actual_war": 3.396
+  },
+  "leakage_check": true,
+  "target_season": 2024,
+  "train_seasons": [
+    2021,
+    2022,
+    2023
+  ]
+}

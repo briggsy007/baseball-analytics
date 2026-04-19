@@ -1,0 +1,54 @@
+{
+  "model": "causal_war",
+  "invocation": "/validate-model causal_war",
+  "timestamp_utc": "2026-04-18T15:02:53Z",
+  "spec_path": "docs/models/causal_war_validation_spec.md",
+  "gates": [
+    {
+      "name": "leakage_check",
+      "threshold": "no game_pk overlap between train (2015-2022) and test (2023-2024)",
+      "measured": "disjoint season ranges enforced by --train-start 2015 --train-end 2022 --test-start 2023 --test-end 2024; baseline script performs in-memory split on extracted PA-level data",
+      "operator": "disjoint",
+      "pass": true,
+      "source": "scripts/baseline_comparison.py invocation"
+    },
+    {
+      "name": "pearson_r",
+      "threshold": 0.5,
+      "measured": 0.7084,
+      "ci_95": [0.6606, 0.7486],
+      "operator": ">=",
+      "pass": true,
+      "source": "causal_war_baseline_comparison_2023_2024_metrics.json (metrics_combined)"
+    },
+    {
+      "name": "spearman_rho",
+      "threshold": 0.6,
+      "measured": 0.62,
+      "ci_95": [0.5743, 0.6579],
+      "operator": ">=",
+      "pass": true,
+      "source": "causal_war_baseline_comparison_2023_2024_metrics.json (metrics_combined)"
+    },
+    {
+      "name": "ci_coverage",
+      "threshold": "[0.93, 0.97]",
+      "measured": null,
+      "operator": "informational",
+      "pass": null,
+      "source": "results/ci_coverage*.json (not present; informational gate skipped per skill spec)"
+    }
+  ],
+  "overall_pass": true,
+  "artifacts": [
+    "results/validate_causal_war_20260418T150253Z/causal_war_baseline_comparison_2023_2024_metrics.json",
+    "results/validate_causal_war_20260418T150253Z/causal_war_baseline_comparison_2023_2024.csv",
+    "results/validate_causal_war_20260418T150253Z/causal_war_baseline_scatter.html",
+    "results/validate_causal_war_20260418T150253Z/step_2_baseline.log"
+  ],
+  "wall_clock_seconds": {
+    "leakage_check": 0.1,
+    "baseline_comparison": 2762
+  },
+  "notes": "Pitcher cohort restored: bug in src/analytics/causal_war.py (model produced batter-only effects keyed by batter_id) and scripts/baseline_comparison.py (merge dropped pitchers because they had no causal_war row) was fixed by aggregating the same DML residual Y_res - sign-flipped - by pitcher_id, yielding 851 pitcher effects (746 qualified after IP gate). Combined Pearson r=0.7084 [0.66, 0.75], Spearman rho=0.62 [0.57, 0.66] — point estimate above 0.60 spec but lower CI bound (0.5743) is below 0.60, so STILL FRAGILE per mint criteria. Pitcher-only metrics are the strongest cohort (r=0.7345 [0.69, 0.78], rho=0.6854 [0.63, 0.73]). Test nuisance R2=0.0007 vs train R2=0.0009. Informational CI-coverage gate skipped (no results/ci_coverage*.json present)."
+}

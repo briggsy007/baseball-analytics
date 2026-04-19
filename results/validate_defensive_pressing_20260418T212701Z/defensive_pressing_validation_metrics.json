@@ -1,0 +1,166 @@
+{
+  "config": {
+    "train_start": 2015,
+    "train_end": 2022,
+    "test_start": 2023,
+    "test_end": 2024,
+    "n_bootstrap_ci": 1000,
+    "random_state": 42,
+    "holdout_sample_size": 50000
+  },
+  "leakage_audit": {
+    "train_seasons": [
+      2015,
+      2022
+    ],
+    "test_seasons": [
+      2023,
+      2024
+    ],
+    "n_train_game_pks": 17094,
+    "n_test_game_pks": 5010,
+    "shared_game_pks_train_test": 0,
+    "season_disjoint": true,
+    "pass": true
+  },
+  "metrics": {
+    "xout": {
+      "train": {
+        "status": "trained",
+        "n_samples": 837571,
+        "n_train": 670056,
+        "n_test": 167515,
+        "auc": 0.8939,
+        "accuracy": 0.8276,
+        "out_rate": 0.6633,
+        "train_seasons": [
+          2015,
+          2016,
+          2017,
+          2018,
+          2019,
+          2020,
+          2021,
+          2022
+        ]
+      },
+      "test_auc": 0.8943,
+      "test_accuracy": 0.8279,
+      "test_log_loss": 0.381,
+      "test_n": 50000,
+      "test_out_rate": 0.667
+    },
+    "consumer_claim": {
+      "dpi_vs_rp_proxy": {
+        "n": 60,
+        "pearson_r": 0.6216,
+        "pearson_r_ci": [
+          0.4228,
+          0.771
+        ],
+        "spearman_rho": 0.5555,
+        "spearman_rho_ci": [
+          0.3304,
+          0.7254
+        ]
+      },
+      "dpi_vs_babip_against": {
+        "n": 60,
+        "pearson_r": -0.7346,
+        "pearson_r_ci": [
+          -0.8306,
+          -0.623
+        ],
+        "spearman_rho": -0.7286,
+        "spearman_rho_ci": [
+          -0.8274,
+          -0.5833
+        ]
+      }
+    },
+    "stability": {
+      "yoy_pearson_r": 0.5948,
+      "yoy_pearson_r_ci": [
+        0.4049,
+        0.7403
+      ],
+      "yoy_spearman_rho": 0.6159,
+      "yoy_n_teams": 30
+    },
+    "data_quality": {
+      "n_team_seasons": 60,
+      "n_team_seasons_with_dpi": 60,
+      "n_team_seasons_with_rp": 60,
+      "n_team_seasons_with_babip": 60
+    }
+  },
+  "gates": [
+    {
+      "name": "xout_test_auc",
+      "threshold": ">= 0.70",
+      "measured": 0.8943,
+      "operator": ">=",
+      "pass": true,
+      "hard": true,
+      "source": "metrics.xout.test_auc"
+    },
+    {
+      "name": "dpi_vs_rp_proxy_pearson_r",
+      "threshold": ">= 0.40",
+      "measured": 0.6216,
+      "measured_ci": [
+        0.4228,
+        0.771
+      ],
+      "operator": ">=",
+      "pass": true,
+      "hard": true,
+      "source": "metrics.consumer_claim.dpi_vs_rp_proxy.pearson_r"
+    },
+    {
+      "name": "dpi_vs_babip_against_pearson_r",
+      "threshold": "<= -0.50",
+      "measured": -0.7346,
+      "measured_ci": [
+        -0.8306,
+        -0.623
+      ],
+      "operator": "<=",
+      "pass": true,
+      "hard": true,
+      "source": "metrics.consumer_claim.dpi_vs_babip_against.pearson_r"
+    },
+    {
+      "name": "dpi_yoy_pearson_r",
+      "threshold": ">= 0.30",
+      "measured": 0.5948,
+      "measured_ci": [
+        0.4049,
+        0.7403
+      ],
+      "operator": ">=",
+      "pass": true,
+      "hard": true,
+      "source": "metrics.stability.yoy_pearson_r"
+    },
+    {
+      "name": "leakage_audit",
+      "threshold": "0 game_pks shared train/test",
+      "measured": 0,
+      "operator": "==",
+      "pass": true,
+      "hard": true,
+      "source": "leakage_audit.shared_game_pks_train_test"
+    }
+  ],
+  "overall_pass": true,
+  "wall_clock_seconds": {
+    "xout_train": 7.56,
+    "xout_test": 0.26,
+    "team_dpi": 123.95
+  },
+  "artifacts": {
+    "team_seasons_csv": "results\\validate_defensive_pressing_20260418T212701Z\\defensive_pressing_team_seasons.csv",
+    "xout_holdout_sample_csv": "results\\validate_defensive_pressing_20260418T212701Z\\defensive_pressing_xout_holdout_sample.csv"
+  }
+}

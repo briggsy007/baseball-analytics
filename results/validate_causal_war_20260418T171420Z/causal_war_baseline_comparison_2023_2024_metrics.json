@@ -1,0 +1,463 @@
+{
+  "config": {
+    "train_start": 2015,
+    "train_end": 2022,
+    "test_start": 2023,
+    "test_end": 2024,
+    "pa_min": 300,
+    "ip_min": 50,
+    "n_bootstrap_train": 50,
+    "n_bootstrap_ci": 5000,
+    "random_state": 42
+  },
+  "train_metrics": {
+    "outcome_nuisance_r2": 0.0009,
+    "n_observations": 1232865,
+    "n_players_estimated": 1697,
+    "n_bootstrap": 50,
+    "n_splits": 5,
+    "mean_residual_variance": 0.267427,
+    "train_start_year": 2015,
+    "train_end_year": 2022
+  },
+  "test_metrics": {
+    "test_nuisance_r2": 0.0007,
+    "test_rmse_residuals": 0.515281,
+    "n_test_observations": 368418,
+    "n_test_players": 746,
+    "n_test_pitchers": 851,
+    "n_test_players_sparse": 89,
+    "pa_min_test_qualifying": 50,
+    "test_start_year": 2023,
+    "test_end_year": 2024
+  },
+  "metrics_batters": {
+    "n": 429,
+    "pearson_r": 0.7433,
+    "pearson_r_ci": [
+      0.6834,
+      0.7946
+    ],
+    "spearman_rho": 0.6743,
+    "spearman_rho_ci": [
+      0.6107,
+      0.7324
+    ],
+    "rmse": 2.0626,
+    "mae": 1.6789,
+    "label": "batters"
+  },
+  "metrics_pitchers": {
+    "n": 539,
+    "pearson_r": 0.7272,
+    "pearson_r_ci": [
+      0.6737,
+      0.7736
+    ],
+    "spearman_rho": 0.6815,
+    "spearman_rho_ci": [
+      0.6246,
+      0.7327
+    ],
+    "rmse": 1.2391,
+    "mae": 0.9144,
+    "label": "pitchers"
+  },
+  "metrics_combined": {
+    "n": 968,
+    "pearson_r": 0.7089,
+    "pearson_r_ci": [
+      0.6611,
+      0.7501
+    ],
+    "spearman_rho": 0.6314,
+    "spearman_rho_ci": [
+      0.5862,
+      0.6752
+    ],
+    "rmse": 1.6554,
+    "mae": 1.2532,
+    "label": "combined"
+  },
+  "spec_threshold": {
+    "pearson_r_required": 0.5,
+    "spearman_rho_required": 0.6,
+    "pass": true
+  },
+  "biggest_movers_over_valued": [
+    {
+      "player_id": 596295,
+      "name": "Austin Gomber",
+      "position": "pitcher",
+      "pa_total": NaN,
+      "ip_total": 304.0,
+      "causal_war": -2.89,
+      "trad_war": 1.7029935121536255,
+      "rank_causal": 533,
+      "rank_trad": 120,
+      "rank_diff": -413
+    },
+    {
+      "player_id": 668933,
+      "name": "Graham Ashcraft",
+      "position": "pitcher",
+      "pa_total": NaN,
+      "ip_total": 222.29998779296875,
+      "causal_war": -1.95,
+      "trad_war": 1.769230842590332,
+      "rank_causal": 516,
+      "rank_trad": 113,
+      "rank_diff": -403
+    },
+    {
+      "player_id": 680686,
+      "name": "Josiah Gray",
+      "position": "pitcher",
+      "pa_total": NaN,
+      "ip_total": 167.10000610351562,
+      "causal_war": -0.94,
+      "trad_war": 2.8664629459381104,
+      "rank_causal": 447,
+      "rank_trad": 46,
+      "rank_diff": -401
+    },
+    {
+      "player_id": 678394,
+      "name": "Brayan Bello",
+      "position": "pitcher",
+      "pa_total": NaN,
+      "ip_total": 319.1000061035156,
+      "causal_war": -1.19,
+      "trad_war": 2.1443371772766113,
+      "rank_causal": 480,
+      "rank_trad": 81,
+      "rank_diff": -399
+    },
+    {
+      "player_id": 676664,
+      "name": "JP Sears",
+      "position": "pitcher",
+      "pa_total": NaN,
+      "ip_total": 353.1000061035156,
+      "causal_war": -0.79,
+      "trad_war": 2.5668082237243652,
+      "rank_causal": 428,
+      "rank_trad": 57,
+      "rank_diff": -371
+    },
+    {
+      "player_id": 665926,
+      "name": "Andr\u00e9s Gim\u00e9nez",
+      "position": "batter",
+      "pa_total": 1289.0,
+      "ip_total": NaN,
+      "causal_war": -1.98,
+      "trad_war": 4.482226528059706,
+      "rank_causal": 392,
+      "rank_trad": 24,
+      "rank_diff": -368
+    },
+    {
+      "player_id": 668930,
+      "name": "Brice Turang",
+      "position": "batter",
+      "pa_total": 1084.0,
+      "ip_total": NaN,
+      "causal_war": -2.92,
+      "trad_war": 3.401835922605437,
+      "rank_causal": 421,
+      "rank_trad": 56,
+      "rank_diff": -365
+    },
+    {
+      "player_id": 592836,
+      "name": "Taijuan Walker",
+      "position": "pitcher",
+      "pa_total": NaN,
+      "ip_total": 255.39999389648438,
+      "causal_war": -2.41,
+      "trad_war": 1.2611119747161865,
+      "rank_causal": 526,
+      "rank_trad": 168,
+      "rank_diff": -358
+    },
+    {
+      "player_id": 662139,
+      "name": "Daulton Varsho",
+      "position": "batter",
+      "pa_total": 1096.0,
+      "ip_total": NaN,
+      "causal_war": -1.85,
+      "trad_war": 4.165875831007087,
+      "rank_causal": 387,
+      "rank_trad": 31,
+      "rank_diff": -356
+    },
+    {
+      "player_id": 608337,
+      "name": "Lucas Giolito",
+      "position": "pitcher",
+      "pa_total": NaN,
+      "ip_total": 184.10000610351562,
+      "causal_war": -1.24,
+      "trad_war": 1.5800000429153442,
+      "rank_causal": 482,
+      "rank_trad": 128,
+      "rank_diff": -354
+    },
+    {
+      "player_id": 683011,
+      "name": "Anthony Volpe",
+      "position": "batter",
+      "pa_total": 1349.0,
+      "ip_total": NaN,
+      "causal_war": -2.47,
+      "trad_war": 3.383076358141945,
+      "rank_causal": 412,
+      "rank_trad": 59,
+      "rank_diff": -353
+    },
+    {
+      "player_id": 663903,
+      "name": "Brady Singer",
+      "position": "pitcher",
+      "pa_total": NaN,
+      "ip_total": 339.20001220703125,
+      "causal_war": -1.02,
+      "trad_war": 1.6672641038894653,
+      "rank_causal": 463,
+      "rank_trad": 122,
+      "rank_diff": -341
+    },
+    {
+      "player_id": 669022,
+      "name": "MacKenzie Gore",
+      "position": "pitcher",
+      "pa_total": NaN,
+      "ip_total": 302.20001220703125,
+      "causal_war": -1.53,
+      "trad_war": 1.3183785676956177,
+      "rank_causal": 496,
+      "rank_trad": 163,
+      "rank_diff": -333
+    },
+    {
+      "player_id": 615698,
+      "name": "Cal Quantrill",
+      "position": "pitcher",
+      "pa_total": NaN,
+      "ip_total": 247.3000030517578,
+      "causal_war": -2.6,
+      "trad_war": 1.055984616279602,
+      "rank_causal": 530,
+      "rank_trad": 199,
+      "rank_diff": -331
+    },
+    {
+      "player_id": 502171,
+      "name": "Alex Cobb",
+      "position": "pitcher",
+      "pa_total": NaN,
+      "ip_total": 173.10000610351562,
+      "causal_war": -0.43,
+      "trad_war": 2.2102251052856445,
+      "rank_causal": 381,
+      "rank_trad": 74,
+      "rank_diff": -307
+    }
+  ],
+  "biggest_movers_under_valued": [
+    {
+      "player_id": 622250,
+      "name": "Josh Sborz",
+      "position": "pitcher",
+      "pa_total": NaN,
+      "ip_total": 80.19999694824219,
+      "causal_war": 0.87,
+      "trad_war": -0.5295137166976929,
+      "rank_causal": 158,
+      "rank_trad": 516,
+      "rank_diff": 358
+    },
+    {
+      "player_id": 670950,
+      "name": "Trevor Richards",
+      "position": "pitcher",
+      "pa_total": NaN,
+      "ip_total": 137.29998779296875,
+      "causal_war": 0.81,
+      "trad_war": -0.22638021409511566,
+      "rank_causal": 174,
+      "rank_trad": 484,
+      "rank_diff": 310
+    },
+    {
+      "player_id": 543859,
+      "name": "Michael Tonkin",
+      "position": "pitcher",
+      "pa_total": NaN,
+      "ip_total": 159.29998779296875,
+      "causal_war": 1.15,
+      "trad_war": 0.05648462474346161,
+      "rank_causal": 126,
+      "rank_trad": 425,
+      "rank_diff": 299
+    },
+    {
+      "player_id": 676395,
+      "name": "Robert Garcia",
+      "position": "pitcher",
+      "pa_total": NaN,
+      "ip_total": 91.19999694824219,
+      "causal_war": 1.04,
+      "trad_war": 0.06245614215731621,
+      "rank_causal": 138,
+      "rank_trad": 423,
+      "rank_diff": 285
+    },
+    {
+      "player_id": 543294,
+      "name": "Kyle Hendricks",
+      "position": "pitcher",
+      "pa_total": NaN,
+      "ip_total": 267.20001220703125,
+      "causal_war": 0.52,
+      "trad_war": -0.23255237936973572,
+      "rank_causal": 215,
+      "rank_trad": 487,
+      "rank_diff": 272
+    },
+    {
+      "player_id": 519293,
+      "name": "Will Smith",
+      "position": "pitcher",
+      "pa_total": NaN,
+      "ip_total": 101.30000305175781,
+      "causal_war": 0.45,
+      "trad_war": -0.34543928503990173,
+      "rank_causal": 227,
+      "rank_trad": 496,
+      "rank_diff": 269
+    },
+    {
+      "player_id": 623465,
+      "name": "Evan Phillips",
+      "position": "pitcher",
+      "pa_total": NaN,
+      "ip_total": 124.30000305175781,
+      "causal_war": 1.9,
+      "trad_war": 0.542823851108551,
+      "rank_causal": 64,
+      "rank_trad": 328,
+      "rank_diff": 264
+    },
+    {
+      "player_id": 554340,
+      "name": "Yimi Garc\u00eda",
+      "position": "pitcher",
+      "pa_total": NaN,
+      "ip_total": 106.0999984741211,
+      "causal_war": 0.9,
+      "trad_war": 0.16114044189453125,
+      "rank_causal": 152,
+      "rank_trad": 402,
+      "rank_diff": 250
+    },
+    {
+      "player_id": 573009,
+      "name": "Joe Mantiply",
+      "position": "pitcher",
+      "pa_total": NaN,
+      "ip_total": 105.4000015258789,
+      "causal_war": 1.19,
+      "trad_war": 0.34398481249809265,
+      "rank_causal": 121,
+      "rank_trad": 368,
+      "rank_diff": 247
+    },
+    {
+      "player_id": 608723,
+      "name": "Austin Voth",
+      "position": "pitcher",
+      "pa_total": NaN,
+      "ip_total": 95.19999694824219,
+      "causal_war": 0.34,
+      "trad_war": -0.2569957971572876,
+      "rank_causal": 247,
+      "rank_trad": 490,
+      "rank_diff": 243
+    },
+    {
+      "player_id": 656976,
+      "name": "Pavin Smith",
+      "position": "batter",
+      "pa_total": 397.0,
+      "ip_total": NaN,
+      "causal_war": 0.33,
+      "trad_war": -0.2569017474837507,
+      "rank_causal": 150,
+      "rank_trad": 386,
+      "rank_diff": 236
+    },
+    {
+      "player_id": 678495,
+      "name": "Randy Rodr\u00edguez",
+      "position": "pitcher",
+      "pa_total": NaN,
+      "ip_total": 52.099998474121094,
+      "causal_war": 0.36,
+      "trad_war": -0.1899999976158142,
+      "rank_causal": 242,
+      "rank_trad": 470,
+      "rank_diff": 228
+    },
+    {
+      "player_id": 622075,
+      "name": "Yency Almonte",
+      "position": "pitcher",
+      "pa_total": NaN,
+      "ip_total": 63.20000076293945,
+      "causal_war": 0.21,
+      "trad_war": -0.37569618225097656,
+      "rank_causal": 275,
+      "rank_trad": 498,
+      "rank_diff": 223
+    },
+    {
+      "player_id": 664062,
+      "name": "Tony Gonsolin",
+      "position": "pitcher",
+      "pa_total": NaN,
+      "ip_total": 103.0,
+      "causal_war": 0.29,
+      "trad_war": -0.2199999988079071,
+      "rank_causal": 257,
+      "rank_trad": 479,
+      "rank_diff": 222
+    },
+    {
+      "player_id": 691023,
+      "name": "Jordan Walker",
+      "position": "batter",
+      "pa_total": 643.0,
+      "ip_total": NaN,
+      "causal_war": 0.08,
+      "trad_war": -0.3093157025694291,
+      "rank_causal": 176,
+      "rank_trad": 395,
+      "rank_diff": 219
+    }
+  ],
+  "artifacts": {
+    "csv": "results\\validate_causal_war_20260418T171420Z\\causal_war_baseline_comparison_2023_2024.csv",
+    "metrics_json": "results\\validate_causal_war_20260418T171420Z\\causal_war_baseline_comparison_2023_2024_metrics.json",
+    "scatter_html": "results\\validate_causal_war_20260418T171420Z\\causal_war_baseline_scatter.html"
+  },
+  "data_quality": {
+    "batter_war_source": "season_batting_stats.war",
+    "pitcher_war_source": "season_pitching_stats.war",
+    "n_test_effects_batters": 746,
+    "n_test_effects_pitchers": 851,
+    "n_merged_rows": 968
+  }
+}

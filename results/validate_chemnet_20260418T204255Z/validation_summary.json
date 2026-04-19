@@ -1,0 +1,82 @@
+{
+  "model": "chemnet",
+  "invocation": "/validate-model chemnet (flagship-candidate promotion review)",
+  "timestamp_utc": "2026-04-18T20:42:55Z",
+  "spec_path": "docs/models/chemnet_validation_spec.md",
+  "gates": [
+    {
+      "name": "gnn_pearson_r_test",
+      "threshold": ">= 0.30",
+      "measured": 0.0891,
+      "measured_ci": [0.0702, 0.1095],
+      "operator": ">=",
+      "pass": false,
+      "hard": true,
+      "source": "metrics.gnn.pearson_r in chemnet_validation_metrics.json"
+    },
+    {
+      "name": "gnn_beats_baseline_rmse",
+      "threshold": ">= 2% RMSE reduction (gnn vs baseline)",
+      "measured": -0.0014,
+      "operator": ">=",
+      "pass": false,
+      "hard": true,
+      "source": "metrics.synergy_lift.rmse_pct_improvement in chemnet_validation_metrics.json"
+    },
+    {
+      "name": "synergy_predicts_residual",
+      "threshold": ">= 0.10 (Spearman) with bootstrap CI lower > 0",
+      "measured": 0.0263,
+      "measured_ci": [0.0066, 0.0457],
+      "operator": ">=",
+      "pass": false,
+      "hard": true,
+      "source": "metrics.synergy_residual.spearman_rho in chemnet_validation_metrics.json"
+    },
+    {
+      "name": "gnn_rmse_calibration",
+      "threshold": "<= 4.0 wOBA-points",
+      "measured": 4.5855,
+      "operator": "<=",
+      "pass": false,
+      "hard": true,
+      "source": "metrics.gnn.rmse in chemnet_validation_metrics.json"
+    },
+    {
+      "name": "leakage_audit",
+      "threshold": "0 game_pks shared train (2015-2022) and test (2023-2024)",
+      "measured": 0,
+      "operator": "==",
+      "pass": true,
+      "hard": true,
+      "source": "leakage_audit.shared_game_pks_train_test in chemnet_validation_metrics.json"
+    },
+    {
+      "name": "synergy_decile_lift",
+      "threshold": "informational",
+      "measured": 0.2487,
+      "operator": "report",
+      "pass": null,
+      "hard": false,
+      "source": "metrics.decile_lift.lift_top_minus_bottom in chemnet_validation_metrics.json"
+    }
+  ],
+  "overall_pass": false,
+  "verdict": "NOT FLAGSHIP / NEEDS WORK",
+  "artifacts": [
+    "results/validate_chemnet_20260418T204255Z/chemnet_validation_metrics.json",
+    "results/validate_chemnet_20260418T204255Z/chemnet_validation_per_game.csv",
+    "results/validate_chemnet_20260418T204255Z/chemnet_validation_decile_lift.csv",
+    "results/validate_chemnet_20260418T204255Z/step_0_smoke.log",
+    "results/validate_chemnet_20260418T204255Z/step_1_validation.log",
+    "docs/models/chemnet_validation_spec.md",
+    "docs/models/chemnet_results.md"
+  ],
+  "wall_clock_seconds": {
+    "model_load": 0.09,
+    "inference": 553.33,
+    "metrics": 2.58,
+    "total_run": 555.99
+  },
+  "notes": "ChemNet flagship-promotion candidate review. 4 of 5 hard gates FAIL on the held-out 2023-2024 cohort (n=9,836 game-sides across 5,010 unique games, season-disjoint from 2015-2022 train range). Gate 1 (Pearson r): 0.089 vs 0.30 needed -- model is essentially predicting the global mean. Gate 2 (synergy edge): GNN is -0.14% WORSE than the non-graph baseline, so the graph adjacency is contributing nothing. Gate 3 (synergy predicts residual): rho=0.026 with CI [0.0066, 0.0457] -- statistically separable from zero but well below the 0.10 useful-edge threshold. Gate 4 (calibration): RMSE 4.59 wOBA-points, above the 4.0 ceiling that a global-mean predictor would clear. Gate 5 (leakage): 0 game_pk overlap, PASS by construction. Gate 6 (informational decile lift): top-decile synergy game-sides outperform bottom by +0.25 wOBA-points, monotonically noisy. Verdict: NOT FLAGSHIP -- the dashboard's lineup-synergy / protection-effects framing is not supported by the held-out evidence; the shipped chemnet_v1.pt does not predict its own training target out-of-sample. Recommend retraining with larger graph cohort, opposing-pitcher representation, or reformulating the synergy claim as a residual-prediction task before any flagship promotion. Model checkpoint, src/analytics/chemnet.py, src/dashboard/views/chemnet_view.py NOT modified per task constraints."
+}

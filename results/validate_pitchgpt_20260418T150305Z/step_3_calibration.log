@@ -1,0 +1,22 @@
+11:11:38  INFO     device=cuda
+11:11:38  INFO     loading checkpoint results\validate_pitchgpt_20260418T150305Z\pitchgpt_full.pt
+C:\Users\hunte\projects\baseball\src\analytics\pitchgpt.py:862: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(
+11:11:38  INFO     loading val/test datasets ((2023, 2023) / (2024, 2024))
+11:11:39  INFO     excluding 2219 train-cohort pitchers from val/test
+11:12:09  INFO     PitchGPT dataset: 451 sequences from 17810 pitches.
+11:12:41  INFO     PitchGPT dataset: 580 sequences from 23474 pitches.
+11:12:41  INFO     datasets built in 62.6s  (val=451  test=580 sequences)
+C:\Users\hunte\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\nn\modules\transformer.py:431: UserWarning: Support for mismatched src_key_padding_mask and mask is deprecated. Use same type for both instead.
+  src_key_padding_mask = F._canonical_mask(
+11:12:55  INFO     calibration done in 14.1s  ECE 0.0203 \u2192 0.0096  T=1.1246
+11:12:55  INFO     wrote results\validate_pitchgpt_20260418T150305Z\pitchgpt_calibration.json
+11:12:57  INFO     wrote results\validate_pitchgpt_20260418T150305Z\pitchgpt_reliability.html
+11:12:57  INFO     ============================================================
+11:12:57  INFO     CALIBRATION SUMMARY
+11:12:57  INFO       n_test_tokens:        22894
+11:12:57  INFO       accuracy (top-1):     0.0340
+11:12:57  INFO       ECE pre-temperature:  0.0203
+11:12:57  INFO       ECE post-temperature: 0.0096
+11:12:57  INFO       optimal T:            1.1246
+11:12:57  INFO     ============================================================

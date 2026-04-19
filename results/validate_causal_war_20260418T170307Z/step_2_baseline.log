@@ -1,0 +1,46 @@
+2026-04-18 13:03:20 | INFO    | baseline_comparison | Starting CausalWAR baseline comparison: train 2015-2022, test 2023-2024
+2026-04-18 13:03:20 | INFO    | src.analytics.causal_war | CausalWAR train/test split: train=2015-2022, test=2023-2024
+2026-04-18 13:03:21 | INFO    | src.analytics.causal_war | Extracted 1232865 train PAs (2015-2022)
+2026-04-18 13:03:21 | INFO    | src.analytics.causal_war | Extracted 368418 test PAs (2023-2024)
+2026-04-18 13:03:40 | INFO    | src.analytics.causal_war | Outcome nuisance model avg R2: 0.0009
+2026-04-18 13:03:47 | INFO    | src.analytics.causal_war | Running 50 bootstrap iterations for CIs...
+2026-04-18 13:20:23 | INFO    | src.analytics.causal_war | CausalWAR train/test artifact saved to C:\Users\hunte\projects\baseball\models\causal_war\causal_war_trainsplit_2015_2022.pkl
+2026-04-18 13:20:23 | INFO    | baseline_comparison | Train/test split done: train players=1697, test batters=746, test pitchers=851
+C:\Users\hunte\projects\baseball\scripts\baseline_comparison.py:155: FutureWarning: DataFrameGroupBy.apply operated on the grouping columns. This behavior is deprecated, and in a future version of pandas the grouping columns will be excluded from the operation. Either pass `include_groups=False` to exclude the groupings or explicitly select the grouping columns after groupby to silence this warning.
+  .apply(lambda s: np.average(s["ops"].fillna(s["ops"].mean()), weights=s["pa"]))
+C:\Users\hunte\projects\baseball\scripts\baseline_comparison.py:189: FutureWarning: DataFrameGroupBy.apply operated on the grouping columns. This behavior is deprecated, and in a future version of pandas the grouping columns will be excluded from the operation. Either pass `include_groups=False` to exclude the groupings or explicitly select the grouping columns after groupby to silence this warning.
+  out = df.groupby("player_id", group_keys=False).apply(_weighted_mean).reset_index()
+C:\Users\hunte\projects\baseball\scripts\baseline_comparison.py:219: FutureWarning: DataFrameGroupBy.apply operated on the grouping columns. This behavior is deprecated, and in a future version of pandas the grouping columns will be excluded from the operation. Either pass `include_groups=False` to exclude the groupings or explicitly select the grouping columns after groupby to silence this warning.
+  .apply(lambda s: np.average(s["era"].fillna(s["era"].mean()), weights=s["ip"]))
+C:\Users\hunte\projects\baseball\scripts\baseline_comparison.py:255: FutureWarning: DataFrameGroupBy.apply operated on the grouping columns. This behavior is deprecated, and in a future version of pandas the grouping columns will be excluded from the operation. Either pass `include_groups=False` to exclude the groupings or explicitly select the grouping columns after groupby to silence this warning.
+  out = df.groupby("player_id", group_keys=False).apply(_weighted_mean).reset_index()
+2026-04-18 13:20:24 | INFO    | baseline_comparison | Traditional WAR rows: batters=798, pitchers=1107, pitcher_id_set=935
+2026-04-18 13:20:37 | INFO    | baseline_comparison | Metrics batters: r=0.7402 rho=0.6618 n=483
+2026-04-18 13:20:37 | INFO    | baseline_comparison | Metrics pitchers: r=0.7269 rho=0.6777 n=595
+2026-04-18 13:20:37 | INFO    | baseline_comparison | Metrics combined: r=0.7093 rho=0.6301 n=1078
+2026-04-18 13:20:37 | INFO    | baseline_comparison | Wrote results\validate_causal_war_20260418T170307Z\causal_war_baseline_comparison_2023_2024.csv (1078 rows)
+2026-04-18 13:20:37 | INFO    | baseline_comparison | Wrote results\validate_causal_war_20260418T170307Z\causal_war_baseline_comparison_2023_2024_metrics.json
+
+========================================================================
+CausalWAR Baseline Comparison -- Summary
+========================================================================
+Batters:  n=483   r=0.7402  rho=0.6618  RMSE=1.9665  MAE=1.5794
+Pitchers: n=595   r=0.7269  rho=0.6777  RMSE=1.1878  MAE=0.8633
+Combined: n=1078  r=0.7093  rho=0.6301  RMSE=1.5848  MAE=1.1842
+------------------------------------------------------------------------
+Spec threshold (r>=0.5 AND rho>=0.6): PASS  (combined r=0.7093, rho=0.6301)
+------------------------------------------------------------------------
+Top 5 over-valued (causal rank much better than traditional):
+  Austin Gomber                   pos=pitcher  causal=-2.89  trad=1.7029935121536255  rank_causal=589  rank_trad=121
+  Graham Ashcraft                 pos=pitcher  causal=-1.95  trad=1.769230842590332  rank_causal=572  rank_trad=113
+  Josiah Gray                     pos=pitcher  causal=-0.94  trad=2.8664629459381104  rank_causal=500  rank_trad=46
+  Brayan Bello                    pos=pitcher  causal=-1.19  trad=2.1443371772766113  rank_causal=534  rank_trad=81
+  Andrés Giménez                  pos=batter  causal=-1.98  trad=4.482226528059706  rank_causal=446  rank_trad=24
+Top 5 under-valued (traditional rank much better than causal):
+  Josh Sborz                      pos=pitcher  causal=0.87  trad=-0.5295137166976929  rank_causal=164  rank_trad=569
+  Trevor Richards                 pos=pitcher  causal=0.81  trad=-0.22638021409511566  rank_causal=181  rank_trad=532
+  Michael Tonkin                  pos=pitcher  causal=1.15  trad=0.05648462474346161  rank_causal=128  rank_trad=462
+  Robert Garcia                   pos=pitcher  causal=1.04  trad=0.06245614215731621  rank_causal=144  rank_trad=460
+  Kyle Hendricks                  pos=pitcher  causal=0.52  trad=-0.23255237936973572  rank_causal=226  rank_trad=537
+========================================================================
+

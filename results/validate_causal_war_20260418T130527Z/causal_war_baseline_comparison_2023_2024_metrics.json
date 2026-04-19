@@ -1,0 +1,455 @@
+{
+  "config": {
+    "train_start": 2015,
+    "train_end": 2022,
+    "test_start": 2023,
+    "test_end": 2024,
+    "pa_min": 100,
+    "ip_min": 20,
+    "n_bootstrap_train": 50,
+    "n_bootstrap_ci": 1000,
+    "random_state": 42
+  },
+  "train_metrics": {
+    "outcome_nuisance_r2": 0.0009,
+    "n_observations": 1232865,
+    "n_players_estimated": 1697,
+    "n_bootstrap": 50,
+    "n_splits": 5,
+    "mean_residual_variance": 0.267427,
+    "train_start_year": 2015,
+    "train_end_year": 2022
+  },
+  "test_metrics": {
+    "test_nuisance_r2": 0.0007,
+    "test_rmse_residuals": 0.515281,
+    "n_test_observations": 368418,
+    "n_test_players": 746,
+    "n_test_players_sparse": 89,
+    "pa_min_test_qualifying": 50,
+    "test_start_year": 2023,
+    "test_end_year": 2024
+  },
+  "metrics_batters": {
+    "n": 574,
+    "pearson_r": 0.7289,
+    "pearson_r_ci": [
+      0.6691,
+      0.779
+    ],
+    "spearman_rho": 0.6142,
+    "spearman_rho_ci": [
+      0.5505,
+      0.68
+    ],
+    "rmse": 1.8169,
+    "mae": 1.4029,
+    "label": "batters"
+  },
+  "metrics_pitchers": {
+    "n": 0,
+    "pearson_r": null,
+    "pearson_r_ci": null,
+    "spearman_rho": null,
+    "spearman_rho_ci": null,
+    "rmse": null,
+    "mae": null,
+    "label": "pitchers"
+  },
+  "metrics_combined": {
+    "n": 574,
+    "pearson_r": 0.7289,
+    "pearson_r_ci": [
+      0.6691,
+      0.779
+    ],
+    "spearman_rho": 0.6142,
+    "spearman_rho_ci": [
+      0.5505,
+      0.68
+    ],
+    "rmse": 1.8169,
+    "mae": 1.4029,
+    "label": "combined"
+  },
+  "spec_threshold": {
+    "pearson_r_required": 0.5,
+    "spearman_rho_required": 0.6,
+    "pass": true
+  },
+  "biggest_movers_over_valued": [
+    {
+      "player_id": 665926,
+      "name": "Andr\u00e9s Gim\u00e9nez",
+      "position": "batter",
+      "pa_total": 1289.0,
+      "ip_total": NaN,
+      "causal_war": -1.98,
+      "trad_war": 4.482226528059706,
+      "rank_causal": 536,
+      "rank_trad": 24,
+      "rank_diff": -512
+    },
+    {
+      "player_id": 668930,
+      "name": "Brice Turang",
+      "position": "batter",
+      "pa_total": 1084.0,
+      "ip_total": NaN,
+      "causal_war": -2.92,
+      "trad_war": 3.401835922605437,
+      "rank_causal": 566,
+      "rank_trad": 56,
+      "rank_diff": -510
+    },
+    {
+      "player_id": 662139,
+      "name": "Daulton Varsho",
+      "position": "batter",
+      "pa_total": 1096.0,
+      "ip_total": NaN,
+      "causal_war": -1.85,
+      "trad_war": 4.165875831007087,
+      "rank_causal": 531,
+      "rank_trad": 31,
+      "rank_diff": -500
+    },
+    {
+      "player_id": 683011,
+      "name": "Anthony Volpe",
+      "position": "batter",
+      "pa_total": 1349.0,
+      "ip_total": NaN,
+      "causal_war": -2.47,
+      "trad_war": 3.383076358141945,
+      "rank_causal": 557,
+      "rank_trad": 59,
+      "rank_diff": -498
+    },
+    {
+      "player_id": 641680,
+      "name": "Jonah Heim",
+      "position": "batter",
+      "pa_total": 1063.0,
+      "ip_total": NaN,
+      "causal_war": -2.68,
+      "trad_war": 2.2909124721812395,
+      "rank_causal": 561,
+      "rank_trad": 122,
+      "rank_diff": -439
+    },
+    {
+      "player_id": 686668,
+      "name": "Brenton Doyle",
+      "position": "batter",
+      "pa_total": 1034.0,
+      "ip_total": NaN,
+      "causal_war": -1.53,
+      "trad_war": 2.601179811836903,
+      "rank_causal": 498,
+      "rank_trad": 98,
+      "rank_diff": -400
+    },
+    {
+      "player_id": 670764,
+      "name": "Taylor Walls",
+      "position": "batter",
+      "pa_total": 607.0,
+      "ip_total": NaN,
+      "causal_war": -2.76,
+      "trad_war": 1.7416639198384922,
+      "rank_causal": 563,
+      "rank_trad": 172,
+      "rank_diff": -391
+    },
+    {
+      "player_id": 664728,
+      "name": "Kyle Isbel",
+      "position": "batter",
+      "pa_total": 756.0,
+      "ip_total": NaN,
+      "causal_war": -1.93,
+      "trad_war": 1.9982804249203394,
+      "rank_causal": 534,
+      "rank_trad": 147,
+      "rank_diff": -387
+    },
+    {
+      "player_id": 665750,
+      "name": "Leody Taveras",
+      "position": "batter",
+      "pa_total": 1150.0,
+      "ip_total": NaN,
+      "causal_war": -2.03,
+      "trad_war": 1.9234000396728517,
+      "rank_causal": 541,
+      "rank_trad": 154,
+      "rank_diff": -387
+    },
+    {
+      "player_id": 691026,
+      "name": "Masyn Winn",
+      "position": "batter",
+      "pa_total": 774.0,
+      "ip_total": NaN,
+      "causal_war": -1.04,
+      "trad_war": 4.089935525674228,
+      "rank_causal": 418,
+      "rank_trad": 35,
+      "rank_diff": -383
+    },
+    {
+      "player_id": 642350,
+      "name": "Jos\u00e9 Siri",
+      "position": "batter",
+      "pa_total": 815.0,
+      "ip_total": NaN,
+      "causal_war": -2.14,
+      "trad_war": 1.7499386622130506,
+      "rank_causal": 549,
+      "rank_trad": 171,
+      "rank_diff": -378
+    },
+    {
+      "player_id": 663647,
+      "name": "Ke'Bryan Hayes",
+      "position": "batter",
+      "pa_total": 921.0,
+      "ip_total": NaN,
+      "causal_war": -1.3,
+      "trad_war": 2.595798103351158,
+      "rank_causal": 471,
+      "rank_trad": 100,
+      "rank_diff": -371
+    },
+    {
+      "player_id": 676609,
+      "name": "Jos\u00e9 Caballero",
+      "position": "batter",
+      "pa_total": 763.0,
+      "ip_total": NaN,
+      "causal_war": -1.66,
+      "trad_war": 1.9255963498299276,
+      "rank_causal": 513,
+      "rank_trad": 152,
+      "rank_diff": -361
+    },
+    {
+      "player_id": 643396,
+      "name": "Isiah Kiner-Falefa",
+      "position": "batter",
+      "pa_total": 857.0,
+      "ip_total": 6.0,
+      "causal_war": -1.54,
+      "trad_war": 2.0319719736311095,
+      "rank_causal": 500,
+      "rank_trad": 143,
+      "rank_diff": -357
+    },
+    {
+      "player_id": 595281,
+      "name": "Kevin Kiermaier",
+      "position": "batter",
+      "pa_total": 697.0,
+      "ip_total": NaN,
+      "causal_war": -1.13,
+      "trad_war": 2.638464820350773,
+      "rank_causal": 439,
+      "rank_trad": 93,
+      "rank_diff": -346
+    }
+  ],
+  "biggest_movers_under_valued": [
+    {
+      "player_id": 656976,
+      "name": "Pavin Smith",
+      "position": "batter",
+      "pa_total": 397.0,
+      "ip_total": 1.0,
+      "causal_war": 0.33,
+      "trad_war": -0.2569017474837507,
+      "rank_causal": 152,
+      "rank_trad": 478,
+      "rank_diff": 326
+    },
+    {
+      "player_id": 656248,
+      "name": "Sean Bouchard",
+      "position": "batter",
+      "pa_total": 151.0,
+      "ip_total": NaN,
+      "causal_war": 0.31,
+      "trad_war": -0.22549667066296206,
+      "rank_causal": 156,
+      "rank_trad": 472,
+      "rank_diff": 316
+    },
+    {
+      "player_id": 542583,
+      "name": "Jes\u00fas Aguilar",
+      "position": "batter",
+      "pa_total": 115.0,
+      "ip_total": NaN,
+      "causal_war": -0.23,
+      "trad_war": -0.6000000238418579,
+      "rank_causal": 233,
+      "rank_trad": 540,
+      "rank_diff": 307
+    },
+    {
+      "player_id": 691023,
+      "name": "Jordan Walker",
+      "position": "batter",
+      "pa_total": 643.0,
+      "ip_total": NaN,
+      "causal_war": 0.08,
+      "trad_war": -0.3093157025694291,
+      "rank_causal": 185,
+      "rank_trad": 491,
+      "rank_diff": 306
+    },
+    {
+      "player_id": 605137,
+      "name": "Josh Bell",
+      "position": "batter",
+      "pa_total": 1228.0,
+      "ip_total": NaN,
+      "causal_war": 0.18,
+      "trad_war": -0.1982084756674615,
+      "rank_causal": 169,
+      "rank_trad": 464,
+      "rank_diff": 295
+    },
+    {
+      "player_id": 668885,
+      "name": "Austin Martin",
+      "position": "batter",
+      "pa_total": 257.0,
+      "ip_total": NaN,
+      "causal_war": -0.37,
+      "trad_war": -0.9800000190734863,
+      "rank_causal": 264,
+      "rank_trad": 557,
+      "rank_diff": 293
+    },
+    {
+      "player_id": 621466,
+      "name": "DJ Stewart",
+      "position": "batter",
+      "pa_total": 379.0,
+      "ip_total": NaN,
+      "causal_war": 0.1,
+      "trad_war": -0.218654336589622,
+      "rank_causal": 180,
+      "rank_trad": 469,
+      "rank_diff": 289
+    },
+    {
+      "player_id": 443558,
+      "name": "Nelson Cruz",
+      "position": "batter",
+      "pa_total": 152.0,
+      "ip_total": NaN,
+      "causal_war": -0.16,
+      "trad_war": -0.36000001430511475,
+      "rank_causal": 217,
+      "rank_trad": 499,
+      "rank_diff": 282
+    },
+    {
+      "player_id": 543333,
+      "name": "Eric Hosmer",
+      "position": "batter",
+      "pa_total": 100.0,
+      "ip_total": NaN,
+      "causal_war": -0.29,
+      "trad_war": -0.4300000071525574,
+      "rank_causal": 243,
+      "rank_trad": 511,
+      "rank_diff": 268
+    },
+    {
+      "player_id": 605361,
+      "name": "Nick Martini",
+      "position": "batter",
+      "pa_total": 242.0,
+      "ip_total": NaN,
+      "causal_war": 0.04,
+      "trad_war": -0.1739256316103226,
+      "rank_causal": 191,
+      "rank_trad": 456,
+      "rank_diff": 265
+    },
+    {
+      "player_id": 596059,
+      "name": "Rougned Odor",
+      "position": "batter",
+      "pa_total": 157.0,
+      "ip_total": NaN,
+      "causal_war": -0.21,
+      "trad_war": -0.3199999928474426,
+      "rank_causal": 229,
+      "rank_trad": 493,
+      "rank_diff": 264
+    },
+    {
+      "player_id": 458015,
+      "name": "Joey Votto",
+      "position": "batter",
+      "pa_total": 242.0,
+      "ip_total": NaN,
+      "causal_war": 0.07,
+      "trad_war": -0.12999999523162842,
+      "rank_causal": 186,
+      "rank_trad": 448,
+      "rank_diff": 262
+    },
+    {
+      "player_id": 676480,
+      "name": "Jos\u00e9 Barrero",
+      "position": "batter",
+      "pa_total": 149.0,
+      "ip_total": NaN,
+      "causal_war": -0.4,
+      "trad_war": -0.5299999713897705,
+      "rank_causal": 269,
+      "rank_trad": 526,
+      "rank_diff": 257
+    },
+    {
+      "player_id": 572816,
+      "name": "Corey Dickerson",
+      "position": "batter",
+      "pa_total": 152.0,
+      "ip_total": NaN,
+      "causal_war": -0.46,
+      "trad_war": -0.6100000143051147,
+      "rank_causal": 284,
+      "rank_trad": 541,
+      "rank_diff": 257
+    },
+    {
+      "player_id": 669234,
+      "name": "Justyn-Henry Malloy",
+      "position": "batter",
+      "pa_total": 241.0,
+      "ip_total": NaN,
+      "causal_war": -0.4,
+      "trad_war": -0.49000000953674316,
+      "rank_causal": 269,
+      "rank_trad": 522,
+      "rank_diff": 253
+    }
+  ],
+  "artifacts": {
+    "csv": "results\\validate_causal_war_20260418T130527Z\\causal_war_baseline_comparison_2023_2024.csv",
+    "metrics_json": "results\\validate_causal_war_20260418T130527Z\\causal_war_baseline_comparison_2023_2024_metrics.json",
+    "scatter_html": "results\\validate_causal_war_20260418T130527Z\\causal_war_baseline_scatter.html"
+  },
+  "data_quality": {
+    "batter_war_source": "season_batting_stats.war",
+    "pitcher_war_source": "season_pitching_stats.war",
+    "n_test_effects": 746,
+    "n_merged_rows": 574
+  }
+}

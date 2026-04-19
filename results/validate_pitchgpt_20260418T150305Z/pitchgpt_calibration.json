@@ -1,0 +1,175 @@
+{
+  "n_test_tokens": 22894,
+  "n_val_tokens": 17357,
+  "accuracy": 0.033982702891587314,
+  "ece_pre_temp": 0.020342439171270148,
+  "ece_post_temp": 0.00961310750831446,
+  "optimal_temperature": 1.1246391534805298,
+  "reliability_curve_pre": [
+    {
+      "bin": 0,
+      "lo": 0.0,
+      "hi": 0.1,
+      "mean_conf": 0.049678124487400055,
+      "empirical_acc": 0.0327437306608784,
+      "n_samples": 21653
+    },
+    {
+      "bin": 1,
+      "lo": 0.1,
+      "hi": 0.2,
+      "mean_conf": 0.12739862501621246,
+      "empirical_acc": 0.0546875,
+      "n_samples": 1152
+    },
+    {
+      "bin": 2,
+      "lo": 0.2,
+      "hi": 0.30000000000000004,
+      "mean_conf": 0.22974276542663574,
+      "empirical_acc": 0.07317073170731707,
+      "n_samples": 82
+    },
+    {
+      "bin": 3,
+      "lo": 0.30000000000000004,
+      "hi": 0.4,
+      "mean_conf": 0.31643885374069214,
+      "empirical_acc": 0.0,
+      "n_samples": 5
+    },
+    {
+      "bin": 4,
+      "lo": 0.4,
+      "hi": 0.5,
+      "mean_conf": 0.42752790451049805,
+      "empirical_acc": 0.0,
+      "n_samples": 2
+    },
+    {
+      "bin": 5,
+      "lo": 0.5,
+      "hi": 0.6000000000000001,
+      "mean_conf": 0.55,
+      "empirical_acc": 0.0,
+      "n_samples": 0
+    },
+    {
+      "bin": 6,
+      "lo": 0.6000000000000001,
+      "hi": 0.7000000000000001,
+      "mean_conf": 0.6500000000000001,
+      "empirical_acc": 0.0,
+      "n_samples": 0
+    },
+    {
+      "bin": 7,
+      "lo": 0.7000000000000001,
+      "hi": 0.8,
+      "mean_conf": 0.75,
+      "empirical_acc": 0.0,
+      "n_samples": 0
+    },
+    {
+      "bin": 8,
+      "lo": 0.8,
+      "hi": 0.9,
+      "mean_conf": 0.8500000000000001,
+      "empirical_acc": 0.0,
+      "n_samples": 0
+    },
+    {
+      "bin": 9,
+      "lo": 0.9,
+      "hi": 1.0,
+      "mean_conf": 0.95,
+      "empirical_acc": 0.0,
+      "n_samples": 0
+    }
+  ],
+  "reliability_curve_post": [
+    {
+      "bin": 0,
+      "lo": 0.0,
+      "hi": 0.1,
+      "mean_conf": 0.041739095002412796,
+      "empirical_acc": 0.03360257039582311,
+      "n_samples": 22409
+    },
+    {
+      "bin": 1,
+      "lo": 0.1,
+      "hi": 0.2,
+      "mean_conf": 0.12591205537319183,
+      "empirical_acc": 0.053304904051172705,
+      "n_samples": 469
+    },
+    {
+      "bin": 2,
+      "lo": 0.2,
+      "hi": 0.30000000000000004,
+      "mean_conf": 0.21805688738822937,
+      "empirical_acc": 0.0,
+      "n_samples": 14
+    },
+    {
+      "bin": 3,
+      "lo": 0.30000000000000004,
+      "hi": 0.4,
+      "mean_conf": 0.3227764964103699,
+      "empirical_acc": 0.0,
+      "n_samples": 2
+    },
+    {
+      "bin": 4,
+      "lo": 0.4,
+      "hi": 0.5,
+      "mean_conf": 0.45,
+      "empirical_acc": 0.0,
+      "n_samples": 0
+    },
+    {
+      "bin": 5,
+      "lo": 0.5,
+      "hi": 0.6000000000000001,
+      "mean_conf": 0.55,
+      "empirical_acc": 0.0,
+      "n_samples": 0
+    },
+    {
+      "bin": 6,
+      "lo": 0.6000000000000001,
+      "hi": 0.7000000000000001,
+      "mean_conf": 0.6500000000000001,
+      "empirical_acc": 0.0,
+      "n_samples": 0
+    },
+    {
+      "bin": 7,
+      "lo": 0.7000000000000001,
+      "hi": 0.8,
+      "mean_conf": 0.75,
+      "empirical_acc": 0.0,
+      "n_samples": 0
+    },
+    {
+      "bin": 8,
+      "lo": 0.8,
+      "hi": 0.9,
+      "mean_conf": 0.8500000000000001,
+      "empirical_acc": 0.0,
+      "n_samples": 0
+    },
+    {
+      "bin": 9,
+      "lo": 0.9,
+      "hi": 1.0,
+      "mean_conf": 0.95,
+      "empirical_acc": 0.0,
+      "n_samples": 0
+    }
+  ],
+  "n_bins": 10,
+  "wall_clock_sec": 14.1,
+  "checkpoint": "results\\validate_pitchgpt_20260418T150305Z\\pitchgpt_full.pt"
+}

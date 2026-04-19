@@ -1,0 +1,54 @@
+{
+  "model": "causal_war",
+  "invocation": "/validate-model causal_war",
+  "timestamp_utc": "2026-04-18T13:05:27Z",
+  "spec_path": "docs/models/causal_war_validation_spec.md",
+  "gates": [
+    {
+      "name": "leakage_check",
+      "threshold": "no game_pk overlap between train (2015-2022) and test (2023-2024)",
+      "measured": "disjoint season ranges enforced by --train-start 2015 --train-end 2022 --test-start 2023 --test-end 2024; baseline script performs in-memory split on extracted PA-level data",
+      "operator": "disjoint",
+      "pass": true,
+      "source": "scripts/baseline_comparison.py invocation"
+    },
+    {
+      "name": "pearson_r",
+      "threshold": 0.5,
+      "measured": 0.7289,
+      "ci_95": [0.6691, 0.779],
+      "operator": ">=",
+      "pass": true,
+      "source": "causal_war_baseline_comparison_2023_2024_metrics.json (metrics_combined)"
+    },
+    {
+      "name": "spearman_rho",
+      "threshold": 0.6,
+      "measured": 0.6142,
+      "ci_95": [0.5505, 0.68],
+      "operator": ">=",
+      "pass": true,
+      "source": "causal_war_baseline_comparison_2023_2024_metrics.json (metrics_combined)"
+    },
+    {
+      "name": "ci_coverage",
+      "threshold": "[0.93, 0.97]",
+      "measured": null,
+      "operator": "informational",
+      "pass": null,
+      "source": "results/ci_coverage*.json (not present; informational gate skipped per skill spec)"
+    }
+  ],
+  "overall_pass": true,
+  "artifacts": [
+    "results/validate_causal_war_20260418T130527Z/causal_war_baseline_comparison_2023_2024_metrics.json",
+    "results/validate_causal_war_20260418T130527Z/causal_war_baseline_comparison_2023_2024.csv",
+    "results/validate_causal_war_20260418T130527Z/causal_war_baseline_scatter.html",
+    "results/validate_causal_war_20260418T130527Z/step_2_baseline.log"
+  ],
+  "wall_clock_seconds": {
+    "leakage_check": 0.1,
+    "baseline_comparison": 1735
+  },
+  "notes": "Leakage check satisfied by disjoint season ranges (train 2015-2022, test 2023-2024); baseline_comparison.py extracts PA-level data per range and performs in-memory split, so no game_pk overlap is possible. Pitcher cohort is empty (n=0) in this run; combined metrics equal batter metrics (n=574). Test nuisance R2=0.0007 (test) vs train R2=0.0009 (train), reported per Ticket 1 spec. Informational CI-coverage gate skipped (no results/ci_coverage*.json present)."
+}

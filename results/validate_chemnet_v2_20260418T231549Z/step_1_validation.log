@@ -1,0 +1,51 @@
+2026-04-18 19:15:58 | INFO    | chemnet_validation | ChemNet validation: train ref 2015-2022 (assumed), test 2023-2024
+2026-04-18 19:15:59 | INFO    | chemnet_validation | Loaded models\chemnet_v2.pt onto cuda:0 in 1.23s (mode=v2)
+2026-04-18 19:15:59 | INFO    | chemnet_validation | Cohort: 5010 test game_pks (leakage overlap with train range = 0)
+2026-04-18 19:16:35 | INFO    | chemnet_validation | Inferred 200/5010 games (5.5 games/s); kept rows=400 skipped=0
+2026-04-18 19:17:13 | INFO    | chemnet_validation | Inferred 400/5010 games (5.4 games/s); kept rows=800 skipped=0
+2026-04-18 19:17:49 | INFO    | chemnet_validation | Inferred 600/5010 games (5.5 games/s); kept rows=1200 skipped=0
+2026-04-18 19:18:26 | INFO    | chemnet_validation | Inferred 800/5010 games (5.5 games/s); kept rows=1600 skipped=0
+2026-04-18 19:19:01 | INFO    | chemnet_validation | Inferred 1000/5010 games (5.5 games/s); kept rows=2000 skipped=0
+2026-04-18 19:19:35 | INFO    | chemnet_validation | Inferred 1200/5010 games (5.6 games/s); kept rows=2400 skipped=0
+2026-04-18 19:20:08 | INFO    | chemnet_validation | Inferred 1400/5010 games (5.6 games/s); kept rows=2800 skipped=0
+2026-04-18 19:20:40 | INFO    | chemnet_validation | Inferred 1600/5010 games (5.7 games/s); kept rows=3200 skipped=0
+2026-04-18 19:21:11 | INFO    | chemnet_validation | Inferred 1800/5010 games (5.8 games/s); kept rows=3600 skipped=0
+2026-04-18 19:21:41 | INFO    | chemnet_validation | Inferred 2000/5010 games (5.9 games/s); kept rows=4000 skipped=0
+2026-04-18 19:22:11 | INFO    | chemnet_validation | Inferred 2200/5010 games (5.9 games/s); kept rows=4400 skipped=0
+2026-04-18 19:22:41 | INFO    | chemnet_validation | Inferred 2400/5010 games (6.0 games/s); kept rows=4800 skipped=0
+2026-04-18 19:23:14 | INFO    | chemnet_validation | Inferred 2600/5010 games (6.0 games/s); kept rows=5200 skipped=0
+2026-04-18 19:23:48 | INFO    | chemnet_validation | Inferred 2800/5010 games (6.0 games/s); kept rows=5600 skipped=0
+2026-04-18 19:24:21 | INFO    | chemnet_validation | Inferred 3000/5010 games (6.0 games/s); kept rows=6000 skipped=0
+2026-04-18 19:24:55 | INFO    | chemnet_validation | Inferred 3200/5010 games (6.0 games/s); kept rows=6400 skipped=0
+2026-04-18 19:25:28 | INFO    | chemnet_validation | Inferred 3400/5010 games (6.0 games/s); kept rows=6800 skipped=0
+2026-04-18 19:26:01 | INFO    | chemnet_validation | Inferred 3600/5010 games (6.0 games/s); kept rows=7200 skipped=0
+2026-04-18 19:26:33 | INFO    | chemnet_validation | Inferred 3800/5010 games (6.0 games/s); kept rows=7600 skipped=0
+2026-04-18 19:27:04 | INFO    | chemnet_validation | Inferred 4000/5010 games (6.0 games/s); kept rows=8000 skipped=0
+2026-04-18 19:27:36 | INFO    | chemnet_validation | Inferred 4200/5010 games (6.0 games/s); kept rows=8400 skipped=0
+2026-04-18 19:28:08 | INFO    | chemnet_validation | Inferred 4400/5010 games (6.0 games/s); kept rows=8800 skipped=0
+2026-04-18 19:28:41 | INFO    | chemnet_validation | Inferred 4600/5010 games (6.0 games/s); kept rows=9200 skipped=0
+2026-04-18 19:29:14 | INFO    | chemnet_validation | Inferred 4800/5010 games (6.0 games/s); kept rows=9600 skipped=0
+2026-04-18 19:29:48 | INFO    | chemnet_validation | Inferred 5000/5010 games (6.0 games/s); kept rows=10000 skipped=0
+2026-04-18 19:29:50 | INFO    | chemnet_validation | Inference complete: 10020 game-side rows in 831.0s (skipped 0 for build_graph failure)
+2026-04-18 19:29:50 | INFO    | chemnet_validation | PA filter: kept 9836 rows, dropped 184 short-PA sides (< 25 PAs)
+2026-04-18 19:29:53 | INFO    | chemnet_validation | Metrics computed in 2.5s
+2026-04-18 19:29:54 | INFO    | chemnet_validation | Wrote results\validate_chemnet_v2_20260418T231549Z\chemnet_validation_metrics.json
+
+========================================================================
+ChemNet Validation -- Summary
+========================================================================
+GNN:      n=9836   r=0.1554  rho=0.1471  RMSE=4.5308  MAE=3.5831
+Baseline: n=9836   r=0.16  rho=0.1518  RMSE=4.5238  MAE=3.5771
+Synergy edge: dRMSE=-0.007  (-0.0015 fractional)
+Synergy -> residual: rho=-0.0369  CI=[-0.0574, -0.0178]
+Decile lift (top - bottom mean residual): -0.6382
+------------------------------------------------------------------------
+  [FAIL] gnn_pearson_r_test                thr=>= 0.30                    meas=0.1554
+  [FAIL] gnn_beats_baseline_rmse           thr=>= 2% RMSE reduction       meas=-0.0015
+  [FAIL] synergy_predicts_residual         thr=>= 0.10 with CI lower > 0  meas=-0.0369
+  [FAIL] gnn_rmse_calibration              thr=<= 4.0 wOBA-points         meas=4.5308
+  [PASS] leakage_audit                     thr=0 game_pks shared train/test  meas=0
+------------------------------------------------------------------------
+OVERALL: FAIL
+========================================================================
+

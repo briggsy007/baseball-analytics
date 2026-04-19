@@ -1,0 +1,148 @@
+{
+  "config": {
+    "train_start": 2015,
+    "train_end": 2022,
+    "test_start": 2023,
+    "test_end": 2024,
+    "max_test_games": 0,
+    "n_bootstrap_ci": 1000,
+    "random_state": 42,
+    "model_version": "1",
+    "pa_min_per_side": 25
+  },
+  "device": "cuda:0",
+  "leakage_audit": {
+    "train_seasons": [
+      2015,
+      2022
+    ],
+    "test_seasons": [
+      2023,
+      2024
+    ],
+    "n_train_game_pks": 17094,
+    "n_test_game_pks": 5010,
+    "shared_game_pks_train_test": 0,
+    "season_disjoint": true,
+    "pass": true
+  },
+  "data_quality": {
+    "n_test_game_pks": 5010,
+    "n_game_sides_inferred": 10020,
+    "n_game_sides_after_pa_filter": 9836,
+    "dropped_for_short_lineup": 0,
+    "dropped_for_short_pa": 184
+  },
+  "metrics": {
+    "gnn": {
+      "n": 9836,
+      "pearson_r": 0.0891,
+      "pearson_r_ci": [
+        0.0702,
+        0.1095
+      ],
+      "spearman_rho": 0.0823,
+      "rmse": 4.5855,
+      "mae": 3.578
+    },
+    "baseline": {
+      "n": 9836,
+      "pearson_r": 0.0846,
+      "pearson_r_ci": [
+        0.0643,
+        0.1048
+      ],
+      "spearman_rho": 0.0771,
+      "rmse": 4.5789,
+      "mae": 3.5806
+    },
+    "synergy_lift": {
+      "rmse_gnn": 4.5855,
+      "rmse_baseline": 4.5789,
+      "rmse_abs_improvement": -0.0066,
+      "rmse_pct_improvement": -0.0014
+    },
+    "synergy_residual": {
+      "n": 9836,
+      "spearman_rho": 0.0263,
+      "spearman_rho_ci": [
+        0.0066,
+        0.0457
+      ],
+      "pearson_r": 0.0213
+    },
+    "decile_lift": {
+      "top_decile_mean_residual": 0.5776,
+      "bottom_decile_mean_residual": 0.3289,
+      "lift_top_minus_bottom": 0.2487,
+      "n_top_decile": 984,
+      "n_bottom_decile": 984
+    }
+  },
+  "gates": [
+    {
+      "name": "gnn_pearson_r_test",
+      "threshold": ">= 0.30",
+      "measured": 0.0891,
+      "measured_ci": [
+        0.0702,
+        0.1095
+      ],
+      "operator": ">=",
+      "pass": false,
+      "hard": true,
+      "source": "metrics.gnn.pearson_r"
+    },
+    {
+      "name": "gnn_beats_baseline_rmse",
+      "threshold": ">= 2% RMSE reduction",
+      "measured": -0.0014,
+      "operator": ">=",
+      "pass": false,
+      "hard": true,
+      "source": "metrics.synergy_lift.rmse_pct_improvement"
+    },
+    {
+      "name": "synergy_predicts_residual",
+      "threshold": ">= 0.10 with CI lower > 0",
+      "measured": 0.0263,
+      "measured_ci": [
+        0.0066,
+        0.0457
+      ],
+      "operator": ">=",
+      "pass": false,
+      "hard": true,
+      "source": "metrics.synergy_residual.spearman_rho"
+    },
+    {
+      "name": "gnn_rmse_calibration",
+      "threshold": "<= 4.0 wOBA-points",
+      "measured": 4.5855,
+      "operator": "<=",
+      "pass": false,
+      "hard": true,
+      "source": "metrics.gnn.rmse"
+    },
+    {
+      "name": "leakage_audit",
+      "threshold": "0 game_pks shared train/test",
+      "measured": 0,
+      "operator": "==",
+      "pass": true,
+      "hard": true,
+      "source": "leakage_audit.shared_game_pks_train_test"
+    }
+  ],
+  "overall_pass": false,
+  "wall_clock_seconds": {
+    "model_load": 0.09,
+    "inference": 553.33,
+    "metrics": 2.58
+  },
+  "artifacts": {
+    "per_game_csv": "results\\validate_chemnet_20260418T204255Z\\chemnet_validation_per_game.csv",
+    "decile_lift_csv": "results\\validate_chemnet_20260418T204255Z\\chemnet_validation_decile_lift.csv",
+    "metrics_json": "results\\validate_chemnet_20260418T204255Z\\chemnet_validation_metrics.json"
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "model": "mechanix_ae",
+  "invocation": "/validate-model mechanix_ae",
+  "timestamp_utc": "2026-04-18T13:11:37Z",
+  "spec_path": "docs/models/mechanix_ae_validation_spec.md",
+  "score_mode": "zscore",
+  "gates": [
+    {
+      "name": "leakage_check",
+      "threshold": "no shared windows; injured-cohort 30-day pre-IL excluded from training",
+      "measured": "per-pitcher checkpoints in models/mechanix_ae/per_pitcher/, --skip-train, training excludes 30-day pre-IL (spec section A); ROC separates injured-cohort positives from matched healthy negatives",
+      "operator": "==",
+      "pass": true,
+      "source": "models/mechanix_ae/per_pitcher/, scripts/mechanix_ae_roc_analysis.py"
+    },
+    {
+      "name": "auc_mdi",
+      "threshold": 0.65,
+      "measured": 0.387028461998318,
+      "ci_95": [0.356087188086121, 0.4143380399904985],
+      "operator": ">=",
+      "pass": false,
+      "tier": "HARD FAIL + PIVOT (auc < 0.58)",
+      "source": "summary.json roc.mdi.auc"
+    },
+    {
+      "name": "delta_auc_mdi_minus_veldrop",
+      "threshold": 0.10,
+      "measured": 0.119054796186153,
+      "operator": ">=",
+      "pass": true,
+      "source": "summary.json roc.delta_auc"
+    },
+    {
+      "name": "median_lead_time_days",
+      "threshold": 10,
+      "measured": 48.0,
+      "operator": ">=",
+      "pass": true,
+      "notes": "lead_time_t2.0 (z=2.0 breach), n_breached=81/92 (88.0%); t1.0 median=59.5 days, t3.0 median=43.0 days",
+      "source": "summary.json lead_time_summary.lead_time_t2.0.median_days"
+    },
+    {
+      "name": "fpr_at_mdi_80",
+      "threshold": 0.20,
+      "measured": 1.00,
+      "operator": "<=",
+      "pass": false,
+      "notes": "zscore-mode reports pct_breach_z1=100, pct_breach_z2=96, pct_breach_z3=86; legacy MDI-percentile fpr_summary.json gives pct_breach_60/70/80 = 100/100/100",
+      "source": "summary.json fpr + fpr_summary.json"
+    }
+  ],
+  "overall_pass": false,
+  "verdict_band": "HARD FAIL with PIVOT recommendation",
+  "artifacts": [
+    "results/validate_mechanix_ae_20260418T131137Z/summary.json",
+    "results/validate_mechanix_ae_20260418T131137Z/roc_curve.json",
+    "results/validate_mechanix_ae_20260418T131137Z/roc_curve.html",
+    "results/validate_mechanix_ae_20260418T131137Z/lead_time_per_pitcher.csv",
+    "results/validate_mechanix_ae_20260418T131137Z/lead_time_distribution.json",
+    "results/validate_mechanix_ae_20260418T131137Z/lead_time_distribution.html",
+    "results/validate_mechanix_ae_20260418T131137Z/fpr_summary.json",
+    "results/validate_mechanix_ae_20260418T131137Z/fpr_healthy_seasons.csv",
+    "results/validate_mechanix_ae_20260418T131137Z/step_1_leakage.log",
+    "results/validate_mechanix_ae_20260418T131137Z/step_2_roc.log"
+  ],
+  "wall_clock_seconds": {
+    "leakage_check": 1,
+    "roc_analysis": 426
+  },
+  "cohort": {
+    "n_cohort": 111,
+    "n_trained": 111,
+    "n_skipped": 0,
+    "n_healthy_roc": 50,
+    "n_healthy_fpr": 50,
+    "n_pos_windows": 613,
+    "n_neg_windows": 644
+  },
+  "hardware": {
+    "torch": "2.11.0+cu126",
+    "cuda_available": true,
+    "device": "NVIDIA GeForce RTX 3050 Laptop GPU"
+  },
+  "notes": "DECISION GATE TRIGGERED: AUC(MDI)=0.387 is below the 0.58 PIVOT threshold AND below random (0.5), implying MDI is anti-correlated with injury under z-score mode. Per spec section D, PIVOT narrative from 'injury early-warning' to 'mechanical profiling'. Lead-time and delta_auc gates both pass, but the FPR gate is catastrophically failed (100% of healthy seasons breach all thresholds in z-score mode), confirming the model in this scoring mode flags every pitcher. Consider re-running with --score-mode percentile to compare; legacy MDI-percentile FPR also reports 100%/100%/100% so the FPR signal is unambiguous. n_healthy_fpr capped at 50 because cohort split allocates 50 healthy seasons to ROC and 50 to FPR (script log)."
+}

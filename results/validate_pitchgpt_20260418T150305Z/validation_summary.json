@@ -1,0 +1,132 @@
+{
+  "model": "pitchgpt",
+  "invocation": "/validate-model pitchgpt (post-pitcher-disjoint-split fix)",
+  "timestamp_utc": "2026-04-18T15:03:05Z",
+  "spec_path": "docs/models/pitchgpt_validation_spec.md",
+  "gates": [
+    {
+      "name": "leakage_game_pk",
+      "threshold": "no shared game_pk across train/val/test",
+      "measured": "0 shared game_pks across all splits (train=1000, val=299, test=300 game_pks)",
+      "operator": "==",
+      "pass": true,
+      "source": "pitchgpt_ablation_metrics.json:leakage_audit"
+    },
+    {
+      "name": "leakage_pitcher_train_test",
+      "threshold": "no pitcher in both train and test",
+      "measured": "0 shared pitcher_ids between train (1433) and test (214); 0 shared between train and val (111)",
+      "operator": "==",
+      "pass": true,
+      "source": "pitchgpt_ablation_metrics.json:leakage_audit"
+    },
+    {
+      "name": "ablation_tokens_only_gap",
+      "threshold": 0.10,
+      "measured": 0.0103,
+      "operator": ">=",
+      "pass": false,
+      "source": "pitchgpt_ablation_metrics.json:drops_vs_full_pct.tokens_only"
+    },
+    {
+      "name": "ablation_count_only_gap",
+      "threshold": 0.10,
+      "measured": 0.0136,
+      "operator": ">=",
+      "pass": false,
+      "source": "pitchgpt_ablation_metrics.json:drops_vs_full_pct.count_only"
+    },
+    {
+      "name": "ablation_identity_only_gap",
+      "threshold": 0.10,
+      "measured": 0.9406,
+      "operator": ">=",
+      "pass": true,
+      "source": "pitchgpt_ablation_metrics.json:drops_vs_full_pct.identity_only"
+    },
+    {
+      "name": "ablation_overall",
+      "threshold": "all 3 variants beaten by >= 10%",
+      "measured": "1/3 variants pass (identity_only 94.06%); tokens_only 1.03% and count_only 1.36% both well under 10% gate",
+      "operator": "all >= 10%",
+      "pass": false,
+      "source": "pitchgpt_ablation_metrics.json:pass"
+    },
+    {
+      "name": "calibration_ece_pre_temperature",
+      "threshold": 0.10,
+      "measured": 0.020342439171270148,
+      "operator": "<",
+      "pass": true,
+      "source": "pitchgpt_calibration.json:ece_pre_temp"
+    },
+    {
+      "name": "calibration_ece_post_temperature",
+      "threshold": 0.10,
+      "measured": 0.00961310750831446,
+      "operator": "<",
+      "pass": true,
+      "source": "pitchgpt_calibration.json:ece_post_temp"
+    }
+  ],
+  "overall_pass": false,
+  "artifacts": [
+    "results/validate_pitchgpt_20260418T150305Z/pitchgpt_full.pt",
+    "results/validate_pitchgpt_20260418T150305Z/pitchgpt_ablation_metrics.json",
+    "results/validate_pitchgpt_20260418T150305Z/pitchgpt_calibration.json",
+    "results/validate_pitchgpt_20260418T150305Z/pitchgpt_reliability.html",
+    "results/validate_pitchgpt_20260418T150305Z/step_2_ablation.log",
+    "results/validate_pitchgpt_20260418T150305Z/step_3_calibration.log"
+  ],
+  "wall_clock_seconds": {
+    "leakage_check": 0.1,
+    "ablation_total": 288.0,
+    "ablation_full": 67.7,
+    "ablation_tokens_only": 72.8,
+    "ablation_count_only": 71.2,
+    "ablation_identity_only": 72.2,
+    "calibration": 14.1
+  },
+  "data": {
+    "train_range": "2015-2022",
+    "val_range": "2023",
+    "test_range": "2024",
+    "n_train_sequences": 8596,
+    "n_val_sequences": 447,
+    "n_test_sequences": 624,
+    "n_train_pitchers": 1433,
+    "n_val_pitchers": 111,
+    "n_test_pitchers": 214,
+    "device": "cuda",
+    "seed": 42,
+    "epochs": 5
+  },
+  "ablation_summary": {
+    "full_test_ppl": 153.443,
+    "tokens_only_test_ppl": 155.035,
+    "count_only_test_ppl": 155.557,
+    "identity_only_test_ppl": 2583.323,
+    "best_ablation": "tokens_only",
+    "best_ablation_gap_pct": 1.03,
+    "verdict": "FAIL — pitcher-disjoint split fix worked (identity_only collapsed 94% as expected, proving the prior 180% inversion was pure pitcher-id memorization). But context features still don't differentiate: tokens_only and count_only land within 1.0–1.4% of full. At 1K train games / 5 epochs / pitcher-disjoint, the transformer context is not pulling weight."
+  },
+  "calibration_summary": {
+    "n_test_tokens": 22894,
+    "accuracy": 0.034,
+    "ece_pre_temp": 0.020342439171270148,
+    "ece_post_temp": 0.00961310750831446,
+    "optimal_temperature": 1.1246391534805298,
+    "verdict": "PASS — both pre- and post-temperature ECE under 0.10 gate. Temperature scaling halves ECE."
+  },
+  "comparison_pre_vs_post_fix": {
+    "pre_fix_run": "results/validate_pitchgpt_20260418T132155Z/",
+    "shared_pitcher_ids_train_test_before": 409,
+    "shared_pitcher_ids_train_test_after": 0,
+    "identity_only_test_ppl_before": 52.99,
+    "identity_only_test_ppl_after": 2583.32,
+    "identity_only_drop_vs_full_before_pct": -180.16,
+    "identity_only_drop_vs_full_after_pct": 94.06,
+    "interpretation": "Pre-fix, identity_only was 180% BETTER than full (memorizing the 409 leaked pitchers). Post-fix, identity_only is 94% WORSE than full (correctly degraded with no train-pitcher signal in test). The fix worked exactly as designed; the remaining failure of tokens_only/count_only gap is a separate, honest finding about context-feature contribution at this data scale."
+  },
+  "notes": "Pitcher-disjoint split implemented in PitchSequenceDataset (see modified src/analytics/pitchgpt.py). Both leakage gates now PASS cleanly. Ablation overall still FAILs because context features (tokens_only, count_only) contribute <1.5% lift over the full model — this is a real finding about the architecture/data scale, not a leakage artifact. Calibration excellent. Note: validation_summary.json written by PM after the fixer agent terminated mid-consolidation (API error); all underlying artifacts (ablation metrics, calibration, model checkpoint) were generated by the agent before termination and are intact."
+}

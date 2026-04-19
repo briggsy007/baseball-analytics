@@ -1,0 +1,67 @@
+{
+  "model": "chemnet",
+  "version": "2.0.0",
+  "checkpoint": "models/chemnet_v2.pt",
+  "run_dir": "results/validate_chemnet_v2_20260418T231549Z",
+  "run_timestamp_utc": "2026-04-18T23:15:49Z",
+  "verdict": "FAIL",
+  "verdict_band": "SECOND_NEGATIVE",
+  "headline": "ChemNet v2 (10-node lineup+pitcher graph, residual objective) crosses none of the four predictive gates. Pitcher node delivered measurable signal (Pearson r 0.089 -> 0.155, RMSE 4.59 -> 4.53) but neither change closed the gap to the >= 0.30 / <= 4.0 thresholds, and the GNN remains marginally worse than its non-graph MLP baseline. Synergy score (gnn - baseline) reverses sign on the residual prediction (-0.037 vs +0.026 in v1), confirming the synergy framing is not recoverable on per-game wOBA. Recommendation: retire ChemNet from flagship-candidate list.",
+  "gates_passed": 1,
+  "gates_total": 5,
+  "gates": [
+    {"name": "gnn_pearson_r_test", "threshold": ">= 0.30", "measured": 0.1554, "ci_95": [0.1374, 0.1743], "pass": false, "hard": true},
+    {"name": "gnn_beats_baseline_rmse", "threshold": ">= 2% RMSE reduction", "measured": -0.0015, "pass": false, "hard": true},
+    {"name": "synergy_predicts_residual", "threshold": ">= 0.10 with CI lower > 0", "measured": -0.0369, "ci_95": [-0.0574, -0.0178], "pass": false, "hard": true},
+    {"name": "gnn_rmse_calibration", "threshold": "<= 4.0 wOBA-points", "measured": 4.5308, "pass": false, "hard": true},
+    {"name": "leakage_audit", "threshold": "0 game_pks shared train/test", "measured": 0, "pass": true, "hard": true}
+  ],
+  "v1_vs_v2_delta": {
+    "gnn_pearson_r": {"v1": 0.0891, "v2": 0.1554, "delta": 0.0663, "direction": "improved"},
+    "gnn_rmse": {"v1": 4.5855, "v2": 4.5308, "delta": -0.0547, "direction": "improved"},
+    "synergy_residual_rho": {"v1": 0.0263, "v2": -0.0369, "delta": -0.0632, "direction": "regressed_sign_flipped"},
+    "rmse_pct_improvement_over_baseline": {"v1": -0.0014, "v2": -0.0015, "delta": -0.0001, "direction": "unchanged"},
+    "decile_lift": {"v1": 0.249, "v2": -0.6382, "direction": "regressed_sign_flipped"}
+  },
+  "architecture_changes": {
+    "graph_topology": "9 lineup nodes -> 10 nodes (lineup + opposing starter, star overlay on band)",
+    "node_features_pitcher": "[rolling_FIP_proxy, K%, BB%, HR_per_9, GB%] z-normalised within cohort",
+    "objective": "residual prediction (actual_total_woba - sum_of_parts) replacing absolute target",
+    "sum_of_parts_baseline": "fixed slot-PA schedule [4.6, 4.5, 4.4, 4.3, 4.2, 4.1, 4.0, 3.9, 3.8] times slot rolling wOBA",
+    "absolute_equivalent_predictions": "pred_absolute = sum_of_parts + pred_residual (for both GNN and baseline MLP)"
+  },
+  "training_stats": {
+    "n_train_graphs": 31453,
+    "n_val_graphs": 2735,
+    "epochs_run": 1,
+    "epochs_planned": 8,
+    "epochs_note": "Training was killed after 1 epoch on the second pass (eager-save checkpoint at best val_gnn=21.4253) to preserve wall-clock budget for validation. A 9-epoch run completed in a previous attempt and showed val_gnn flat at 21.41-21.47 across epochs, confirming the architecture saturates fast and additional epochs do not change the gate verdict.",
+    "best_val_gnn_mse_residual": 21.4253,
+    "best_val_baseline_mse_residual": 21.3612,
+    "loss_curve_first_pass_25_epoch_attempt": [
+      {"epoch": 1, "train_gnn": 21.9173, "val_gnn": 21.4536, "val_base": 21.3436},
+      {"epoch": 2, "train_gnn": 21.8372, "val_gnn": 21.4472, "val_base": 21.2187},
+      {"epoch": 3, "train_gnn": 21.8137, "val_gnn": 21.4721, "val_base": 21.2152},
+      {"epoch": 4, "train_gnn": 21.8308, "val_gnn": 21.4275, "val_base": 21.0907},
+      {"epoch": 5, "train_gnn": 21.8016, "val_gnn": 21.4173, "val_base": 21.0449},
+      {"epoch": 6, "train_gnn": 21.8064, "val_gnn": 21.4179, "val_base": 21.0451},
+      {"epoch": 7, "train_gnn": 21.8152, "val_gnn": 21.4304, "val_base": 21.0756},
+      {"epoch": 8, "train_gnn": 21.7962, "val_gnn": 21.4111, "val_base": 21.1011},
+      {"epoch": 9, "train_gnn": 21.7852, "val_gnn": 21.4098, "val_base": 21.0489}
+    ]
+  },
+  "residual_only_metrics": {
+    "note": "Same numerical predictions evaluated against the residual target (actual - sum_of_parts) instead of the absolute target. Useful for diagnosing whether the residual objective recovered any signal that the absolute view obscures.",
+    "gnn_residual_pearson_r": 0.1287,
+    "baseline_residual_pearson_r": 0.1396,
+    "sum_of_parts_only_pearson_r": 0.1045,
+    "interpretation": "sum_of_parts on its own correlates r=0.10 with actual_total_woba; adding the GNN/baseline residual prediction lifts this to r~0.15, but the GNN does not outperform the MLP on the residual scale either."
+  },
+  "banner_removal_recommendation": "no",
+  "caveats": [
+    "Training was truncated to 1 epoch on the saved checkpoint (eager-save). A separate 9-epoch run on the same architecture showed val_gnn never improved beyond ~21.41 MSE (RMSE ~4.63 on residual scale); the gate verdict would not change with more epochs.",
+    "The residual scale variance is essentially the same as the absolute scale variance (sum_of_parts is a weak baseline because rolling slot wOBAs vary by only +/- 0.04 on the scale of total game wOBA standard deviation 4.75). The residual objective therefore did not simplify the prediction problem materially.",
+    "GPU was contended with 4 concurrent agents; training-epoch wall time inflated from ~1 s/epoch on smoke (160 graphs) to ~130 s/epoch on the full 31,453-graph cohort.",
+    "v1 checkpoint preserved (37 KB at models/chemnet_v1.pt) and unchanged."
+  ]
+}

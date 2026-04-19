@@ -1,0 +1,59 @@
+{
+  "model": "causal_war",
+  "invocation": "Post-correctness-fixes validation (venue dead-join + hardcoded fielding alignment)",
+  "timestamp_utc": "2026-04-18T19:02:27Z",
+  "spec_path": "docs/models/causal_war_validation_spec.md",
+  "intervention": {
+    "hypothesis": "Two correctness bugs in the DML confounder matrix were silently degrading the de-confounding step: (1) `LEFT JOIN games g` joined against an empty dimension table, so `venue_code` was 0 for every PA (park effects feature dead), and (2) `if_shift` / `of_shift` were hardcoded to literal 0 instead of the real `pitches.if_/of_fielding_alignment` columns (97% fill, 5 distinct levels each). Researcher predicted ~+0.01 to +0.03 Spearman lift after fixing both.",
+    "fixes_applied": [
+      "src/analytics/causal_war.py:_extract_pa_data -- dropped LEFT JOIN games g; pulls home_team / away_team / if_fielding_alignment / of_fielding_alignment directly from pitches via MAX() inside the PA-level GROUP BY (constant within a PA).",
+      "src/analytics/causal_war.py:_build_features -- venue_code now factor-encodes home_team (~30 distinct values, 100% fill) instead of the always-NULL games.venue; if_shift / of_shift now factor-encode the real fielding alignment categoricals."
+    ],
+    "comparison_baseline": "results/validate_causal_war_20260418T171420Z/ (pa=300/ip=50, pre-fix)",
+    "deltas": {
+      "combined": {
+        "pearson_r": {"before": 0.7089, "after": 0.5746, "delta": -0.1343},
+        "pearson_r_ci": {"before": [0.6611, 0.7501], "after": [0.5044, 0.6385]},
+        "spearman_rho": {"before": 0.6314, "after": 0.4938, "delta": -0.1376},
+        "spearman_rho_ci": {"before": [0.5862, 0.6752], "after": [0.4402, 0.5442]}
+      },
+      "batters": {
+        "pearson_r": {"before": 0.7433, "after": 0.6557, "delta": -0.0876},
+        "pearson_r_ci": {"before": [0.6834, 0.7946], "after": [0.5633, 0.7240]},
+        "spearman_rho": {"before": 0.6743, "after": 0.5669, "delta": -0.1074},
+        "spearman_rho_ci": {"before": [0.6107, 0.7324], "after": [0.4865, 0.6334]}
+      },
+      "pitchers": {
+        "pearson_r": {"before": 0.7272, "after": 0.7087, "delta": -0.0185},
+        "pearson_r_ci": {"before": [0.6737, 0.7736], "after": [0.6546, 0.7585]},
+        "spearman_rho": {"before": 0.6815, "after": 0.6745, "delta": -0.0070},
+        "spearman_rho_ci": {"before": [0.6246, 0.7327], "after": [0.6114, 0.7260]}
+      },
+      "nuisance_r2": {
+        "train": {"before": 0.0009, "after": 0.0020},
+        "test": {"before": 0.0007, "after": -0.0089}
+      }
+    }
+  },
+  "gates": [
+    {"name": "leakage_check", "threshold": "game_pk-disjoint train/test", "measured": "train 2015-2022 vs test 2023-2024 (disjoint by season range)", "operator": "==", "pass": true, "source": "scripts/baseline_comparison.py invocation"},
+    {"name": "pearson_r_combined", "threshold": ">= 0.50", "measured": 0.5746, "measured_ci": [0.5044, 0.6385], "operator": ">=", "pass": true, "source": "metrics_combined.pearson_r"},
+    {"name": "spearman_rho_combined", "threshold": ">= 0.60", "measured": 0.4938, "measured_ci": [0.4402, 0.5442], "operator": ">=", "pass": false, "source": "metrics_combined.spearman_rho", "note": "REGRESSION: combined Spearman fell below the 0.60 spec gate after correctness fixes."},
+    {"name": "spearman_rho_combined_lower_ci_mint", "threshold": ">= 0.60", "measured": 0.4402, "operator": ">=", "pass": false, "source": "metrics_combined.spearman_rho_ci[0]"},
+    {"name": "pearson_r_batters", "threshold": "informational", "measured": 0.6557, "measured_ci": [0.5633, 0.7240], "operator": "info", "pass": true, "source": "metrics_batters.pearson_r"},
+    {"name": "spearman_rho_batters", "threshold": ">= 0.60 (cohort)", "measured": 0.5669, "measured_ci": [0.4865, 0.6334], "operator": ">=", "pass": false, "source": "metrics_batters.spearman_rho", "note": "Batter cohort Spearman dropped below 0.60 -- previously cleared at 0.6743."},
+    {"name": "pearson_r_pitchers", "threshold": "informational", "measured": 0.7087, "measured_ci": [0.6546, 0.7585], "operator": "info", "pass": true, "source": "metrics_pitchers.pearson_r"},
+    {"name": "spearman_rho_pitchers", "threshold": ">= 0.60 (cohort)", "measured": 0.6745, "measured_ci": [0.6114, 0.7260], "operator": ">=", "pass": true, "source": "metrics_pitchers.spearman_rho", "note": "Pitcher cohort essentially unchanged (-0.007); fixes are largely orthogonal to pitcher signal."}
+  ],
+  "overall_pass": false,
+  "verdict": "REGRESSION -- correctness fixes degraded test-set headline metrics",
+  "verdict_explanation": "Both correctness bugs were real and the fixes are methodologically sound (live park-effects feature via pitches.home_team, real fielding-alignment categoricals from pitches.if_/of_fielding_alignment). However, the empirical effect on test-set headline metrics was the OPPOSITE of the researcher's +0.01 to +0.03 Spearman prediction: combined Spearman fell from 0.6314 to 0.4938 (-0.138), driven almost entirely by the batter cohort (-0.107). The pitcher cohort was effectively unchanged (-0.007). The DML test nuisance R^2 also flipped from +0.0007 to -0.0089, indicating the enriched confounder set generalises WORSE out-of-sample on batters. Likely root cause: factor-encoded home_team gives the train-set DML model 30 effective levels to memorise team-park-era confounding that does not transfer to the 2023-2024 holdout; combined with the new fielding-alignment factors, the residualisation is now over-correcting for batter context, deflating the per-player residual signal that drives downstream rank correlation with bWAR.",
+  "artifacts": [
+    "results/validate_causal_war_20260418T190227Z/causal_war_baseline_comparison_2023_2024_metrics.json",
+    "results/validate_causal_war_20260418T190227Z/causal_war_baseline_comparison_2023_2024.csv",
+    "results/validate_causal_war_20260418T190227Z/causal_war_baseline_scatter.html",
+    "models/causal_war/causal_war_trainsplit_2015_2022.pkl"
+  ],
+  "wall_clock_seconds": {"retrain_plus_validate": 849, "test_pass_count": 27},
+  "notes": "Post-correctness-fixes run. Both bugs (dead games-table venue join at causal_war.py:803 and hardcoded if_shift/of_shift at causal_war.py:865-866) confirmed and patched in a single edit each. All 27 CausalWAR pytest cases pass. Re-trained on the canonical 2015-2022 window using HistGradientBoosting nuisance + 5-fold cross-fitting + 50 bootstraps; validated at pa_min=300 / ip_min=50 to match the 171420Z baseline. The methodological correctness improvements stand independent of the headline regression -- park effects and shifts are now measurable rather than silently dead -- but the prediction that fixing dead features would tighten downstream WAR-rank correlation did NOT hold. The headline regression should be flagged for follow-up investigation: candidates include (a) regularising the new categorical splits (target-encode home_team rather than label-encode to avoid 30-level over-fitting), (b) interacting fielding alignment with batted-ball context only, (c) re-evaluating whether richer confounders are the right Spearman lever vs the structural cross-position scale tension previously identified."
+}

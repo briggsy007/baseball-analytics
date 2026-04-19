@@ -1,0 +1,1087 @@
+{
+  "cohort": {
+    "n_cohort": 111,
+    "n_trained": 111,
+    "n_skipped": 0,
+    "wall_train_minutes": 0.32,
+    "per_injury_trained": {
+      "shoulder": 37,
+      "elbow": 30,
+      "other_arm": 19,
+      "forearm": 16,
+      "rotator_cuff": 5,
+      "tommy_john": 3,
+      "ucl_sprain": 1
+    },
+    "per_injury_skipped": {},
+    "skipped_reasons": {},
+    "training_records": [
+      {
+        "pitcher_id": 523989,
+        "injury_type": "elbow",
+        "il_date": "2015-05-26",
+        "n_healthy_pitches": 406,
+        "final_recon_loss": 0.8943109682628086
+      },
+      {
+        "pitcher_id": 605151,
+        "injury_type": "shoulder",
+        "il_date": "2015-06-02",
+        "n_healthy_pitches": 330,
+        "final_recon_loss": 0.8981916069984436
+      },
+      {
+        "pitcher_id": 592717,
+        "injury_type": "other_arm",
+        "il_date": "2015-06-06",
+        "n_healthy_pitches": 449,
+        "final_recon_loss": 0.8753986699240548
+      },
+      {
+        "pitcher_id": 458681,
+        "injury_type": "forearm",
+        "il_date": "2015-06-08",
+        "n_healthy_pitches": 611,
+        "final_recon_loss": 0.8472246646881103
+      },
+      {
+        "pitcher_id": 453192,
+        "injury_type": "forearm",
+        "il_date": "2015-06-10",
+        "n_healthy_pitches": 252,
+        "final_recon_loss": 0.8756333738565445
+      },
+      {
+        "pitcher_id": 502578,
+        "injury_type": "other_arm",
+        "il_date": "2015-06-12",
+        "n_healthy_pitches": 217,
+        "final_recon_loss": 0.8729726523160934
+      },
+      {
+        "pitcher_id": 571561,
+        "injury_type": "shoulder",
+        "il_date": "2015-06-14",
+        "n_healthy_pitches": 240,
+        "final_recon_loss": 0.8836491107940674
+      },
+      {
+        "pitcher_id": 573127,
+        "injury_type": "shoulder",
+        "il_date": "2015-06-17",
+        "n_healthy_pitches": 258,
+        "final_recon_loss": 0.9035768061876297
+      },
+      {
+        "pitcher_id": 445612,
+        "injury_type": "rotator_cuff",
+        "il_date": "2015-06-17",
+        "n_healthy_pitches": 291,
+        "final_recon_loss": 0.934177303314209
+      },
+      {
+        "pitcher_id": 543746,
+        "injury_type": "forearm",
+        "il_date": "2015-06-26",
+        "n_healthy_pitches": 314,
+        "final_recon_loss": 0.868388044834137
+      },
+      {
+        "pitcher_id": 346793,
+        "injury_type": "shoulder",
+        "il_date": "2015-06-26",
+        "n_healthy_pitches": 239,
+        "final_recon_loss": 0.8815648555755615
+      },
+      {
+        "pitcher_id": 279571,
+        "injury_type": "elbow",
+        "il_date": "2015-06-26",
+        "n_healthy_pitches": 367,
+        "final_recon_loss": 0.8468203941980997
+      },
+      {
+        "pitcher_id": 218596,
+        "injury_type": "shoulder",
+        "il_date": "2015-06-27",
+        "n_healthy_pitches": 811,
+        "final_recon_loss": 0.7642853397589463
+      },
+      {
+        "pitcher_id": 453311,
+        "injury_type": "forearm",
+        "il_date": "2015-06-28",
+        "n_healthy_pitches": 856,
+        "final_recon_loss": 0.7655184439250401
+      },
+      {
+        "pitcher_id": 548357,
+        "injury_type": "shoulder",
+        "il_date": "2015-06-29",
+        "n_healthy_pitches": 430,
+        "final_recon_loss": 0.8085755620683942
+      },
+      {
+        "pitcher_id": 490063,
+        "injury_type": "shoulder",
+        "il_date": "2015-07-03",
+        "n_healthy_pitches": 994,
+        "final_recon_loss": 0.7560726702213287
+      },
+      {
+        "pitcher_id": 519151,
+        "injury_type": "other_arm",
+        "il_date": "2015-07-05",
+        "n_healthy_pitches": 233,
+        "final_recon_loss": 0.8831309676170349
+      },
+      {
+        "pitcher_id": 534910,
+        "injury_type": "forearm",
+        "il_date": "2015-07-06",
+        "n_healthy_pitches": 1068,
+        "final_recon_loss": 0.7207502477309283
+      },
+      {
+        "pitcher_id": 453329,
+        "injury_type": "forearm",
+        "il_date": "2015-07-11",
+        "n_healthy_pitches": 1154,
+        "final_recon_loss": 0.7005050347910987
+      },
+      {
+        "pitcher_id": 502304,
+        "injury_type": "shoulder",
+        "il_date": "2015-07-12",
+        "n_healthy_pitches": 282,
+        "final_recon_loss": 0.8864865899085999
+      },
+      {
+        "pitcher_id": 502624,
+        "injury_type": "other_arm",
+        "il_date": "2015-07-19",
+        "n_healthy_pitches": 1250,
+        "final_recon_loss": 0.744201448559761
+      },
+      {
+        "pitcher_id": 518452,
+        "injury_type": "shoulder",
+        "il_date": "2015-07-19",
+        "n_healthy_pitches": 697,
+        "final_recon_loss": 0.7509188164364208
+      },
+      {
+        "pitcher_id": 444935,
+        "injury_type": "elbow",
+        "il_date": "2015-07-28",
+        "n_healthy_pitches": 423,
+        "final_recon_loss": 0.9187170607703072
+      },
+      {
+        "pitcher_id": 605894,
+        "injury_type": "other_arm",
+        "il_date": "2015-07-28",
+        "n_healthy_pitches": 355,
+        "final_recon_loss": 0.8199338416258494
+      },
+      {
+        "pitcher_id": 450351,
+        "injury_type": "elbow",
+        "il_date": "2015-07-29",
+        "n_healthy_pitches": 1506,
+        "final_recon_loss": 0.5916912903388342
+      },
+      {
+        "pitcher_id": 519144,
+        "injury_type": "other_arm",
+        "il_date": "2015-07-30",
+        "n_healthy_pitches": 1451,
+        "final_recon_loss": 0.7099281445793484
+      },
+      {
+        "pitcher_id": 502264,
+        "injury_type": "elbow",
+        "il_date": "2015-07-30",
+        "n_healthy_pitches": 207,
+        "final_recon_loss": 0.8894317746162415
+      },
+      {
+        "pitcher_id": 501381,
+        "injury_type": "forearm",
+        "il_date": "2015-07-30",
+        "n_healthy_pitches": 1456,
+        "final_recon_loss": 0.6772723146106886
+      },
+      {
+        "pitcher_id": 150359,
+        "injury_type": "elbow",
+        "il_date": "2015-07-31",
+        "n_healthy_pitches": 1444,
+        "final_recon_loss": 0.7504250329473744
+      },
+      {
+        "pitcher_id": 452718,
+        "injury_type": "shoulder",
+        "il_date": "2015-08-01",
+        "n_healthy_pitches": 1467,
+        "final_recon_loss": 0.7344203384026237
+      },
+      {
+        "pitcher_id": 543548,
+        "injury_type": "elbow",
+        "il_date": "2015-08-01",
+        "n_healthy_pitches": 872,
+        "final_recon_loss": 0.8388580339295524
+      },
+      {
+        "pitcher_id": 430630,
+        "injury_type": "shoulder",
+        "il_date": "2015-08-02",
+        "n_healthy_pitches": 442,
+        "final_recon_loss": 0.8454561488968986
+      },
+      {
+        "pitcher_id": 605169,
+        "injury_type": "elbow",
+        "il_date": "2015-08-03",
+        "n_healthy_pitches": 304,
+        "final_recon_loss": 0.9089749693870545
+      },
+      {
+        "pitcher_id": 572888,
+        "injury_type": "shoulder",
+        "il_date": "2015-08-09",
+        "n_healthy_pitches": 1035,
+        "final_recon_loss": 0.7640849053859711
+      },
+      {
+        "pitcher_id": 430641,
+        "injury_type": "elbow",
+        "il_date": "2015-08-09",
+        "n_healthy_pitches": 511,
+        "final_recon_loss": 0.8190836161375046
+      },
+      {
+        "pitcher_id": 475054,
+        "injury_type": "shoulder",
+        "il_date": "2015-08-10",
+        "n_healthy_pitches": 419,
+        "final_recon_loss": 0.8671892711094448
+      },
+      {
+        "pitcher_id": 543506,
+        "injury_type": "shoulder",
+        "il_date": "2015-08-10",
+        "n_healthy_pitches": 622,
+        "final_recon_loss": 0.856816565990448
+      },
+      {
+        "pitcher_id": 457429,
+        "injury_type": "elbow",
+        "il_date": "2015-08-12",
+        "n_healthy_pitches": 472,
+        "final_recon_loss": 0.907649926841259
+      },
+      {
+        "pitcher_id": 451788,
+        "injury_type": "elbow",
+        "il_date": "2015-08-15",
+        "n_healthy_pitches": 561,
+        "final_recon_loss": 0.8977422184414334
+      },
+      {
+        "pitcher_id": 475479,
+        "injury_type": "forearm",
+        "il_date": "2015-08-17",
+        "n_healthy_pitches": 1425,
+        "final_recon_loss": 0.623091535134749
+      },
+      {
+        "pitcher_id": 572788,
+        "injury_type": "elbow",
+        "il_date": "2015-08-19",
+        "n_healthy_pitches": 215,
+        "final_recon_loss": 0.8897192180156708
+      },
+      {
+        "pitcher_id": 434671,
+        "injury_type": "rotator_cuff",
+        "il_date": "2015-08-20",
+        "n_healthy_pitches": 1971,
+        "final_recon_loss": 0.6465291419336873
+      },
+      {
+        "pitcher_id": 346847,
+        "injury_type": "shoulder",
+        "il_date": "2015-08-20",
+        "n_healthy_pitches": 387,
+        "final_recon_loss": 0.8735408882300059
+      },
+      {
+        "pitcher_id": 471911,
+        "injury_type": "shoulder",
+        "il_date": "2015-08-22",
+        "n_healthy_pitches": 1757,
+        "final_recon_loss": 0.7202849090099335
+      },
+      {
+        "pitcher_id": 605333,
+        "injury_type": "tommy_john",
+        "il_date": "2015-08-24",
+        "n_healthy_pitches": 227,
+        "final_recon_loss": 0.9052111208438873
+      },
+      {
+        "pitcher_id": 435400,
+        "injury_type": "shoulder",
+        "il_date": "2015-08-24",
+        "n_healthy_pitches": 614,
+        "final_recon_loss": 0.9055733859539032
+      },
+      {
+        "pitcher_id": 543242,
+        "injury_type": "elbow",
+        "il_date": "2015-08-26",
+        "n_healthy_pitches": 722,
+        "final_recon_loss": 0.7761073329231956
+      },
+      {
+        "pitcher_id": 456068,
+        "injury_type": "shoulder",
+        "il_date": "2015-08-31",
+        "n_healthy_pitches": 1767,
+        "final_recon_loss": 0.6691465995141438
+      },
+      {
+        "pitcher_id": 543508,
+        "injury_type": "shoulder",
+        "il_date": "2015-09-04",
+        "n_healthy_pitches": 201,
+        "final_recon_loss": 0.8722248276074728
+      },
+      {
+        "pitcher_id": 519267,
+        "injury_type": "other_arm",
+        "il_date": "2015-09-10",
+        "n_healthy_pitches": 769,
+        "final_recon_loss": 0.7522455503543218
+      },
+      {
+        "pitcher_id": 444857,
+        "injury_type": "shoulder",
+        "il_date": "2015-09-14",
+        "n_healthy_pitches": 1463,
+        "final_recon_loss": 0.7479558302008588
+      },
+      {
+        "pitcher_id": 593372,
+        "injury_type": "shoulder",
+        "il_date": "2015-09-30",
+        "n_healthy_pitches": 2426,
+        "final_recon_loss": 0.6838253642383375
+      },
+      {
+        "pitcher_id": 475857,
+        "injury_type": "other_arm",
+        "il_date": "2016-03-12",
+        "n_healthy_pitches": 209,
+        "final_recon_loss": 0.9083478848139445
+      },
+      {
+        "pitcher_id": 547179,
+        "injury_type": "elbow",
+        "il_date": "2016-03-25",
+        "n_healthy_pitches": 1994,
+        "final_recon_loss": 0.542831523764518
+      },
+      {
+        "pitcher_id": 457754,
+        "injury_type": "forearm",
+        "il_date": "2016-03-25",
+        "n_healthy_pitches": 314,
+        "final_recon_loss": 0.8795291900634765
+      },
+      {
+        "pitcher_id": 571901,
+        "injury_type": "elbow",
+        "il_date": "2016-03-25",
+        "n_healthy_pitches": 747,
+        "final_recon_loss": 0.7860002368688583
+      },
+      {
+        "pitcher_id": 453172,
+        "injury_type": "other_arm",
+        "il_date": "2016-03-25",
+        "n_healthy_pitches": 966,
+        "final_recon_loss": 0.8108510533968608
+      },
+      {
+        "pitcher_id": 518771,
+        "injury_type": "elbow",
+        "il_date": "2016-03-25",
+        "n_healthy_pitches": 436,
+        "final_recon_loss": 0.8093002693993705
+      },
+      {
+        "pitcher_id": 543935,
+        "injury_type": "shoulder",
+        "il_date": "2016-03-25",
+        "n_healthy_pitches": 1014,
+        "final_recon_loss": 0.8798253461718559
+      },
+      {
+        "pitcher_id": 543278,
+        "injury_type": "shoulder",
+        "il_date": "2016-03-25",
+        "n_healthy_pitches": 968,
+        "final_recon_loss": 0.7577061176300048
+      },
+      {
+        "pitcher_id": 605476,
+        "injury_type": "elbow",
+        "il_date": "2016-03-25",
+        "n_healthy_pitches": 1068,
+        "final_recon_loss": 0.8390793204307556
+      },
+      {
+        "pitcher_id": 571439,
+        "injury_type": "elbow",
+        "il_date": "2016-03-25",
+        "n_healthy_pitches": 394,
+        "final_recon_loss": 0.8879280785719553
+      },
+      {
+        "pitcher_id": 621121,
+        "injury_type": "shoulder",
+        "il_date": "2016-03-25",
+        "n_healthy_pitches": 2213,
+        "final_recon_loss": 0.6450650232178824
+      },
+      {
+        "pitcher_id": 445197,
+        "injury_type": "forearm",
+        "il_date": "2016-03-25",
+        "n_healthy_pitches": 986,
+        "final_recon_loss": 0.7455116398632526
+      },
+      {
+        "pitcher_id": 518567,
+        "injury_type": "shoulder",
+        "il_date": "2016-03-28",
+        "n_healthy_pitches": 1925,
+        "final_recon_loss": 0.615501981973648
+      },
+      {
+        "pitcher_id": 446099,
+        "injury_type": "shoulder",
+        "il_date": "2016-04-02",
+        "n_healthy_pitches": 1070,
+        "final_recon_loss": 0.6898083862136392
+      },
+      {
+        "pitcher_id": 545064,
+        "injury_type": "tommy_john",
+        "il_date": "2016-04-03",
+        "n_healthy_pitches": 277,
+        "final_recon_loss": 0.9729546785354615
+      },
+      {
+        "pitcher_id": 605374,
+        "injury_type": "tommy_john",
+        "il_date": "2016-04-03",
+        "n_healthy_pitches": 462,
+        "final_recon_loss": 0.8871044090815953
+      },
+      {
+        "pitcher_id": 467094,
+        "injury_type": "elbow",
+        "il_date": "2016-04-04",
+        "n_healthy_pitches": 1268,
+        "final_recon_loss": 0.7623398572206497
+      },
+      {
+        "pitcher_id": 475115,
+        "injury_type": "shoulder",
+        "il_date": "2016-04-05",
+        "n_healthy_pitches": 3227,
+        "final_recon_loss": 0.6451601456193363
+      },
+      {
+        "pitcher_id": 571760,
+        "injury_type": "forearm",
+        "il_date": "2016-04-06",
+        "n_healthy_pitches": 1645,
+        "final_recon_loss": 0.6369076737990746
+      },
+      {
+        "pitcher_id": 462985,
+        "injury_type": "shoulder",
+        "il_date": "2016-04-07",
+        "n_healthy_pitches": 1005,
+        "final_recon_loss": 0.8389654718339443
+      },
+      {
+        "pitcher_id": 450282,
+        "injury_type": "shoulder",
+        "il_date": "2016-04-11",
+        "n_healthy_pitches": 834,
+        "final_recon_loss": 0.7867834751422589
+      },
+      {
+        "pitcher_id": 489265,
+        "injury_type": "forearm",
+        "il_date": "2016-04-11",
+        "n_healthy_pitches": 881,
+        "final_recon_loss": 0.8284126818180084
+      },
+      {
+        "pitcher_id": 502004,
+        "injury_type": "forearm",
+        "il_date": "2016-04-18",
+        "n_healthy_pitches": 1053,
+        "final_recon_loss": 0.7102924445096184
+      },
+      {
+        "pitcher_id": 429719,
+        "injury_type": "other_arm",
+        "il_date": "2016-04-18",
+        "n_healthy_pitches": 876,
+        "final_recon_loss": 0.7858221232891083
+      },
+      {
+        "pitcher_id": 572362,
+        "injury_type": "elbow",
+        "il_date": "2016-04-18",
+        "n_healthy_pitches": 219,
+        "final_recon_loss": 0.9029922634363174
+      },
+      {
+        "pitcher_id": 612434,
+        "injury_type": "shoulder",
+        "il_date": "2016-04-18",
+        "n_healthy_pitches": 293,
+        "final_recon_loss": 0.9048232316970826
+      },
+      {
+        "pitcher_id": 605309,
+        "injury_type": "elbow",
+        "il_date": "2016-04-20",
+        "n_healthy_pitches": 1072,
+        "final_recon_loss": 0.7337310349240023
+      },
+      {
+        "pitcher_id": 572038,
+        "injury_type": "elbow",
+        "il_date": "2016-04-21",
+        "n_healthy_pitches": 482,
+        "final_recon_loss": 0.8998935222625732
+      },
+      {
+        "pitcher_id": 276542,
+        "injury_type": "shoulder",
+        "il_date": "2016-04-22",
+        "n_healthy_pitches": 1036,
+        "final_recon_loss": 0.7713111117482185
+      },
+      {
+        "pitcher_id": 502043,
+        "injury_type": "shoulder",
+        "il_date": "2016-04-23",
+        "n_healthy_pitches": 3228,
+        "final_recon_loss": 0.5901036052142873
+      },
+      {
+        "pitcher_id": 451596,
+        "injury_type": "shoulder",
+        "il_date": "2016-04-23",
+        "n_healthy_pitches": 3305,
+        "final_recon_loss": 0.6318429525081928
+      },
+      {
+        "pitcher_id": 554340,
+        "injury_type": "other_arm",
+        "il_date": "2016-04-23",
+        "n_healthy_pitches": 866,
+        "final_recon_loss": 0.7741120372499738
+      },
+      {
+        "pitcher_id": 543900,
+        "injury_type": "forearm",
+        "il_date": "2016-04-29",
+        "n_healthy_pitches": 536,
+        "final_recon_loss": 0.8668116529782613
+      },
+      {
+        "pitcher_id": 605135,
+        "injury_type": "elbow",
+        "il_date": "2016-04-29",
+        "n_healthy_pitches": 1420,
+        "final_recon_loss": 0.770356151190671
+      },
+      {
+        "pitcher_id": 543964,
+        "injury_type": "rotator_cuff",
+        "il_date": "2016-05-02",
+        "n_healthy_pitches": 274,
+        "final_recon_loss": 0.8765223026275635
+      },
+      {
+        "pitcher_id": 572070,
+        "injury_type": "ucl_sprain",
+        "il_date": "2016-05-06",
+        "n_healthy_pitches": 3347,
+        "final_recon_loss": 0.6080138110197507
+      },
+      {
+        "pitcher_id": 521230,
+        "injury_type": "other_arm",
+        "il_date": "2016-05-08",
+        "n_healthy_pitches": 1177,
+        "final_recon_loss": 0.7801107450535423
+      },
+      {
+        "pitcher_id": 432934,
+        "injury_type": "forearm",
+        "il_date": "2016-05-10",
+        "n_healthy_pitches": 2338,
+        "final_recon_loss": 0.6582910257416803
+      },
+      {
+        "pitcher_id": 450665,
+        "injury_type": "rotator_cuff",
+        "il_date": "2016-05-11",
+        "n_healthy_pitches": 1012,
+        "final_recon_loss": 0.7818844951689243
+      },
+      {
+        "pitcher_id": 595307,
+        "injury_type": "elbow",
+        "il_date": "2016-05-13",
+        "n_healthy_pitches": 1074,
+        "final_recon_loss": 0.7349264095811283
+      },
+      {
+        "pitcher_id": 446399,
+        "injury_type": "other_arm",
+        "il_date": "2016-05-15",
+        "n_healthy_pitches": 913,
+        "final_recon_loss": 0.8292746416160038
+      },
+      {
+        "pitcher_id": 425626,
+        "injury_type": "elbow",
+        "il_date": "2016-05-26",
+        "n_healthy_pitches": 945,
+        "final_recon_loss": 0.8061654329299927
+      },
+      {
+        "pitcher_id": 444436,
+        "injury_type": "other_arm",
+        "il_date": "2016-05-27",
+        "n_healthy_pitches": 752,
+        "final_recon_loss": 0.8593382835388184
+      },
+      {
+        "pitcher_id": 518468,
+        "injury_type": "elbow",
+        "il_date": "2016-05-29",
+        "n_healthy_pitches": 1044,
+        "final_recon_loss": 0.9018471240997314
+      },
+      {
+        "pitcher_id": 571584,
+        "injury_type": "shoulder",
+        "il_date": "2016-05-29",
+        "n_healthy_pitches": 359,
+        "final_recon_loss": 0.9752483665943146
+      },
+      {
+        "pitcher_id": 622072,
+        "injury_type": "other_arm",
+        "il_date": "2016-05-31",
+        "n_healthy_pitches": 3435,
+        "final_recon_loss": 0.6856594736929293
+      },
+      {
+        "pitcher_id": 592314,
+        "injury_type": "elbow",
+        "il_date": "2016-05-31",
+        "n_healthy_pitches": 1480,
+        "final_recon_loss": 0.8127961288327756
+      },
+      {
+        "pitcher_id": 554234,
+        "injury_type": "rotator_cuff",
+        "il_date": "2016-06-07",
+        "n_healthy_pitches": 2081,
+        "final_recon_loss": 0.8378589207475836
+      },
+      {
+        "pitcher_id": 592826,
+        "injury_type": "other_arm",
+        "il_date": "2016-06-09",
+        "n_healthy_pitches": 1539,
+        "final_recon_loss": 0.7985082939267159
+      },
+      {
+        "pitcher_id": 543037,
+        "injury_type": "other_arm",
+        "il_date": "2016-06-11",
+        "n_healthy_pitches": 3907,
+        "final_recon_loss": 0.7092936420049823
+      },
+      {
+        "pitcher_id": 489119,
+        "injury_type": "shoulder",
+        "il_date": "2016-06-13",
+        "n_healthy_pitches": 3860,
+        "final_recon_loss": 0.7231863258314914
+      },
+      {
+        "pitcher_id": 594736,
+        "injury_type": "elbow",
+        "il_date": "2016-06-13",
+        "n_healthy_pitches": 1748,
+        "final_recon_loss": 0.6737576818891934
+      },
+      {
+        "pitcher_id": 640455,
+        "injury_type": "forearm",
+        "il_date": "2016-06-14",
+        "n_healthy_pitches": 203,
+        "final_recon_loss": 0.9664434393246969
+      },
+      {
+        "pitcher_id": 430580,
+        "injury_type": "shoulder",
+        "il_date": "2016-06-16",
+        "n_healthy_pitches": 3601,
+        "final_recon_loss": 0.7416549889104707
+      },
+      {
+        "pitcher_id": 517008,
+        "injury_type": "other_arm",
+        "il_date": "2016-06-19",
+        "n_healthy_pitches": 1966,
+        "final_recon_loss": 0.7306067424435769
+      },
+      {
+        "pitcher_id": 572403,
+        "injury_type": "shoulder",
+        "il_date": "2016-06-20",
+        "n_healthy_pitches": 730,
+        "final_recon_loss": 0.8299033790826797
+      },
+      {
+        "pitcher_id": 488846,
+        "injury_type": "elbow",
+        "il_date": "2016-06-20",
+        "n_healthy_pitches": 779,
+        "final_recon_loss": 0.8345686544974645
+      },
+      {
+        "pitcher_id": 474029,
+        "injury_type": "elbow",
+        "il_date": "2016-06-21",
+        "n_healthy_pitches": 1102,
+        "final_recon_loss": 0.8100684039732989
+      },
+      {
+        "pitcher_id": 407890,
+        "injury_type": "other_arm",
+        "il_date": "2016-06-22",
+        "n_healthy_pitches": 4105,
+        "final_recon_loss": 0.7239093417301774
+      }
+    ],
+    "skipped_records": []
+  },
+  "score_mode": "zscore",
+  "lead_time_summary": {
+    "lead_time_t1.0": {
+      "n_breached": 90,
+      "n_total": 92,
+      "fraction_breached": 0.9782608695652174,
+      "median_days": 59.5,
+      "mean_days": 54.74444444444445,
+      "p25_days": 35.25,
+      "p75_days": 77.75
+    },
+    "lead_time_t2.0": {
+      "n_breached": 81,
+      "n_total": 92,
+      "fraction_breached": 0.8804347826086957,
+      "median_days": 48.0,
+      "mean_days": 46.160493827160494,
+      "p25_days": 32.0,
+      "p75_days": 65.0
+    },
+    "lead_time_t3.0": {
+      "n_breached": 60,
+      "n_total": 92,
+      "fraction_breached": 0.6521739130434783,
+      "median_days": 43.0,
+      "mean_days": 41.35,
+      "p25_days": 19.75,
+      "p75_days": 61.25
+    }
+  },
+  "roc": {
+    "mdi": {
+      "auc": 0.387028461998318,
+      "auc_ci_95": [
+        0.356087188086121,
+        0.4143380399904985
+      ],
+      "tpr": [
+        1.0,
+        0.99836867862969,
+        0.9951060358890701,
+        0.9918433931484503,
+        0.9836867862969005,
+        0.9787928221859706,
+        0.9738988580750407,
+        0.9592169657422512,
+        0.933115823817292,
+        0.9004893964110929,
+        0.8450244698205547,
+        0.7960848287112561,
+        0.734094616639478,
+        0.6590538336052202,
+        0.598694942903752,
+        0.5301794453507341,
+        0.47145187601957583,
+        0.4078303425774878,
+        0.3523654159869494,
+        0.3066884176182708,
+        0.26753670473083196,
+        0.2300163132137031,
+        0.2039151712887439,
+        0.17455138662316477,
+        0.14845024469820556,
+        0.13213703099510604,
+        0.11582381729200653,
+        0.10929853181076672,
+        0.10114192495921696,
+        0.08972267536704731,
+        0.0734094616639478,
+        0.06199021207177814,
+        0.048939641109298535,
+        0.04567699836867863,
+        0.040783034257748776,
+        0.03588907014681892,
+        0.03588907014681892,
+        0.02773246329526917,
+        0.024469820554649267,
+        0.022838499184339316,
+        0.021207177814029365
+      ],
+      "fpr": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        0.9968944099378882,
+        0.9922360248447205,
+        0.9922360248447205,
+        0.9891304347826086,
+        0.9891304347826086,
+        0.9813664596273292,
+        0.9642857142857143,
+        0.9394409937888198,
+        0.8975155279503105,
+        0.8338509316770186,
+        0.7717391304347826,
+        0.6972049689440993,
+        0.6335403726708074,
+        0.5496894409937888,
+        0.4922360248447205,
+        0.42857142857142855,
+        0.37267080745341613,
+        0.32608695652173914,
+        0.2686335403726708,
+        0.2360248447204969,
+        0.21583850931677018,
+        0.18322981366459629,
+        0.15527950310559005,
+        0.14130434782608695,
+        0.13198757763975155,
+        0.11335403726708075,
+        0.09006211180124224,
+        0.08229813664596274,
+        0.07453416149068323,
+        0.059006211180124224,
+        0.05124223602484472,
+        0.04503105590062112,
+        0.043478260869565216,
+        0.037267080745341616,
+        0.03260869565217391,
+        0.027950310559006212,
+        0.027950310559006212
+      ],
+      "thresholds": [
+        -2.0,
+        -1.8,
+        -1.6,
+        -1.4,
+        -1.2,
+        -1.0,
+        -0.8,
+        -0.6,
+        -0.4,
+        -0.2,
+        0.0,
+        0.2,
+        0.4,
+        0.6,
+        0.8,
+        1.0,
+        1.2,
+        1.4,
+        1.6,
+        1.8,
+        2.0,
+        2.2,
+        2.4,
+        2.6,
+        2.8,
+        3.0,
+        3.2,
+        3.4,
+        3.6,
+        3.8,
+        4.0,
+        4.2,
+        4.4,
+        4.6,
+        4.8,
+        5.0,
+        5.2,
+        5.4,
+        5.6,
+        5.8,
+        6.0
+      ],
+      "n_pos": 613,
+      "n_neg": 644
+    },
+    "velocity_drop": {
+      "auc": 0.267973665812165,
+      "auc_ci_95": [
+        0.24492611185176577,
+        0.29253413636607006
+      ],
+      "tpr": [
+        1.0,
+        0.9820554649265906,
+        0.965742251223491,
+        0.9526916802610114,
+        0.9380097879282219,
+        0.9265905383360522,
+        0.8923327895595432,
+        0.867862969004894,
+        0.8303425774877651,
+        0.7879282218597063,
+        0.7406199021207178,
+        0.6786296900489397,
+        0.6313213703099511,
+        0.5840130505709625,
+        0.531810766721044,
+        0.4812398042414356,
+        0.433931484502447,
+        0.399673735725938,
+        0.3556280587275693,
+        0.32137030995106036,
+        0.27895595432300163,
+        0.2544861337683524,
+        0.23164763458401305,
+        0.20228384991843393,
+        0.18760195758564438,
+        0.1598694942903752,
+        0.14518760195758565,
+        0.12887438825448613,
+        0.11582381729200653,
+        0.10277324632952692,
+        0.0929853181076672
+      ],
+      "fpr": [
+        1.0,
+        0.9984472049689441,
+        0.9984472049689441,
+        0.9984472049689441,
+        0.9968944099378882,
+        0.9968944099378882,
+        0.9953416149068323,
+        0.9922360248447205,
+        0.9875776397515528,
+        0.984472049689441,
+        0.9767080745341615,
+        0.9627329192546584,
+        0.9487577639751553,
+        0.9285714285714286,
+        0.8959627329192547,
+        0.8618012422360248,
+        0.8136645962732919,
+        0.75,
+        0.6925465838509317,
+        0.6537267080745341,
+        0.5916149068322981,
+        0.5403726708074534,
+        0.4922360248447205,
+        0.44565217391304346,
+        0.39596273291925466,
+        0.36180124223602483,
+        0.327639751552795,
+        0.296583850931677,
+        0.2608695652173913,
+        0.234472049689441,
+        0.21428571428571427
+      ],
+      "thresholds": [
+        0.0,
+        0.2,
+        0.4,
+        0.6,
+        0.8,
+        1.0,
+        1.2,
+        1.4,
+        1.6,
+        1.8,
+        2.0,
+        2.2,
+        2.4,
+        2.6,
+        2.8,
+        3.0,
+        3.2,
+        3.4,
+        3.6,
+        3.8,
+        4.0,
+        4.2,
+        4.4,
+        4.6,
+        4.8,
+        5.0,
+        5.2,
+        5.4,
+        5.6,
+        5.8,
+        6.0
+      ],
+      "n_pos": 613,
+      "n_neg": 644
+    },
+    "delta_auc": 0.119054796186153,
+    "score_mode": "zscore"
+  },
+  "fpr": {
+    "n_healthy_seasons": 50,
+    "score_mode": "zscore",
+    "pct_breach_z1": 100.0,
+    "pct_breach_z2": 96.0,
+    "pct_breach_z3": 86.0
+  },
+  "wall_clock_minutes": 6.9
+}

@@ -1,0 +1,26 @@
+2026-04-18 16:43:05 | INFO    | chemnet_validation | ChemNet validation: train ref 2015-2022 (assumed), test 2023-2024
+2026-04-18 16:43:05 | INFO    | chemnet_validation | Loaded chemnet_v1.pt onto cuda:0 in 0.08s
+2026-04-18 16:43:05 | INFO    | chemnet_validation | Cohort: 50 test game_pks (leakage overlap with train range = 0)
+2026-04-18 16:43:11 | INFO    | chemnet_validation | Inference complete: 100 game-side rows in 6.2s (skipped 0 for build_graph failure)
+2026-04-18 16:43:11 | INFO    | chemnet_validation | PA filter: kept 100 rows, dropped 0 short-PA sides (< 25 PAs)
+2026-04-18 16:43:11 | INFO    | chemnet_validation | Metrics computed in 0.1s
+2026-04-18 16:43:11 | INFO    | chemnet_validation | Wrote results\validate_chemnet_20260418T204255Z\_smoke\chemnet_validation_metrics.json
+
+========================================================================
+ChemNet Validation -- Summary
+========================================================================
+GNN:      n=100    r=0.1336  rho=0.0903  RMSE=5.1302  MAE=3.6884
+Baseline: n=100    r=0.1158  rho=0.0824  RMSE=5.1104  MAE=3.6816
+Synergy edge: dRMSE=-0.0198  (-0.0039 fractional)
+Synergy -> residual: rho=0.0478  CI=[-0.1271, 0.2568]
+Decile lift (top - bottom mean residual): -1.3911
+------------------------------------------------------------------------
+  [FAIL] gnn_pearson_r_test                thr=>= 0.30                    meas=0.1336
+  [FAIL] gnn_beats_baseline_rmse           thr=>= 2% RMSE reduction       meas=-0.0039
+  [FAIL] synergy_predicts_residual         thr=>= 0.10 with CI lower > 0  meas=0.0478
+  [FAIL] gnn_rmse_calibration              thr=<= 4.0 wOBA-points         meas=5.1302
+  [PASS] leakage_audit                     thr=0 game_pks shared train/test  meas=0
+------------------------------------------------------------------------
+OVERALL: FAIL
+========================================================================
+

@@ -1,0 +1,36 @@
+{
+  "model": "causal_war",
+  "invocation": "PA/IP floor tightening pass (follow-up to /validate-model causal_war)",
+  "timestamp_utc": "2026-04-18T17:14:20Z",
+  "spec_path": "docs/models/causal_war_validation_spec.md",
+  "intervention": {
+    "hypothesis": "Batter cohort contaminated by marginal-volume players whose noisy WAR estimates inflate variance and depress combined Spearman lower CI below 0.60.",
+    "lever": "Raise pa_min and ip_min qualification floors via --pa-min / --ip-min CLI flags in scripts/baseline_comparison.py.",
+    "trials": [
+      {"pa_min": 100, "ip_min": 20, "run_dir": "results/validate_causal_war_20260418T161738Z/", "note": "baseline (prior run)", "n_batters": 574, "n_pitchers": 746, "n_combined": 1320, "spearman_combined": 0.62, "spearman_combined_ci": [0.577, 0.6585]},
+      {"pa_min": 200, "ip_min": 40, "run_dir": "results/validate_causal_war_20260418T165742Z/", "note": "first pass (2x floor)", "n_batters": 483, "n_pitchers": 595, "n_combined": 1078, "spearman_combined": 0.6301, "spearman_combined_ci": [0.5862, 0.6719]},
+      {"pa_min": 300, "ip_min": 50, "run_dir": "results/validate_causal_war_20260418T171420Z/", "note": "escalation (3x batter / 2.5x pitcher floor)", "n_batters": 429, "n_pitchers": 539, "n_combined": 968, "spearman_combined": 0.6314, "spearman_combined_ci": [0.5862, 0.6752]}
+    ]
+  },
+  "gates": [
+    {"name": "leakage_check", "threshold": "game_pk-disjoint train/test", "measured": "train 2015-2022 vs test 2023-2024 (disjoint by season range)", "operator": "==", "pass": true, "source": "scripts/baseline_comparison.py invocation"},
+    {"name": "pearson_r_combined", "threshold": ">= 0.50", "measured": 0.7089, "measured_ci": [0.6611, 0.7501], "operator": ">=", "pass": true, "source": "metrics_combined.pearson_r"},
+    {"name": "spearman_rho_combined", "threshold": ">= 0.60", "measured": 0.6314, "measured_ci": [0.5862, 0.6752], "operator": ">=", "pass": true, "source": "metrics_combined.spearman_rho"},
+    {"name": "spearman_rho_combined_lower_ci_mint", "threshold": ">= 0.60", "measured": 0.5862, "operator": ">=", "pass": false, "source": "metrics_combined.spearman_rho_ci[0]", "note": "User mint criterion: lower CI bound must clear spec gate. Floor lever did not lift it past 0.5862."},
+    {"name": "pearson_r_batters", "threshold": "informational", "measured": 0.7433, "measured_ci": [0.6834, 0.7946], "operator": "info", "pass": true, "source": "metrics_batters.pearson_r"},
+    {"name": "spearman_rho_batters", "threshold": ">= 0.60 (cohort)", "measured": 0.6743, "measured_ci": [0.6107, 0.7324], "operator": ">=", "pass": true, "source": "metrics_batters.spearman_rho", "note": "Lower CI 0.6107 now clears 0.60 -- batter cohort is mint after floor lift."},
+    {"name": "pearson_r_pitchers", "threshold": "informational", "measured": 0.7272, "measured_ci": [0.6737, 0.7736], "operator": "info", "pass": true, "source": "metrics_pitchers.pearson_r"},
+    {"name": "spearman_rho_pitchers", "threshold": ">= 0.60 (cohort)", "measured": 0.6815, "measured_ci": [0.6246, 0.7327], "operator": ">=", "pass": true, "source": "metrics_pitchers.spearman_rho", "note": "Lower CI 0.6246 clears 0.60 -- pitcher cohort remains mint."}
+  ],
+  "overall_pass": false,
+  "verdict": "STILL FRAGILE",
+  "verdict_explanation": "Per-cohort Spearman lower CIs both clear 0.60 (batters 0.611, pitchers 0.625), but combined Spearman lower CI plateaus at 0.5862 across both 200/40 and 300/50 floors -- the floor lever moved the lower CI by ~0.009 from baseline (0.577 -> 0.5862) and then stalled. Combined-cohort fragility appears driven by cross-position scale tension (batters cluster higher in WAR, pitchers lower), not by marginal-volume batter noise. Spec gate (point estimate >= 0.60) PASSES; user mint criterion (lower CI >= 0.60) does NOT.",
+  "artifacts": [
+    "results/validate_causal_war_20260418T171420Z/causal_war_baseline_comparison_2023_2024_metrics.json",
+    "results/validate_causal_war_20260418T171420Z/causal_war_baseline_comparison_2023_2024.csv",
+    "results/validate_causal_war_20260418T171420Z/causal_war_baseline_scatter.html",
+    "results/validate_causal_war_20260418T165742Z/causal_war_baseline_comparison_2023_2024_metrics.json"
+  ],
+  "wall_clock_seconds": {"pa200_ip40_run": 968, "pa300_ip50_run": 1419},
+  "notes": "PA/IP floor tightening was the assigned lever. It improved per-cohort metrics meaningfully but failed to push combined Spearman lower CI past the 0.60 mint bar -- it plateaued at 0.5862 between the 2x and 3x escalation. Per task constraints, did NOT escalate beyond pa_min=300/ip_min=50. Hypothesis updated: combined fragility is structural (cross-position WAR-scale mixing under rank correlation), not a marginal-volume batter problem. Recommended next levers (out of scope here): (a) richer DML confounders to tighten residual variance, (b) report per-cohort Spearman as the primary headline rather than combined, (c) per-position rank standardization before combining. Did not modify spec gates, model checkpoint, or src/analytics/causal_war.py per constraints."
+}

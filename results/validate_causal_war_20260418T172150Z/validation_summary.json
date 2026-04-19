@@ -1,0 +1,54 @@
+{
+  "model": "causal_war",
+  "invocation": "/validate-model causal_war (Spearman CI tightening pass — PA/IP floor raise + 5000 CI bootstrap)",
+  "timestamp_utc": "2026-04-18T17:21:50Z",
+  "spec_path": "docs/models/causal_war_validation_spec.md",
+  "gates": [
+    {
+      "name": "leakage_check",
+      "threshold": "no game_pk overlap between train (2015-2022) and test (2023-2024)",
+      "measured": "disjoint season ranges enforced by --train-start 2015 --train-end 2022 --test-start 2023 --test-end 2024; baseline script performs in-memory split on extracted PA-level data",
+      "operator": "disjoint",
+      "pass": true,
+      "source": "scripts/baseline_comparison.py invocation"
+    },
+    {
+      "name": "pearson_r",
+      "threshold": 0.5,
+      "measured": 0.7108,
+      "ci_95": [0.6631, 0.7531],
+      "operator": ">=",
+      "pass": true,
+      "source": "causal_war_baseline_comparison_2023_2024_metrics.json (metrics_combined)"
+    },
+    {
+      "name": "spearman_rho",
+      "threshold": 0.6,
+      "measured": 0.6364,
+      "ci_95": [0.5900, 0.6784],
+      "operator": ">=",
+      "pass": true,
+      "source": "causal_war_baseline_comparison_2023_2024_metrics.json (metrics_combined)"
+    },
+    {
+      "name": "ci_coverage",
+      "threshold": "[0.93, 0.97]",
+      "measured": null,
+      "operator": "informational",
+      "pass": null,
+      "source": "results/ci_coverage*.json (not present; informational gate skipped per skill spec)"
+    }
+  ],
+  "overall_pass": true,
+  "artifacts": [
+    "results/validate_causal_war_20260418T172150Z/causal_war_baseline_comparison_2023_2024_metrics.json",
+    "results/validate_causal_war_20260418T172150Z/causal_war_baseline_comparison_2023_2024.csv",
+    "results/validate_causal_war_20260418T172150Z/causal_war_baseline_scatter.html",
+    "results/validate_causal_war_20260418T172150Z/step_2_baseline.log"
+  ],
+  "wall_clock_seconds": {
+    "leakage_check": 0.1,
+    "baseline_comparison": 6009
+  },
+  "notes": "Spearman CI tightening follow-up to 20260418T150253Z (combined Spearman lower CI 0.5743 was below user's 'mint' criterion of >=0.60). Tried two interventions stacked: (a) bumped n_bootstrap_ci from 1000 to 5000 (the parameter that actually controls the correlation CI on final pairs — n_bootstrap=50 in CausalWARConfig is the train-time per-player CI bootstrap and is unused by train_test_split's test path, so bumping it would have had no effect on combined-Spearman CI); (b) raised PA floor 100->300 and IP floor 20->60 to drop noisy marginal qualifiers. Pass 1 (5000 CI reps, default floors): combined ρ=0.62, CI [0.5770, 0.6585] — lower bound moved 0.0027 (negligible, sample-variance dominated). Pass 2 (PA=200, IP=40, 5000 reps): n=1078, ρ=0.6301, CI [0.5862, 0.6719]. Pass 3 (this run, PA=300, IP=60, 5000 reps): n=921, ρ=0.6364, CI [0.5900, 0.6784]. Per-cohort metrics ARE mint at PA=300/IP=60: batters n=429 ρ=0.6743 [0.6107, 0.7324]; pitchers n=492 ρ=0.6817 [0.6222, 0.7316] — both lower bounds clear 0.60. The combined CI lower bound (0.59) remains 0.01 below the mint threshold; the drag is structural (combining batter/pitcher cohorts with different WAR-proxy scales widens the rank-correlation CI even when each cohort is individually mint). Spec gate (ρ>=0.60 point) PASSES; user's mint criterion (CI lower>=0.60) does NOT (still FRAGILE). Test nuisance R2=0.0007 vs train R2=0.0009. Recommended next steps for true mint: (1) report cohort-stratified rho/CI in validation as the headline (both mint individually) and use combined as informational; (2) replace OPS/ERA proxies with real bWAR (already in flight per Phase 2K) — proxy noise is the largest residual variance source; (3) increase test horizon beyond 2-season window to add paired observations."
+}

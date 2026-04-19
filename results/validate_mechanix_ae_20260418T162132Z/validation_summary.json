@@ -1,0 +1,66 @@
+{
+  "model": "mechanix_ae",
+  "invocation": "/validate-model mechanix_ae",
+  "timestamp_utc": "2026-04-18T16:21:32Z",
+  "spec_path": "docs/models/mechanix_ae_validation_spec.md",
+  "producer_script": "scripts/mechanix_ae_profiling_analysis.py",
+  "leakage_check": {
+    "pass": true,
+    "justification": "Per-pitcher VAE training already excluded pitches within 30 days pre-IL (spec section A). Profiling pipeline is inference-only over existing per-pitcher checkpoints under models/mechanix_ae/per_pitcher/*.pt; no retraining."
+  },
+  "gates": [
+    {
+      "name": "gate1_per_pitcher_recon_fit",
+      "threshold": ">= 80% of pitchers with mean_recon_mse <= 0.50 on standardized features",
+      "measured": "0.0% (0/111 pitchers); mean recon MSE distribution: min=0.614, median=0.892, max=1.019",
+      "operator": ">=0.80",
+      "pass": false,
+      "source": "results/validate_mechanix_ae_20260418T162132Z/per_pitcher_fit.csv"
+    },
+    {
+      "name": "gate2_mdi_distribution_well_formedness",
+      "threshold": ">= 90% well-formed (std>0.10 AND |skew|<=5 AND >=1 |z|>=1 AND >=1 |z|<=0.5)",
+      "measured": "96.4% (107/111 pitchers)",
+      "operator": ">=0.90",
+      "pass": true,
+      "source": "results/validate_mechanix_ae_20260418T162132Z/mdi_distribution.csv"
+    },
+    {
+      "name": "gate3_coverage_qualified_pitchers",
+      "threshold": "coverage_pct >= 0.75 over pitchers with >= 200 healthy pitches",
+      "measured": "5.6% (111 loadable / 1966 qualified)",
+      "operator": ">=0.75",
+      "pass": false,
+      "source": "results/validate_mechanix_ae_20260418T162132Z/coverage.json"
+    },
+    {
+      "name": "gate4_intra_pitcher_mdi_stability",
+      "threshold": "median_pearson_r >= 0.70 across consecutive within-game windows",
+      "measured": "median r = 0.835 across 111 pitchers (each pitcher's median r over qualifying games with >=3 windows)",
+      "operator": ">=0.70",
+      "pass": true,
+      "source": "results/validate_mechanix_ae_20260418T162132Z/stability_summary.json"
+    },
+    {
+      "name": "gate5_feature_attribution_interpretability",
+      "threshold": ">= 60% of top-decile MDI windows have dominant feature in {release_pos_x, release_pos_z, arm_angle, release_extension, spin_axis}",
+      "measured": "52.7% (cohort_pct_in_mechanical_set across 58,900 top-decile windows from 111 pitchers)",
+      "operator": ">=0.60",
+      "pass": false,
+      "source": "results/validate_mechanix_ae_20260418T162132Z/attribution_summary.json"
+    }
+  ],
+  "overall_pass": false,
+  "artifacts": [
+    "results/validate_mechanix_ae_20260418T162132Z/per_pitcher_fit.csv",
+    "results/validate_mechanix_ae_20260418T162132Z/mdi_distribution.csv",
+    "results/validate_mechanix_ae_20260418T162132Z/coverage.json",
+    "results/validate_mechanix_ae_20260418T162132Z/intra_pitcher_stability.csv",
+    "results/validate_mechanix_ae_20260418T162132Z/stability_summary.json",
+    "results/validate_mechanix_ae_20260418T162132Z/feature_attribution_top_decile.csv",
+    "results/validate_mechanix_ae_20260418T162132Z/attribution_summary.json",
+    "results/validate_mechanix_ae_20260418T162132Z/summary.json"
+  ],
+  "wall_clock_seconds": {"profiling_pipeline": 85.76},
+  "notes": "First run under the descriptive-profiling reframe (spec 2026-04-18). Producer script scripts/mechanix_ae_profiling_analysis.py is now in-repo (replaces the prior PENDING placeholder under SKILL.md Step 4c). Three gates fail: (1) Gate 1 -- recon MSE on the standardised 10-D feature space sits at ~0.88 median across the 111 checkpoints, vs the spec's 0.50 ceiling; cohort recon errors at inference exceed the persisted training-time final_recon_loss because the inference pass uses the FULL pitcher history (post-IL pitches included) whereas training used only the pre-IL-30 healthy windows. (2) Gate 3 -- only 111 per-pitcher checkpoints exist on disk vs 1,966 pitchers with >=200 healthy pitches in the DB. The current cohort matches the original 2015-2016 arm-injury cohort used by the legacy ROC pipeline; expanding to the qualified universe is a refit task, not a measurement bug. (3) Gate 5 -- top-decile windows put the dominant feature in the mechanical set 52.7% of the time, just shy of the 60% threshold. Two gates pass cleanly: Gate 2 (96.4% well-formed MDI distributions) and Gate 4 (median intra-game Pearson r = 0.835). Caveat on Gate 5: the leave-one-out average is computed across the entire history rather than against a held-out neutral sample, which mildly inflates non-mechanical-feature dominance for highly entangled latent dimensions (FLAG B in spec). Caveat on coverage: per-pitcher checkpoints persisted before the z-score era do not carry healthy_recon_mean/std, so Gate 2 falls back to a self-baseline (same fallback used by calculate_mdi); this does not affect well-formedness pass/fail meaningfully but is documented for transparency."
+}

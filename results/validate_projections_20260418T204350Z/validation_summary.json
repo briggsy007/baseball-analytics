@@ -1,0 +1,118 @@
+{
+  "model": "projections",
+  "invocation": "/validate-model projections (initial release backtest)",
+  "timestamp_utc": "2026-04-18T20:48:04Z",
+  "spec_path": "docs/models/projections_validation_spec.md",
+  "gates": [
+    {
+      "name": "leakage_check",
+      "threshold": "all priors < target_season",
+      "measured": "train=[2021, 2022, 2023], target=2024; all priors strictly < target = True",
+      "operator": "disjoint",
+      "pass": true,
+      "source": "scripts/validate_projections.py invocation"
+    },
+    {
+      "name": "rmse_combined",
+      "threshold": 1.5,
+      "measured": 1.5408,
+      "operator": "<=",
+      "pass": false,
+      "source": "backtest_metrics.json (combined.rmse)"
+    },
+    {
+      "name": "pearson_r_combined",
+      "threshold": 0.55,
+      "measured": 0.4972,
+      "operator": ">=",
+      "pass": false,
+      "source": "backtest_metrics.json (combined.pearson_r)"
+    },
+    {
+      "name": "spearman_rho_combined",
+      "threshold": 0.5,
+      "measured": 0.394,
+      "operator": ">=",
+      "pass": false,
+      "source": "backtest_metrics.json (combined.spearman_rho)"
+    },
+    {
+      "name": "rmse_delta_vs_marcel",
+      "threshold": 0.0,
+      "measured": -0.0168,
+      "operator": "<=",
+      "pass": true,
+      "source": "backtest_metrics.json (combined.rmse_delta_vs_marcel)"
+    }
+  ],
+  "overall_pass": false,
+  "failed_gates": [
+    "rmse_combined",
+    "pearson_r_combined",
+    "spearman_rho_combined"
+  ],
+  "artifacts": [
+    "results/validate_projections_20260418T204350Z/projections_2024.csv",
+    "results/validate_projections_20260418T204350Z/backtest_metrics.json",
+    "results/validate_projections_20260418T204350Z/backtest_pairs.csv",
+    "results/validate_projections_20260418T204350Z/top_movers.csv",
+    "results/validate_projections_20260418T204350Z/validation_summary.json"
+  ],
+  "wall_clock_seconds": {
+    "total": 6.8
+  },
+  "cohort_metrics": {
+    "batters": {
+      "n": 474,
+      "rmse": 1.5928,
+      "mae": 1.1898,
+      "pearson_r": 0.5857,
+      "spearman_rho": 0.5107,
+      "rmse_marcel": 1.6157,
+      "rmse_delta_vs_marcel": -0.0228,
+      "pearson_marcel": 0.5802,
+      "spearman_marcel": 0.5075
+    },
+    "pitchers": {
+      "n": 533,
+      "rmse": 1.493,
+      "mae": 1.1115,
+      "pearson_r": 0.3167,
+      "spearman_rho": 0.2681,
+      "rmse_marcel": 1.5041,
+      "rmse_delta_vs_marcel": -0.0111,
+      "pearson_marcel": 0.3183,
+      "spearman_marcel": 0.2657
+    },
+    "combined": {
+      "n": 1007,
+      "rmse": 1.5408,
+      "mae": 1.1484,
+      "pearson_r": 0.4972,
+      "spearman_rho": 0.394,
+      "rmse_marcel": 1.5576,
+      "rmse_delta_vs_marcel": -0.0168,
+      "pearson_marcel": 0.4951,
+      "spearman_marcel": 0.3889
+    },
+    "calibration": {
+      "n_projected_geq_3": 85,
+      "hit_rate": 0.6706,
+      "mean_actual_war": 3.329
+    }
+  },
+  "fit_metrics": {
+    "n_train_seasons": 3,
+    "train_seasons": [
+      2021,
+      2022,
+      2023
+    ],
+    "n_batter_seasons": 2398,
+    "n_pitcher_seasons": 2640,
+    "league_war_per_pa_batter": 0.003177,
+    "league_war_per_ip_pitcher": 0.009443,
+    "n_batter_xstat_rows": 2393,
+    "n_pitcher_xstat_rows": 2642
+  }
+}

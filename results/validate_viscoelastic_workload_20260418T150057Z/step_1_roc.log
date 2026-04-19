@@ -1,0 +1,38 @@
+11:01:15  INFO  Loading injury cohort
+11:01:15  INFO  Arm-injury unique pitchers (2015-16): 336
+11:01:15  INFO  Loading healthy pool
+11:01:15  INFO  Healthy pool candidates: 647
+11:01:15  INFO  Healthy cohort selected: 300
+11:01:15  INFO  Fitting VWR parameters on injured cohort
+11:01:17  INFO  Injured fit: n=64, skipped=272, 0.0 min
+11:01:17  INFO  Fitting VWR parameters on healthy cohort
+11:01:18  INFO  Healthy fit 50/300, 0.0 min elapsed
+11:01:37  INFO  Healthy fit 300/300, 0.3 min elapsed
+11:01:37  INFO  Healthy fit: n=300, skipped=0, 0.3 min
+11:01:37  INFO  Computing injured trajectories (pre-IL 90 days)
+11:01:42  INFO  Injured with trajectories: 53
+11:01:42  INFO  Computing healthy trajectories (random 90-day window)
+11:02:10  INFO  Healthy with trajectories: 298
+11:02:10  INFO  Computing ROC/AUC at 30-day window
+11:03:15  INFO  Partialling out season_day
+11:03:55  INFO  Lead-time analysis
+11:03:55  INFO  FPR on healthy seasons
+{
+  "verdict": "FLAGSHIP",
+  "auc_residual": 0.7677775552369708,
+  "auc_residual_ci": [
+    0.7423248447392873,
+    0.7929766341941207
+  ],
+  "delta_auc_residual": 0.21307292545117218,
+  "median_lead": 36.0,
+  "fpr_pct": 12.416107382550337,
+  "auc_raw": 0.5687895302749199,
+  "delta_auc_raw": 0.04339791701804685,
+  "season_day_auc": 0.2666443540226008,
+  "joint_auc": 0.8901664488109293,
+  "veldrop_residual_auc": 0.5547046297857986,
+  "n_injured": 64,
+  "n_healthy": 300,
+  "wall_min": 2.68
+}

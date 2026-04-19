@@ -1,0 +1,65 @@
+{
+  "model": "defensive_pressing",
+  "invocation": "/validate-model defensive_pressing",
+  "timestamp_utc": "2026-04-18T21:27:01Z",
+  "spec_path": "docs/models/defensive_pressing_validation_spec.md",
+  "gates": [
+    {
+      "name": "xout_test_auc",
+      "threshold": ">= 0.70",
+      "measured": 0.8943,
+      "operator": ">=",
+      "pass": true,
+      "source": "metrics.xout.test_auc"
+    },
+    {
+      "name": "dpi_vs_rp_proxy_pearson_r",
+      "threshold": ">= 0.40",
+      "measured": 0.6216,
+      "measured_ci": [0.4228, 0.7710],
+      "operator": ">=",
+      "pass": true,
+      "source": "metrics.consumer_claim.dpi_vs_rp_proxy.pearson_r"
+    },
+    {
+      "name": "dpi_vs_babip_against_pearson_r",
+      "threshold": "<= -0.50",
+      "measured": -0.7346,
+      "measured_ci": [-0.8306, -0.6230],
+      "operator": "<=",
+      "pass": true,
+      "source": "metrics.consumer_claim.dpi_vs_babip_against.pearson_r"
+    },
+    {
+      "name": "dpi_yoy_pearson_r",
+      "threshold": ">= 0.30",
+      "measured": 0.5948,
+      "measured_ci": [0.4049, 0.7403],
+      "operator": ">=",
+      "pass": true,
+      "source": "metrics.stability.yoy_pearson_r"
+    },
+    {
+      "name": "leakage_audit",
+      "threshold": "0 game_pks shared train/test",
+      "measured": 0,
+      "operator": "==",
+      "pass": true,
+      "source": "leakage_audit.shared_game_pks_train_test"
+    }
+  ],
+  "overall_pass": true,
+  "artifacts": [
+    "results/validate_defensive_pressing_20260418T212701Z/defensive_pressing_validation_metrics.json",
+    "results/validate_defensive_pressing_20260418T212701Z/defensive_pressing_team_seasons.csv",
+    "results/validate_defensive_pressing_20260418T212701Z/defensive_pressing_xout_holdout_sample.csv",
+    "results/validate_defensive_pressing_20260418T212701Z/step_1_validation.log"
+  ],
+  "wall_clock_seconds": {
+    "xout_train": 7.56,
+    "xout_test": 0.26,
+    "team_dpi": 123.95,
+    "total": 132.0
+  },
+  "notes": "FLAGSHIP CANDIDATE -- all five hard gates PASS with strong margins on n=60 team-seasons (30 teams x 2 seasons). xOut classifier holds 0.894 AUC on the 2023-2024 holdout (essentially identical to the 0.894 train-window AUC, no overfit). DPI correlates +0.62 with the run-prevention proxy (-SUM(delta_run_exp) on defense), -0.73 with BABIP-against, and +0.59 year-over-year -- all bootstrap CIs strictly exclude the spec thresholds. No external DRS/OAA baseline was staged in data/baselines, so consumer-claim gates use internally-derived proxies; staging real DRS/OAA would tighten the publishable headline but the current verdict is statistically decisive."
+}

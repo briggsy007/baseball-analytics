@@ -1,0 +1,111 @@
+{
+  "model": "allostatic_load",
+  "invocation": "/validate-model allostatic_load",
+  "timestamp_utc": "2026-04-18T15:08:57Z",
+  "spec_path": "docs/models/allostatic_load_validation_spec.md",
+  "gates": [
+    {
+      "name": "leakage_check",
+      "threshold": "no overlap between injured-cohort 30-day pre-IL window and healthy-control 90-day windows; ABL recomputed from raw pitches per batter-season; no model is trained on injury labels",
+      "measured": "calculate_abl() reads only pitches table (read-only DuckDB); ROC separates injured 30-day pre-IL day-labels from healthy random 90-day day-labels; healthy pool anti-joined against full injury_labels.parquet ID set",
+      "operator": "disjoint",
+      "pass": true,
+      "source": "scripts/allostatic_load_roc_analysis.py (load_cohort, fetch_healthy_pool)"
+    },
+    {
+      "name": "auc_abl",
+      "threshold": 0.60,
+      "measured": 0.5811043922992258,
+      "ci_95": [0.5585049070362104, 0.6026792516303746],
+      "operator": ">=",
+      "pass": false,
+      "source": "summary.json roc.abl.auc"
+    },
+    {
+      "name": "median_lead_time_days",
+      "threshold": 14,
+      "measured": 42.0,
+      "operator": ">=",
+      "pass": true,
+      "notes": "lead_time_t75 (operating threshold ABL=75); 27/31 injured batters breach (87.1%); t60 median=44d, t85 median=38d",
+      "source": "summary.json lead_time.lead_time_t75.median_days"
+    },
+    {
+      "name": "fpr_at_abl_75",
+      "threshold": 0.30,
+      "measured_pct": 77.5,
+      "measured": 0.775,
+      "operator": "<=",
+      "pass": false,
+      "notes": "Saturation: median healthy max-ABL is 100.0 because calculate_abl() rescales per-season composite by season max. pct_breach_60=89.0%, pct_breach_75=77.5%, pct_breach_85=69.5%. Operating-threshold-based alerts are non-discriminative as currently scored.",
+      "source": "summary.json fpr.pct_breach_75"
+    },
+    {
+      "name": "delta_auc_vs_workload_baseline",
+      "threshold": 0.05,
+      "measured": 0.01416957148748721,
+      "operator": ">=",
+      "pass": false,
+      "notes": "ABL AUC 0.581 vs games-played-trailing-30d baseline AUC 0.567. The five-channel leaky-integrator machinery barely beats a count of recent games.",
+      "source": "summary.json roc.delta_auc"
+    },
+    {
+      "name": "seasonal_residual_auc",
+      "threshold": 0.55,
+      "measured": 0.5595756641247843,
+      "operator": ">=",
+      "pass": true,
+      "notes": "Borderline. season_day alone AUC 0.289 (inverted -- positives sample earlier in season). Joint logistic AUC 0.716 -- season_day is the dominant predictor. ABL survives the artifact check but the biomechanical lift is small.",
+      "source": "summary.json roc.seasonal_control.residual_auc"
+    }
+  ],
+  "overall_pass": false,
+  "verdict_band": "NOT_FLAGSHIP",
+  "artifacts": [
+    "results/allostatic_load/summary.json",
+    "results/allostatic_load/roc_curve.json",
+    "results/allostatic_load/roc_curve.html",
+    "results/allostatic_load/lead_time_distribution.json",
+    "results/allostatic_load/lead_time_distribution.html",
+    "results/allostatic_load/lead_time_per_pitcher.csv",
+    "results/allostatic_load/fpr_summary.json",
+    "results/allostatic_load/fpr_healthy_seasons.csv",
+    "results/allostatic_load/roc_daily_scores.csv",
+    "results/allostatic_load/training_coverage.json",
+    "docs/models/allostatic_load_results.md",
+    "docs/models/allostatic_load_validation_spec.md"
+  ],
+  "wall_clock_seconds": {
+    "abl_trajectory_compute": 19,
+    "roc_assembly_and_bootstrap": 78,
+    "lead_time_and_fpr": 1,
+    "total": 104
+  },
+  "cohort": {
+    "n_cohort_raw_non_arm": 1498,
+    "n_injured_eligible": 31,
+    "n_injured_skipped": 1467,
+    "n_injured_with_trajectory": 31,
+    "n_healthy_selected": 200,
+    "n_healthy_with_trajectory": 200,
+    "skipped_reasons_injured": {"insufficient_pre_il_games": 1467}
+  },
+  "per_injury_token_auc": {
+    "wrist": {"auc": 0.7187, "n_pos": 27},
+    "groin": {"auc": 0.7144, "n_pos": 25},
+    "quad":  {"auc": 0.6649, "n_pos": 25},
+    "knee":  {"auc": 0.6475, "n_pos": 25},
+    "thumb": {"auc": 0.6197, "n_pos": 106},
+    "back":  {"auc": 0.6178, "n_pos": 60},
+    "hamstring": {"auc": 0.5960, "n_pos": 152},
+    "concussion": {"auc": 0.5834, "n_pos": 40},
+    "foot":  {"auc": 0.5658, "n_pos": 73},
+    "unspecified": {"auc": 0.4338, "n_pos": 101},
+    "ankle": {"auc": 0.2320, "n_pos": 15}
+  },
+  "hardware": {
+    "device": "CPU",
+    "notes": "ABL computation is sklearn/numpy/pandas; no GPU required."
+  },
+  "notes": "ABL fails 3 of 4 hard decision gates (AUC, FPR, delta_AUC). Lead-time passes by a wide margin (42-day median). Seasonal-monotonicity residual AUC is borderline (0.560 vs 0.55 floor). Root cause of FPR failure is per-season z-score rescaling in calculate_abl() that forces every full-season healthy batter to hit ABL=100 at some point (median healthy max-ABL = 100.0). Per-injury-token analysis shows real signal on overuse failure modes (wrist 0.72, groin 0.71, quad 0.66, knee 0.65) suggesting the model has discriminative power masked by label noise (`non_arm` bundle includes paternity, illness, freak collisions) and the saturation problem. Recommendation: do NOT promote to flagship. Retrofit candidates: (1) cross-season pooled-percentile anchoring instead of per-season max rescaling; (2) stratified-season-day ROC; (3) larger 2017-2019 cohort. Source code in src/analytics/allostatic_load.py was NOT modified."
+}

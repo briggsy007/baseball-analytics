@@ -1,0 +1,94 @@
+{
+  "model": "causal_war",
+  "run_id": "validate_causal_war_20260418T185757Z",
+  "run_timestamp_utc": "2026-04-18T18:57:57Z",
+  "task": "Diagnose suspected OPS-proxy regression in scripts/baseline_comparison.py",
+  "verdict": "NO_CHANGE_NEEDED",
+  "investigation": {
+    "claim_under_review": "scripts/baseline_comparison.py:166-170 still uses OPS-based WAR proxy as comparison target instead of real bWAR.",
+    "finding": "Real bWAR is already live as the comparison target. The OPS proxy code at scripts/baseline_comparison.py:165-170 (batters) and :230-237 (pitchers) is dormant fallback gated by `has_real_war = df['war'].notna().any()` (line 136 / line 213). In the current DB this condition is True for every test season, so the fallback never fires.",
+    "evidence": [
+      {
+        "file_line": "scripts/baseline_comparison.py:136",
+        "note": "has_real_war = df['war'].notna().any() -- True when any row has a populated bWAR."
+      },
+      {
+        "file_line": "scripts/baseline_comparison.py:161-163",
+        "note": "When has_real_war is True, trad_war_season := df['war'] and war_source := 'season_batting_stats.war'."
+      },
+      {
+        "file_line": "scripts/baseline_comparison.py:165-170",
+        "note": "OPS-proxy branch -- only reached when ALL war values in the season window are NULL. Currently unreachable on 2023-2024."
+      },
+      {
+        "file_line": "scripts/baseline_comparison.py:225-227",
+        "note": "Same gating for pitchers; war_source := 'season_pitching_stats.war' when bWAR populated."
+      },
+      {
+        "data": "season_batting_stats.war coverage 2015-2024",
+        "note": "98.81% (2020) to 99.90% (2015,2016,2019). Test window 2023-2024: 99.39% / 99.54%."
+      },
+      {
+        "data": "season_pitching_stats.war coverage 2015-2024",
+        "note": "99.67% (2021) to 100.00% (2016,2020,2022,2023). Test window 2023-2024: 100.00% / 99.77%."
+      },
+      {
+        "data": "data/fangraphs_war_staging.parquet",
+        "note": "16,583 rows; cols = [player_id, player_name, season, position_type, war, pa_or_ip, war_source]. The bWAR is in column `war` (NOT `bref_bwar` as the prior researcher reported); `war_source` is a string label set to 'bref_bwar'. Backfill from this parquet into the DB columns is already complete (commit 11d74c5)."
+      },
+      {
+        "file_line": "results/validate_causal_war_20260418T161738Z/causal_war_baseline_comparison_2023_2024_metrics.json",
+        "note": "data_quality.batter_war_source = 'season_batting_stats.war', pitcher_war_source = 'season_pitching_stats.war'. Combined ρ=0.62 was already measured against real bWAR, not the OPS proxy."
+      },
+      {
+        "commit": "11d74c5",
+        "note": "Backfill commit landed cleanly: changed 8 files, populated DB columns, retained OPS code only as documented fallback."
+      }
+    ],
+    "researcher_misread_explanation": "The prior DML-confounder agent appears to have read the OPS-proxy branch literally without inspecting the gating condition above it, and assumed the bWAR column name in the staging parquet was `bref_bwar` (it is actually `war`, with `war_source = 'bref_bwar'` as a label)."
+  },
+  "code_changes": "NONE -- bWAR was already live; no regression to fix.",
+  "metrics_at_pa100_ip20": {
+    "source_run": "results/validate_causal_war_20260418T161738Z",
+    "source_war": "real bWAR (season_batting_stats.war, season_pitching_stats.war)",
+    "config": {
+      "train_start": 2015,
+      "train_end": 2022,
+      "test_start": 2023,
+      "test_end": 2024,
+      "pa_min": 100,
+      "ip_min": 20,
+      "n_bootstrap_train": 50,
+      "n_bootstrap_ci": 5000,
+      "random_state": 42
+    },
+    "combined": {
+      "n": 1320,
+      "pearson_r": 0.7084,
+      "pearson_r_ci": [0.6638, 0.7476],
+      "spearman_rho": 0.62,
+      "spearman_rho_ci": [0.577, 0.6585]
+    },
+    "batters": {
+      "n": 574,
+      "spearman_rho": 0.6142,
+      "spearman_rho_ci": [0.5497, 0.6733]
+    },
+    "pitchers": {
+      "n": 746,
+      "spearman_rho": 0.6854,
+      "spearman_rho_ci": [0.6371, 0.7318]
+    }
+  },
+  "spec_gate_check": {
+    "gate": "combined Spearman rho 95% CI lower bound >= 0.60",
+    "measured_lower_ci": 0.577,
+    "delta_to_mint": -0.023,
+    "result": "STILL_FRAGILE_BUT_NOT_DUE_TO_OPS_PROXY"
+  },
+  "cohort_sizes_pa100_ip20": {
+    "before_hypothesized_fix": {"batters": 574, "pitchers": 746, "combined": 1320},
+    "after_actual_fix": "N/A -- no fix made; bWAR already live"
+  },
+  "notes": "Real bWAR is the comparison target now and was when the 161738Z baseline ran. The fragile combined ρ lower CI (0.577) is NOT caused by an OPS-proxy regression; it is a real model-side limitation. Switching the target away from OPS already happened in commit 11d74c5; expected gain from the swap was already booked into the 161738Z numbers. To clear the mint gate (lower CI >= 0.60) the model itself (or the cohort definition / aggregation) needs improvement -- that is the next agent's task."
+}

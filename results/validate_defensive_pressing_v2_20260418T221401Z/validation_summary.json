@@ -1,0 +1,86 @@
+{
+  "model": "defensive_pressing",
+  "run_dir": "results\\validate_defensive_pressing_v2_20260418T221401Z",
+  "spec_path": "docs/models/defensive_pressing_validation_spec.md",
+  "results_path": "docs/models/defensive_pressing_results.md",
+  "validation_script": "scripts/defensive_pressing_validation.py",
+  "ran_at": "2026-04-18T22:20:17.158925+00:00",
+  "version_label": "v2_hardening",
+  "verdict": "PASS - FLAGSHIP",
+  "n_gates_total": 6,
+  "n_gates_pass": 6,
+  "gates": [
+    {
+      "name": "xout_test_auc",
+      "threshold": ">= 0.70",
+      "measured": 0.8941,
+      "pass": true,
+      "hard": true
+    },
+    {
+      "name": "dpi_vs_rp_proxy_pearson_r",
+      "threshold": ">= 0.40",
+      "measured": 0.6197,
+      "pass": true,
+      "hard": true
+    },
+    {
+      "name": "dpi_vs_babip_against_pearson_r",
+      "threshold": "<= -0.50",
+      "measured": -0.7334,
+      "pass": true,
+      "hard": true
+    },
+    {
+      "name": "dpi_yoy_pearson_r",
+      "threshold": ">= 0.30",
+      "measured": 0.588,
+      "pass": true,
+      "hard": true
+    },
+    {
+      "name": "leakage_audit",
+      "threshold": "0 game_pks shared train/test",
+      "measured": 0,
+      "pass": true,
+      "hard": true
+    },
+    {
+      "name": "dpi_vs_external_oaa_pearson_r",
+      "threshold": ">= 0.45",
+      "measured": 0.5492,
+      "pass": true,
+      "hard": true
+    }
+  ],
+  "headline_metrics": {
+    "xout_test_auc": 0.8941,
+    "dpi_vs_rp_proxy_r": 0.6197,
+    "dpi_vs_babip_against_r": -0.7334,
+    "dpi_yoy_r": 0.588,
+    "dpi_vs_external_oaa_r": 0.5492
+  },
+  "v2_hardening_changes": {
+    "xout_checkpoint": {
+      "persisted_path": "models/defensive_pressing/xout_v1.pkl",
+      "loaded_from_checkpoint": true,
+      "wall_clock_xout_train_seconds": 0.03
+    },
+    "park_feature": {
+      "evaluated": true,
+      "shipped": false,
+      "rationale": "Per-park target encoding (smoothing=100) on 2015-2022 BIP. Holdout 2023-2024 AUC delta = -0.0002 (v1 0.8922 -> v2 0.8920); internal-test split AUC delta = +0.0002. Both well below the +0.005 threshold to ship; dropped to avoid feature creep that doesn't move the needle. Code path retained behind use_park flag."
+    },
+    "external_baseline": {
+      "source": "Baseball Savant Statcast OAA leaderboard (player-level CSV, aggregated to team-season)",
+      "path": "data/baselines/team_defense_2023_2024.parquet",
+      "audit_path": "data/baselines/team_defense_2023_2024_audit.json",
+      "drs_attempted_via": "pybaseball.team_fielding (FanGraphs) -> HTTP 403; OAA used as gold-standard substitute"
+    }
+  },
+  "artifacts": {
+    "team_seasons_csv": "results\\validate_defensive_pressing_v2_20260418T221401Z\\defensive_pressing_team_seasons.csv",
+    "xout_holdout_sample_csv": "results\\validate_defensive_pressing_v2_20260418T221401Z\\defensive_pressing_xout_holdout_sample.csv"
+  },
+  "overall_pass": true
+}

@@ -1,0 +1,1 @@
+PASS: per-pitcher checkpoints in models/mechanix_ae/per_pitcher/, training excludes 30-day pre-IL windows (spec section A), ROC script separates injured cohort (positive, 30-day pre-IL) from matched healthy seasons (negative). --skip-train enforced. Disjoint by construction.

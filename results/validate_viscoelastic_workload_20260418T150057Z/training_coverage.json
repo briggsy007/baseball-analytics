@@ -1,0 +1,21 @@
+{
+  "n_cohort": 336,
+  "n_injured_fit": 64,
+  "n_injured_skipped": 272,
+  "n_healthy_selected": 300,
+  "n_healthy_fit": 300,
+  "n_healthy_skipped": 0,
+  "wall_fit_minutes": 0.37,
+  "per_injury_fit": {
+    "shoulder": 20,
+    "elbow": 17,
+    "other_arm": 14,
+    "forearm": 9,
+    "rotator_cuff": 3,
+    "ucl_sprain": 1
+  },
+  "skipped_reasons_injured": {
+    "insufficient_fit_pitches": 272
+  },
+  "skipped_reasons_healthy": {}
+}

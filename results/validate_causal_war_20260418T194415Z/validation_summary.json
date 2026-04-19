@@ -1,0 +1,83 @@
+{
+  "model": "causal_war",
+  "invocation": "/validate-model causal_war (revert run -- restored to 171420Z baseline after 190227Z venue+fielding-alignment regression)",
+  "timestamp_utc": "2026-04-18T19:44:15Z",
+  "spec_path": "docs/models/causal_war_validation_spec.md",
+  "gates": [
+    {
+      "name": "leakage_check",
+      "threshold": "no game_pk overlap between train (2015-2022) and test (2023-2024)",
+      "measured": "disjoint season ranges enforced by --train-start 2015 --train-end 2022 --test-start 2023 --test-end 2024; baseline script performs in-memory split on extracted PA-level data",
+      "operator": "disjoint",
+      "pass": true,
+      "source": "scripts/baseline_comparison.py invocation"
+    },
+    {
+      "name": "pearson_r",
+      "threshold": 0.5,
+      "measured": 0.7089,
+      "ci_95": [0.6605, 0.7486],
+      "operator": ">=",
+      "pass": true,
+      "source": "causal_war_baseline_comparison_2023_2024_metrics.json (metrics_combined)"
+    },
+    {
+      "name": "spearman_rho",
+      "threshold": 0.6,
+      "measured": 0.6314,
+      "ci_95": [0.5830, 0.6740],
+      "operator": ">=",
+      "pass": true,
+      "source": "causal_war_baseline_comparison_2023_2024_metrics.json (metrics_combined)"
+    },
+    {
+      "name": "ci_coverage",
+      "threshold": "[0.93, 0.97]",
+      "measured": null,
+      "operator": "informational",
+      "pass": null,
+      "source": "results/ci_coverage*.json (not present; informational gate skipped per skill spec)"
+    },
+    {
+      "name": "revert_tolerance_check",
+      "threshold": "all four headline metrics within +/-0.005 of 171420Z baseline (combined r=0.7089, combined rho=0.6314, batters rho=0.6743, pitchers rho=0.6815)",
+      "measured": "combined r=0.7089 (delta 0.0000), combined rho=0.6314 (delta 0.0000), batters rho=0.6743 (delta 0.0000), pitchers rho=0.6815 (delta 0.0000)",
+      "operator": "within_tolerance",
+      "pass": true,
+      "source": "causal_war_baseline_comparison_2023_2024_metrics.json"
+    }
+  ],
+  "overall_pass": true,
+  "artifacts": [
+    "results/validate_causal_war_20260418T194415Z/causal_war_baseline_comparison_2023_2024_metrics.json",
+    "results/validate_causal_war_20260418T194415Z/causal_war_baseline_comparison_2023_2024.csv",
+    "results/validate_causal_war_20260418T194415Z/causal_war_baseline_scatter.html",
+    "results/validate_causal_war_20260418T194415Z/step_2_baseline.log"
+  ],
+  "wall_clock_seconds": {
+    "leakage_check": 0.1,
+    "baseline_comparison": 1277
+  },
+  "cohort_metrics": {
+    "batters": {
+      "n": 429,
+      "pearson_r": 0.7433,
+      "pearson_r_ci": [0.6792, 0.7915],
+      "spearman_rho": 0.6743,
+      "spearman_rho_ci": [0.6102, 0.7309]
+    },
+    "pitchers": {
+      "n": 539,
+      "pearson_r": 0.7272,
+      "pearson_r_ci": [0.6736, 0.7711],
+      "spearman_rho": 0.6815,
+      "spearman_rho_ci": [0.6246, 0.7340]
+    }
+  },
+  "test_suite": {
+    "tests_run": ["tests/test_causal_war.py", "tests/test_baseline_comparison.py"],
+    "passed": 44,
+    "failed": 0
+  },
+  "notes": "Revert run -- restored src/analytics/causal_war.py to its pre-190227Z state for ONLY the venue+fielding-alignment changes that caused regression (combined Spearman 0.631 -> 0.494, gate FAIL). Specifically reverted: (1) LEFT JOIN games g restored in _extract_pa_data, removed home_team/away_team/if_fielding_alignment/of_fielding_alignment columns from the pitches CTE; (2) venue branch in _build_features restored to dead-feature behavior (only label-encodes if df['venue'] populated, which it is not under the games-table LEFT JOIN since games is empty); (3) if_shift = 0 and of_shift = 0 hardcoded restored. PRESERVED: the morning agent's pitcher-cohort fix in train_test_split() (lines ~335-435 of the file) -- per-pitcher DML residual aggregation with -Y_res by pitcher_id and pa_min=50 floor, plus the corresponding test_pitcher_effects/n_test_pitchers/test_pitcher_player_effects additions to test_metrics and the returned dict. scripts/baseline_comparison.py was untouched (already correctly merges both cohorts via morning fix). Post-revert numbers exactly match 171420Z baseline (0.0000 delta on all four headline metrics). Model artifact at models/causal_war/causal_war_trainsplit_2015_2022.pkl now contains the restored model. Venue/fielding-alignment 'fixes' are deferred research items (see appended verdict in docs/models/causal_war_baseline_results.md), not abandoned -- the regression appears driven by 2023 shift-ban distribution shift on fielding features and team-park-era nontransferability on home_team 30-level encoding, both of which require more sophisticated treatment (target encoding, era-stratified splits) than a one-line factor() swap."
+}

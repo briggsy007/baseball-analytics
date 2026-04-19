@@ -1,0 +1,25 @@
+{
+  "n_top_decile_windows": 58900,
+  "n_pitchers_contributing": 111,
+  "cohort_pct_in_mechanical_set": 0.527012,
+  "mechanical_feature_set": [
+    "arm_angle",
+    "release_extension",
+    "release_pos_x",
+    "release_pos_z",
+    "spin_axis"
+  ],
+  "top_feature_counts": {
+    "spin_axis": 14820,
+    "release_spin_rate": 14051,
+    "arm_angle": 6737,
+    "release_pos_x": 4287,
+    "release_speed": 3574,
+    "pfx_x": 3467,
+    "effective_speed": 3384,
+    "pfx_z": 3383,
+    "release_extension": 3026,
+    "release_pos_z": 2171
+  },
+  "pass": false
+}

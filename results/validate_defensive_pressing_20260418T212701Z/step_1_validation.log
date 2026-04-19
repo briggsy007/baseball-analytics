@@ -1,0 +1,42 @@
+2026-04-18 17:30:40 | INFO    | defensive_pressing_validation | DPI validation: xOut train 2015-2022, team-DPI test 2023-2024
+2026-04-18 17:30:40 | INFO    | defensive_pressing_validation | Leakage: 17094 train pks, 5010 test pks, 0 shared
+2026-04-18 17:30:40 | INFO    | defensive_pressing_validation | Fitting xOut classifier on BIP rows from seasons 2015-2022
+2026-04-18 17:30:48 | INFO    | src.analytics.defensive_pressing | xOut model trained: AUC=0.8939, accuracy=0.8276 on 837571 BIP
+2026-04-18 17:30:48 | INFO    | defensive_pressing_validation | xOut train (train-window AUC) = 0.8939, 837571 samples (7.6s)
+2026-04-18 17:30:48 | INFO    | defensive_pressing_validation | xOut test holdout AUC = 0.8943 on n=50000 (0.3s)
+2026-04-18 17:30:48 | INFO    | defensive_pressing_validation | Scoring DPI for season 2023 across 30 teams
+2026-04-18 17:30:58 | INFO    | defensive_pressing_validation |   ...5/30 teams (0.52 teams/s)
+2026-04-18 17:31:07 | INFO    | defensive_pressing_validation |   ...10/30 teams (0.53 teams/s)
+2026-04-18 17:31:16 | INFO    | defensive_pressing_validation |   ...15/30 teams (0.53 teams/s)
+2026-04-18 17:31:27 | INFO    | defensive_pressing_validation |   ...20/30 teams (0.52 teams/s)
+2026-04-18 17:31:37 | INFO    | defensive_pressing_validation |   ...25/30 teams (0.51 teams/s)
+2026-04-18 17:31:48 | INFO    | defensive_pressing_validation |   ...30/30 teams (0.50 teams/s)
+2026-04-18 17:31:48 | INFO    | defensive_pressing_validation | Season 2023 DPI complete in 59.8s
+2026-04-18 17:31:48 | INFO    | defensive_pressing_validation | Scoring DPI for season 2024 across 30 teams
+2026-04-18 17:31:58 | INFO    | defensive_pressing_validation |   ...5/30 teams (0.47 teams/s)
+2026-04-18 17:32:09 | INFO    | defensive_pressing_validation |   ...10/30 teams (0.47 teams/s)
+2026-04-18 17:32:20 | INFO    | defensive_pressing_validation |   ...15/30 teams (0.47 teams/s)
+2026-04-18 17:32:31 | INFO    | defensive_pressing_validation |   ...20/30 teams (0.47 teams/s)
+2026-04-18 17:32:41 | INFO    | defensive_pressing_validation |   ...25/30 teams (0.47 teams/s)
+2026-04-18 17:32:52 | INFO    | defensive_pressing_validation |   ...30/30 teams (0.47 teams/s)
+2026-04-18 17:32:52 | INFO    | defensive_pressing_validation | Season 2024 DPI complete in 64.1s
+2026-04-18 17:32:52 | INFO    | defensive_pressing_validation | Team DPI computed for 60 team-seasons in 124.0s
+2026-04-18 17:32:53 | INFO    | defensive_pressing_validation | Wrote results\validate_defensive_pressing_20260418T212701Z\defensive_pressing_validation_metrics.json
+
+========================================================================
+Defensive Pressing (DPI) Validation -- Summary
+========================================================================
+xOut: train_auc=0.8939  test_auc=0.8943  test_n=50000  test_out_rate=0.667
+DPI vs RP proxy:        n=60  r=0.6216  CI=[0.4228, 0.771]  rho=0.5555
+DPI vs BABIP-against:   n=60  r=-0.7346  CI=[-0.8306, -0.623]  rho=-0.7286
+DPI YoY stability:      n_teams=30  r=0.5948  CI=[0.4049, 0.7403]
+------------------------------------------------------------------------
+  [PASS] xout_test_auc                      thr=>= 0.70                        meas=0.8943
+  [PASS] dpi_vs_rp_proxy_pearson_r          thr=>= 0.40                        meas=0.6216
+  [PASS] dpi_vs_babip_against_pearson_r     thr=<= -0.50                       meas=-0.7346
+  [PASS] dpi_yoy_pearson_r                  thr=>= 0.30                        meas=0.5948
+  [PASS] leakage_audit                      thr=0 game_pks shared train/test   meas=0
+------------------------------------------------------------------------
+OVERALL: PASS
+========================================================================
+
