@@ -179,15 +179,29 @@ def main() -> int:
     try:
         logger.info("loading val/test datasets (%s / %s)", VAL_RANGE, TEST_RANGE)
         t0 = time.perf_counter()
+        # Pitcher-disjoint split (Ticket #1 hardening): exclude every
+        # pitcher who appears in any train season from val/test so the
+        # calibration audit doesn't measure ECE on pitchers the model
+        # already saw at training time.
+        train_seasons_full = list(range(TRAIN_RANGE[0], TRAIN_RANGE[1] + 1))
+        train_pitcher_ids = PitchSequenceDataset.fetch_pitcher_ids_for_seasons(
+            conn, train_seasons_full,
+        )
+        logger.info(
+            "excluding %d train-cohort pitchers from val/test",
+            len(train_pitcher_ids),
+        )
         val_ds = PitchSequenceDataset(
             conn, split_mode="val",
             train_range=TRAIN_RANGE, val_range=VAL_RANGE, test_range=TEST_RANGE,
             max_games_per_split=args.max_val_games,
+            exclude_pitcher_ids=train_pitcher_ids,
         )
         test_ds = PitchSequenceDataset(
             conn, split_mode="test",
             train_range=TRAIN_RANGE, val_range=VAL_RANGE, test_range=TEST_RANGE,
             max_games_per_split=args.max_test_games,
+            exclude_pitcher_ids=train_pitcher_ids,
         )
         logger.info(
             "datasets built in %.1fs  (val=%d  test=%d sequences)",

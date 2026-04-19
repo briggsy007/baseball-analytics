@@ -150,3 +150,90 @@ Memory: peak RSS **2.43 GB**, mean 1.67 GB during training (well under the machi
 
 - If the PM accepts the "light / count-aware" pivot: implement `PitchGPTLight` with 15-dim count+outs projection, retrain, verify test perplexity within 2-3% of the full-context 10K checkpoint (113.088).
 - Then re-run the PitchGPT-vs-LSTM head-to-head at 10K with the new architecture. Do **not** advertise situational-context novelty in that doc.
+
+---
+
+## Validation run 2026-04-18T13:21:55Z
+
+**Invocation:** `/validate-model pitchgpt`
+**Summary JSON:** `results/validate_pitchgpt_20260418T132155Z/validation_summary.json`
+
+| Gate | Threshold | Measured | Verdict |
+|---|---|---|---|
+| Leakage (game_pk disjoint) | 0 shared game_pks | 0 across train/val/test | PASS |
+| Leakage (pitcher disjoint train/test) | 0 shared pitchers | 409 shared (structural — same pitchers play across years) | FAIL |
+| Calibration ECE pre-temperature | < 0.10 | 0.0138 | PASS |
+| Calibration ECE post-temperature | < 0.10 | 0.0068 (T=1.081) | PASS |
+| Ablation tokens_only gap vs full | >= 10% | +0.29% | FAIL |
+| Ablation count_only gap vs full | >= 10% | -0.15% | FAIL |
+| Ablation identity_only gap vs full | >= 10% | -180.16% (identity_only ppl 52.99 << full 148.47) | FAIL |
+| Ablation overall (all variants) | all PASS | 0/3 PASS | FAIL |
+
+**Overall:** FAIL
+
+**Failed gates:** leakage_pitcher_train_test, ablation_tokens_only_gap, ablation_count_only_gap, ablation_identity_only_gap, ablation_overall
+
+**Key numbers:**
+- full test_ppl 148.465 | tokens_only 148.901 | count_only 148.246 | identity_only 52.993
+- Calibration: 84,554 test tokens, ECE 0.0138 -> 0.0068 with T=1.0809, accuracy=3.87%
+- Wall clock: 313.0s ablation + 40.6s calibration on RTX 3050 (cuda)
+- Data: train=8601 sequences (293,248 pitches, 2015-2022), val=2498 (88,396 pitches, 2023), test=2570 (87,280 pitches, 2024); 1,000/300/300 game_pks
+
+**Artifacts:**
+- `results/validate_pitchgpt_20260418T132155Z/pitchgpt_full.pt`
+- `results/validate_pitchgpt_20260418T132155Z/pitchgpt_ablation_metrics.json`
+- `results/validate_pitchgpt_20260418T132155Z/pitchgpt_calibration.json`
+- `results/validate_pitchgpt_20260418T132155Z/pitchgpt_reliability.html`
+- `results/validate_pitchgpt_20260418T132155Z/step_2_ablation.log`
+- `results/validate_pitchgpt_20260418T132155Z/step_3_calibration.log`
+
+**Notes:** Calibration is the lone bright spot — both pre- and post-temperature ECE are an order of magnitude under the spec gate. The ablation result is qualitatively different from last night's 10K run: at 1K games / 5 epochs the identity_only variant collapses to a near-perfect train-fit (train_ppl 1.21 by epoch 5) and lands a test_ppl of 52.99, beating the full model 3-to-1. The tokens_only and count_only variants land within +/- 0.3% of full, meaning the contextual features add no measurable lift at this scale. This re-confirms last night's diagnosis: pitcher-identity dominates the signal, and the situational-context story remains unsupported empirically. The pitcher-leakage gate also FAILs as written (409 pitchers in both train and test) — the season-disjoint split does not enforce pitcher-disjointness; addressing this is Ticket 1's stronger interpretation. Game_pk leakage remains clean (0 overlap). CausalWAR validation in another agent untouched. Identity_only ran cleanly this time (no error), unlike last night's JSON which only had 3 variants.
+
+
+---
+
+## Validation run 2026-04-18T15:03:05Z (post-pitcher-disjoint-split fix)
+
+**Invocation:** `/validate-model pitchgpt` (after `PitchSequenceDataset` was modified to enforce pitcher-disjoint splits)
+**Summary JSON:** `results/validate_pitchgpt_20260418T150305Z/validation_summary.json`
+
+| Gate | Threshold | Measured | Verdict |
+|---|---|---|---|
+| leakage_game_pk | == 0 | 0 shared | PASS |
+| leakage_pitcher_train_test | == 0 | 0 shared (was 409 pre-fix) | PASS |
+| ablation_tokens_only_gap | >= 10% | 1.03% | FAIL |
+| ablation_count_only_gap | >= 10% | 1.36% | FAIL |
+| ablation_identity_only_gap | >= 10% | 94.06% | PASS |
+| ablation_overall | all 3 >= 10% | 1/3 pass | FAIL |
+| calibration_ece_pre_temperature | < 0.10 | 0.0203 | PASS |
+| calibration_ece_post_temperature | < 0.10 | 0.0096 | PASS |
+
+**Overall:** FAIL (5/8 pass)
+
+**Failed gates:** ablation_tokens_only_gap, ablation_count_only_gap, ablation_overall
+
+**Key numbers:**
+- full test_ppl 153.443 | tokens_only 155.035 | count_only 155.557 | identity_only **2583.323**
+- Calibration: 22,894 test tokens, ECE 0.0203 -> 0.0096 with T=1.1246, accuracy=3.40%
+- Wall clock: 288.0s ablation + 14.1s calibration on RTX 3050 (cuda)
+- Data: train=8596 sequences (1,433 pitchers, 1000 game_pks, 2015-2022), val=447 (111 pitchers, 299 game_pks, 2023), test=624 (214 pitchers, 300 game_pks, 2024)
+
+**Pre-fix vs post-fix comparison:**
+| Metric | Pre-fix (132155Z) | Post-fix (150305Z) | Movement |
+|---|---|---|---|
+| shared_pitcher_ids_train_test | 409 | 0 | LEAK CLOSED |
+| identity_only test_ppl | 52.99 | 2583.32 | +4774% (correct degradation) |
+| identity_only drop_vs_full | -180.16% (better than full) | +94.06% (worse than full) | Pathology eliminated |
+| tokens_only drop_vs_full | 0.29% | 1.03% | Marginally improved |
+| count_only drop_vs_full | -0.15% | 1.36% | Marginally improved |
+| ECE post-temp | 0.0068 | 0.0096 | Slightly worse but well under gate |
+
+**Artifacts:**
+- `results/validate_pitchgpt_20260418T150305Z/pitchgpt_full.pt`
+- `results/validate_pitchgpt_20260418T150305Z/pitchgpt_ablation_metrics.json`
+- `results/validate_pitchgpt_20260418T150305Z/pitchgpt_calibration.json`
+- `results/validate_pitchgpt_20260418T150305Z/pitchgpt_reliability.html`
+- `results/validate_pitchgpt_20260418T150305Z/step_2_ablation.log`
+- `results/validate_pitchgpt_20260418T150305Z/step_3_calibration.log`
+
+**Notes:** Pitcher-disjoint split fix worked exactly as designed. Identity-only collapsed from 180% better than full to 94% worse, proving the prior pathology was pure pitcher-id memorization of the 409 leaked pitchers. With the leak closed, the model now produces an honest negative result on the ablation gate: tokens_only and count_only contribute only 1.0-1.4% lift over full, well under the 10% spec threshold. This is no longer hiding behind a leakage artifact -- it is a real architectural/data-scale finding. Hypotheses to investigate: (a) 1K train games / 5 epochs is insufficient for the transformer to learn context dependencies, (b) the context features genuinely don't help next-pitch prediction at this scale, (c) the architecture (small transformer, limited regularization) doesn't benefit from added context. Calibration remains excellent. The validation_summary.json was written by the PM after the fixer agent terminated mid-consolidation (API error); all underlying training and calibration artifacts were generated by the agent before termination and are intact.

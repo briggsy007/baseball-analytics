@@ -556,6 +556,26 @@ def main() -> int:
             TRAIN_RANGE, VAL_RANGE, TEST_RANGE,
         )
         t_ds0 = time.perf_counter()
+
+        # Pitcher-disjoint split (Ticket #1 hardening).  Enumerate every
+        # pitcher who appears in the *full* train season range first;
+        # then exclude them from val and test at SQL load time.  This
+        # guarantees zero pitcher overlap between train and val/test
+        # regardless of how the per-split USING SAMPLE happens to land.
+        # See PitchSequenceDataset.fetch_pitcher_ids_for_seasons.
+        train_seasons_full = list(range(TRAIN_RANGE[0], TRAIN_RANGE[1] + 1))
+        logger.info(
+            "fetching train-cohort pitcher_ids for seasons %s (for pitcher-disjoint split)",
+            train_seasons_full,
+        )
+        train_pitcher_ids = PitchSequenceDataset.fetch_pitcher_ids_for_seasons(
+            conn, train_seasons_full,
+        )
+        logger.info(
+            "train cohort has %d distinct pitchers — these are excluded from val/test",
+            len(train_pitcher_ids),
+        )
+
         # Seed BEFORE each dataset so its USING SAMPLE is reproducible.
         _set_seed(args.seed)
         train_ds = PitchSequenceDataset(
@@ -568,12 +588,14 @@ def main() -> int:
             conn, split_mode="val",
             train_range=TRAIN_RANGE, val_range=VAL_RANGE, test_range=TEST_RANGE,
             max_games_per_split=args.max_val_games,
+            exclude_pitcher_ids=train_pitcher_ids,
         )
         _set_seed(args.seed + 2)
         test_ds = PitchSequenceDataset(
             conn, split_mode="test",
             train_range=TRAIN_RANGE, val_range=VAL_RANGE, test_range=TEST_RANGE,
             max_games_per_split=args.max_test_games,
+            exclude_pitcher_ids=train_pitcher_ids,
         )
         logger.info(
             "datasets built in %.1fs (train=%d val=%d test=%d)",
@@ -583,7 +605,14 @@ def main() -> int:
 
         audit = audit_no_game_overlap(train_ds, val_ds, test_ds)
         if audit["shared_game_pks"] != 0:
-            logger.error("LEAKAGE DETECTED — refusing to train.")
+            logger.error("LEAKAGE DETECTED (game_pk overlap) — refusing to train.")
+            return 2
+        if audit["shared_pitcher_ids_train_test"] != 0 or audit["shared_pitcher_ids_train_val"] != 0:
+            logger.error(
+                "LEAKAGE DETECTED (pitcher overlap): train_test=%d train_val=%d — refusing to train.",
+                audit["shared_pitcher_ids_train_test"],
+                audit["shared_pitcher_ids_train_val"],
+            )
             return 2
 
         # Attach sequence_pids for the identity-only variant.

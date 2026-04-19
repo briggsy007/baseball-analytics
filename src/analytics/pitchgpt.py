@@ -454,13 +454,14 @@ def audit_no_game_overlap(
         more than one split.  MUST be 0 — a shared game_pk is a hard
         leakage failure.
       * ``shared_pitcher_ids_train_test``: count of pitcher IDs that
-        appear in both train AND test.  This is a SOFT warning only:
-        the same pitcher showing up across splits is unavoidable on a
-        date-based split (the same pitcher throws in every season) and
-        is OK for this task — we're modeling the per-pitch sequence
-        distribution, not generalization to new pitchers.
-      * ``shared_pitcher_ids_train_val``: same, for train vs val
-        (informational).
+        appear in both train AND test.  Per spec Ticket #1, MUST be 0
+        once the pitcher-disjoint split (``exclude_pitcher_ids`` on
+        :class:`PitchSequenceDataset`) is wired up upstream.  A nonzero
+        value here means val/test contain pitchers the model already
+        memorised in train — the identity-only ablation will dominate
+        and the contextual-feature gates become uninterpretable.
+      * ``shared_pitcher_ids_train_val``: same, for train vs val.
+        MUST also be 0 to keep the val-set selection criterion clean.
       * Per-split ``n_game_pks`` / ``n_pitcher_ids`` counts.
     """
     train_games = set(train_ds.game_pks)
@@ -515,6 +516,7 @@ class PitchSequenceDataset(Dataset):
         val_range: tuple[int, int] = (2023, 2023),
         test_range: tuple[int, int] = (2024, 2024),
         max_games_per_split: int | None = None,
+        exclude_pitcher_ids: set[int] | None = None,
     ) -> None:
         """Loads a PyTorch Dataset of pitch sequences.
 
@@ -541,6 +543,13 @@ class PitchSequenceDataset(Dataset):
             max_games_per_split: Cap the number of games sampled per
                 split (for quick dev runs).  Applied only when
                 ``split_mode`` is set.
+            exclude_pitcher_ids: Optional set of pitcher_ids to drop at
+                load time.  Used by the pitcher-disjoint split: pass the
+                train cohort's pitcher_ids to a val/test dataset to
+                guarantee no pitcher appears in both train and val/test.
+                Filter is applied at the SQL level for efficiency, so the
+                ``USING SAMPLE`` reservoir picks from already-eligible
+                games (see Ticket #1 in the validation spec).
         """
         self.max_seq_len = max_seq_len
         self.sequences: list[tuple[torch.Tensor, torch.Tensor, torch.Tensor]] = []
@@ -549,6 +558,9 @@ class PitchSequenceDataset(Dataset):
         self.game_pks: set[int] = set()
         self.pitcher_ids: set[int] = set()
         self.split_mode = split_mode
+        self.exclude_pitcher_ids: set[int] = (
+            set(int(p) for p in exclude_pitcher_ids) if exclude_pitcher_ids else set()
+        )
 
         if split_mode is not None:
             # Hard guard: the three ranges must be disjoint.
@@ -572,6 +584,42 @@ class PitchSequenceDataset(Dataset):
         else:
             self._load(conn, seasons, max_games=max_games)
 
+    # ── Class helpers ────────────────────────────────────────────────────
+
+    @staticmethod
+    def fetch_pitcher_ids_for_seasons(
+        conn: duckdb.DuckDBPyConnection,
+        seasons: list[int] | range,
+    ) -> set[int]:
+        """Return the set of distinct pitcher_ids appearing in ``seasons``.
+
+        Used by the pitcher-disjoint split: callers fetch the train
+        cohort's pitcher set with this helper, then pass it as
+        ``exclude_pitcher_ids`` to the val and test datasets.
+
+        Note: this enumerates pitchers across the *full* season range
+        (no game sampling), so the exclusion is exhaustive — even if
+        the train dataset later subsamples games via ``USING SAMPLE``,
+        the exclusion still covers every pitcher who *could* have been
+        in train.  This matches the spec: "no pitcher appearing in any
+        train sequence may appear in any val or test sequence", read
+        as "no pitcher in the train *cohort*", since the train sample
+        is otherwise non-deterministic.
+        """
+        season_list = list(seasons)
+        if not season_list:
+            return set()
+        s_str = ", ".join(str(int(s)) for s in season_list)
+        query = f"""
+            SELECT DISTINCT pitcher_id
+            FROM pitches
+            WHERE pitch_type IS NOT NULL
+              AND pitcher_id IS NOT NULL
+              AND EXTRACT(YEAR FROM game_date) IN ({s_str})
+        """
+        rows = conn.execute(query).fetchdf()
+        return {int(p) for p in rows["pitcher_id"].tolist() if p is not None}
+
     # ── Private ──────────────────────────────────────────────────────────
 
     def _load(self, conn: duckdb.DuckDBPyConnection, seasons, max_games: int | None = None) -> None:
@@ -581,6 +629,24 @@ class PitchSequenceDataset(Dataset):
             if season_list:
                 s_str = ", ".join(str(int(s)) for s in season_list)
                 season_filter = f"AND EXTRACT(YEAR FROM game_date) IN ({s_str})"
+
+        # Pitcher-disjoint exclusion (Ticket #1 hardening).  Apply at the
+        # SQL level so the random game sample picks only from games that
+        # actually have at least one eligible pitcher.  Not perfect — a
+        # game may include both eligible and excluded pitchers, but the
+        # per-row WHERE filter below removes the excluded pitchers'
+        # pitches from the result set, so no excluded-pitcher sequence
+        # is constructed.  Combined with the in-memory guard in the
+        # grouping loop, this gives belt-and-suspenders enforcement.
+        pitcher_exclude_filter = ""
+        if self.exclude_pitcher_ids:
+            # DuckDB handles million-element IN lists but we keep this
+            # safe and chunked-friendly via a temp-table approach if
+            # the exclusion gets large.  For typical MLB-pitcher
+            # cardinalities (~3-5K total pitchers across the era) the
+            # raw IN list is fine.
+            pids_str = ", ".join(str(int(p)) for p in self.exclude_pitcher_ids)
+            pitcher_exclude_filter = f"AND pitcher_id NOT IN ({pids_str})"
 
         # When max_games is set, restrict to a random sample of game_pks
         # to avoid loading the entire 7M+ row table into memory.
@@ -592,6 +658,7 @@ class PitchSequenceDataset(Dataset):
                         SELECT DISTINCT game_pk
                         FROM pitches
                         WHERE pitch_type IS NOT NULL {season_filter}
+                          {pitcher_exclude_filter}
                     ) USING SAMPLE {int(max_games)} ROWS
                 )
             """
@@ -627,6 +694,7 @@ class PitchSequenceDataset(Dataset):
             FROM pitches
             WHERE pitch_type IS NOT NULL
               {season_filter}
+              {pitcher_exclude_filter}
               {game_filter}
             ORDER BY game_pk, at_bat_number, pitch_number
         """
@@ -648,10 +716,21 @@ class PitchSequenceDataset(Dataset):
             if len(game_df) < 2:
                 continue  # need at least 2 pitches
 
+            # Belt-and-suspenders: drop any sequence whose pitcher is in
+            # the exclusion set (should never trigger thanks to the SQL
+            # filter above, but guards against future refactors that
+            # bypass the SQL path).
+            try:
+                _pid = int(_key[1])
+            except (TypeError, ValueError):
+                _pid = -1
+            if self.exclude_pitcher_ids and _pid in self.exclude_pitcher_ids:
+                continue
+
             # Track membership for the leakage audit utility.
             try:
                 self.game_pks.add(int(_key[0]))
-                self.pitcher_ids.add(int(_key[1]))
+                self.pitcher_ids.add(_pid)
             except (TypeError, ValueError):
                 pass
 
