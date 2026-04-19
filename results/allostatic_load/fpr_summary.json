@@ -1,0 +1,9 @@
+{
+  "n_healthy_seasons": 200,
+  "pct_breach_60": 89.0,
+  "pct_breach_75": 77.5,
+  "pct_breach_85": 69.5,
+  "saturation_pct_ge_75": 77.5,
+  "saturation_pct_ge_85": 69.5,
+  "healthy_max_abl_median": 100.0
+}

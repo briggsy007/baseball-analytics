@@ -1,0 +1,14 @@
+{
+  "n_cohort_raw_non_arm": 1498,
+  "n_injured_eligible": 31,
+  "n_injured_skipped": 1467,
+  "n_injured_with_trajectory": 31,
+  "n_healthy_selected": 200,
+  "n_healthy_with_trajectory": 200,
+  "n_healthy_skipped": 0,
+  "wall_compute_minutes": 0.32,
+  "skipped_reasons_injured": {
+    "insufficient_pre_il_games": 1467
+  },
+  "skipped_reasons_healthy": {}
+}
