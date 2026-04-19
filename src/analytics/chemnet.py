@@ -1040,3 +1040,918 @@ class ChemNetModel(BaseAnalyticsModel):
             "min_synergy": round(float(df["avg_synergy"].min()), 4),
             "top_team": str(df.iloc[0]["team"]),
         }
+
+
+# =============================================================================
+# ChemNet v2 — Opposing-pitcher node + residual objective
+# =============================================================================
+#
+# v2 introduces two architectural changes versus v1:
+#   1. The graph grows from 9 lineup nodes to 10 (lineup + opposing starter).
+#      The pitcher node receives star-topology edges to all 9 lineup slots
+#      on top of the existing band adjacency between consecutive batters.
+#   2. The training objective becomes the residual
+#         residual = actual_sum_woba - sum_of_parts
+#      where sum_of_parts is a fixed-PA-schedule baseline computed from the
+#      lineup's rolling wOBA. Both the GNN and a non-graph baseline MLP are
+#      trained on this residual; final inference recovers absolute prediction
+#      via   pred_absolute = sum_of_parts + pred_residual.
+#
+# v1 code above is left fully intact: shape, checkpoint, inference path.
+
+NUM_NODES_V2 = NUM_LINEUP_SLOTS + 1  # 9 lineup slots + 1 opposing pitcher
+PITCHER_NODE_INDEX = NUM_LINEUP_SLOTS  # last node
+
+# Per-slot expected PAs (leadoff bats most). Sums to ~37.8 (~mean game-side PAs).
+SLOT_PA_SCHEDULE = np.array(
+    [4.6, 4.5, 4.4, 4.3, 4.2, 4.1, 4.0, 3.9, 3.8], dtype=np.float32
+)
+
+
+def _build_adjacency_v2(n_lineup: int = NUM_LINEUP_SLOTS) -> torch.Tensor:
+    """Build the v2 adjacency: lineup band + pitcher star.
+
+    Nodes 0..n_lineup-1 are the lineup (band-adjacent). Node n_lineup is the
+    opposing pitcher and is connected to every lineup node (star overlay).
+
+    Returns:
+        (n_lineup+1, n_lineup+1) adjacency tensor.
+    """
+    n = n_lineup + 1
+    adj = torch.zeros(n, n)
+    # Band among lineup nodes
+    for i in range(n_lineup - 1):
+        adj[i, i + 1] = 1.0
+        adj[i + 1, i] = 1.0
+    # Star: pitcher node (index n_lineup) connected to every lineup slot
+    p = n_lineup
+    for i in range(n_lineup):
+        adj[p, i] = 1.0
+        adj[i, p] = 1.0
+    return adj
+
+
+def _get_starting_pitcher(
+    conn: duckdb.DuckDBPyConnection,
+    game_pk: int,
+    team_side: str = "home",
+) -> Optional[int]:
+    """Identify the opposing starter for one team-side.
+
+    For team_side='home' (home is hitting → inning_topbot='Bot'), the pitcher
+    on the mound is the away team's starter — i.e. pitcher_id with the
+    smallest at_bat_number on rows where inning_topbot='Bot'.
+    """
+    if team_side == "home":
+        side_filter = "inning_topbot = 'Bot'"
+    else:
+        side_filter = "inning_topbot = 'Top'"
+    row = conn.execute(
+        f"""
+        SELECT pitcher_id
+        FROM pitches
+        WHERE game_pk = $1 AND {side_filter} AND pitcher_id IS NOT NULL
+        GROUP BY pitcher_id
+        ORDER BY MIN(at_bat_number)
+        LIMIT 1
+        """,
+        [game_pk],
+    ).fetchone()
+    return int(row[0]) if row is not None else None
+
+
+def _get_pitcher_features(
+    conn: duckdb.DuckDBPyConnection,
+    pitcher_id: Optional[int],
+    before_date: str,
+    window_bf: int = 100,
+) -> np.ndarray:
+    """Compute rolling pitcher features as a 5-vector matching lineup shape.
+
+    Features: [rolling_FIP_proxy, K%, BB%, HR_per_9, GB%].
+
+    Inputs are accumulated from the pitcher's most-recent batters faced
+    before ``before_date`` (capped at ``window_bf`` distinct PAs / batters
+    faced per the spec; we count distinct PA events).
+
+    For shape compatibility with the lineup node features the vector is 5
+    elements long; values represent pitcher-side stats rather than batter
+    rolling stats. Z-normalisation across the season is applied at graph-
+    build time inside build_game_graph_v2 (we return raw values here).
+
+    Returns league-average values when the pitcher has no prior data.
+    """
+    # League-average defaults (rough)
+    LEAGUE_DEFAULTS = np.array([4.20, 0.22, 0.08, 1.30, 0.43], dtype=np.float32)
+    if pitcher_id is None:
+        return LEAGUE_DEFAULTS.copy()
+
+    query = f"""
+        WITH appearances AS (
+            SELECT
+                pitcher_id, game_pk, game_date,
+                SUM(CASE WHEN events = 'strikeout' THEN 1 ELSE 0 END) AS k,
+                SUM(CASE WHEN events = 'walk' THEN 1 ELSE 0 END) AS bb,
+                SUM(CASE WHEN events = 'home_run' THEN 1 ELSE 0 END) AS hr,
+                SUM(CASE WHEN bb_type = 'ground_ball' THEN 1 ELSE 0 END) AS gb,
+                SUM(CASE WHEN bb_type IS NOT NULL THEN 1 ELSE 0 END) AS bip,
+                SUM(CASE WHEN events IS NOT NULL THEN 1 ELSE 0 END) AS bf,
+                COUNT(DISTINCT CASE WHEN events IS NOT NULL THEN at_bat_number END)
+                  AS outs_proxy
+            FROM pitches
+            WHERE pitcher_id = {int(pitcher_id)}
+              AND game_date < '{before_date}'
+            GROUP BY pitcher_id, game_pk, game_date
+            HAVING SUM(CASE WHEN events IS NOT NULL THEN 1 ELSE 0 END) > 0
+        ),
+        ranked AS (
+            SELECT *, ROW_NUMBER() OVER (ORDER BY game_date DESC) AS rn
+            FROM appearances
+        )
+        SELECT
+            COALESCE(SUM(k), 0)  AS k,
+            COALESCE(SUM(bb), 0) AS bb,
+            COALESCE(SUM(hr), 0) AS hr,
+            COALESCE(SUM(gb), 0) AS gb,
+            COALESCE(SUM(bip), 0) AS bip,
+            COALESCE(SUM(bf), 0)  AS bf
+        FROM ranked
+        WHERE rn <= 30
+    """
+    row = conn.execute(query).fetchone()
+    if row is None or row[5] == 0:
+        return LEAGUE_DEFAULTS.copy()
+    k, bb, hr, gb, bip, bf = (float(x) for x in row)
+    bf_safe = max(bf, 1.0)
+    bip_safe = max(bip, 1.0)
+    # FIP proxy = (13*HR + 3*BB - 2*K) / IP_proxy + ~3.10 constant.
+    # IP_proxy approximated as bf / 4.3 (avg PAs per inning).
+    ip_proxy = max(bf_safe / 4.3, 1.0)
+    fip = (13.0 * hr + 3.0 * bb - 2.0 * k) / ip_proxy + 3.10
+    k_pct = k / bf_safe
+    bb_pct = bb / bf_safe
+    hr_per_9 = (hr / ip_proxy) * 9.0
+    gb_pct = gb / bip_safe
+    return np.array([fip, k_pct, bb_pct, hr_per_9, gb_pct], dtype=np.float32)
+
+
+def build_game_graph_v2(
+    conn: duckdb.DuckDBPyConnection,
+    game_pk: int,
+    team_side: str = "home",
+    pitcher_norm: Optional[dict] = None,
+) -> dict | None:
+    """Construct a v2 graph: 9 lineup + 1 opposing-pitcher node.
+
+    Compared to ``build_game_graph``:
+      - Adds opposing-pitcher node (index 9) with pitcher-side features.
+      - Adds star edges from pitcher node to every lineup node.
+      - Computes ``sum_of_parts`` baseline from the lineup wOBAs and a
+        fixed slot-PA schedule.
+      - Reports ``residual_target = target - sum_of_parts`` for the
+        residual-objective training.
+
+    Args:
+        pitcher_norm: optional dict with 'mean' and 'std' arrays for z-
+            normalising the pitcher feature vector across the season.
+
+    Returns:
+        Dict with the v2 fields, or None on failure.
+    """
+    lineup = _get_lineup_for_game(conn, game_pk, team_side)
+    if lineup.empty or len(lineup) < 2:
+        return None
+
+    n_lineup = len(lineup)
+    game_date_row = conn.execute(
+        "SELECT MIN(game_date) AS gd FROM pitches WHERE game_pk = $1", [game_pk]
+    ).fetchone()
+    if game_date_row is None:
+        return None
+    game_date = str(game_date_row[0])
+
+    batter_ids = lineup["batter_id"].tolist()
+    batter_features = _get_rolling_player_features(conn, batter_ids, game_date)
+
+    # Identify opposing starter
+    pitcher_id = _get_starting_pitcher(conn, game_pk, team_side)
+    pitcher_feat_raw = _get_pitcher_features(conn, pitcher_id, game_date)
+    if pitcher_norm is not None:
+        mean = pitcher_norm.get("mean")
+        std = pitcher_norm.get("std")
+        if mean is not None and std is not None:
+            std_safe = np.where(std > 1e-6, std, 1.0)
+            pitcher_feat = (pitcher_feat_raw - mean) / std_safe
+            pitcher_feat = np.clip(pitcher_feat, -5.0, 5.0).astype(np.float32)
+        else:
+            pitcher_feat = pitcher_feat_raw
+    else:
+        pitcher_feat = pitcher_feat_raw
+
+    # Build node-feature matrix [n_lineup + 1, NODE_FEATURE_DIM]
+    node_feats = np.zeros((n_lineup + 1, NODE_FEATURE_DIM), dtype=np.float32)
+    woba_vec = np.zeros(n_lineup, dtype=np.float32)
+    for i, bid in enumerate(batter_ids):
+        f = batter_features.get(
+            bid, np.array([0.320, 0.22, 0.08, 0.04, 0.0], dtype=np.float32)
+        ).copy()
+        f[4] = (i + 1) / NUM_LINEUP_SLOTS  # normalised order position
+        node_feats[i] = f
+        woba_vec[i] = f[0]
+    node_feats[n_lineup] = pitcher_feat[:NODE_FEATURE_DIM]
+
+    adj = _build_adjacency_v2(n_lineup)
+
+    # Target: total wOBA for this team in this game
+    if team_side == "home":
+        side_filter = "inning_topbot = 'Bot'"
+    else:
+        side_filter = "inning_topbot = 'Top'"
+    target_row = conn.execute(
+        f"""
+        SELECT COALESCE(SUM(woba_value), 0) AS total_woba
+        FROM pitches
+        WHERE game_pk = $1 AND {side_filter}
+          AND woba_denom IS NOT NULL AND woba_denom > 0
+        """,
+        [game_pk],
+    ).fetchone()
+    target = float(target_row[0]) if target_row else 0.0
+
+    # sum_of_parts using fixed PA schedule (non-leaky baseline)
+    pa_schedule = SLOT_PA_SCHEDULE[:n_lineup]
+    sum_of_parts = float(np.sum(woba_vec * pa_schedule))
+    residual_target = target - sum_of_parts
+
+    return {
+        "node_features": torch.tensor(node_feats),
+        "adj": adj,
+        "lineup": lineup,
+        "pitcher_id": pitcher_id,
+        "target": target,
+        "sum_of_parts": sum_of_parts,
+        "residual_target": residual_target,
+        "game_pk": game_pk,
+        "n_lineup": n_lineup,
+        "n_nodes": n_lineup + 1,
+    }
+
+
+def _pad_graph_v2(graph: dict, target_n_lineup: int = NUM_LINEUP_SLOTS) -> dict:
+    """Pad a v2 graph (which may have <9 lineup nodes) to full size.
+
+    Always preserves the pitcher node at the *last* index.
+    """
+    n_lineup = graph["n_lineup"]
+    if n_lineup >= target_n_lineup:
+        return graph
+    target_n = target_n_lineup + 1
+    nf = graph["node_features"]
+    # Existing layout: [lineup_0..lineup_{n_lineup-1}, pitcher]
+    pitcher_row = nf[-1:]
+    lineup_rows = nf[:-1]
+    pad = torch.zeros(target_n_lineup - n_lineup, nf.size(1))
+    new_nf = torch.cat([lineup_rows, pad, pitcher_row], dim=0)
+    graph["node_features"] = new_nf
+    new_adj = _build_adjacency_v2(target_n_lineup)
+    graph["adj"] = new_adj
+    graph["n_lineup"] = target_n_lineup
+    graph["n_nodes"] = target_n
+    return graph
+
+
+# ── v2 Models ────────────────────────────────────────────────────────────────
+
+
+class ChemNetGNNv2(nn.Module):
+    """v2 GNN: same GAT topology, but operates on the 10-node lineup+pitcher
+    graph and predicts a residual scalar.
+
+    Architecture (small / conservative, comparable parameter count to v1):
+        GAT1 (5 -> 32, 2 heads, concat) -> ELU -> 64
+        GAT2 (64 -> 32, 2 heads, average) -> ELU -> 32
+        Global mean pool over 10 nodes -> 32
+        MLP: 32 -> 16 -> 1   (residual prediction)
+    """
+
+    def __init__(
+        self,
+        input_dim: int = NODE_FEATURE_DIM,
+        hidden_dim: int = GAT_HIDDEN_DIM,
+        n_heads: int = NUM_GAT_HEADS,
+    ) -> None:
+        super().__init__()
+        self.gat1 = MultiHeadGAT(input_dim, hidden_dim, n_heads, concat=True)
+        self.gat2 = MultiHeadGAT(hidden_dim * n_heads, hidden_dim, n_heads, concat=False)
+        self.mlp = nn.Sequential(
+            nn.Linear(hidden_dim, 16),
+            nn.ReLU(),
+            nn.Linear(16, 1),
+        )
+
+    def forward(
+        self, h: torch.Tensor, adj: torch.Tensor
+    ) -> tuple[torch.Tensor, list[torch.Tensor]]:
+        h1, _ = self.gat1(h, adj)
+        h1 = F.elu(h1)
+        h2, alphas = self.gat2(h1, adj)
+        h2 = F.elu(h2)
+        graph_emb = h2.mean(dim=0, keepdim=True)
+        out = self.mlp(graph_emb).squeeze()
+        return out, alphas
+
+
+class BaselineMLPv2(nn.Module):
+    """v2 baseline: flattens 10*5=50 features and predicts residual scalar."""
+
+    def __init__(self, input_dim: int = NUM_NODES_V2 * NODE_FEATURE_DIM) -> None:
+        super().__init__()
+        self.mlp = nn.Sequential(
+            nn.Linear(input_dim, 32),
+            nn.ReLU(),
+            nn.Linear(32, 16),
+            nn.ReLU(),
+            nn.Linear(16, 1),
+        )
+
+    def forward(self, h: torch.Tensor) -> torch.Tensor:
+        return self.mlp(h.reshape(1, -1)).squeeze()
+
+
+def _compute_pitcher_norm(
+    conn: duckdb.DuckDBPyConnection,
+    game_pks: list[int],
+    sample_n: int = 800,
+) -> dict:
+    """Compute mean/std over a sample of pitcher feature vectors.
+
+    Used to z-normalise the pitcher feature row across the training cohort.
+    """
+    rng = np.random.RandomState(0)
+    sample = list(game_pks)
+    if len(sample) > sample_n:
+        sample = [int(x) for x in rng.choice(sample, size=sample_n, replace=False)]
+    feats: list[np.ndarray] = []
+    for gp in sample:
+        for side in ("home", "away"):
+            pid = _get_starting_pitcher(conn, gp, side)
+            date_row = conn.execute(
+                "SELECT MIN(game_date) FROM pitches WHERE game_pk = $1", [gp]
+            ).fetchone()
+            if date_row is None:
+                continue
+            dt = str(date_row[0])
+            f = _get_pitcher_features(conn, pid, dt)
+            if np.all(np.isfinite(f)):
+                feats.append(f)
+    if not feats:
+        return {"mean": np.zeros(5, dtype=np.float32),
+                "std": np.ones(5, dtype=np.float32)}
+    arr = np.stack(feats, axis=0)
+    return {
+        "mean": arr.mean(axis=0).astype(np.float32),
+        "std": arr.std(axis=0).astype(np.float32),
+    }
+
+
+def _bulk_build_graphs_v2(
+    conn: duckdb.DuckDBPyConnection,
+    game_pks: list[int],
+    seasons: range,
+    pitcher_norm: Optional[dict] = None,
+) -> tuple[list[dict], dict]:
+    """Bulk-load all required pitches data once and build v2 graphs in-memory.
+
+    Vastly faster than calling build_game_graph_v2 per game when many graphs
+    are needed (avoids 4-5 SQL queries per graph). Trade-off: holds the raw
+    season pitches subset in pandas memory while building.
+    """
+    season_list = ",".join(str(s) for s in seasons)
+    pk_set = {int(x) for x in game_pks}
+
+    logger.info("[v2-bulk] Pulling pitches for seasons %s ...", list(seasons))
+    # Pull ONLY the columns we need for graph construction. We pull the full
+    # season range so rolling-feature lookups have access to prior games even
+    # for batters who don't appear in the requested cohort.
+    pitches = conn.execute(f"""
+        SELECT
+            game_pk, game_date, batter_id, pitcher_id, stand,
+            inning_topbot, at_bat_number, events, woba_value, woba_denom,
+            bb_type
+        FROM pitches
+        WHERE EXTRACT(YEAR FROM game_date) IN ({season_list})
+    """).fetchdf()
+    logger.info("[v2-bulk] Loaded %d pitch rows. Computing per-PA records ...",
+                len(pitches))
+
+    # Reduce to per-AB rows: one row per (game_pk, side, at_bat_number) with
+    # batter, pitcher, events, wobas, etc. Keep only ABs that closed (events
+    # not NULL) so PA aggregations are correct.
+    ab = (
+        pitches.dropna(subset=["events"])
+        .sort_values(["game_pk", "inning_topbot", "at_bat_number"])
+        .drop_duplicates(["game_pk", "inning_topbot", "at_bat_number"], keep="last")
+    )
+    ab["game_date"] = pd.to_datetime(ab["game_date"])
+    ab["side"] = np.where(ab["inning_topbot"] == "Bot", "home", "away")
+    ab["is_so"] = (ab["events"] == "strikeout").astype(np.int32)
+    ab["is_bb"] = (ab["events"] == "walk").astype(np.int32)
+    ab["is_hr"] = (ab["events"] == "home_run").astype(np.int32)
+    ab["is_xbh"] = ab["events"].isin(["double", "triple", "home_run"]).astype(np.int32)
+    ab["is_gb"] = (ab["bb_type"] == "ground_ball").astype(np.int32)
+    ab["bip_flag"] = ab["bb_type"].notna().astype(np.int32)
+    ab["woba_value"] = ab["woba_value"].fillna(0.0).astype(np.float32)
+    ab["woba_denom_safe"] = ab["woba_denom"].fillna(0.0).astype(np.float32)
+
+    # Game-level batter aggregates (for rolling-30 features per batter)
+    logger.info("[v2-bulk] Building batter game-level aggregates ...")
+    batter_game = (
+        ab.groupby(["batter_id", "game_pk", "game_date"], as_index=False)
+        .agg(
+            woba_val=("woba_value", "sum"),
+            woba_den=("woba_denom_safe", "sum"),
+            so=("is_so", "sum"),
+            bb=("is_bb", "sum"),
+            xbh=("is_xbh", "sum"),
+            pa=("woba_denom_safe", lambda s: int((s > 0).sum())),
+        )
+    )
+    batter_game = batter_game[batter_game["woba_den"] > 0]
+    batter_game = batter_game.sort_values(["batter_id", "game_date"])
+
+    # Game-level pitcher aggregates (for rolling-100 BF features)
+    logger.info("[v2-bulk] Building pitcher game-level aggregates ...")
+    pitcher_game = (
+        ab.groupby(["pitcher_id", "game_pk", "game_date"], as_index=False)
+        .agg(
+            k=("is_so", "sum"),
+            bb=("is_bb", "sum"),
+            hr=("is_hr", "sum"),
+            gb=("is_gb", "sum"),
+            bip=("bip_flag", "sum"),
+            bf=("events", "count"),
+        )
+    )
+    pitcher_game = pitcher_game.sort_values(["pitcher_id", "game_date"])
+
+    # Identify lineup (first 9 unique batters by min at_bat_number) per side
+    logger.info("[v2-bulk] Identifying lineups + opposing starters ...")
+    first_ab_batter = (
+        ab.groupby(["game_pk", "side", "batter_id"], as_index=False)
+        .agg(first_ab=("at_bat_number", "min"),
+             stand=("stand", "first"))
+    )
+    first_ab_batter = first_ab_batter.sort_values(
+        ["game_pk", "side", "first_ab"]
+    )
+    first_ab_batter["slot_rank"] = (
+        first_ab_batter.groupby(["game_pk", "side"]).cumcount() + 1
+    )
+    lineup = first_ab_batter[first_ab_batter["slot_rank"] <= NUM_LINEUP_SLOTS].copy()
+
+    # Opposing starter per side (smallest at_bat_number pitcher_id rows
+    # per game_pk x side).
+    first_ab_pitcher = (
+        ab.groupby(["game_pk", "side", "pitcher_id"], as_index=False)
+        .agg(first_ab=("at_bat_number", "min"))
+    )
+    first_ab_pitcher = first_ab_pitcher.sort_values(["game_pk", "side", "first_ab"])
+    starters = first_ab_pitcher.groupby(["game_pk", "side"], as_index=False).first()
+
+    # Game-side targets: SUM(woba_value) per (game_pk, side) over wOBA-eligible ABs
+    targets = (
+        ab.groupby(["game_pk", "side"], as_index=False)
+        .agg(target=("woba_value", "sum"),
+             game_date=("game_date", "first"))
+    )
+
+    # Build cumsum tables for fast rolling lookup (window-by-game count = 30).
+    # For each (batter_id, game_date) we want sums over the prior 30 games.
+    # Approach: for each batter, precompute per-game stats list; for any
+    # target_date find prior games and slice the last 30. Using pandas group
+    # iteration is fine.
+    logger.info("[v2-bulk] Indexing batter / pitcher series for rolling lookup ...")
+    batter_groups: dict[int, pd.DataFrame] = {
+        int(bid): grp[["game_date", "woba_val", "woba_den", "so", "bb", "xbh", "pa"]]
+        .reset_index(drop=True)
+        for bid, grp in batter_game.groupby("batter_id")
+    }
+    pitcher_groups: dict[int, pd.DataFrame] = {
+        int(pid): grp[["game_date", "k", "bb", "hr", "gb", "bip", "bf"]]
+        .reset_index(drop=True)
+        for pid, grp in pitcher_game.groupby("pitcher_id")
+    }
+
+    # Build a (game_pk, side) -> (lineup_list, starter_id, target, date) map
+    targets_map = {
+        (int(r.game_pk), str(r.side)): (float(r.target), pd.Timestamp(r.game_date))
+        for r in targets.itertuples(index=False)
+    }
+    starter_map = {
+        (int(r.game_pk), str(r.side)): int(r.pitcher_id)
+        for r in starters.itertuples(index=False)
+    }
+    lineup_map: dict[tuple[int, str], list[tuple[int, str]]] = {}
+    for (gp_key, side_key), grp in lineup.groupby(["game_pk", "side"]):
+        lineup_map[(int(gp_key), str(side_key))] = [
+            (int(r.batter_id), str(r.stand) if pd.notna(r.stand) else "R")
+            for r in grp.sort_values("slot_rank").itertuples(index=False)
+        ]
+
+    # Helpers for rolling features
+    league_batter = np.array([0.320, 0.22, 0.08, 0.04, 0.0], dtype=np.float32)
+    league_pitcher = np.array([4.20, 0.22, 0.08, 1.30, 0.43], dtype=np.float32)
+
+    def _batter_feat(bid: int, before: pd.Timestamp) -> np.ndarray:
+        df = batter_groups.get(bid)
+        if df is None:
+            return league_batter.copy()
+        prior = df[df["game_date"] < before]
+        if len(prior) == 0:
+            return league_batter.copy()
+        prior = prior.tail(30)
+        woba_val = float(prior["woba_val"].sum())
+        woba_den = float(prior["woba_den"].sum())
+        if woba_den <= 0:
+            return league_batter.copy()
+        woba = woba_val / woba_den
+        pa = max(float(prior["pa"].sum()), 1.0)
+        k_pct = float(prior["so"].sum()) / pa
+        bb_pct = float(prior["bb"].sum()) / pa
+        iso = float(prior["xbh"].sum()) / pa
+        return np.array([woba, k_pct, bb_pct, iso, 0.0], dtype=np.float32)
+
+    def _pitcher_feat(pid: int, before: pd.Timestamp) -> np.ndarray:
+        df = pitcher_groups.get(pid)
+        if df is None:
+            return league_pitcher.copy()
+        prior = df[df["game_date"] < before]
+        if len(prior) == 0:
+            return league_pitcher.copy()
+        # Use last 30 appearances as the window
+        prior = prior.tail(30)
+        k = float(prior["k"].sum())
+        bb = float(prior["bb"].sum())
+        hr = float(prior["hr"].sum())
+        gb = float(prior["gb"].sum())
+        bip = float(prior["bip"].sum())
+        bf = float(prior["bf"].sum())
+        if bf <= 0:
+            return league_pitcher.copy()
+        ip_proxy = max(bf / 4.3, 1.0)
+        bip_safe = max(bip, 1.0)
+        fip = (13.0 * hr + 3.0 * bb - 2.0 * k) / ip_proxy + 3.10
+        return np.array(
+            [fip, k / bf, bb / bf, (hr / ip_proxy) * 9.0, gb / bip_safe],
+            dtype=np.float32,
+        )
+
+    # Filter target keys to the requested cohort
+    cohort_keys = [k for k in targets_map.keys() if k[0] in pk_set]
+    logger.info("[v2-bulk] Building %d candidate graphs (raw) for cohort of %d games ...",
+                len(cohort_keys), len(pk_set))
+    raw_records: list[dict] = []
+    for (gp_key, side_key) in cohort_keys:
+        target, dt = targets_map[(gp_key, side_key)]
+        lineup_list = lineup_map.get((gp_key, side_key))
+        if lineup_list is None or len(lineup_list) < 2:
+            continue
+        starter_id = starter_map.get((gp_key, side_key))
+        n_lineup = len(lineup_list)
+        node_feats = np.zeros((n_lineup + 1, NODE_FEATURE_DIM), dtype=np.float32)
+        woba_vec = np.zeros(n_lineup, dtype=np.float32)
+        for i, (bid, _stand) in enumerate(lineup_list):
+            f = _batter_feat(bid, dt)
+            f[4] = (i + 1) / NUM_LINEUP_SLOTS
+            node_feats[i] = f
+            woba_vec[i] = f[0]
+        pf_raw = (
+            _pitcher_feat(starter_id, dt)
+            if starter_id is not None else league_pitcher.copy()
+        )
+        node_feats[n_lineup] = pf_raw  # raw; normalised below
+
+        adj = _build_adjacency_v2(n_lineup)
+        pa_schedule = SLOT_PA_SCHEDULE[:n_lineup]
+        sum_of_parts = float(np.sum(woba_vec * pa_schedule))
+        residual_target = float(target) - sum_of_parts
+
+        raw_records.append({
+            "node_features_raw": node_feats,
+            "adj": adj,
+            "n_lineup": n_lineup,
+            "n_nodes": n_lineup + 1,
+            "target": float(target),
+            "sum_of_parts": sum_of_parts,
+            "residual_target": residual_target,
+            "game_pk": gp_key,
+            "side": side_key,
+            "pitcher_raw": pf_raw,
+        })
+
+    # Compute or accept pitcher normalisation
+    if pitcher_norm is None:
+        if raw_records:
+            pf_arr = np.stack([r["pitcher_raw"] for r in raw_records], axis=0)
+            pitcher_norm = {
+                "mean": pf_arr.mean(axis=0).astype(np.float32),
+                "std": pf_arr.std(axis=0).astype(np.float32),
+            }
+        else:
+            pitcher_norm = {
+                "mean": np.zeros(5, dtype=np.float32),
+                "std": np.ones(5, dtype=np.float32),
+            }
+        logger.info("[v2-bulk] Computed pitcher_norm from raw records: "
+                    "mean=%s std=%s",
+                    pitcher_norm["mean"].round(3).tolist(),
+                    pitcher_norm["std"].round(3).tolist())
+    norm_mean = pitcher_norm["mean"]
+    norm_std = pitcher_norm["std"]
+    norm_std_safe = np.where(norm_std > 1e-6, norm_std, 1.0)
+
+    graphs: list[dict] = []
+    for r in raw_records:
+        nf = r["node_features_raw"].copy()
+        n_lineup = r["n_lineup"]
+        pf_raw = nf[n_lineup]
+        pf_norm = np.clip(((pf_raw - norm_mean) / norm_std_safe), -5.0, 5.0).astype(np.float32)
+        nf[n_lineup] = pf_norm
+        g = {
+            "node_features": torch.tensor(nf),
+            "adj": r["adj"],
+            "n_lineup": n_lineup,
+            "n_nodes": r["n_nodes"],
+            "target": r["target"],
+            "sum_of_parts": r["sum_of_parts"],
+            "residual_target": r["residual_target"],
+            "game_pk": r["game_pk"],
+            "side": r["side"],
+        }
+        g = _pad_graph_v2(g)
+        graphs.append(g)
+    logger.info("[v2-bulk] Built %d graphs.", len(graphs))
+    return graphs, pitcher_norm
+
+
+def _compute_pitcher_norm_bulk(graphs: list[dict]) -> dict:
+    """Compute mean/std of the pitcher row across an in-memory graph batch.
+
+    Operates on the (un-normalised) pitcher row (last node of each graph)
+    AFTER it has been generated; not used in the main pipeline (which
+    normalises with the cohort norm computed before graph build), but
+    available as a sanity-check helper.
+    """
+    feats = []
+    for g in graphs:
+        nf = g["node_features"]
+        feats.append(nf[-1].numpy())
+    arr = np.stack(feats, axis=0)
+    return {
+        "mean": arr.mean(axis=0).astype(np.float32),
+        "std": arr.std(axis=0).astype(np.float32),
+    }
+
+
+def train_chemnet_v2(
+    conn: duckdb.DuckDBPyConnection,
+    seasons: range = range(2015, 2023),
+    epochs: int = 30,
+    batch_size: int = 32,
+    lr: float = 1e-3,
+    max_games: int = 9000,
+    val_frac: float = 0.08,
+    early_stop_patience: int = 6,
+    save_path: Optional[Path] = None,
+    seed: int = 42,
+) -> dict:
+    """Train ChemNet v2: opposing-pitcher graph + residual objective.
+
+    Uses a bulk in-memory graph build for speed (one big DuckDB pull, then
+    pandas group-bys to derive rolling features for thousands of games).
+
+    Returns:
+        Training metrics dict including loss curves and best-epoch info.
+    """
+    rng = np.random.RandomState(seed)
+    logger.info("[v2] Collecting game PKs for seasons %s ...", list(seasons))
+    game_pks = _collect_game_pks(conn, seasons)
+    if len(game_pks) > max_games:
+        game_pks = [int(x) for x in rng.choice(game_pks, size=max_games, replace=False)]
+    logger.info("[v2] Selected %d games (cap %d).", len(game_pks), max_games)
+
+    logger.info("[v2] Building graphs in bulk (norm computed inline) ...")
+    graphs, pitcher_norm = _bulk_build_graphs_v2(conn, game_pks, seasons, pitcher_norm=None)
+    logger.info("[v2] Pitcher norm: mean=%s std=%s",
+                pitcher_norm["mean"].round(3).tolist(),
+                pitcher_norm["std"].round(3).tolist())
+
+    if not graphs:
+        return {"status": "no_data"}
+
+    # Train/val split
+    indices = list(range(len(graphs)))
+    rng.shuffle(indices)
+    n_val = max(1, int(len(graphs) * val_frac))
+    val_idx = set(indices[:n_val])
+    train_idx = [i for i in indices if i not in val_idx]
+    val_idx_list = sorted(val_idx)
+    logger.info("[v2] Train graphs: %d, val graphs: %d", len(train_idx), len(val_idx_list))
+
+    device = _get_device()
+    gnn = ChemNetGNNv2().to(device)
+    baseline = BaselineMLPv2().to(device)
+    opt_gnn = torch.optim.Adam(gnn.parameters(), lr=lr)
+    opt_base = torch.optim.Adam(baseline.parameters(), lr=lr)
+
+    train_gnn_losses: list[float] = []
+    train_base_losses: list[float] = []
+    val_gnn_losses: list[float] = []
+    val_base_losses: list[float] = []
+
+    best_val_gnn = float("inf")
+    best_epoch = -1
+    best_gnn_state = None
+    best_base_state = None
+    bad_epochs = 0
+
+    # Pre-load tensors to device once for speed
+    cached: list[dict] = []
+    for g in graphs:
+        cached.append({
+            "nf": g["node_features"].to(device),
+            "adj": g["adj"].to(device),
+            "residual_target": torch.tensor(
+                g["residual_target"], dtype=torch.float32, device=device
+            ),
+        })
+
+    for epoch in range(epochs):
+        rng.shuffle(train_idx)
+        gnn.train()
+        baseline.train()
+        epoch_gnn_loss = 0.0
+        epoch_base_loss = 0.0
+        n_batches = 0
+        for start in range(0, len(train_idx), batch_size):
+            batch_idx = train_idx[start:start + batch_size]
+            gnn_batch_loss = torch.tensor(0.0, device=device)
+            base_batch_loss = torch.tensor(0.0, device=device)
+            for idx in batch_idx:
+                c = cached[idx]
+                pred_gnn, _ = gnn(c["nf"], c["adj"])
+                gnn_batch_loss = gnn_batch_loss + F.mse_loss(pred_gnn, c["residual_target"])
+                pred_base = baseline(c["nf"])
+                base_batch_loss = base_batch_loss + F.mse_loss(pred_base, c["residual_target"])
+            gnn_batch_loss = gnn_batch_loss / len(batch_idx)
+            base_batch_loss = base_batch_loss / len(batch_idx)
+
+            opt_gnn.zero_grad()
+            gnn_batch_loss.backward()
+            opt_gnn.step()
+            opt_base.zero_grad()
+            base_batch_loss.backward()
+            opt_base.step()
+
+            epoch_gnn_loss += gnn_batch_loss.item()
+            epoch_base_loss += base_batch_loss.item()
+            n_batches += 1
+
+        avg_gnn = epoch_gnn_loss / max(n_batches, 1)
+        avg_base = epoch_base_loss / max(n_batches, 1)
+        train_gnn_losses.append(avg_gnn)
+        train_base_losses.append(avg_base)
+
+        # Validation
+        gnn.eval()
+        baseline.eval()
+        v_gnn = 0.0
+        v_base = 0.0
+        with torch.no_grad():
+            for idx in val_idx_list:
+                c = cached[idx]
+                pred_gnn, _ = gnn(c["nf"], c["adj"])
+                pred_base = baseline(c["nf"])
+                v_gnn += F.mse_loss(pred_gnn, c["residual_target"]).item()
+                v_base += F.mse_loss(pred_base, c["residual_target"]).item()
+        v_gnn = v_gnn / max(len(val_idx_list), 1)
+        v_base = v_base / max(len(val_idx_list), 1)
+        val_gnn_losses.append(v_gnn)
+        val_base_losses.append(v_base)
+
+        logger.info(
+            "[v2] Ep %02d/%02d  train_gnn=%.4f train_base=%.4f  val_gnn=%.4f val_base=%.4f",
+            epoch + 1, epochs, avg_gnn, avg_base, v_gnn, v_base,
+        )
+
+        if v_gnn < best_val_gnn - 1e-4:
+            best_val_gnn = v_gnn
+            best_epoch = epoch + 1
+            best_gnn_state = {k: v.detach().clone().cpu() for k, v in gnn.state_dict().items()}
+            best_base_state = {k: v.detach().clone().cpu() for k, v in baseline.state_dict().items()}
+            bad_epochs = 0
+            # Eager-save the best checkpoint so an interrupted run still leaves
+            # an artefact on disk.
+            try:
+                if save_path is not None:
+                    save_path.parent.mkdir(parents=True, exist_ok=True)
+                    torch.save(
+                        {
+                            "gnn": gnn.state_dict(),
+                            "baseline": baseline.state_dict(),
+                            "pitcher_norm_mean": pitcher_norm["mean"].tolist(),
+                            "pitcher_norm_std": pitcher_norm["std"].tolist(),
+                            "metadata": {
+                                "version": "2.0.0-incremental",
+                                "objective": "residual",
+                                "best_epoch": best_epoch,
+                                "best_val_gnn_mse": round(best_val_gnn, 4),
+                                "slot_pa_schedule": SLOT_PA_SCHEDULE.tolist(),
+                            },
+                        },
+                        save_path,
+                    )
+            except Exception as save_exc:  # pragma: no cover - defensive
+                logger.warning("[v2] Eager save failed (will retry at end): %s", save_exc)
+        else:
+            bad_epochs += 1
+            if bad_epochs >= early_stop_patience:
+                logger.info("[v2] Early stop at epoch %d (no val_gnn improvement for %d epochs).",
+                            epoch + 1, early_stop_patience)
+                break
+
+    if best_gnn_state is not None:
+        gnn.load_state_dict(best_gnn_state)
+    if best_base_state is not None:
+        baseline.load_state_dict(best_base_state)
+
+    # Save
+    if save_path is None:
+        save_path = MODELS_DIR / "chemnet_v2.pt"
+    save_path.parent.mkdir(parents=True, exist_ok=True)
+    torch.save(
+        {
+            "gnn": gnn.state_dict(),
+            "baseline": baseline.state_dict(),
+            "pitcher_norm_mean": pitcher_norm["mean"].tolist(),
+            "pitcher_norm_std": pitcher_norm["std"].tolist(),
+            "metadata": {
+                "version": "2.0.0",
+                "objective": "residual",
+                "seasons": [int(seasons.start), int(seasons.stop) - 1],
+                "n_train_graphs": len(train_idx),
+                "n_val_graphs": len(val_idx_list),
+                "best_epoch": best_epoch,
+                "best_val_gnn_mse": round(best_val_gnn, 4),
+                "slot_pa_schedule": SLOT_PA_SCHEDULE.tolist(),
+            },
+        },
+        save_path,
+    )
+    logger.info("[v2] Saved checkpoint to %s", save_path)
+
+    return {
+        "status": "ok",
+        "n_train_graphs": len(train_idx),
+        "n_val_graphs": len(val_idx_list),
+        "epochs_run": len(train_gnn_losses),
+        "best_epoch": best_epoch,
+        "best_val_gnn_mse": round(best_val_gnn, 4),
+        "final_train_gnn_loss": round(train_gnn_losses[-1], 4) if train_gnn_losses else None,
+        "final_train_base_loss": round(train_base_losses[-1], 4) if train_base_losses else None,
+        "final_val_gnn_loss": round(val_gnn_losses[-1], 4) if val_gnn_losses else None,
+        "final_val_base_loss": round(val_base_losses[-1], 4) if val_base_losses else None,
+        "train_gnn_losses": [round(x, 4) for x in train_gnn_losses],
+        "train_base_losses": [round(x, 4) for x in train_base_losses],
+        "val_gnn_losses": [round(x, 4) for x in val_gnn_losses],
+        "val_base_losses": [round(x, 4) for x in val_base_losses],
+        "checkpoint_path": str(save_path),
+    }
+
+
+def _load_models_v2(
+    checkpoint_path: Path | str = None,
+) -> tuple[ChemNetGNNv2, BaselineMLPv2, dict]:
+    """Load v2 GNN, baseline, and pitcher-norm metadata."""
+    if checkpoint_path is None:
+        checkpoint_path = MODELS_DIR / "chemnet_v2.pt"
+    checkpoint_path = Path(checkpoint_path)
+    if not checkpoint_path.exists():
+        raise FileNotFoundError(f"ChemNet v2 checkpoint not found: {checkpoint_path}")
+    device = _get_device()
+    state = torch.load(checkpoint_path, map_location=device, weights_only=False)
+    gnn = ChemNetGNNv2()
+    gnn.load_state_dict(state["gnn"])
+    gnn.to(device)
+    gnn.eval()
+    baseline = BaselineMLPv2()
+    baseline.load_state_dict(state["baseline"])
+    baseline.to(device)
+    baseline.eval()
+    pitcher_norm = {
+        "mean": np.asarray(state.get("pitcher_norm_mean",
+                                     [0.0, 0.0, 0.0, 0.0, 0.0]), dtype=np.float32),
+        "std": np.asarray(state.get("pitcher_norm_std",
+                                    [1.0, 1.0, 1.0, 1.0, 1.0]), dtype=np.float32),
+    }
+    return gnn, baseline, pitcher_norm

@@ -88,6 +88,18 @@ def _cached_teams() -> list[str]:
 
 def render() -> None:
     """Render the ChemNet Lineup Synergy page."""
+    st.warning(
+        "EXPERIMENTAL — NOT VALIDATED. ChemNet v1 fails 4 of 5 hard validation "
+        "gates: validation against 9,836 game-sides shows Pearson r=0.09 and the "
+        "GNN does not beat its non-graph baseline, so the synergy scores, "
+        "protection coefficients, and optimizer suggestions below are "
+        "statistical noise and should not be used for analysis. "
+        "See `docs/models/chemnet_results.md` for the full report. "
+        "A v2 retrain (larger graph cohort, opposing-pitcher node, "
+        "residual-target reformulation) is the planned unblock; the UI is "
+        "retained for that future development."
+    )
+
     st.title("ChemNet: Lineup Synergy & Protection Effects")
     st.caption(
         "Graph Neural Network that measures batting-order synergy. "
