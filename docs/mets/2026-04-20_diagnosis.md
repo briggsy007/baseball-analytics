@@ -7,6 +7,54 @@
 
 ---
 
+## Glossary
+
+**Rate stats**
+- **wOBA** — weighted On-Base Average; all-purpose offensive rate (~.320 league average).
+- **xwOBA** — expected wOBA from exit velocity + launch angle; removes luck.
+- **BABIP** — Batting Average on Balls In Play; luck indicator (~.290 norm).
+- **K%** — strikeouts ÷ plate appearances.
+- **HardHit%** — share of batted balls at 95+ mph exit velocity.
+- **Barrel%** — share of "barreled" contact (high EV + optimal launch angle).
+- **R/G, RS, RA** — runs per game, runs scored, runs allowed.
+- **bWAR** — Baseball-Reference Wins Above Replacement (the public stat).
+
+**Pitch types (Statcast codes)**
+- **FF** four-seam fastball · **SI** sinker / two-seam · **FC** cutter · **SL** slider · **ST** sweeper · **CU** curve · **KC** knuckle-curve · **CH** changeup · **FO** forkball / splitter.
+- **FB / BR / OS** — broad families: fastball / breaking / offspeed.
+
+**Plate discipline**
+- **O-Swing%** — chase rate: swings at pitches OUT of the strike zone.
+- **Z-Contact%** — contact rate on in-zone swings.
+- **Whiff%** — swing-and-miss rate (misses ÷ swings).
+- **PA** plate appearances · **BF** batters faced · **IP** innings pitched.
+
+**Context**
+- **TTO** — Times Through the Order (TTO-1 = 1st batter through #9 first time, TTO-2 = second time, etc.).
+- **HL** — High Leverage: inning 8+ of a close game (proxy for manager's trust).
+- **IL** — Injured List.
+- **LHP / RHP** — left- / right-handed pitcher. **LHB / RHB** — batter.
+- **NL East** — National League East division (PHI, ATL, MIA, WSH, NYM).
+
+**Our models** (full detail in `docs/NORTH_STAR.md`)
+- **CausalWAR** — Double Machine Learning player-value estimate. 2023-24 fit is our contrarian prior (68% Buy-Low hit rate on 2025 retrospective).
+- **Stuff+** — per-pitch quality model (100 = league average; 105+ above, 95- below).
+- **DPI** — Defensive Pressing Index (team defense). 2025 external validation r=0.64 vs Statcast OAA.
+- **PitchGPT** — decoder-only transformer predicting the next pitch from prior sequence + situation.
+
+**Contrarian leaderboard terms**
+- **Buy-Low** — CausalWAR says player is worth MORE than bWAR / public market implies.
+- **Over-Valued** — CausalWAR says player is worth LESS than bWAR / public market implies.
+- **rank_diff** — ranking gap between CausalWAR and bWAR. Larger magnitude = higher model confidence in the disagreement.
+
+**External reference**
+- **OAA** — Outs Above Average (Statcast's public defensive metric). DPI validates against it.
+
+**Tipping signature** (recurring term in this doc)
+- A pitcher whose **stuff quality is flat or improved** while **results have collapsed** — signature of opponents knowing what's coming (tipped delivery or predictable sequencing), not a skill loss.
+
+---
+
 ## Headline
 
 **The Mets are cursed, not broken.** Offense wOBA is dead-last in MLB (.333) but xwOBA is mid-pack (.308). Pitching wOBA-against ranks 6/30 (.369) with xwOBA-against top-10 (.316). DPI team defense ranks **7/30 — top quartile**. BABIP .276 (well below norm). This is roughly a .480 team playing .318 baseball.
