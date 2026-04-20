@@ -1,0 +1,145 @@
+{
+  "game_pk": 823475,
+  "final_score": "ATL 4, PHI 2",
+  "winning_team": "ATL",
+  "contrarian_outcomes": [
+    {
+      "player_id": 660670,
+      "name": "Ronald Acuna Jr.",
+      "team": "ATL",
+      "direction": "Buy-Low",
+      "mechanism_tag": "OTHER",
+      "predicted_delta_war_2024_to_2025": 0.27,
+      "actual_delta_war_2024_to_2025_full_season": 2.95,
+      "played_tonight": true,
+      "line": {
+        "AB": 4,
+        "R": 1,
+        "H": 1,
+        "2B": 0,
+        "3B": 0,
+        "HR": 0,
+        "RBI": 0,
+        "BB": 1,
+        "K": 1,
+        "HBP": 0,
+        "OBP_tonight_proxy": 0.4,
+        "AVG_tonight": 0.25
+      },
+      "pa_detail": [
+        {
+          "inn": 1,
+          "vs": "Andrew Painter",
+          "result": "Pop Out (1B)"
+        },
+        {
+          "inn": 3,
+          "vs": "Andrew Painter",
+          "result": "Strikeout swinging"
+        },
+        {
+          "inn": 5,
+          "vs": "Andrew Painter",
+          "result": "Single (sharp ground ball to LF, runner to 2B) \u2014 started ATL's 3-run rally"
+        },
+        {
+          "inn": 6,
+          "vs": "Chase Shugart",
+          "result": "Walk (runner to 2B)"
+        },
+        {
+          "inn": 8,
+          "vs": "Orion Kerkering",
+          "result": "Pop Out to C in foul"
+        }
+      ],
+      "directional_consistency": "consistent",
+      "verdict_one_liner": "Acuna reached base twice (1H, 1BB) in 5 PA with a run scored \u2014 the single in inn 5 directly preceded the 3-run rally that decided the game. CausalWAR Buy-Low directionally vindicated."
+    },
+    {
+      "player_id": 681082,
+      "name": "Bryson Stott",
+      "team": "PHI",
+      "direction": "Over-Valued",
+      "mechanism_tag": "DEFENSE GAP",
+      "predicted_delta_war_2024_to_2025": -3.42,
+      "actual_delta_war_2024_to_2025_full_season": -0.07,
+      "played_tonight": true,
+      "line": {
+        "AB": 4,
+        "R": 0,
+        "H": 1,
+        "2B": 1,
+        "3B": 0,
+        "HR": 0,
+        "RBI": 0,
+        "BB": 0,
+        "K": 0,
+        "HBP": 0,
+        "AVG_tonight": 0.25
+      },
+      "fielding": {
+        "PO": 0,
+        "A": 3,
+        "E": 0,
+        "note": "Turned 3 assists at 2B, 0 errors. Cleanest infield night possible."
+      },
+      "pa_detail": [
+        {
+          "inn": 2,
+          "vs": "Grant Holmes",
+          "result": "Groundout 2B-1B"
+        },
+        {
+          "inn": 4,
+          "vs": "Grant Holmes",
+          "result": "Groundout 2B-1B"
+        },
+        {
+          "inn": 6,
+          "vs": "Tyler Kinley",
+          "result": "Flyout RF"
+        },
+        {
+          "inn": 9,
+          "vs": "Raisel Iglesias",
+          "result": "Double LD-CF (with PHI down 4-2 in last AB; trailing-runner stranded)"
+        }
+      ],
+      "directional_consistency": "mixed",
+      "verdict_one_liner": "Stott went 1-for-4 (a meaningless 9th-inning double down 4-2) with 0 BB and 3 clean assists \u2014 not a marquee 'Over-Valued' data point either way. CausalWAR's DEFENSE GAP magnitude (predicted -3.42) was always too sharp; tonight's outcome is consistent with the 2025-full-season finding that the magnitude was attenuated (actual delta -0.07). Direction weakly held: 0 BB, 1 lucky hit, no game impact."
+    },
+    {
+      "player_id": 641680,
+      "name": "Jonah Heim",
+      "team": "ATL",
+      "direction": "Over-Valued",
+      "mechanism_tag": "DEFENSE GAP",
+      "predicted_delta_war_2024_to_2025": -3.8,
+      "actual_delta_war_2024_to_2025_full_season": -0.99,
+      "played_tonight": false,
+      "starting_catcher": "Drake Baldwin (ATL) caught all 9 innings",
+      "verdict_one_liner": "Heim did not start (Baldwin caught). No in-game test available. The 2025-full-season hit (delta -0.99) already validated the Over-Valued direction; one missed start neither moves nor refutes the call."
+    },
+    {
+      "player_id": 527048,
+      "name": "Martin Perez",
+      "team": "ATL",
+      "direction": "Over-Valued",
+      "mechanism_tag": "PARK FACTOR",
+      "predicted_delta_war_2024_to_2025": -2.27,
+      "actual_delta_war_2024_to_2025_full_season": 0.43,
+      "played_tonight": false,
+      "starting_pitcher": "Grant Holmes (ATL) started; ATL bullpen was Bummer/Kinley/Lee/Suarez/Iglesias",
+      "verdict_one_liner": "Perez did not pitch (Holmes started; bullpen all RHP except Bummer & Lee neither of whom is Perez). No in-game test. Already a documented full-season MISS (actual +0.43 vs predicted -2.27); tonight is silent."
+    }
+  ],
+  "summary": {
+    "tested_in_game": 2,
+    "not_tested": 2,
+    "directionally_consistent": 1,
+    "directionally_mixed": 1,
+    "directionally_refuted": 0,
+    "marquee_moment": "Acuna's 5th-inning single off Painter ignited the 3-run rally that flipped a 2-1 deficit into a 4-2 ATL lead \u2014 the textbook Buy-Low moment in a single PA."
+  }
+}

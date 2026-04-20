@@ -1,0 +1,88 @@
+{
+  "n_pitches": 320,
+  "n_bins": 10,
+  "ece_point": 0.0527,
+  "ece_ci95_lo": 0.0407,
+  "ece_ci95_hi": 0.1147,
+  "n_bootstrap": 1000,
+  "top1_accuracy_point": 0.425,
+  "top1_accuracy_ci95_lo": 0.3719,
+  "top1_accuracy_ci95_hi": 0.475,
+  "baseline_2025_oos_ece_post_temp": 0.0098,
+  "baseline_2025_oos_ece_pre_temp": 0.0201,
+  "baseline_2025_oos_top1_accuracy": 0.0341,
+  "baseline_note": "2025 OOS ECE was over the 2210-token composite distribution where top-1 acc is structurally 3.4%. Live ECE here is over the 17-class pitch-type marginal (sum across zone+velo) so the predicted top-1 prob is dramatically higher (mean 0.43 vs 0.04). The two ECEs are NOT directly comparable \u2014 they live on different probability scales. Honest verdict requires comparing live ECE to a 17-class-marginal baseline, which the methodology paper does not explicitly publish.",
+  "bins": [
+    {
+      "bin_lo": 0.0,
+      "bin_hi": 0.1,
+      "n_samples": 0,
+      "mean_conf": 0.05,
+      "empirical_acc": 0.0
+    },
+    {
+      "bin_lo": 0.1,
+      "bin_hi": 0.2,
+      "n_samples": 7,
+      "mean_conf": 0.1897,
+      "empirical_acc": 0.0
+    },
+    {
+      "bin_lo": 0.2,
+      "bin_hi": 0.30000000000000004,
+      "n_samples": 39,
+      "mean_conf": 0.2621,
+      "empirical_acc": 0.4359
+    },
+    {
+      "bin_lo": 0.30000000000000004,
+      "bin_hi": 0.4,
+      "n_samples": 93,
+      "mean_conf": 0.3521,
+      "empirical_acc": 0.3656
+    },
+    {
+      "bin_lo": 0.4,
+      "bin_hi": 0.5,
+      "n_samples": 100,
+      "mean_conf": 0.448,
+      "empirical_acc": 0.43
+    },
+    {
+      "bin_lo": 0.5,
+      "bin_hi": 0.6000000000000001,
+      "n_samples": 49,
+      "mean_conf": 0.5399,
+      "empirical_acc": 0.449
+    },
+    {
+      "bin_lo": 0.6000000000000001,
+      "bin_hi": 0.7000000000000001,
+      "n_samples": 27,
+      "mean_conf": 0.6306,
+      "empirical_acc": 0.5926
+    },
+    {
+      "bin_lo": 0.7000000000000001,
+      "bin_hi": 0.8,
+      "n_samples": 5,
+      "mean_conf": 0.757,
+      "empirical_acc": 0.8
+    },
+    {
+      "bin_lo": 0.8,
+      "bin_hi": 0.9,
+      "n_samples": 0,
+      "mean_conf": 0.85,
+      "empirical_acc": 0.0
+    },
+    {
+      "bin_lo": 0.9,
+      "bin_hi": 1.0,
+      "n_samples": 0,
+      "mean_conf": 0.95,
+      "empirical_acc": 0.0
+    }
+  ],
+  "seed": 42
+}
