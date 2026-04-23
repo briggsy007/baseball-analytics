@@ -19,6 +19,17 @@ Schema of the output parquet (exactly these columns):
                                          forearm | other_arm | non_arm
     injury_description_raw  VARCHAR    -- original transaction description
     source                  VARCHAR    -- 'transactions' or 'manual'
+    tj_classification_tier  VARCHAR    -- NULL | 'explicit_surgical' |
+                                         'keyword_adjacent'.
+                                         Added 2026-04-23 to let downstream
+                                         TJ staging tell apart explicit
+                                         reconstruction/brace text from
+                                         keyword-adjacent hits (UCL sprain,
+                                         elbow sprain, elbow inflammation).
+                                         ``injury_type`` is unchanged so
+                                         existing consumers that filter on
+                                         ``injury_type == 'tommy_john'`` keep
+                                         the pre-existing semantics.
 
 Usage (from project root):
 
@@ -55,7 +66,11 @@ from src.db.schema import DEFAULT_DB_PATH  # noqa: E402
 
 DEFAULT_OUTPUT_PATH: Path = PROJECT_ROOT / "data" / "injury_labels.parquet"
 START_YEAR = 2015
-END_YEAR = 2024
+# Extended through 2025 on 2026-04-23 so the downstream TJ staging pipeline
+# (scripts/ingest_tj_dates.py, 2017-2025 window) can see adjacent-tier IL
+# placements in the final year when evaluating follow-up signals (e.g.
+# Spencer Strider's 2025-03-24 "Right elbow injury recovery" re-IL).
+END_YEAR = 2025
 
 OUTPUT_COLUMNS: list[str] = [
     "pitcher_id",
@@ -66,7 +81,17 @@ OUTPUT_COLUMNS: list[str] = [
     "injury_type",
     "injury_description_raw",
     "source",
+    "tj_classification_tier",
 ]
+
+# ── TJ classification tiers ────────────────────────────────────────────────
+# Added 2026-04-23 to close the keyword-classifier gap identified in the
+# tj_dates staging sanity checks (Ohtani 2018, deGrom 2023, Strider 2024 IB).
+# The column lives alongside ``injury_type`` so existing consumers that key
+# off ``injury_type == 'tommy_john'`` retain their pre-existing behavior.
+
+TJ_TIER_EXPLICIT = "explicit_surgical"
+TJ_TIER_ADJACENT = "keyword_adjacent"
 
 INJURY_TYPES: tuple[str, ...] = (
     "tommy_john",
@@ -86,13 +111,39 @@ INJURY_TYPES: tuple[str, ...] = (
 # Order matters: evaluate more-specific patterns first.
 # Each entry: (label, compiled_regex).  Regexes are applied to ``description``
 # after lowercasing.
+#
+# Explicit-surgical TJ/UCL-repair/internal-brace language. Any match here
+# assigns ``injury_type='tommy_john'`` AND ``tj_classification_tier=
+# 'explicit_surgical'`` — the strongest signal we can extract from free text.
 _TJ_PATTERNS = re.compile(
     r"(tommy john|tj surgery|ucl reconstruction|ucl reconstructive|"
-    r"ulnar collateral .{0,20}reconstruct)"
+    r"ulnar collateral .{0,20}reconstruct|ucl repair|"
+    r"ulnar collateral .{0,20}repair|internal brace|"
+    r"elbow reconstruction|elbow reconstructive|"
+    r"elbow reconstruction/repair|elbow repair)"
 )
+# Non-surgical UCL language. ``injury_type='ucl_sprain'`` (unchanged) BUT we
+# additionally flag ``tj_classification_tier='keyword_adjacent'`` so
+# downstream TJ staging can decide whether to promote the row to a TJ event
+# given follow-up signals (long IL, later explicit-TJ transaction from the
+# same player). Never fabricate a TJ from a sprain alone.
 _UCL_PATTERNS = re.compile(
     r"(ucl (sprain|tear|strain|inflammation)|sprained ucl|"
     r"ulnar collateral (ligament )?(sprain|strain|tear|inflammation))"
+)
+# Elbow-adjacent language that was previously captured only by the
+# generic ``_ELBOW_PATTERNS`` catch-all. We KEEP ``injury_type='elbow'`` for
+# these (no promotion of sprains/inflammation into the TJ label) but we flag
+# ``tj_classification_tier='keyword_adjacent'`` so TJ staging can consider
+# them with a follow-up-signal gate. The "elbow" anchor prevents the
+# shoulder-sprain false match called out in the task.
+_ELBOW_TJ_ADJACENT_PATTERNS = re.compile(
+    r"(elbow (sprain|inflammation|surgery|soreness with structural|"
+    r"ligament (sprain|strain|tear|damage)|"
+    r"injury recovery|surgery recovery)|"
+    r"sprained (right |left )?elbow|"
+    r"ucl (soreness|discomfort)|"
+    r"elbow discomfort)"
 )
 # Rotator cuff is a shoulder structure but we split it out per the spec.
 _ROTATOR_PATTERNS = re.compile(r"(rotator cuff|rotator)")
@@ -115,7 +166,11 @@ def classify_injury(description: Optional[str]) -> str:
     """Return one of ``INJURY_TYPES`` based on keyword matching.
 
     Order of precedence (most specific first):
-        1. tommy_john   -- TJ surgery / UCL reconstruction
+        1. tommy_john   -- TJ surgery / UCL reconstruction / UCL repair /
+                           internal brace / elbow reconstruction. Explicit
+                           surgical language only; sprains and inflammation
+                           stay in their own buckets below (they may still be
+                           TJ-adjacent — see ``classify_tj_tier``).
         2. ucl_sprain   -- UCL sprain / tear (non-surgical)
         3. rotator_cuff
         4. labrum
@@ -127,6 +182,11 @@ def classify_injury(description: Optional[str]) -> str:
                            paternity, bereavement, etc.)
 
     NULL / empty descriptions are classified as ``non_arm``.
+
+    NOTE: This function's enum is intentionally stable. To surface
+    keyword-adjacent TJ hits (UCL sprain, elbow sprain / inflammation /
+    surgery) use :func:`classify_tj_tier` — it is a separate per-row signal
+    and does NOT move rows between ``injury_type`` values.
     """
     if description is None:
         return "non_arm"
@@ -151,6 +211,53 @@ def classify_injury(description: Optional[str]) -> str:
     if _OTHER_ARM_PATTERNS.search(text):
         return "other_arm"
     return "non_arm"
+
+
+def classify_tj_tier(description: Optional[str]) -> Optional[str]:
+    """Return ``'explicit_surgical'``, ``'keyword_adjacent'``, or ``None``.
+
+    This is an INDEPENDENT signal from :func:`classify_injury` — it is
+    intended for downstream TJ-event staging, NOT for the ``injury_type``
+    enum. The two functions can disagree on purpose: e.g. a "UCL sprain" row
+    remains ``injury_type='ucl_sprain'`` but gets
+    ``tj_classification_tier='keyword_adjacent'`` so TJ staging can consider
+    it alongside an explicit "Tommy John surgery." row.
+
+    Tiers:
+
+    - ``'explicit_surgical'``: Description contains explicit TJ /
+      reconstruction / UCL-repair / internal-brace / elbow-reconstruction
+      language. These are the highest-quality TJ anchors.
+    - ``'keyword_adjacent'``: Description contains TJ-adjacent wording that
+      by itself is NOT proof of surgery:
+        * UCL sprain / tear / strain / inflammation
+        * Sprained / ulnar collateral sprain
+        * Elbow sprain / inflammation / surgery (shoulder-guarded — the
+          ``elbow`` anchor prevents a shoulder-sprain false match)
+        * UCL soreness / discomfort, elbow discomfort
+      Downstream staging must never promote these to a TJ event without a
+      follow-up signal (IL duration > 400 days, or a subsequent explicit-TJ
+      transaction from the same player).
+    - ``None``: No TJ-adjacent keyword matched.
+
+    NULL / empty descriptions return ``None``.
+    """
+    if description is None:
+        return None
+    text = str(description).lower().strip()
+    if not text:
+        return None
+
+    if _TJ_PATTERNS.search(text):
+        return TJ_TIER_EXPLICIT
+    if _UCL_PATTERNS.search(text):
+        return TJ_TIER_ADJACENT
+    # Shoulder guard: only classify elbow-adjacent when the word "elbow"
+    # actually appears (i.e. not a "shoulder sprain" or "shoulder
+    # inflammation" row masquerading through shared sub-tokens).
+    if "elbow" in text and _ELBOW_TJ_ADJACENT_PATTERNS.search(text):
+        return TJ_TIER_ADJACENT
+    return None
 
 
 # ── Placement / activation detection ───────────────────────────────────────
@@ -386,6 +493,9 @@ def build_labels(conn: duckdb.DuckDBPyConnection) -> tuple[pd.DataFrame, IngestS
         il_placements_df["il_date"] = pd.to_datetime(il_placements_df["il_date"]).dt.date
         il_placements_df["season"] = pd.to_datetime(il_placements_df["il_date"]).dt.year
         il_placements_df["injury_type"] = il_placements_df["description"].apply(classify_injury)
+        il_placements_df["tj_classification_tier"] = (
+            il_placements_df["description"].apply(classify_tj_tier)
+        )
 
         # 7. Pair activations to placements (nullable il_end_date).
         activations_df = activations_df.rename(columns={"transaction_date": "_act_date"})
@@ -408,6 +518,7 @@ def build_labels(conn: duckdb.DuckDBPyConnection) -> tuple[pd.DataFrame, IngestS
                 "injury_type": il_placements_df["injury_type"].astype(str),
                 "injury_description_raw": il_placements_df["description"].astype(str),
                 "source": "transactions",
+                "tj_classification_tier": il_placements_df["tj_classification_tier"],
             }
         )
 
@@ -483,6 +594,7 @@ def write_labels(labels: pd.DataFrame, out_path: Path) -> None:
             pa.field("injury_type", pa.string()),
             pa.field("injury_description_raw", pa.string()),
             pa.field("source", pa.string()),
+            pa.field("tj_classification_tier", pa.string()),
         ]
     )
 
@@ -497,6 +609,7 @@ def write_labels(labels: pd.DataFrame, out_path: Path) -> None:
                 "injury_type": pa.array([], type=pa.string()),
                 "injury_description_raw": pa.array([], type=pa.string()),
                 "source": pa.array([], type=pa.string()),
+                "tj_classification_tier": pa.array([], type=pa.string()),
             },
             schema=schema,
         )
@@ -505,6 +618,10 @@ def write_labels(labels: pd.DataFrame, out_path: Path) -> None:
         df = labels.copy()
         df["pitcher_id"] = df["pitcher_id"].astype("Int64")
         df["season"] = df["season"].astype("Int64")
+        # tj_classification_tier may contain None — leave as Object so arrow
+        # writes nulls rather than the literal "None" string.
+        if "tj_classification_tier" not in df.columns:
+            df["tj_classification_tier"] = None
         table = pa.Table.from_pandas(df[OUTPUT_COLUMNS], schema=schema, preserve_index=False)
 
     pq.write_table(table, str(out_path))
@@ -535,6 +652,20 @@ def print_summary(labels: pd.DataFrame, stats: IngestStats, out_path: Path) -> N
     for t in INJURY_TYPES:
         c = stats.per_type.get(t, 0)
         print(f"    {t:14s} {c:6,d}")
+
+    # TJ tier distribution (2026-04-23 addition — shows how many rows are
+    # captured at each TJ-classification tier regardless of ``injury_type``).
+    if "tj_classification_tier" in labels.columns and not labels.empty:
+        tier_counts = (
+            labels["tj_classification_tier"]
+            .fillna("(none)")
+            .value_counts()
+            .to_dict()
+        )
+        print("\n  TJ classification tier distribution:")
+        for tier in (TJ_TIER_EXPLICIT, TJ_TIER_ADJACENT, "(none)"):
+            c = int(tier_counts.get(tier, 0))
+            print(f"    {tier:20s} {c:6,d}")
 
     print("\n  Distribution by year:")
     for y in range(START_YEAR, END_YEAR + 1):

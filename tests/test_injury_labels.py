@@ -29,6 +29,7 @@ from scripts.ingest_injury_labels import (  # noqa: E402
     _match_activations,
     build_labels,
     classify_injury,
+    classify_tj_tier,
     is_activation,
     is_placement,
     write_labels,
@@ -71,6 +72,41 @@ from src.db.schema import create_tables  # noqa: E402
 )
 def test_classify_injury(description: str | None, expected: str) -> None:
     assert classify_injury(description) == expected
+
+
+# ── classify_tj_tier() — 2026-04-23 classifier-gap closure ─────────────────
+
+
+@pytest.mark.parametrize(
+    ("description", "expected"),
+    [
+        # Explicit surgical TJ — unchanged top tier.
+        ("Jacob deGrom underwent Tommy John surgery.", "explicit_surgical"),
+        ("Pitcher X had UCL reconstruction surgery.", "explicit_surgical"),
+        ("Right elbow UCL reconstruction.", "explicit_surgical"),
+        # UCL repair / internal brace — hybrid, still surgical.
+        ("Right UCL repair with internal brace.", "explicit_surgical"),
+        ("right elbow reconstruction/repair.", "explicit_surgical"),
+        ("underwent internal brace procedure.", "explicit_surgical"),
+        # Keyword-adjacent: UCL sprain, ulnar collateral sprain,
+        # elbow sprain, elbow inflammation, elbow surgery (ambiguous).
+        ("placed on the 60-day IL with a UCL sprain.", "keyword_adjacent"),
+        ("ulnar collateral ligament sprain.", "keyword_adjacent"),
+        ("placed on IL with right elbow sprain.", "keyword_adjacent"),
+        ("right elbow inflammation.", "keyword_adjacent"),
+        ("right elbow surgery.", "keyword_adjacent"),
+        # Shoulder sprain must NOT match — the elbow-guard stops it.
+        ("left shoulder sprain.", None),
+        ("placed on IL with shoulder inflammation.", None),
+        # Non-TJ-adjacent cases return None.
+        ("placed on IL with rotator cuff inflammation.", None),
+        ("placed on IL with a left hamstring strain.", None),
+        (None, None),
+        ("", None),
+    ],
+)
+def test_classify_tj_tier(description: str | None, expected: str | None) -> None:
+    assert classify_tj_tier(description) == expected
 
 
 # ── is_placement() / is_activation() ───────────────────────────────────────
@@ -254,6 +290,23 @@ def test_build_labels_end_to_end(mini_db: duckdb.DuckDBPyConnection) -> None:
     # All rows flagged as source='transactions'.
     assert (labels["source"] == "transactions").all()
 
+    # tj_classification_tier (added 2026-04-23):
+    # - TJ row is 'explicit_surgical'
+    # - UCL sprain row is 'keyword_adjacent'
+    # - shoulder / non-arm rows are NULL
+    tj_row = labels[
+        (labels["pitcher_name"] == "Alex Pitcher") & (labels["injury_type"] == "tommy_john")
+    ].iloc[0]
+    assert tj_row["tj_classification_tier"] == "explicit_surgical"
+    ucl_row = labels[
+        (labels["pitcher_name"] == "Ben Wheeler") & (labels["injury_type"] == "ucl_sprain")
+    ].iloc[0]
+    assert ucl_row["tj_classification_tier"] == "keyword_adjacent"
+    shoulder_row = labels[labels["pitcher_name"] == "Carl Steady"].iloc[0]
+    assert shoulder_row["tj_classification_tier"] is None or pd.isna(
+        shoulder_row["tj_classification_tier"]
+    )
+
 
 def test_build_labels_idempotent_write(mini_db: duckdb.DuckDBPyConnection, tmp_path: Path) -> None:
     """Writing twice must leave the same dataset on disk -- no duplicates."""
@@ -283,7 +336,7 @@ def test_build_labels_empty_transactions_errors() -> None:
 
 
 def test_output_parquet_schema(mini_db: duckdb.DuckDBPyConnection, tmp_path: Path) -> None:
-    """The written parquet must have exactly the 8 documented columns."""
+    """The written parquet must have exactly the 9 documented columns."""
     labels, _ = build_labels(mini_db)
     out = tmp_path / "injury_labels.parquet"
     write_labels(labels, out)
@@ -292,6 +345,7 @@ def test_output_parquet_schema(mini_db: duckdb.DuckDBPyConnection, tmp_path: Pat
     expected = {
         "pitcher_id", "pitcher_name", "season", "il_date",
         "il_end_date", "injury_type", "injury_description_raw", "source",
+        "tj_classification_tier",
     }
     assert set(table.column_names) == expected
 
@@ -364,6 +418,7 @@ def test_output_parquet_empty_labels_still_writes(tmp_path: Path) -> None:
         columns=[
             "pitcher_id", "pitcher_name", "season", "il_date",
             "il_end_date", "injury_type", "injury_description_raw", "source",
+            "tj_classification_tier",
         ]
     )
     out = tmp_path / "empty.parquet"
@@ -374,4 +429,5 @@ def test_output_parquet_empty_labels_still_writes(tmp_path: Path) -> None:
     assert set(table.column_names) == {
         "pitcher_id", "pitcher_name", "season", "il_date",
         "il_end_date", "injury_type", "injury_description_raw", "source",
+        "tj_classification_tier",
     }

@@ -47,6 +47,10 @@ def create_tables(conn: duckdb.DuckDBPyConnection) -> None:
     _create_model_cache(conn)
     _create_leaderboard_cache(conn)
     _create_data_freshness(conn)
+    _create_umpire_assignments(conn)
+    _create_umpire_tendencies(conn)
+    _create_game_weather(conn)
+    _create_tj_surgery_dates(conn)
     create_indexes(conn)
 
 
@@ -65,6 +69,22 @@ PITCHES_INDEXES: list[str] = [
 ]
 
 
+# Indexes for the integration tables added 2026-04-23 (umpires, weather, TJ).
+INTEGRATION_INDEXES: list[str] = [
+    # umpire_assignments: joined on game_pk and on umpire_name+season -> tendencies
+    "CREATE INDEX IF NOT EXISTS idx_ump_assign_game_pk ON umpire_assignments(game_pk);",
+    "CREATE INDEX IF NOT EXISTS idx_ump_assign_name_season ON umpire_assignments(umpire_name, season);",
+    "CREATE INDEX IF NOT EXISTS idx_ump_assign_date ON umpire_assignments(date);",
+    # umpire_tendencies: joined on (umpire, season)
+    "CREATE INDEX IF NOT EXISTS idx_ump_tend_umpire_season ON umpire_tendencies(umpire, season);",
+    # game_weather: joined on game_pk per pitch / per game
+    "CREATE INDEX IF NOT EXISTS idx_game_weather_game_pk ON game_weather(game_pk);",
+    # tj_surgery_dates: joined on mlb_id
+    "CREATE INDEX IF NOT EXISTS idx_tj_mlb_id ON tj_surgery_dates(mlb_id);",
+    "CREATE INDEX IF NOT EXISTS idx_tj_surgery_date ON tj_surgery_dates(surgery_date);",
+]
+
+
 def create_indexes(conn: duckdb.DuckDBPyConnection) -> None:
     """Create performance indexes on the pitches table (and any future tables).
 
@@ -74,6 +94,8 @@ def create_indexes(conn: duckdb.DuckDBPyConnection) -> None:
         conn: An open DuckDB connection.
     """
     for stmt in PITCHES_INDEXES:
+        conn.execute(stmt)
+    for stmt in INTEGRATION_INDEXES:
         conn.execute(stmt)
 
 
@@ -401,5 +423,99 @@ def _create_data_freshness(conn: duckdb.DuckDBPyConnection) -> None:
             max_game_date   DATE,
             row_count       BIGINT,
             updated_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+    """)
+
+
+def _create_umpire_assignments(conn: duckdb.DuckDBPyConnection) -> None:
+    """Per-game umpire assignments (HP + bases) from Retrosheet + umpscorecards.
+
+    Grain: (game_pk, position, umpire_name). ``game_pk`` can be NULL for
+    Retrosheet games that didn't match to the project's ``pitches`` table
+    (see ``docs/data/umpire_integration_notes.md``). No PK is declared
+    because NULL game_pk rows would otherwise violate the constraint;
+    idempotency is enforced in the loader via an anti-join on
+    ``(game_pk, position, umpire_name)`` where ``game_pk IS NOT NULL`` and
+    ``(date, position, umpire_name)`` for NULL-game_pk rows.
+    """
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS umpire_assignments (
+            game_pk      INTEGER,
+            position     VARCHAR,
+            umpire_id    VARCHAR,
+            umpire_name  VARCHAR,
+            date         DATE,
+            season       INTEGER,
+            source       VARCHAR
+        );
+    """)
+
+
+def _create_umpire_tendencies(conn: duckdb.DuckDBPyConnection) -> None:
+    """Per-(umpire, season) umpscorecards aggregates for HP accuracy / favor.
+
+    See ``docs/data/umpire_integration_notes.md`` for column semantics.
+    """
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS umpire_tendencies (
+            umpire                     VARCHAR,
+            season                     INTEGER,
+            games                      INTEGER,
+            called_pitches             BIGINT,
+            called_correct             BIGINT,
+            called_correct_rate        FLOAT,
+            overall_accuracy_wmean     FLOAT,
+            x_overall_accuracy_wmean   FLOAT,
+            accuracy_above_x_wmean     FLOAT,
+            consistency_wmean          FLOAT,
+            favor_wmean                FLOAT,
+            total_run_impact_mean      FLOAT,
+            batter_impact_mean         FLOAT,
+            pitcher_impact_mean        FLOAT,
+            PRIMARY KEY (umpire, season)
+        );
+    """)
+
+
+def _create_game_weather(conn: duckdb.DuckDBPyConnection) -> None:
+    """Per-game weather at scheduled start time (NOAA via meteostat).
+
+    One row per distinct ``game_pk`` in ``pitches``. See
+    ``docs/data/weather_integration_notes.md`` for coverage and dome /
+    retractable-roof handling.
+    """
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS game_weather (
+            game_pk            INTEGER PRIMARY KEY,
+            venue              VARCHAR,
+            game_datetime_utc  TIMESTAMP,
+            temp_f             FLOAT,
+            wind_speed_mph     FLOAT,
+            wind_dir_deg       FLOAT,
+            humidity_pct       FLOAT,
+            pressure_mb        FLOAT,
+            roof_status        VARCHAR,
+            weather_source     VARCHAR
+        );
+    """)
+
+
+def _create_tj_surgery_dates(conn: duckdb.DuckDBPyConnection) -> None:
+    """Tommy John / UCL repair / internal brace surgery roster.
+
+    See ``docs/data/tj_dates_notes.md`` for tier semantics (2026-04-23
+    classifier gap closure). ``surgery_date`` may be NULL for
+    ``source='manual_review_needed'``. No PK is declared because a single
+    pitcher may have multiple surgeries (revision TJ, dual-procedure).
+    """
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS tj_surgery_dates (
+            mlb_id           BIGINT,
+            player_name      VARCHAR,
+            surgery_date     DATE,
+            return_date_est  DATE,
+            confidence       VARCHAR,
+            source           VARCHAR,
+            notes            VARCHAR
         );
     """)
