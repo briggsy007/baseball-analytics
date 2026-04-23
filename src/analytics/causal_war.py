@@ -91,6 +91,12 @@ class CausalWARConfig:
     # below this threshold are still reported but flagged as sparse).
     pa_min_test_qualifying: int = 50
 
+    # Artifact version tag written into persisted file names.  Bump when
+    # the confounder set or training recipe changes so prior checkpoints
+    # are not silently overwritten.  v2 introduced umpire (prior-season
+    # tendency) + weather confounders -- see causal_war_results.md.
+    model_version: str = "v2_umpweather"
+
 
 # ---------------------------------------------------------------------------
 # Core model class
@@ -399,13 +405,18 @@ class CausalWARModel(BaseAnalyticsModel):
         # ---- Save artifact ----------------------------------------------
         artifact_dir = DEFAULT_MODEL_DIR
         artifact_dir.mkdir(parents=True, exist_ok=True)
+        version_suffix = (
+            f"_{self.config.model_version}"
+            if getattr(self.config, "model_version", None) else ""
+        )
         artifact_path = (
             artifact_dir
-            / f"causal_war_trainsplit_{train_start}_{train_end}.pkl"
+            / f"causal_war_trainsplit_{train_start}_{train_end}{version_suffix}.pkl"
         )
         artifact = {
             "nuisance_outcome": full_model,
             "config": self.config,
+            "model_version": getattr(self.config, "model_version", "legacy"),
             "train_split": (train_start, train_end),
             "test_split": (test_start, test_end),
             "train_metrics": train_metrics,
@@ -765,6 +776,52 @@ def _extract_pa_data(
         params = [int(season)]
         year_filter = "EXTRACT(YEAR FROM p.game_date) = $1"
 
+    # Detect optional confounder tables so this function still works on
+    # minimal test databases that lack the umpire / weather ingestion.
+    try:
+        existing_tables = {
+            row[0] for row in conn.execute("SHOW TABLES").fetchall()
+        }
+    except Exception:
+        existing_tables = set()
+    has_ump = {"umpire_assignments", "umpire_tendencies"}.issubset(existing_tables)
+    has_weather = "game_weather" in existing_tables
+
+    # Umpire tendency is joined on the PRIOR season (t-1) to avoid any
+    # look-ahead leakage: a 2023 PA receives the umpire's 2022 behavior
+    # signature.  Weather is attached as the current-game operating
+    # condition (not a leakage risk -- it is pre-treatment at the PA level).
+    ump_select = (
+        ", ut.accuracy_above_x_wmean AS ump_accuracy_above_x,"
+        " ut.favor_wmean AS ump_favor"
+        if has_ump else
+        ", CAST(NULL AS DOUBLE) AS ump_accuracy_above_x,"
+        " CAST(NULL AS DOUBLE) AS ump_favor"
+    )
+    ump_join = (
+        " LEFT JOIN umpire_assignments ua"
+        "   ON pa.game_pk = ua.game_pk AND ua.position = 'HP'"
+        " LEFT JOIN umpire_tendencies ut"
+        "   ON ua.umpire_name = ut.umpire"
+        "   AND ut.season = EXTRACT(YEAR FROM pa.game_date)::INTEGER - 1"
+        if has_ump else ""
+    )
+    weather_select = (
+        ", gw.temp_f, gw.wind_speed_mph, gw.wind_dir_deg,"
+        " gw.humidity_pct, gw.pressure_mb, gw.roof_status"
+        if has_weather else
+        ", CAST(NULL AS DOUBLE) AS temp_f,"
+        " CAST(NULL AS DOUBLE) AS wind_speed_mph,"
+        " CAST(NULL AS DOUBLE) AS wind_dir_deg,"
+        " CAST(NULL AS DOUBLE) AS humidity_pct,"
+        " CAST(NULL AS DOUBLE) AS pressure_mb,"
+        " CAST(NULL AS VARCHAR) AS roof_status"
+    )
+    weather_join = (
+        " LEFT JOIN game_weather gw ON pa.game_pk = gw.game_pk"
+        if has_weather else ""
+    )
+
     query = f"""
         WITH pa_events AS (
             SELECT
@@ -776,6 +833,7 @@ def _extract_pa_data(
                 p.stand,
                 p.p_throws,
                 p.inning,
+                p.inning_topbot,
                 p.outs_when_up,
                 p.on_1b,
                 p.on_2b,
@@ -793,15 +851,19 @@ def _extract_pa_data(
             GROUP BY
                 p.pitcher_id, p.batter_id, p.game_pk, p.game_date,
                 p.at_bat_number, p.stand, p.p_throws, p.inning,
-                p.outs_when_up, p.on_1b, p.on_2b, p.on_3b
+                p.inning_topbot, p.outs_when_up, p.on_1b, p.on_2b, p.on_3b
         )
         SELECT
             pa.*,
             g.venue,
             g.home_team,
             g.away_team
+            {ump_select}
+            {weather_select}
         FROM pa_events pa
         LEFT JOIN games g ON pa.game_pk = g.game_pk
+        {ump_join}
+        {weather_join}
         WHERE pa.woba_denom > 0
         ORDER BY pa.game_date, pa.game_pk, pa.at_bat_number
     """
@@ -822,7 +884,6 @@ def _build_features(
         - inning bucket (early/mid/late/extra)
         - if_shift / of_shift indicators
         - month
-        - home/away indicator (batter on home team)
 
     Treatment: batter_id (used later per-player)
     Outcome: woba_value (per PA)
@@ -871,10 +932,8 @@ def _build_features(
     else:
         df["month"] = 6  # default
 
-    # Home/away: batter is home if inning_topbot would be Bot, approximate
-    # via home_team column -- if batter's game is home, assume home
-    df["home_indicator"] = 0  # placeholder, refined below
-    # A crude approximation: use the at-bat order or just leave as 0
+    # No explicit home/away confounder: venue_code already captures venue-level
+    # effects, which is sufficient for the propensity model.
 
     # Handedness encoding
     df["stand_R"] = (df["stand"] == "R").astype(int)
@@ -896,13 +955,44 @@ def _build_features(
         "p_throws_R",
     ]
 
+    # ---- Optional confounder block: umpire + weather ---------------------
+    # The SQL extractor adds these columns whenever the source DuckDB has the
+    # ``umpire_assignments`` / ``umpire_tendencies`` / ``game_weather`` tables.
+    # When absent (synthetic test fixtures) the block is silently skipped.
+    # Umpire tendency is the umpire's PRIOR-season aggregate (enforced in the
+    # SQL join) -- no current-season leakage.  Weather is the current-game
+    # operating condition: it is pre-treatment at the PA level, not a leak.
+    # NULLs are preserved here (dome games, out-of-coverage umpires): the
+    # HistGradientBoostingRegressor nuisance model handles NaN natively by
+    # routing missing values to their own split direction.
+    ump_weather_cols = [
+        "ump_accuracy_above_x",
+        "ump_favor",
+        "temp_f",
+        "wind_speed_mph",
+        "wind_dir_deg",
+        "humidity_pct",
+        "pressure_mb",
+    ]
+    added_ump_weather = [c for c in ump_weather_cols if c in df.columns]
+    if added_ump_weather:
+        for col in added_ump_weather:
+            df[col] = pd.to_numeric(df[col], errors="coerce").astype(np.float64)
+        confounder_cols = confounder_cols + added_ump_weather
+
     W = df[confounder_cols].values.astype(np.float64)
 
-    # Handle any remaining NaNs in W
-    col_means = np.nanmean(W, axis=0)
+    # Handle NaNs in the LEGACY confounder block only (columns 0..11).
+    # NaNs in the optional ump/weather block are intentionally preserved for
+    # HistGB's native NaN handling.  Imputing them would discard the "dome"
+    # and "out-of-coverage umpire" signals that are structurally informative.
+    legacy_n = 12
+    legacy = W[:, :legacy_n]
+    col_means = np.nanmean(legacy, axis=0)
     col_means = np.where(np.isnan(col_means), 0, col_means)
-    nan_mask = np.isnan(W)
-    W[nan_mask] = np.take(col_means, np.where(nan_mask)[1])
+    nan_mask = np.isnan(legacy)
+    legacy[nan_mask] = np.take(col_means, np.where(nan_mask)[1])
+    W[:, :legacy_n] = legacy
 
     player_ids = df["batter_id"].values.astype(int)
 

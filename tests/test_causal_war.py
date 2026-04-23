@@ -802,9 +802,12 @@ class TestTrainTestSplit:
             # Test DF should carry the sparse flag
             assert "sparse" in test_df.columns
 
-            # Artifact path reported and file written
+            # Artifact path reported and file written.  The filename carries
+            # a version suffix (e.g. ``_v2_umpweather``) when the config's
+            # ``model_version`` is set, so the assertion matches the stable
+            # ``causal_war_trainsplit_<start>_<end>`` prefix.
             artifact_path = result["artifact_path"]
-            assert "causal_war_trainsplit_2015_2016.pkl" in artifact_path
+            assert "causal_war_trainsplit_2015_2016" in artifact_path
             from pathlib import Path
             assert Path(artifact_path).exists()
         finally:

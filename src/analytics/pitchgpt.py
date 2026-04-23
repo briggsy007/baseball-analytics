@@ -224,6 +224,174 @@ def _compute_per_pitch_score_diff(df: pd.DataFrame) -> list[int]:
 # ── Paths ────────────────────────────────────────────────────────────────────
 _MODEL_DIR = Path(__file__).resolve().parents[2] / "models"
 
+
+# ── Umpire tendency loader ───────────────────────────────────────────────────
+#
+# The PitchGPT context vector (added 2026-04-23) includes a per-pitch
+# ``ump_accuracy_above_x`` scalar derived from the ``umpire_assignments`` +
+# ``umpire_tendencies`` tables.  See ``docs/data/umpire_integration_notes.md``.
+#
+# Design decisions (locked in the spec doc):
+#   * Use **prior-season** tendency (e.g. 2024 games use 2023 tendencies).
+#     This is what the integration notes call out as the OOS-leakage-safe
+#     choice — the model sees a statistic about the ump that would be
+#     knowable before the game is played.
+#   * NULL / missing joins (rookie umps with no prior season; 2017 / 2019
+#     pitches-table gaps) are filled with the **prior-season league
+#     median** of ``accuracy_above_x_wmean``, computed from
+#     ``umpire_tendencies`` at load time.  A rookie ump is treated as
+#     "neutral = league median" rather than 0.0 so the scalar distribution
+#     stays centred on the training data.
+#   * The tendency scalar is fed raw (not z-scored).  Scale across the
+#     2015-2025 data ranges from roughly -1.8 to +2.5 accuracy-above-x
+#     points, which is a reasonable magnitude for the transformer's
+#     ``Linear(CONTEXT_DIM, d_model)`` projection to absorb.
+
+
+def _fetch_prior_season_ump_tendency(
+    conn: duckdb.DuckDBPyConnection,
+    seasons: list[int] | range | None,
+) -> dict[tuple[str, int], float]:
+    """Return a mapping from ``(umpire_name, game_season)`` to
+    prior-season ``accuracy_above_x_wmean``.
+
+    The key is the *game* season, not the tendency season — so a 2024
+    game lookup returns the 2023 tendency.  Build this map once per
+    dataset load so the per-pitch lookup is O(1).
+    """
+    if seasons is None:
+        season_list: list[int] | None = None
+    else:
+        season_list = [int(s) for s in seasons]
+        if not season_list:
+            return {}
+
+    # We need tendencies from (min(seasons) - 1) through (max(seasons) - 1).
+    # If seasons is None (legacy path), pull everything.
+    if season_list is None:
+        query = """
+            SELECT umpire, season, accuracy_above_x_wmean
+            FROM umpire_tendencies
+            WHERE accuracy_above_x_wmean IS NOT NULL
+        """
+        rows = conn.execute(query).fetchdf()
+    else:
+        prior_seasons = sorted({s - 1 for s in season_list})
+        ps_str = ", ".join(str(p) for p in prior_seasons)
+        query = f"""
+            SELECT umpire, season, accuracy_above_x_wmean
+            FROM umpire_tendencies
+            WHERE accuracy_above_x_wmean IS NOT NULL
+              AND season IN ({ps_str})
+        """
+        rows = conn.execute(query).fetchdf()
+
+    mapping: dict[tuple[str, int], float] = {}
+    for _, row in rows.iterrows():
+        ump = str(row["umpire"])
+        tend_season = int(row["season"])
+        val = float(row["accuracy_above_x_wmean"])
+        # Key = (umpire_name, game_season) where game_season = tend_season + 1.
+        mapping[(ump, tend_season + 1)] = val
+    return mapping
+
+
+def _fetch_season_league_median(
+    conn: duckdb.DuckDBPyConnection,
+    seasons: list[int] | range | None,
+) -> dict[int, float]:
+    """Return ``{game_season -> prior-season league-median accuracy_above_x}``.
+
+    Used as the NULL-fill for rookie umpires and ump-assignment gaps.
+    A game in 2024 gets the median of 2023 umpire tendencies.
+
+    Edge cases:
+      * If the prior season has no data (e.g. 2015 game → 2014 tendencies,
+        and 2014 is absent because ``umpire_tendencies`` starts at 2015),
+        fall back to the *same* season's median (so a 2015 game uses the
+        2015 median instead of zero).  This is a mild lookahead but it is
+        aggregate-only and strictly better than a hard zero (which would
+        silently bias the ump scalar to 0 for a whole season).  The
+        alternative — filling with 0 — created a constant-feature
+        regression for 2015 games in v1 training.
+      * If even the same-season median is missing (impossible with
+        current data but safe to guard), fall back to 0.0.
+    """
+    if seasons is None:
+        return {}
+    season_list = [int(s) for s in seasons]
+    if not season_list:
+        return {}
+    # Pull both the prior-season medians AND the current-season medians
+    # in a single query so the same-season backstop is available.
+    needed = sorted({s - 1 for s in season_list} | {s for s in season_list})
+    ps_str = ", ".join(str(p) for p in needed)
+    query = f"""
+        SELECT season, MEDIAN(accuracy_above_x_wmean) AS med
+        FROM umpire_tendencies
+        WHERE accuracy_above_x_wmean IS NOT NULL
+          AND season IN ({ps_str})
+        GROUP BY season
+    """
+    rows = conn.execute(query).fetchdf()
+    raw: dict[int, float] = {}
+    for _, row in rows.iterrows():
+        raw[int(row["season"])] = float(row["med"])
+
+    medians: dict[int, float] = {}
+    for s in season_list:
+        # Prefer prior-season median.
+        prior = raw.get(s - 1)
+        if prior is not None:
+            medians[s] = prior
+            continue
+        # Same-season backstop (only matters at the leading edge e.g. 2015).
+        same = raw.get(s)
+        if same is not None:
+            medians[s] = same
+            continue
+        # Last resort — zero.
+        medians[s] = 0.0
+    return medians
+
+
+def _fetch_hp_umpire_by_game(
+    conn: duckdb.DuckDBPyConnection,
+    seasons: list[int] | range | None,
+) -> dict[int, str]:
+    """Return ``{game_pk -> HP umpire name}`` for the requested seasons.
+
+    Uses the ``umpire_assignments`` table restricted to ``position = 'HP'``.
+    A game with no HP assignment is absent from the map and will trigger
+    the NULL-fill path downstream.
+    """
+    if seasons is None:
+        filt = ""
+    else:
+        season_list = [int(s) for s in seasons]
+        if not season_list:
+            return {}
+        s_str = ", ".join(str(s) for s in season_list)
+        filt = f"AND season IN ({s_str})"
+    query = f"""
+        SELECT game_pk, umpire_name
+        FROM umpire_assignments
+        WHERE position = 'HP'
+          AND game_pk IS NOT NULL
+          AND umpire_name IS NOT NULL
+          {filt}
+    """
+    rows = conn.execute(query).fetchdf()
+    # Deduplicate in case of repeated (game_pk, HP) rows across sources.
+    out: dict[int, str] = {}
+    for _, row in rows.iterrows():
+        try:
+            gpk = int(row["game_pk"])
+        except (TypeError, ValueError):
+            continue
+        out[gpk] = str(row["umpire_name"])
+    return out
+
 # ── Constants ────────────────────────────────────────────────────────────────
 # Pitch type vocabulary (indices 0-15 for known types, 16 = unknown)
 PITCH_TYPE_MAP: dict[str, int] = {
@@ -243,10 +411,19 @@ NUM_RUNNER_STATES = 8   # 2^3 base combinations
 NUM_BATTER_HANDS = 2    # L, R
 NUM_INNING_BUCKETS = 4  # early(1-3), mid(4-6), late(7-9), extra(10+)
 NUM_SCORE_DIFF_BUCKETS = 5  # big deficit, small deficit, tie, small lead, big lead
+# Continuous scalar added 2026-04-23: prior-season home-plate umpire accuracy
+# above expectation (from ``umpire_tendencies.accuracy_above_x_wmean``).
+# Positive = tighter ump (more correctly-called pitches than Statcast-expected),
+# negative = looser.  Prior-season aggregate avoids lookahead leakage in OOS eval.
+# Rookie umpires / NULL joins are filled with the season league median
+# (computed from ``umpire_tendencies`` at load time).  Documented in
+# ``docs/data/umpire_integration_notes.md``.
+NUM_UMP_SCALAR = 1
 CONTEXT_DIM = (
     NUM_COUNT_STATES + NUM_OUTS + NUM_RUNNER_STATES
     + NUM_BATTER_HANDS + NUM_INNING_BUCKETS + NUM_SCORE_DIFF_BUCKETS
-)  # 34
+    + NUM_UMP_SCALAR
+)  # 35
 
 # Special tokens
 PAD_TOKEN = VOCAB_SIZE      # padding
@@ -364,6 +541,13 @@ class PitchTokenizer:
         """Encode situational context as a list of categorical indices.
 
         Returns a list of 6 integers (one per context feature).
+
+        Note: the umpire-accuracy scalar (added 2026-04-23) is NOT part of
+        this list — it is a continuous float and enters via
+        :meth:`context_to_tensor`'s ``ump_scalar`` arg.  Keeping the
+        categorical encoding signature unchanged preserves backward
+        compatibility for every caller that only supplies the 6 categorical
+        context features.
         """
         count_state = min(balls, 3) * 3 + min(strikes, 2)
         outs_idx = min(outs, 2)
@@ -394,8 +578,26 @@ class PitchTokenizer:
                 inning_bucket, score_bucket]
 
     @classmethod
-    def context_to_tensor(cls, context_list: list[int]) -> torch.Tensor:
-        """One-hot encode a context list into a float tensor of size CONTEXT_DIM."""
+    def context_to_tensor(
+        cls,
+        context_list: list[int],
+        ump_scalar: float = 0.0,
+    ) -> torch.Tensor:
+        """One-hot encode a context list plus append the umpire scalar.
+
+        Args:
+            context_list: 6 categorical indices from :meth:`encode_context`.
+            ump_scalar: Prior-season home-plate umpire ``accuracy_above_x_wmean``
+                for the current pitch's game.  NULL / missing must be
+                resolved to the season league median at the call site before
+                reaching this method (default 0.0 = neutral ump only if the
+                caller has not pre-filled).
+
+        Returns:
+            Float tensor of size ``CONTEXT_DIM`` (35).  The first 34 slots
+            are the categorical one-hots; the final slot is the continuous
+            umpire scalar.
+        """
         vec = torch.zeros(CONTEXT_DIM, dtype=torch.float32)
         offsets = [0, NUM_COUNT_STATES, NUM_COUNT_STATES + NUM_OUTS,
                    NUM_COUNT_STATES + NUM_OUTS + NUM_RUNNER_STATES,
@@ -403,6 +605,8 @@ class PitchTokenizer:
                    NUM_COUNT_STATES + NUM_OUTS + NUM_RUNNER_STATES + NUM_BATTER_HANDS + NUM_INNING_BUCKETS]
         for i, val in enumerate(context_list):
             vec[offsets[i] + val] = 1.0
+        # Final slot: continuous umpire accuracy-above-x scalar.
+        vec[CONTEXT_DIM - 1] = float(ump_scalar)
         return vec
 
 
@@ -690,7 +894,8 @@ class PitchSequenceDataset(Dataset):
                 events,
                 delta_run_exp,
                 at_bat_number,
-                pitch_number
+                pitch_number,
+                game_date
             FROM pitches
             WHERE pitch_type IS NOT NULL
               {season_filter}
@@ -709,6 +914,46 @@ class PitchSequenceDataset(Dataset):
         # previous hard-coded ``score_diff=0`` so the "situational
         # context" feature actually reflects game state.
         df = df.assign(_score_diff=_compute_per_pitch_score_diff(df))
+
+        # Attach per-pitch umpire accuracy-above-x scalar (added 2026-04-23).
+        # See ``_fetch_prior_season_ump_tendency`` above for design.
+        df_seasons = sorted({int(s) for s in df["game_date"].dt.year.unique()}) \
+            if "game_date" in df.columns else (
+                sorted({int(y) for y in seasons}) if seasons is not None else []
+            )
+        ump_by_game = _fetch_hp_umpire_by_game(conn, df_seasons)
+        tendency_map = _fetch_prior_season_ump_tendency(conn, df_seasons)
+        median_by_season = _fetch_season_league_median(conn, df_seasons)
+
+        def _ump_scalar(row) -> float:
+            # Determine game season.
+            try:
+                gdate = row.get("game_date") if "game_date" in df.columns else None
+                if gdate is not None and not (isinstance(gdate, float) and np.isnan(gdate)):
+                    try:
+                        game_season = int(pd.Timestamp(gdate).year)
+                    except (TypeError, ValueError):
+                        game_season = -1
+                else:
+                    game_season = -1
+            except Exception:
+                game_season = -1
+            median = median_by_season.get(game_season, 0.0)
+            try:
+                gpk = int(row.get("game_pk")) if row.get("game_pk") is not None else None
+            except (TypeError, ValueError):
+                gpk = None
+            if gpk is None:
+                return median
+            ump_name = ump_by_game.get(gpk)
+            if ump_name is None:
+                return median
+            val = tendency_map.get((ump_name, game_season))
+            if val is None:
+                return median
+            return float(val)
+
+        df = df.assign(_ump_scalar=df.apply(_ump_scalar, axis=1))
 
         # Group by (game, pitcher) to form sequences
         grouped = df.groupby(["game_pk", "pitcher_id"], sort=False)
@@ -757,7 +1002,14 @@ class PitchSequenceDataset(Dataset):
                     inning=_safe_int(row.get("inning"), 1),
                     score_diff=_safe_int(row.get("_score_diff"), 0),
                 )
-                contexts.append(PitchTokenizer.context_to_tensor(ctx_list))
+                ump_raw = row.get("_ump_scalar")
+                try:
+                    ump_val = 0.0 if ump_raw is None else float(ump_raw)
+                except (TypeError, ValueError):
+                    ump_val = 0.0
+                contexts.append(
+                    PitchTokenizer.context_to_tensor(ctx_list, ump_scalar=ump_val)
+                )
 
             # Truncate to max_seq_len
             tokens = tokens[: self.max_seq_len]
@@ -1220,6 +1472,14 @@ def _score_sequences(
         else:
             df = df.assign(_score_diff=0)
 
+    # Per-pitch umpire-scalar lookup.  Legacy call sites that don't
+    # supply ``_ump_scalar`` fall back to 0.0 (neutral), matching the
+    # pre-2026-04-23 behaviour exactly.  Production callers should use
+    # :class:`PitchSequenceDataset` which populates this column via the
+    # umpire-table join.
+    if "_ump_scalar" not in df.columns:
+        df = df.assign(_ump_scalar=0.0)
+
     for game_pk, game_df in df.groupby("game_pk", sort=False):
         if len(game_df) < 2:
             continue
@@ -1249,7 +1509,14 @@ def _score_sequences(
                 inning=_safe_int(row.get("inning"), 1),
                 score_diff=_safe_int(row.get("_score_diff"), 0),
             )
-            contexts_list.append(PitchTokenizer.context_to_tensor(ctx))
+            ump_raw = row.get("_ump_scalar")
+            try:
+                ump_val = 0.0 if ump_raw is None else float(ump_raw)
+            except (TypeError, ValueError):
+                ump_val = 0.0
+            contexts_list.append(
+                PitchTokenizer.context_to_tensor(ctx, ump_scalar=ump_val)
+            )
 
         # Truncate to model's max sequence length
         max_len = model.max_seq_len

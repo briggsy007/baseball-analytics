@@ -95,6 +95,9 @@ class DPIValidationConfig:
     )
     use_persisted_xout: bool = True  # load checkpoint if present
     persist_xout: bool = True  # write checkpoint after fit
+    # v3 weather features: wind parallel/perpendicular to spray + temp_f
+    use_weather: bool = False
+    xout_checkpoint_path: Optional[Path] = None  # default -> v1 / v2 based on flag
 
 
 # ---------------------------------------------------------------------------
@@ -112,16 +115,25 @@ def _fit_xout_on_train_window(
     validation config's ``use_persisted_xout`` / ``persist_xout`` flags.
     """
     seasons = list(range(cfg.train_start, cfg.train_end + 1))
-    chk_path = dp.DEFAULT_XOUT_CHECKPOINT
+    # v2 checkpoint when weather features are enabled; v1 otherwise.
+    if cfg.xout_checkpoint_path is not None:
+        chk_path = Path(cfg.xout_checkpoint_path)
+    elif cfg.use_weather:
+        chk_path = dp.DEFAULT_XOUT_V2_CHECKPOINT
+    else:
+        chk_path = dp.DEFAULT_XOUT_CHECKPOINT
 
-    # Try to use a checkpoint with matching train_seasons
+    # Try to use a checkpoint with matching train_seasons and weather flag
     if cfg.use_persisted_xout and chk_path.exists():
         loaded_model, loaded_meta = dp.load_xout_checkpoint(chk_path)
         chk_seasons = (loaded_meta or {}).get("train_seasons") or []
-        if loaded_model is not None and sorted(chk_seasons) == sorted(seasons):
+        chk_weather = bool((loaded_meta or {}).get("use_weather", False))
+        seasons_match = sorted(chk_seasons) == sorted(seasons)
+        weather_match = chk_weather == cfg.use_weather
+        if loaded_model is not None and seasons_match and weather_match:
             logger.info(
-                "Loaded xOut checkpoint from %s (matches train window %d-%d)",
-                chk_path, cfg.train_start, cfg.train_end,
+                "Loaded xOut checkpoint from %s (matches train %d-%d, weather=%s)",
+                chk_path, cfg.train_start, cfg.train_end, cfg.use_weather,
             )
             return {
                 "status": "loaded_checkpoint",
@@ -133,22 +145,28 @@ def _fit_xout_on_train_window(
                 "n_samples": loaded_meta.get("n_samples"),
                 "out_rate": loaded_meta.get("out_rate"),
                 "use_park": loaded_meta.get("use_park", False),
+                "use_weather": loaded_meta.get("use_weather", False),
                 "feature_columns": loaded_meta.get("feature_columns"),
                 "fitted_at": loaded_meta.get("fitted_at"),
             }
         logger.info(
-            "Existing checkpoint train_seasons=%s did not match requested %s; refitting",
-            chk_seasons, seasons,
+            "Existing checkpoint train_seasons=%s weather=%s did not match "
+            "requested seasons=%s weather=%s; refitting",
+            chk_seasons, chk_weather, seasons, cfg.use_weather,
         )
 
     # Fit (and optionally persist)
     logger.info(
-        "Fitting xOut classifier on BIP rows from seasons %d-%d",
-        cfg.train_start, cfg.train_end,
+        "Fitting xOut classifier on BIP rows from seasons %d-%d (use_weather=%s)",
+        cfg.train_start, cfg.train_end, cfg.use_weather,
     )
     persist_path = chk_path if cfg.persist_xout else None
     metrics = dp.fit_xout(
-        conn, seasons=seasons, persist_path=persist_path, use_park=False,
+        conn,
+        seasons=seasons,
+        persist_path=persist_path,
+        use_park=False,
+        use_weather=cfg.use_weather,
     )
     metrics["train_seasons"] = seasons
     metrics["loaded_from_checkpoint"] = False
@@ -167,19 +185,37 @@ def _evaluate_xout_on_holdout(
 
     # Pull the test BIP cohort. Cap rows for memory.
     seasons_in = ", ".join(str(s) for s in range(cfg.test_start, cfg.test_end + 1))
-    query = f"""
-        SELECT
-            launch_speed, launch_angle, hc_x, hc_y, bb_type, events
-        FROM pitches
-        WHERE type = 'X'
-          AND EXTRACT(YEAR FROM game_date) IN ({seasons_in})
-          AND launch_speed IS NOT NULL
-          AND launch_angle IS NOT NULL
-          AND hc_x IS NOT NULL
-          AND hc_y IS NOT NULL
-          AND bb_type IS NOT NULL
-          AND events IS NOT NULL
-    """
+    if cfg.use_weather:
+        query = f"""
+            SELECT
+                p.launch_speed, p.launch_angle, p.hc_x, p.hc_y,
+                p.bb_type, p.events, p.home_team,
+                gw.wind_speed_mph, gw.wind_dir_deg, gw.temp_f, gw.roof_status
+            FROM pitches p
+            LEFT JOIN game_weather gw ON p.game_pk = gw.game_pk
+            WHERE p.type = 'X'
+              AND EXTRACT(YEAR FROM p.game_date) IN ({seasons_in})
+              AND p.launch_speed IS NOT NULL
+              AND p.launch_angle IS NOT NULL
+              AND p.hc_x IS NOT NULL
+              AND p.hc_y IS NOT NULL
+              AND p.bb_type IS NOT NULL
+              AND p.events IS NOT NULL
+        """
+    else:
+        query = f"""
+            SELECT
+                launch_speed, launch_angle, hc_x, hc_y, bb_type, events
+            FROM pitches
+            WHERE type = 'X'
+              AND EXTRACT(YEAR FROM game_date) IN ({seasons_in})
+              AND launch_speed IS NOT NULL
+              AND launch_angle IS NOT NULL
+              AND hc_x IS NOT NULL
+              AND hc_y IS NOT NULL
+              AND bb_type IS NOT NULL
+              AND events IS NOT NULL
+        """
     df = conn.execute(query).fetchdf()
 
     if df.empty:
@@ -191,9 +227,15 @@ def _evaluate_xout_on_holdout(
             random_state=cfg.random_state,
         ).reset_index(drop=True)
 
-    features = build_bip_features(df)
+    features = build_bip_features(df, include_weather=cfg.use_weather)
     target = _is_out(df["events"]).astype(int)
-    mask = features.notna().all(axis=1)
+    # Core features MUST be finite; weather features are already zero- or
+    # NaN-tolerated so we do not filter on them.
+    core_cols = [
+        c for c in features.columns
+        if c in {"launch_speed", "launch_angle", "spray_angle", "bb_type_encoded"}
+    ]
+    mask = features[core_cols].notna().all(axis=1)
     features = features[mask]
     target = target[mask]
 
@@ -214,14 +256,19 @@ def _evaluate_xout_on_holdout(
     except Exception:
         ll = None
 
-    sample_df = pd.DataFrame({
+    sample_payload = {
         "launch_speed": features["launch_speed"].values,
         "launch_angle": features["launch_angle"].values,
         "spray_angle": features["spray_angle"].values,
         "bb_type_encoded": features["bb_type_encoded"].values,
         "actual_out": target.values,
         "pred_out_prob": proba,
-    })
+    }
+    if cfg.use_weather:
+        for c in ("wind_parallel_to_spray", "wind_perpendicular_to_spray", "temp_f"):
+            if c in features.columns:
+                sample_payload[c] = features[c].values
+    sample_df = pd.DataFrame(sample_payload)
 
     return {
         "status": "ok",
@@ -753,6 +800,7 @@ def run_validation(cfg: DPIValidationConfig) -> dict[str, Any]:
             "n_bootstrap_ci": cfg.n_bootstrap_ci,
             "random_state": cfg.random_state,
             "holdout_sample_size": cfg.holdout_sample_size,
+            "use_weather": bool(cfg.use_weather),
         },
         "leakage_audit": leakage,
         "metrics": {
@@ -903,12 +951,34 @@ def build_argparser() -> argparse.ArgumentParser:
         "--holdout-sample-size", type=int, default=50000,
         help="Cap on test BIP rows for AUC computation (0 = use all).",
     )
+    p.add_argument(
+        "--use-weather", action="store_true",
+        help=(
+            "Add wind_parallel_to_spray, wind_perpendicular_to_spray, and "
+            "temp_f features to the xOut model (v2). Requires a populated "
+            "game_weather table."
+        ),
+    )
+    p.add_argument(
+        "--xout-checkpoint-path", type=Path, default=None,
+        help=(
+            "Override checkpoint path. Defaults to xout_v1.pkl or "
+            "xout_v2_weather.pkl based on --use-weather."
+        ),
+    )
+    p.add_argument(
+        "--external-oaa-path", type=Path, default=None,
+        help=(
+            "Override external Statcast OAA parquet. Defaults to "
+            "data/baselines/team_defense_2023_2024.parquet."
+        ),
+    )
     return p
 
 
 def main(argv: list[str] | None = None) -> int:
     args = build_argparser().parse_args(argv)
-    cfg = DPIValidationConfig(
+    cfg_kwargs = dict(
         train_start=args.train_start,
         train_end=args.train_end,
         test_start=args.test_start,
@@ -917,7 +987,12 @@ def main(argv: list[str] | None = None) -> int:
         n_bootstrap_ci=args.n_bootstrap_ci,
         random_state=args.random_state,
         holdout_sample_size=args.holdout_sample_size,
+        use_weather=bool(args.use_weather),
+        xout_checkpoint_path=args.xout_checkpoint_path,
     )
+    if args.external_oaa_path is not None:
+        cfg_kwargs["external_oaa_path"] = args.external_oaa_path
+    cfg = DPIValidationConfig(**cfg_kwargs)
     try:
         payload = run_validation(cfg)
         if "error" in payload:

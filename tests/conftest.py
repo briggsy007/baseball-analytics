@@ -505,10 +505,15 @@ def mechanix_ae_artifact():
 
 @pytest.fixture(scope="session")
 def pitchgpt_artifact():
-    """Load the PitchGPT v1 model; skip if not available."""
+    """Load the PitchGPT v2 model (35-dim CONTEXT_DIM); skip if not available.
+
+    v2 matches the current ``CONTEXT_DIM`` in ``src/analytics/pitchgpt.py``.
+    v1 (``pitchgpt_v1.pt``) uses the old 34-dim context and is still
+    retained for the LSTM-delta narrative but is not loaded by these tests.
+    """
     import torch
 
-    path = _MODELS_DIR / "pitchgpt_v1.pt"
+    path = _MODELS_DIR / "pitchgpt_v2.pt"
     if not path.exists():
         pytest.skip(f"PitchGPT artifact not found at {path}")
     return torch.load(path, map_location="cpu", weights_only=True)

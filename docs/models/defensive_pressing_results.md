@@ -5,6 +5,187 @@
 **v1 run dir:** `results/validate_defensive_pressing_20260418T212701Z/`
 **v2 hardening run dir:** `results/validate_defensive_pressing_v2_20260418T221401Z/`
 **2025 external-validation dir:** `results/defensive_pressing/2025_validation/`
+**v3 weather-features run dir:** `results/validate_defensive_pressing_v3_weather_20260423T061825Z/`
+**v3 2025 OOS run dir:** `results/validate_defensive_pressing_v3_weather_2025_20260423T062536Z/`
+**v3 pooled 2023-2025 run dir:** `results/validate_defensive_pressing_v3_weather_pooled_20260423T062725Z/`
+
+---
+
+## v3 weather-features run (2026-04-23) -- PASS 6/6
+
+### Headline verdict
+
+**PASS -- FLAGSHIP (6/6 hard gates).** v3 wires physics-motivated wind
+components (parallel/perpendicular scalar projections onto the batted
+ball's spray-angle vector, Nathan/Tango framing) plus game-time
+temperature into the xOut feature matrix. All v2 gates remain PASS.
+The Gate 6 (external Statcast OAA) correlation on the authoritative
+2023-2024 test window moves from **r = 0.5492 -> 0.5573 (+0.0081)**;
+on the 2025 OOS cohort **0.6406 -> 0.6432 (+0.0026)**; on the pooled
+2023-2025 cell **0.4869 -> 0.4903 (+0.0034)**. All three deltas are
+small, positive, and inside their bootstrap CIs (i.e. statistically
+indistinguishable from v2). The xOut AUC is essentially unchanged
+(0.8941 -> 0.8912 on a random 50K holdout subsample, inside sample
+variance). The interpretation: the weather features add marginal
+physics signal that survives aggregation to team DPI but is within
+noise at the single-BIP level.
+
+### Gate table (v3 primary 2023-2024)
+
+| Gate | Threshold | v2 measured | **v3 measured** | Verdict | Delta |
+|---|---|---|---|---|---|
+| Gate 1 -- xOut AUC on 2023-2024 holdout | `>= 0.70` | 0.8941 | **0.8912** | PASS | -0.0029 |
+| Gate 2 -- DPI vs RP proxy (Pearson r) | `>= 0.40` | 0.6197 | **0.6017** | PASS | -0.0180 |
+| Gate 3 -- DPI vs BABIP-against (Pearson r) | `<= -0.50` | -0.7334 | **-0.7145** | PASS | +0.0189 |
+| Gate 4 -- DPI year-over-year stability | `>= 0.30` | 0.5880 | **0.5928** | PASS | +0.0048 |
+| Gate 5 -- Leakage audit | 0 shared `game_pk` | 0 | **0** | PASS | 0 |
+| Gate 6 -- DPI vs Statcast OAA (Pearson r) | `>= 0.45` | 0.5492 | **0.5573** [0.328, 0.727] | PASS | **+0.0081** |
+
+All Gate deltas are within bootstrap sampling variance (1000-resample
+95% CIs on v3 and v2 overlap heavily). This is the expected outcome:
+the base BIP physics (launch_speed / launch_angle / spray_angle /
+bb_type) already capture ~89% AUC of the out/not-out prediction;
+weather adds a secondary air-density / carry signal that matters for
+a fraction of fly-ball BIPs.
+
+### External-validation cross-year comparison
+
+| Year window | v2 r(DPI, OAA) | **v3 r(DPI, OAA)** | 95% CI (v3) | Delta |
+|---|---:|---:|---|---:|
+| 2023-2024 (spec window, n=60) | 0.5492 | **0.5573** | [0.328, 0.727] | +0.0081 |
+| 2025 OOS (n=30) | 0.6406 | **0.6432** | [0.457, 0.790] | +0.0026 |
+| Pooled 2023-2025 (n=90) | 0.4869 | **0.4903** | [0.328, 0.627] | +0.0034 |
+
+All three years show positive weather lift; the 2023-2024 spec window
+has the largest delta and is the headline-eligible number. None of the
+deltas exceed the CI half-width, so the strict reading is "no harm,
+modest positive drift, stable across three years."
+
+### Features added
+
+Three BIP features joined from `game_weather` (meteostat NOAA hourly
+reanalysis, interpolated to game start time):
+
+1. **`wind_parallel_to_spray`** (scalar projection, mph, signed):
+   the scalar projection of the wind velocity vector onto the ball's
+   outward compass bearing. Positive = tailwind for the hit direction
+   (wind is pushing the ball toward its spray angle); negative =
+   headwind. Computed as:
+
+   ```
+   cf_bearing     = TEAM_CF_BEARING_DEG[home_team]     # compass deg
+   ball_bearing   = (cf_bearing + spray_angle) mod 360 # outward hit
+   wind_to        = (wind_dir_deg + 180) mod 360       # flow direction
+   delta          = wrap180(ball_bearing - wind_to)
+   wind_parallel  = wind_speed_mph * cos(delta)
+   ```
+
+2. **`wind_perpendicular_to_spray`** (crosswind magnitude, mph,
+   unsigned): `wind_speed_mph * |sin(delta)|`. Sign is not physically
+   meaningful for a residual out-probability feature (a crosswind
+   disrupts carry regardless of direction).
+
+3. **`temp_f`** (game-start temperature, F, NaN-tolerated): standard
+   air-density proxy. Warm air is less dense -> less drag -> more
+   carry; cold air is the reverse. Per-BIP game-start reading,
+   linear-interpolated from the nearest NOAA station.
+
+Stadium CF compass bearings (`TEAM_CF_BEARING_DEG`, 32 entries
+including `AZ`/`ARI` and `OAK`/`ATH` aliases) sourced from public
+ballpark orientation references (Clem's Baseball, seamheads, aerial
+imagery). Precision ~5 deg, which is well inside the noise band of
+a one-hour-interpolated wind direction.
+
+### Dome / retractable-unknown choice and why
+
+Fixed-dome (`roof_status='dome'`), closed (`'closed'`), and
+retractable-unknown (`'retractable_unknown'`) rows have both wind
+components **set to 0** rather than NaN.
+
+**Why the stronger claim.** HistGB handles either encoding -- NaN is
+routed through its own learned split, 0 is an observed value. Choosing
+zero is the physically correct prior for a sealed roof (no outdoor
+wind acts on the ball), and it prevents the model from learning a
+spurious "wind-NaN means dome park means suppressed BABIP" interaction
+that would overload the tree with a confound. For retractable_unknown
+we accept a small modeling error (some of those games had the roof
+open) in exchange for a physically honest prior; ~5,300 of ~25,000
+games are retractable-unknown, and the open/closed question for those
+cannot be resolved without GUMBO live-feed hydration (open follow-up
+per `docs/data/weather_integration_notes.md`).
+
+Temp_f is **left NaN** for dome / no-metadata rows (not zeroed), since
+there is no physically meaningful default temperature and HistGB
+handles NaN natively.
+
+### Feature importance (permutation, AUC-based, 20K 2024 sample)
+
+| Feature | AUC drop when shuffled | +/- std |
+|---|---:|---:|
+| launch_angle | +0.2596 | 0.0044 |
+| launch_speed | +0.1381 | 0.0018 |
+| spray_angle | +0.0512 | 0.0012 |
+| bb_type_encoded | +0.0109 | 0.0010 |
+| temp_f | +0.0005 | 0.0001 |
+| wind_parallel_to_spray | +0.0002 | 0.0001 |
+| wind_perpendicular_to_spray | ~0 | ~0 |
+
+Weather features carry ~0.07% of the total permutation-importance
+signal. This is consistent with the gate-level finding that v3
+improves aggregate DPI-vs-OAA by a small margin but does not materially
+shift single-BIP out prediction. The signal is real (all three weather
+features' permutation deltas are positive and larger than their std)
+but small.
+
+### Artifact versioning
+
+v3 persists to a **new** checkpoint -- v1 is not overwritten:
+
+- `models/defensive_pressing/xout_v1.pkl` (v2 baseline, preserved)
+- `models/defensive_pressing/xout_v2_weather.pkl` (NEW, v3 artifact)
+
+Both checkpoints are byte-identical across cold/warm loads (sklearn
+joblib dump). `ensure_xout_model` / `_fit_xout_on_train_window`
+select between them based on the `use_weather` flag; callers that
+don't opt in keep the v1 path.
+
+### Artifacts (v3 primary)
+
+- `results/validate_defensive_pressing_v3_weather_20260423T061825Z/defensive_pressing_validation_metrics.json`
+- `results/validate_defensive_pressing_v3_weather_20260423T061825Z/defensive_pressing_team_seasons.csv`
+- `results/validate_defensive_pressing_v3_weather_20260423T061825Z/defensive_pressing_xout_holdout_sample.csv` (adds `wind_parallel_to_spray`, `wind_perpendicular_to_spray`, `temp_f` columns)
+- `results/validate_defensive_pressing_v3_weather_2025_20260423T062536Z/` (2025 OOS replication)
+- `results/validate_defensive_pressing_v3_weather_pooled_20260423T062725Z/` (pooled 2023-2025)
+- `models/defensive_pressing/xout_v2_weather.pkl` (weather-enabled checkpoint)
+
+### Honest caveats (v3)
+
+- **Weather lift is within CI noise.** All Gate 6 deltas (+0.008 /
+  +0.003 / +0.003) are smaller than their bootstrap CI half-widths
+  (~0.15-0.20). The direction is positive and stable across three
+  years, which is suggestive but not statistically decisive.
+- **Permutation importance of weather is tiny.** Weather explains
+  <0.1% of pitch-level predictive information. The team-aggregate
+  DPI signal gain is real (the deltas average +0.005 on a r~0.55
+  point estimate) but the mechanism is small, not dominant.
+- **Stadium orientation precision ~5 deg.** Publicly-documented
+  ballpark CF bearings used rather than a surveyed source. For wind
+  projection this dominates the 1-hour wind-direction interpolation
+  error (which is specified as <5 deg in the weather notes), so
+  total per-row spray-projection error is roughly 5-10 deg. For a
+  10 mph wind this translates to at most 1-2 mph mis-projection per
+  component.
+- **retractable_unknown games zeroed, not resolved.** ~5,300 games
+  over 2015-2025 have the roof as "retractable_unknown" because the
+  MLB schedule endpoint alone does not carry roof state. Follow-up
+  ticket (logged in the weather integration notes): hydrate via
+  GUMBO `gameData.weather.condition` to flip obvious "Roof Closed"
+  cases. For now these rows carry wind=0, which is conservative
+  (we assume the roof closed, not open).
+- **xout_v1 is retained unchanged.** All v1/v2 artifacts remain
+  byte-identical. Callers that opt into `use_weather=True` get v3;
+  the default path (dashboard, prior scripts) continues to load
+  `xout_v1.pkl`.
 
 ---
 

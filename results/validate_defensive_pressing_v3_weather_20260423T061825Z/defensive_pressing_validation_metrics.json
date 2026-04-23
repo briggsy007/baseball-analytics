@@ -1,0 +1,232 @@
+{
+  "config": {
+    "train_start": 2015,
+    "train_end": 2022,
+    "test_start": 2023,
+    "test_end": 2024,
+    "n_bootstrap_ci": 1000,
+    "random_state": 42,
+    "holdout_sample_size": 50000,
+    "use_weather": true
+  },
+  "leakage_audit": {
+    "train_seasons": [
+      2015,
+      2022
+    ],
+    "test_seasons": [
+      2023,
+      2024
+    ],
+    "n_train_game_pks": 18686,
+    "n_test_game_pks": 5010,
+    "shared_game_pks_train_test": 0,
+    "season_disjoint": true,
+    "pass": true
+  },
+  "metrics": {
+    "xout": {
+      "train": {
+        "status": "trained",
+        "n_samples": 918292,
+        "n_train": 734633,
+        "n_test": 183659,
+        "auc": 0.8925,
+        "train_auc": 0.8946,
+        "accuracy": 0.8252,
+        "out_rate": 0.6624,
+        "use_park": false,
+        "use_weather": true,
+        "park_encoding": null,
+        "park_global_mean": null,
+        "park_smoothing": null,
+        "feature_columns": [
+          "launch_speed",
+          "launch_angle",
+          "spray_angle",
+          "bb_type_encoded",
+          "wind_parallel_to_spray",
+          "wind_perpendicular_to_spray",
+          "temp_f"
+        ],
+        "train_seasons": [
+          2015,
+          2016,
+          2017,
+          2018,
+          2019,
+          2020,
+          2021,
+          2022
+        ],
+        "persist_path": "C:\\Users\\hunte\\projects\\baseball\\models\\defensive_pressing\\xout_v2_weather.pkl",
+        "loaded_from_checkpoint": false
+      },
+      "test_auc": 0.8912,
+      "test_accuracy": 0.8254,
+      "test_log_loss": 0.3859,
+      "test_n": 50000,
+      "test_out_rate": 0.6651
+    },
+    "consumer_claim": {
+      "dpi_vs_rp_proxy": {
+        "n": 60,
+        "pearson_r": 0.6017,
+        "pearson_r_ci": [
+          0.3914,
+          0.7586
+        ],
+        "spearman_rho": 0.5364,
+        "spearman_rho_ci": [
+          0.2958,
+          0.7172
+        ]
+      },
+      "dpi_vs_babip_against": {
+        "n": 60,
+        "pearson_r": -0.7145,
+        "pearson_r_ci": [
+          -0.8146,
+          -0.5949
+        ],
+        "spearman_rho": -0.7102,
+        "spearman_rho_ci": [
+          -0.8126,
+          -0.5592
+        ]
+      }
+    },
+    "external_baseline": {
+      "source": {
+        "available": true,
+        "path": "C:\\Users\\hunte\\projects\\baseball\\data\\baselines\\team_defense_2023_2024.parquet",
+        "n_rows_loaded": 60,
+        "n_team_seasons_with_oaa": 60
+      },
+      "dpi_vs_oaa": {
+        "n": 60,
+        "pearson_r": 0.5573,
+        "pearson_r_ci": [
+          0.3283,
+          0.7274
+        ],
+        "spearman_rho": 0.5615,
+        "spearman_rho_ci": [
+          0.3434,
+          0.7299
+        ]
+      },
+      "dpi_vs_frp": {
+        "n": 60,
+        "pearson_r": 0.5594,
+        "pearson_r_ci": [
+          0.3428,
+          0.7339
+        ],
+        "spearman_rho": 0.557,
+        "spearman_rho_ci": [
+          0.3387,
+          0.7233
+        ]
+      }
+    },
+    "stability": {
+      "yoy_pearson_r": 0.5928,
+      "yoy_pearson_r_ci": [
+        0.3906,
+        0.7436
+      ],
+      "yoy_spearman_rho": 0.6067,
+      "yoy_n_teams": 30
+    },
+    "data_quality": {
+      "n_team_seasons": 60,
+      "n_team_seasons_with_dpi": 60,
+      "n_team_seasons_with_rp": 60,
+      "n_team_seasons_with_babip": 60
+    }
+  },
+  "gates": [
+    {
+      "name": "xout_test_auc",
+      "threshold": ">= 0.70",
+      "measured": 0.8912,
+      "operator": ">=",
+      "pass": true,
+      "hard": true,
+      "source": "metrics.xout.test_auc"
+    },
+    {
+      "name": "dpi_vs_rp_proxy_pearson_r",
+      "threshold": ">= 0.40",
+      "measured": 0.6017,
+      "measured_ci": [
+        0.3914,
+        0.7586
+      ],
+      "operator": ">=",
+      "pass": true,
+      "hard": true,
+      "source": "metrics.consumer_claim.dpi_vs_rp_proxy.pearson_r"
+    },
+    {
+      "name": "dpi_vs_babip_against_pearson_r",
+      "threshold": "<= -0.50",
+      "measured": -0.7145,
+      "measured_ci": [
+        -0.8146,
+        -0.5949
+      ],
+      "operator": "<=",
+      "pass": true,
+      "hard": true,
+      "source": "metrics.consumer_claim.dpi_vs_babip_against.pearson_r"
+    },
+    {
+      "name": "dpi_yoy_pearson_r",
+      "threshold": ">= 0.30",
+      "measured": 0.5928,
+      "measured_ci": [
+        0.3906,
+        0.7436
+      ],
+      "operator": ">=",
+      "pass": true,
+      "hard": true,
+      "source": "metrics.stability.yoy_pearson_r"
+    },
+    {
+      "name": "leakage_audit",
+      "threshold": "0 game_pks shared train/test",
+      "measured": 0,
+      "operator": "==",
+      "pass": true,
+      "hard": true,
+      "source": "leakage_audit.shared_game_pks_train_test"
+    },
+    {
+      "name": "dpi_vs_external_oaa_pearson_r",
+      "threshold": ">= 0.45",
+      "measured": 0.5573,
+      "measured_ci": [
+        0.3283,
+        0.7274
+      ],
+      "operator": ">=",
+      "pass": true,
+      "hard": true,
+      "source": "metrics.external_baseline.dpi_vs_oaa.pearson_r",
+      "note": "Statcast Outs Above Average (Baseball Savant), aggregated to team-season. FanGraphs DRS endpoint returned 403; OAA is the equivalent gold-standard team-defense baseline."
+    }
+  ],
+  "overall_pass": true,
+  "wall_clock_seconds": {
+    "xout_train": 15.2,
+    "xout_test": 0.72,
+    "team_dpi": 256.89
+  },
+  "artifacts": {
+    "team_seasons_csv": "C:\\Users\\hunte\\projects\\baseball\\results\\validate_defensive_pressing_v3_weather_20260423T061825Z\\defensive_pressing_team_seasons.csv",
+    "xout_holdout_sample_csv": "C:\\Users\\hunte\\projects\\baseball\\results\\validate_defensive_pressing_v3_weather_20260423T061825Z\\defensive_pressing_xout_holdout_sample.csv"
+  }
+}

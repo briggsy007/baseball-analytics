@@ -1,0 +1,60 @@
+{
+  "version": "2",
+  "artifact": "C:\\Users\\hunte\\projects\\baseball\\results\\validate_pitchgpt_v2_ump_20260423T061634Z\\pitchgpt_full.pt",
+  "versioned_copy": "C:\\Users\\hunte\\projects\\baseball\\models\\pitchgpt_v2.pt",
+  "context_dim": 35,
+  "params": 1398690,
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 5.6658,
+      "val_loss": 5.566,
+      "train_ppl": 288.807,
+      "val_ppl": 261.376,
+      "wall_clock_sec": 8.7
+    },
+    {
+      "epoch": 2,
+      "train_loss": 5.1631,
+      "val_loss": 5.3476,
+      "train_ppl": 174.713,
+      "val_ppl": 210.096,
+      "wall_clock_sec": 8.0
+    },
+    {
+      "epoch": 3,
+      "train_loss": 4.9728,
+      "val_loss": 5.1873,
+      "train_ppl": 144.437,
+      "val_ppl": 178.986,
+      "wall_clock_sec": 7.6
+    },
+    {
+      "epoch": 4,
+      "train_loss": 4.8516,
+      "val_loss": 5.1186,
+      "train_ppl": 127.943,
+      "val_ppl": 167.096,
+      "wall_clock_sec": 8.8
+    },
+    {
+      "epoch": 5,
+      "train_loss": 4.7786,
+      "val_loss": 5.0332,
+      "train_ppl": 118.932,
+      "val_ppl": 153.426,
+      "wall_clock_sec": 8.7
+    }
+  ],
+  "best_epoch": 5,
+  "best_val_loss": 5.0332,
+  "total_train_sec": 41.8,
+  "n_train_sequences": 8549,
+  "n_val_sequences": 451,
+  "ump_scalar_smoke": {
+    "n_samples": 1666,
+    "unique_rounded": 40,
+    "min": -3.033,
+    "max": 1.8882
+  }
+}

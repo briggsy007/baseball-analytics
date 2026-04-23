@@ -340,38 +340,46 @@ class TestPitchGPTPerformance:
         assert torch.all(torch.isfinite(logits)), "Non-finite logits"
 
     def test_evaluate_pps_within_range(self, pitchgpt_artifact, db_conn, baselines):
-        """PPS (Pitch Predictability Score) should be within baseline range."""
-        from src.analytics.pitchgpt import PitchGPT
+        """PPS (Pitch Predictability Score) should be within baseline range.
 
-        model_wrapper = PitchGPT()
+        Calls ``batch_calculate`` directly with ``model_version="2"`` so the
+        35-dim v2 checkpoint is loaded (matches current ``CONTEXT_DIM``).
+        ``PitchGPT.evaluate`` internally hardcodes v1 via its default and
+        does not forward a ``model_version`` kwarg.
+        """
+        from src.analytics.pitchgpt import batch_calculate
+
         try:
-            result = model_wrapper.evaluate(db_conn)
+            df = batch_calculate(db_conn, model_version="2")
         except FileNotFoundError:
-            pytest.skip("PitchGPT model not loadable for evaluate()")
+            pytest.skip("PitchGPT v2 model not loadable for evaluate()")
 
-        if result.get("qualifying_pitchers", 0) == 0:
+        if df.empty:
             pytest.skip("No qualifying pitchers in test DB for PitchGPT")
 
-        mean_pps = result.get("mean_pps", 0.0)
+        mean_pps = round(float(df["pps"].mean()), 4)
         pps_max = baselines["pitchgpt"]["mean_pps_max"]
         assert mean_pps <= pps_max, (
             f"PitchGPT mean PPS ({mean_pps:.4f}) exceeds baseline max ({pps_max})"
         )
 
     def test_perplexity_within_range(self, pitchgpt_artifact, db_conn, baselines):
-        """Perplexity derived from PPS should be within a sane range."""
-        from src.analytics.pitchgpt import PitchGPT
+        """Perplexity derived from PPS should be within a sane range.
 
-        model_wrapper = PitchGPT()
+        Uses ``batch_calculate`` directly with ``model_version="2"`` (see
+        ``test_evaluate_pps_within_range`` for rationale).
+        """
+        from src.analytics.pitchgpt import batch_calculate
+
         try:
-            result = model_wrapper.evaluate(db_conn)
+            df = batch_calculate(db_conn, model_version="2")
         except FileNotFoundError:
-            pytest.skip("PitchGPT model not loadable for evaluate()")
+            pytest.skip("PitchGPT v2 model not loadable for evaluate()")
 
-        if result.get("qualifying_pitchers", 0) == 0:
+        if df.empty:
             pytest.skip("No qualifying pitchers in test DB for PitchGPT")
 
-        mean_pps = result.get("mean_pps", 0.0)
+        mean_pps = round(float(df["pps"].mean()), 4)
         if mean_pps > 0:
             perplexity = math.exp(min(mean_pps, 20))
             ppl_max = baselines["pitchgpt"]["perplexity_max"]

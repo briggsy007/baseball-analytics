@@ -1,0 +1,153 @@
+{
+  "timestamp_utc": "2026-04-23T06:22:14Z",
+  "seed": 42,
+  "device": "cuda",
+  "checkpoint": "results\\validate_pitchgpt_v2_ump_20260423T061634Z\\pitchgpt_full.pt",
+  "train_range": "2015-2022",
+  "val_range": "2023",
+  "holdout_range": "2025",
+  "max_train_games": 1000,
+  "max_val_games": 300,
+  "max_holdout_games": 500,
+  "epochs_lstm": 5,
+  "leakage_audit": {
+    "shared_game_pks": 0,
+    "shared_game_pks_train_val": 0,
+    "shared_game_pks_train_test": 0,
+    "shared_game_pks_val_test": 0,
+    "shared_pitcher_ids_train_test": 0,
+    "shared_pitcher_ids_train_val": 0,
+    "n_train_game_pks": 1000,
+    "n_val_game_pks": 300,
+    "n_test_game_pks": 500,
+    "n_train_pitchers": 1457,
+    "n_val_pitchers": 132,
+    "n_test_pitchers": 325
+  },
+  "n_train_sequences": 8574,
+  "n_val_sequences": 452,
+  "n_holdout_sequences": 1489,
+  "models": {
+    "pitchgpt": {
+      "source": "results/validate_pitchgpt_20260418T150305Z/pitchgpt_full.pt (pitcher-disjoint)",
+      "params": 1398690,
+      "holdout_perplexity": {
+        "point": 159.142,
+        "ci95_lo": 156.967,
+        "ci95_hi": 161.278,
+        "n_pitches": 51090,
+        "n_bootstrap": 1000
+      }
+    },
+    "lstm": {
+      "source": "freshly trained on train_ds (pitcher-disjoint from 2025)",
+      "params": 837282,
+      "epoch_best": 5,
+      "best_val_loss": 5.1794,
+      "history": [
+        {
+          "epoch": 1,
+          "train_loss": 5.8373,
+          "val_loss": 5.7728,
+          "train_ppl": 342.863,
+          "val_ppl": 321.427,
+          "wall_clock_sec": 3.5
+        },
+        {
+          "epoch": 2,
+          "train_loss": 5.326,
+          "val_loss": 5.4659,
+          "train_ppl": 205.607,
+          "val_ppl": 236.478,
+          "wall_clock_sec": 3.0
+        },
+        {
+          "epoch": 3,
+          "train_loss": 5.1171,
+          "val_loss": 5.3793,
+          "train_ppl": 166.857,
+          "val_ppl": 216.866,
+          "wall_clock_sec": 3.0
+        },
+        {
+          "epoch": 4,
+          "train_loss": 4.9895,
+          "val_loss": 5.2565,
+          "train_ppl": 146.865,
+          "val_ppl": 191.81,
+          "wall_clock_sec": 3.0
+        },
+        {
+          "epoch": 5,
+          "train_loss": 4.9019,
+          "val_loss": 5.1794,
+          "train_ppl": 134.542,
+          "val_ppl": 177.571,
+          "wall_clock_sec": 3.0
+        }
+      ],
+      "holdout_perplexity": {
+        "point": 180.416,
+        "ci95_lo": 177.878,
+        "ci95_hi": 183.318,
+        "n_pitches": 51090,
+        "n_bootstrap": 1000
+      }
+    },
+    "markov2": {
+      "source": "fitted on train_ds (2015-2022, pitcher-disjoint)",
+      "params": 0,
+      "fit_seconds": 7.8,
+      "holdout_perplexity": {
+        "point": 350.84,
+        "ci95_lo": 346.309,
+        "ci95_hi": 356.028,
+        "n_pitches": 51090,
+        "n_bootstrap": 1000
+      }
+    },
+    "heuristic": {
+      "source": "fitted on train_ds (2015-2022, pitcher-disjoint)",
+      "params": 0,
+      "fit_seconds": 0.7,
+      "holdout_perplexity": {
+        "point": 470.942,
+        "ci95_lo": 465.979,
+        "ci95_hi": 476.065,
+        "n_pitches": 51090,
+        "n_bootstrap": 1000
+      }
+    }
+  },
+  "gates": {
+    "vs_lstm": {
+      "threshold_pct": 15.0,
+      "point_pct": 11.79,
+      "ci95_lo": 10.15,
+      "ci95_hi": 13.61,
+      "pass_point": false,
+      "pass_ci_lower_bound": false,
+      "name": "PitchGPT vs LSTM"
+    },
+    "vs_markov2": {
+      "threshold_pct": 20.0,
+      "point_pct": 54.64,
+      "ci95_lo": 53.68,
+      "ci95_hi": 55.53,
+      "pass_point": true,
+      "pass_ci_lower_bound": true,
+      "name": "PitchGPT vs Markov-2"
+    },
+    "vs_heuristic": {
+      "threshold_pct": 25.0,
+      "point_pct": 66.21,
+      "ci95_lo": 65.61,
+      "ci95_hi": 66.84,
+      "pass_point": true,
+      "pass_ci_lower_bound": true,
+      "name": "PitchGPT vs Heuristic"
+    },
+    "overall_pass_point": false,
+    "overall_pass_ci_lower_bound": false
+  }
+}
