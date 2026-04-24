@@ -272,7 +272,7 @@ class ProjectionModel(BaseAnalyticsModel):
         # All loads are best-effort: any failure logs and degrades to v1.1
         # behaviour for that feature without breaking the fit.
         if self.config.enable_tj_flag:
-            self._tj_surgeries, self._tj_coverage_years = _load_tj_surgeries()
+            self._tj_surgeries, self._tj_coverage_years = _load_tj_surgeries(conn=conn)
             logger.info(
                 "Loaded TJ surgeries: %d pitchers, coverage years %s",
                 len(self._tj_surgeries),
@@ -896,17 +896,39 @@ def _load_actual_war(
 # ---------------------------------------------------------------------------
 
 def _load_tj_surgeries(
+    conn: duckdb.DuckDBPyConnection | None = None,
     path: Path = DEFAULT_INJURY_LABELS,
 ) -> tuple[dict[int, list[pd.Timestamp]], tuple[int | None, int | None]]:
-    """Load TJ surgery dates from ``data/injury_labels.parquet``.
+    """Load TJ surgery dates.
+
+    Preferred source: the ``tj_surgery_dates`` DuckDB table (ingested
+    2026-04-23; mlb_id + surgery_date across explicit-surgical and gated
+    keyword-adjacent tiers). Falls back to ``data/injury_labels.parquet``
+    filtered on ``injury_type == 'tommy_john'`` when the table is unavailable.
 
     Returns:
         (mapping, coverage_years)
-        mapping: pitcher_id -> list of TJ surgery dates (one entry per IL
-            placement classified as ``tommy_john``).
-        coverage_years: (min_year, max_year) of the injury_labels parquet,
-            documenting the data coverage limit.
+        mapping: pitcher_id -> list of TJ surgery dates.
+        coverage_years: (min_year, max_year) of the source data.
     """
+    if conn is not None:
+        try:
+            df = conn.execute("""
+                SELECT mlb_id AS pitcher_id, surgery_date
+                FROM tj_surgery_dates
+                WHERE mlb_id IS NOT NULL AND surgery_date IS NOT NULL
+            """).fetchdf()
+            if not df.empty:
+                years = pd.to_datetime(df["surgery_date"]).dt.year
+                coverage = (int(years.min()), int(years.max()))
+                out: dict[int, list[pd.Timestamp]] = {}
+                for _, row in df.iterrows():
+                    pid = int(row["pitcher_id"])
+                    out.setdefault(pid, []).append(pd.Timestamp(row["surgery_date"]))
+                return out, coverage
+        except Exception as exc:  # noqa: BLE001
+            logger.warning("tj_surgery_dates table unavailable (%s); falling back to parquet.", exc)
+
     if not path.exists():
         logger.warning("TJ surgery file not found at %s; TJ flag disabled.", path)
         return {}, (None, None)

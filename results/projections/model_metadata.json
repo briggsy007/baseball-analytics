@@ -1,7 +1,7 @@
 {
   "model_name": "projections",
   "version": "2.0.0",
-  "generated_at_utc": "2026-04-18T22:09:29.003283+00:00",
+  "generated_at_utc": "2026-04-24T03:39:25.557144+00:00",
   "train_seasons": [
     2021,
     2022,
@@ -24,10 +24,10 @@
     "v2_enable_tj_flag": true,
     "v2_enable_calibrated_age_curve": true,
     "v2_enable_role_change": true,
-    "v2_n_tj_surgeries": 67,
+    "v2_n_tj_surgeries": 263,
     "v2_tj_coverage_years": [
-      2015,
-      2016
+      2016,
+      2025
     ],
     "v2_age_curve_diagnostics": {
       "year_range": [
@@ -152,7 +152,7 @@
   "n_projections": 1520,
   "n_batters": 695,
   "n_pitchers": 825,
-  "wall_clock_seconds": 4.08,
+  "wall_clock_seconds": 4.22,
   "config": {
     "weights": [
       5.0,
