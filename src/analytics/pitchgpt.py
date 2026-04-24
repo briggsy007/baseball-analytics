@@ -1196,9 +1196,23 @@ class PitchGPT(BaseAnalyticsModel):
             raise ValueError("pitcher_id is required for predict().")
         return calculate_predictability(conn, pitcher_id, season)
 
-    def evaluate(self, conn: duckdb.DuckDBPyConnection, **kwargs) -> dict:
+    def evaluate(
+        self,
+        conn: duckdb.DuckDBPyConnection,
+        model_version: str = "1",
+        **kwargs,
+    ) -> dict:
+        """Compute a PPS leaderboard summary for a season.
+
+        Args:
+            conn: DuckDB connection.
+            model_version: Checkpoint version tag to evaluate (defaults to
+                ``"1"`` so v1 behaviour is preserved). Pass ``"2"`` to
+                evaluate the v2_ump checkpoint once trained.
+            **kwargs: Forwarded options. Recognised: ``season`` (int).
+        """
         season = kwargs.get("season")
-        df = batch_calculate(conn, season=season)
+        df = batch_calculate(conn, season=season, model_version=model_version)
         if df.empty:
             return {"qualifying_pitchers": 0, "mean_pps": 0.0}
         return {

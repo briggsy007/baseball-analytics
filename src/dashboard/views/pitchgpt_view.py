@@ -28,6 +28,7 @@ try:
         calculate_disruption_index,
         batch_calculate,
         train_pitchgpt,
+        _load_model as _pitchgpt_load_model,
     )
     _PITCHGPT_AVAILABLE = True
 except ImportError:
@@ -60,6 +61,21 @@ _PITCH_LABELS: dict[str, str] = {
 # ---------------------------------------------------------------------------
 
 
+@st.cache_resource(ttl=3600)
+def _cached_load_pitchgpt_model(version: str = "1"):
+    """Cache the PitchGPT torch model in-process.
+
+    ``@st.cache_resource`` (not ``@st.cache_data``) is required because
+    ``torch.nn.Module`` instances aren't safely hashable/serialisable.
+    The analytics module's internal ``_load_model`` re-reads the ``.pt``
+    checkpoint on every call, so wrapping at the view keeps a single
+    instance alive across reruns. Note: ``calculate_predictability``
+    etc. still reload internally; the cached handle below is available
+    for any future call paths that accept an injected model.
+    """
+    return _pitchgpt_load_model(version)
+
+
 @st.cache_data(ttl=3600)
 def _cached_seasons() -> list[int]:
     """Cached list of seasons."""
@@ -74,17 +90,57 @@ def _cached_seasons() -> list[int]:
 
 
 @st.cache_data(ttl=3600)
-def _cached_predictability(pitcher_id: int, season: int | None) -> dict:
+def _cached_predictability(
+    pitcher_id: int, season: int | None, model_version: str = "1",
+) -> dict:
     """Cached predictability calculation."""
+    # Ensure the torch model is loaded (and cached) before dispatching
+    # to the analytics layer. The analytics layer has its own internal
+    # load path, but warming the view-level cache keeps startup snappy
+    # and avoids reloading on navigation.
+    try:
+        _cached_load_pitchgpt_model(model_version)
+    except FileNotFoundError:
+        pass
     conn = get_db_connection()
-    return calculate_predictability(conn, pitcher_id, season=season)
+    return calculate_predictability(
+        conn, pitcher_id, season=season, model_version=model_version,
+    )
 
 
 @st.cache_data(ttl=3600)
-def _cached_predictability_by_catcher(pitcher_id: int, season: int | None) -> list:
+def _cached_predictability_by_catcher(
+    pitcher_id: int, season: int | None, model_version: str = "1",
+) -> list:
     """Cached per-catcher predictability calculation."""
+    try:
+        _cached_load_pitchgpt_model(model_version)
+    except FileNotFoundError:
+        pass
     conn = get_db_connection()
-    return calculate_predictability_by_catcher(conn, pitcher_id, season=season)
+    return calculate_predictability_by_catcher(
+        conn, pitcher_id, season=season, model_version=model_version,
+    )
+
+
+@st.cache_data(ttl=3600, show_spinner=False)
+def _cached_pitchgpt_leaderboard(
+    season: int | None, min_pitches: int, model_version: str = "1",
+) -> pd.DataFrame:
+    """Cached PitchGPT leaderboard -- avoids re-running ``batch_calculate``.
+
+    ``batch_calculate`` internally reloads the torch checkpoint and scans
+    every qualifying pitcher. Wrapping here prevents that on every
+    rerun / tab switch.
+    """
+    try:
+        _cached_load_pitchgpt_model(model_version)
+    except FileNotFoundError:
+        pass
+    conn = get_db_connection()
+    return batch_calculate(
+        conn, season=season, min_pitches=min_pitches, model_version=model_version,
+    )
 
 
 def render() -> None:
@@ -140,19 +196,30 @@ def render() -> None:
             key="pgpt_min_pitches",
         )
 
+        # Model version picker -- v1 is the flagship default; v2 routes to
+        # the umpire-aware checkpoint once available on disk.
+        model_version = st.selectbox(
+            "Model version",
+            options=["1", "2"],
+            index=0,
+            key="pgpt_model_version",
+            help="v1 is the flagship; v2 adds umpire + weather context "
+                 "(requires pitchgpt_v2.pt).",
+        )
+
     # ── Tabs ──────────────────────────────────────────────────────────────
     tab_board, tab_pitcher, tab_catcher = st.tabs(
         ["Leaderboard", "Pitcher Deep Dive", "Catcher Comparison"]
     )
 
     with tab_board:
-        _render_leaderboard(conn, season, min_pitches)
+        _render_leaderboard(conn, season, min_pitches, model_version=model_version)
 
     with tab_pitcher:
-        _render_pitcher_analysis(conn, season)
+        _render_pitcher_analysis(conn, season, model_version=model_version)
 
     with tab_catcher:
-        _render_catcher_comparison(conn, season)
+        _render_catcher_comparison(conn, season, model_version=model_version)
 
 
 # ---------------------------------------------------------------------------
@@ -160,13 +227,15 @@ def render() -> None:
 # ---------------------------------------------------------------------------
 
 
-def _render_leaderboard(conn, season, min_pitches) -> None:
+def _render_leaderboard(conn, season, min_pitches, model_version: str = "1") -> None:
     """PPS leaderboard: most and least predictable pitchers."""
     st.subheader("Pitch Predictability Leaderboard")
 
-    # Try cache first
+    # Try cache first -- only for the default v1 checkpoint; v2 always
+    # routes through the live ``batch_calculate`` path so the cache
+    # layer isn't confused about provenance.
     df = None
-    if _CACHE_AVAILABLE:
+    if _CACHE_AVAILABLE and model_version == "1":
         try:
             cached = get_cached_leaderboard(conn, "pitchgpt", season)
             if cached is not None:
@@ -180,7 +249,9 @@ def _render_leaderboard(conn, season, min_pitches) -> None:
     if df is None:
         try:
             with st.spinner("Computing... Run `python scripts/precompute.py` for instant loading."):
-                df = batch_calculate(conn, season=season, min_pitches=min_pitches)
+                df = _cached_pitchgpt_leaderboard(
+                    season, min_pitches, model_version=model_version,
+                )
         except Exception as exc:
             st.error(f"Error computing leaderboard: {exc}")
             return
@@ -241,7 +312,20 @@ def _render_leaderboard(conn, season, min_pitches) -> None:
     })
     display_df.index = range(1, len(display_df) + 1)
     display_df.index.name = "Rank"
-    st.dataframe(display_df, use_container_width=True)
+
+    # Pagination: leaderboard can be 500+ qualifying pitchers. Default to
+    # top 200 with a toggle to view the rest.
+    total_rows = len(display_df)
+    show_all = False
+    if total_rows > 200:
+        show_all = st.checkbox(
+            f"Show all {total_rows} pitchers (default shows top 200)",
+            value=False,
+            key="pitchgpt_leaderboard_show_all",
+        )
+    rendered_df = display_df if show_all else display_df.head(200)
+
+    st.dataframe(rendered_df, use_container_width=True, height=500)
 
     # Distribution chart
     if len(df) > 2:
@@ -264,7 +348,7 @@ def _render_leaderboard(conn, season, min_pitches) -> None:
 # ---------------------------------------------------------------------------
 
 
-def _render_pitcher_analysis(conn, season) -> None:
+def _render_pitcher_analysis(conn, season, model_version: str = "1") -> None:
     """Individual pitcher analysis: PPS big number + disruption timeline."""
     st.subheader("Pitcher Deep Dive")
 
@@ -300,7 +384,9 @@ def _render_pitcher_analysis(conn, season) -> None:
     # ── Predictability Score ──────────────────────────────────────────────
     with st.spinner("Computing PPS..."):
         try:
-            result = _cached_predictability(pitcher_id, season=season)
+            result = _cached_predictability(
+                pitcher_id, season=season, model_version=model_version,
+            )
         except FileNotFoundError:
             st.warning("PitchGPT model not trained yet. Train the model first.")
             return
@@ -321,7 +407,9 @@ def _render_pitcher_analysis(conn, season) -> None:
 
     # League percentile (if we can compute it)
     try:
-        leaderboard = batch_calculate(conn, season=season, min_pitches=50)
+        leaderboard = _cached_pitchgpt_leaderboard(
+            season, 50, model_version=model_version,
+        )
         if not leaderboard.empty:
             pct = (leaderboard["pps"] <= result["pps"]).mean() * 100
             st.info(
@@ -434,7 +522,7 @@ def _render_disruption_chart(conn, pitcher_id: int, game_data: dict) -> None:
 # ---------------------------------------------------------------------------
 
 
-def _render_catcher_comparison(conn, season) -> None:
+def _render_catcher_comparison(conn, season, model_version: str = "1") -> None:
     """Same pitcher, different catchers -- does PPS change?
 
     Uses fielder_2 (catcher ID) from the pitches table to group games
@@ -486,7 +574,7 @@ def _render_catcher_comparison(conn, season) -> None:
     with st.spinner("Computing PPS by catcher..."):
         try:
             catcher_results = _cached_predictability_by_catcher(
-                pitcher_id, season=season,
+                pitcher_id, season=season, model_version=model_version,
             )
         except FileNotFoundError:
             st.warning("PitchGPT model not trained yet. Train the model first.")
