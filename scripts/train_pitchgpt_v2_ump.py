@@ -97,7 +97,27 @@ def main() -> int:
         "--version", type=str, default="2",
         help="Model version tag — saved to models/pitchgpt_v<version>.pt.",
     )
+    parser.add_argument(
+        "--context-dim", type=int, default=CONTEXT_DIM,
+        help=("Context tensor width.  Default = module CONTEXT_DIM (35, "
+              "includes ump scalar).  Pass 34 to reproduce the v1 schema "
+              "(categoricals only) for matched-scale v1 vs v2 comparison."),
+    )
+    parser.add_argument(
+        "--no-ump", action="store_true",
+        help=("Shorthand for --context-dim 34 — skip the ump smoke test "
+              "and train on the v1 schema."),
+    )
+    parser.add_argument(
+        "--model-filename", type=str, default=None,
+        help=("Override the output filename under models/.  Default is "
+              "'pitchgpt_v{version}.pt'.  Use e.g. 'pitchgpt_v1_10k.pt' "
+              "to avoid overwriting the committed flagship v1 artifact."),
+    )
     args = parser.parse_args()
+
+    if args.no_ump:
+        args.context_dim = 34
 
     ts = time.strftime("%Y%m%dT%H%M%SZ", time.gmtime())
     if args.output_dir is None:
@@ -106,7 +126,10 @@ def main() -> int:
 
     _set_seed(args.seed)
     device = _get_device()
-    logger.info("device=%s  seed=%d  CONTEXT_DIM=%d", device, args.seed, CONTEXT_DIM)
+    logger.info(
+        "device=%s  seed=%d  CONTEXT_DIM=%d  (training with context_dim=%d)",
+        device, args.seed, CONTEXT_DIM, args.context_dim,
+    )
 
     # ── Load datasets (pitcher-disjoint protocol) ───────────────────────
     conn = get_connection(read_only=True)
@@ -124,6 +147,7 @@ def main() -> int:
             val_range=VAL_RANGE,
             test_range=TEST_RANGE,
             max_games_per_split=args.max_train_games,
+            context_dim=args.context_dim,
         )
         val_ds = PitchSequenceDataset(
             conn,
@@ -133,6 +157,7 @@ def main() -> int:
             test_range=TEST_RANGE,
             max_games_per_split=args.max_val_games,
             exclude_pitcher_ids=train_pitchers_all,
+            context_dim=args.context_dim,
         )
         logger.info("datasets: train=%d  val=%d  (%.1fs)",
                     len(train_ds), len(val_ds), time.perf_counter() - t0)
@@ -143,30 +168,41 @@ def main() -> int:
         logger.error("Empty dataset — aborting.")
         return 1
 
-    # Smoke-check the umpire scalar actually varies.  Sample across a
-    # spread of sequence indices (not the first 5, which are all 2015
-    # games with the 2014-tendencies-are-missing season-median fallback).
-    idxs = sorted(set(
-        int(i) for i in np.linspace(0, len(train_ds) - 1, num=min(50, len(train_ds)))
-    ))
+    # Smoke-check the umpire scalar actually varies.  Only run when the
+    # ump scalar is actually present in the context tensor (context_dim
+    # >= CONTEXT_DIM = 35).  The v1-schema path (context_dim=34) drops
+    # that column by design.
     sample_ump_vals: list[float] = []
-    for i in idxs:
-        _, ctx, _ = train_ds[i]
-        sample_ump_vals.extend(ctx[:, -1].numpy().tolist())
-    uniq = len(set(round(v, 3) for v in sample_ump_vals))
-    logger.info(
-        "ump-scalar smoke: n=%d unique=%d min=%.3f max=%.3f (from %d sequences)",
-        len(sample_ump_vals), uniq,
-        min(sample_ump_vals) if sample_ump_vals else 0.0,
-        max(sample_ump_vals) if sample_ump_vals else 0.0,
-        len(idxs),
-    )
-    if uniq < 3:
-        logger.error(
-            "ump scalar appears near-constant (unique=%d) — feature wiring broken "
-            "or data sample unlucky.", uniq,
+    uniq = 0
+    if args.context_dim >= CONTEXT_DIM:
+        # Sample across a spread of sequence indices (not the first 5,
+        # which are all 2015 games with the 2014-tendencies-are-missing
+        # season-median fallback).
+        idxs = sorted(set(
+            int(i) for i in np.linspace(0, len(train_ds) - 1, num=min(50, len(train_ds)))
+        ))
+        for i in idxs:
+            _, ctx, _ = train_ds[i]
+            sample_ump_vals.extend(ctx[:, -1].numpy().tolist())
+        uniq = len(set(round(v, 3) for v in sample_ump_vals))
+        logger.info(
+            "ump-scalar smoke: n=%d unique=%d min=%.3f max=%.3f (from %d sequences)",
+            len(sample_ump_vals), uniq,
+            min(sample_ump_vals) if sample_ump_vals else 0.0,
+            max(sample_ump_vals) if sample_ump_vals else 0.0,
+            len(idxs),
         )
-        return 3
+        if uniq < 3:
+            logger.error(
+                "ump scalar appears near-constant (unique=%d) — feature wiring broken "
+                "or data sample unlucky.", uniq,
+            )
+            return 3
+    else:
+        logger.info(
+            "context_dim=%d < CONTEXT_DIM=%d — skipping ump-scalar smoke "
+            "test (v1-schema retrain).", args.context_dim, CONTEXT_DIM,
+        )
 
     train_loader = DataLoader(
         train_ds, batch_size=args.batch_size, shuffle=True, collate_fn=_collate_fn,
@@ -177,9 +213,10 @@ def main() -> int:
 
     # ── Train ───────────────────────────────────────────────────────────
     _set_seed(args.seed)
-    model = PitchGPTModel().to(device)
+    model = PitchGPTModel(context_dim=args.context_dim).to(device)
     params = sum(p.numel() for p in model.parameters())
-    logger.info("PitchGPT v%s — %d params", args.version, params)
+    logger.info("PitchGPT v%s — %d params  context_dim=%d",
+                args.version, params, args.context_dim)
 
     optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr)
     criterion = nn.CrossEntropyLoss(ignore_index=PAD_TOKEN)
@@ -265,8 +302,8 @@ def main() -> int:
             "num_layers": 4,
             "max_seq_len": 256,
             "vocab_size": TOTAL_VOCAB,
-            "context_dim": CONTEXT_DIM,  # 35 — new
-            "context_schema_version": 2,
+            "context_dim": args.context_dim,
+            "context_schema_version": 2 if args.context_dim >= CONTEXT_DIM else 1,
         },
         "version": args.version,
         "training_meta": {
@@ -284,8 +321,13 @@ def main() -> int:
             "best_val_loss": round(best_val_loss, 4),
             "total_train_sec": total_train_sec,
             "pitcher_disjoint": True,
-            "context_dim_added": "ump_accuracy_above_x (prior-season, "
-                                 "NULL-filled with season league median)",
+            "context_dim": args.context_dim,
+            "context_dim_added": (
+                "ump_accuracy_above_x (prior-season, NULL-filled with "
+                "season league median)"
+                if args.context_dim >= CONTEXT_DIM
+                else "none (v1 schema: 34-dim categoricals only)"
+            ),
         },
         "history": history,
     }
@@ -298,7 +340,8 @@ def main() -> int:
     # pick it up by version tag without touching pitchgpt_v1.pt.
     models_dir = _ROOT / "models"
     models_dir.mkdir(parents=True, exist_ok=True)
-    versioned_path = models_dir / f"pitchgpt_v{args.version}.pt"
+    model_fname = args.model_filename or f"pitchgpt_v{args.version}.pt"
+    versioned_path = models_dir / model_fname
     torch.save(ckpt, versioned_path)
     logger.info("wrote %s", versioned_path)
 
@@ -308,7 +351,7 @@ def main() -> int:
             "version": args.version,
             "artifact": str(artifact_path),
             "versioned_copy": str(versioned_path),
-            "context_dim": CONTEXT_DIM,
+            "context_dim": args.context_dim,
             "params": int(params),
             "history": history,
             "best_epoch": best_epoch,
@@ -321,7 +364,7 @@ def main() -> int:
                 "unique_rounded": uniq,
                 "min": round(min(sample_ump_vals), 4) if sample_ump_vals else None,
                 "max": round(max(sample_ump_vals), 4) if sample_ump_vals else None,
-            },
+            } if sample_ump_vals else {"skipped": True, "reason": "context_dim<35"},
         }, indent=2),
         encoding="utf-8",
     )

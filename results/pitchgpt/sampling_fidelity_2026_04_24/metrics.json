@@ -1,0 +1,296 @@
+{
+  "timestamp_utc": "2026-04-24T18:43:58Z",
+  "seed": 42,
+  "device": "cuda",
+  "pitchgpt_checkpoint": "C:\\Users\\hunte\\projects\\baseball\\models\\pitchgpt_v2.pt",
+  "lstm_checkpoint": "C:\\Users\\hunte\\projects\\baseball\\models\\pitch_lstm_10k.pt",
+  "context_dim": 35,
+  "config": {
+    "n_pas_requested": 2000,
+    "n_pas_drawn": 2000,
+    "n_samples_per_pa": 10,
+    "horizon": 6,
+    "temperature": 1.0,
+    "max_train_games_lstm": 10000,
+    "epochs_lstm": 5
+  },
+  "metrics": {
+    "pitch_type_kl": {
+      "pg_point": 0.0597,
+      "pg_ci95_lo": 0.0516,
+      "pg_ci95_hi": 0.073,
+      "lstm_point": 0.0717,
+      "lstm_ci95_lo": 0.0618,
+      "lstm_ci95_hi": 0.0878,
+      "diff_point_pg_minus_lstm": -0.012,
+      "diff_ci95_lo": -0.0189,
+      "diff_ci95_hi": -0.0055,
+      "n_bootstrap": 1000
+    },
+    "zone_kl": {
+      "pg_point": 0.0149,
+      "pg_ci95_lo": 0.0128,
+      "pg_ci95_hi": 0.0206,
+      "lstm_point": 0.0338,
+      "lstm_ci95_lo": 0.0298,
+      "lstm_ci95_hi": 0.0416,
+      "diff_point_pg_minus_lstm": -0.0189,
+      "diff_ci95_lo": -0.0224,
+      "diff_ci95_hi": -0.0152,
+      "n_bootstrap": 1000
+    },
+    "velocity_wasserstein": {
+      "pg_point": 1.6335,
+      "pg_ci95_lo": 1.5594,
+      "pg_ci95_hi": 1.7139,
+      "lstm_point": 1.912,
+      "lstm_ci95_lo": 1.8153,
+      "lstm_ci95_hi": 2.0199,
+      "diff_point_pg_minus_lstm": -0.2785,
+      "diff_ci95_lo": -0.3292,
+      "diff_ci95_hi": -0.2284,
+      "n_bootstrap": 1000
+    },
+    "transition_frobenius": {
+      "pg_point": 1.4818,
+      "pg_ci95_lo": 1.3866,
+      "pg_ci95_hi": 1.7369,
+      "lstm_point": 1.3195,
+      "lstm_ci95_lo": 1.2556,
+      "lstm_ci95_hi": 1.6028,
+      "diff_point_pg_minus_lstm": 0.1623,
+      "diff_ci95_lo": 0.0078,
+      "diff_ci95_hi": 0.2497,
+      "n_bootstrap": 1000
+    },
+    "outcome_chi2": {
+      "pg_point": 3.0733,
+      "pg_ci95_lo": 2.7665,
+      "pg_ci95_hi": 3.3956,
+      "lstm_point": 3.0733,
+      "lstm_ci95_lo": 2.7665,
+      "lstm_ci95_hi": 3.3956,
+      "diff_point_pg_minus_lstm": 0.0,
+      "diff_ci95_lo": 0.0,
+      "diff_ci95_hi": 0.0,
+      "n_bootstrap": 1000
+    }
+  },
+  "diagnostics": {
+    "chi_square": {
+      "pitch_type_pg": 73210.306,
+      "pitch_type_lstm": 85108.696,
+      "zone_pg": 5639.554,
+      "zone_lstm": 10457.415,
+      "pitch_type_p_pg_uncorrected": 0.0,
+      "pitch_type_p_lstm_uncorrected": 0.0,
+      "zone_p_pg_uncorrected": 0.0,
+      "zone_p_lstm_uncorrected": 0.0,
+      "note": "Chi-square stat with expected counts from empirical distribution; p-values uncorrected for multiple tests."
+    },
+    "pitch_type_distribution": {
+      "labels": [
+        "FF",
+        "SI",
+        "FC",
+        "SL",
+        "CU",
+        "CH",
+        "FS",
+        "KC",
+        "KN",
+        "EP",
+        "CS",
+        "SV",
+        "ST",
+        "SC",
+        "FO",
+        "FA",
+        "UN"
+      ],
+      "empirical": [
+        0.347,
+        0.1337,
+        0.075,
+        0.1338,
+        0.0771,
+        0.0924,
+        0.0386,
+        0.0137,
+        0.0001,
+        0.003,
+        0.0,
+        0.0017,
+        0.078,
+        0.0,
+        0.0022,
+        0.0037,
+        0.0
+      ],
+      "pitchgpt": [
+        0.3088,
+        0.2002,
+        0.0778,
+        0.141,
+        0.0664,
+        0.0904,
+        0.0379,
+        0.0275,
+        0.0021,
+        0.0012,
+        0.0006,
+        0.0112,
+        0.0295,
+        0.0002,
+        0.0013,
+        0.002,
+        0.0018
+      ],
+      "lstm": [
+        0.2971,
+        0.2017,
+        0.0748,
+        0.1652,
+        0.0722,
+        0.0971,
+        0.0236,
+        0.0302,
+        0.0007,
+        0.0015,
+        0.0007,
+        0.0045,
+        0.0249,
+        0.0001,
+        0.0014,
+        0.0022,
+        0.0021
+      ]
+    },
+    "outcome_distribution": {
+      "empirical": {
+        "strikeout": 0.2455,
+        "walk": 0.1075,
+        "in_play": 0.647
+      },
+      "pitchgpt": {
+        "strikeout": 1.0,
+        "walk": 0.0,
+        "in_play": 0.0
+      },
+      "lstm": {
+        "strikeout": 1.0,
+        "walk": 0.0,
+        "in_play": 0.0
+      }
+    }
+  },
+  "stratified_kl_by_context": {
+    "count": {
+      "0-0": {
+        "n_pas": 1996,
+        "pg_kl": 0.0599,
+        "lstm_kl": 0.0719,
+        "diff_pg_minus_lstm": -0.012
+      }
+    },
+    "leverage": {
+      "low": {
+        "n_pas": 683,
+        "pg_kl": 0.0943,
+        "lstm_kl": 0.0901,
+        "diff_pg_minus_lstm": 0.0042
+      },
+      "high": {
+        "n_pas": 628,
+        "pg_kl": 0.0768,
+        "lstm_kl": 0.0832,
+        "diff_pg_minus_lstm": -0.0064
+      },
+      "medium": {
+        "n_pas": 689,
+        "pg_kl": 0.0568,
+        "lstm_kl": 0.0777,
+        "diff_pg_minus_lstm": -0.0209
+      }
+    },
+    "inning_bucket": {
+      "early(1-3)": {
+        "n_pas": 681,
+        "pg_kl": 0.096,
+        "lstm_kl": 0.0897,
+        "diff_pg_minus_lstm": 0.0063
+      },
+      "late(7-9)": {
+        "n_pas": 604,
+        "pg_kl": 0.0851,
+        "lstm_kl": 0.0879,
+        "diff_pg_minus_lstm": -0.0028
+      },
+      "mid(4-6)": {
+        "n_pas": 689,
+        "pg_kl": 0.0568,
+        "lstm_kl": 0.0777,
+        "diff_pg_minus_lstm": -0.0209
+      },
+      "extra(10+)": {
+        "n_pas": 26,
+        "pg_kl": 0.1763,
+        "lstm_kl": 0.2361,
+        "diff_pg_minus_lstm": -0.0598
+      }
+    }
+  },
+  "wall_clock": {
+    "pg_sampling_sec": 1.6,
+    "lstm_sampling_sec": 1.1,
+    "pa_fetch_sec": 4.7,
+    "metric_computation_sec": 39.2
+  },
+  "lstm_meta": {
+    "params": 837282,
+    "epoch_best": 5,
+    "best_val_loss": 4.7697,
+    "history": [
+      {
+        "epoch": 1,
+        "train_loss": 5.0275,
+        "val_loss": 4.9638,
+        "train_ppl": 152.552,
+        "val_ppl": 143.13,
+        "wall_clock_sec": 30.6
+      },
+      {
+        "epoch": 2,
+        "train_loss": 4.6939,
+        "val_loss": 4.8371,
+        "train_ppl": 109.277,
+        "val_ppl": 126.104,
+        "wall_clock_sec": 35.3
+      },
+      {
+        "epoch": 3,
+        "train_loss": 4.6329,
+        "val_loss": 4.8004,
+        "train_ppl": 102.807,
+        "val_ppl": 121.563,
+        "wall_clock_sec": 28.5
+      },
+      {
+        "epoch": 4,
+        "train_loss": 4.6053,
+        "val_loss": 4.7793,
+        "train_ppl": 100.012,
+        "val_ppl": 119.017,
+        "wall_clock_sec": 26.5
+      },
+      {
+        "epoch": 5,
+        "train_loss": 4.588,
+        "val_loss": 4.7697,
+        "train_ppl": 98.296,
+        "val_ppl": 117.882,
+        "wall_clock_sec": 26.4
+      }
+    ]
+  }
+}

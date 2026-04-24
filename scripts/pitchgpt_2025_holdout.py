@@ -104,16 +104,24 @@ def _set_seed(seed: int) -> None:
 def load_pitchgpt_checkpoint(path: Path, device: torch.device) -> PitchGPTModel:
     ck = torch.load(str(path), map_location=device, weights_only=True)
     cfg = ck["config"]
+    # Infer the checkpoint's context_dim from the shape of
+    # ``context_proj.weight`` rather than trusting ``config``.  v1
+    # checkpoints predate the ``context_dim`` config key and were
+    # trained with CONTEXT_DIM=34 (no ump scalar); v2 is 35.
+    ctx_weight = ck["model_state_dict"]["context_proj.weight"]
+    context_dim = int(ctx_weight.shape[1])
     model = PitchGPTModel(
         vocab_size=cfg.get("vocab_size", TOTAL_VOCAB),
         d_model=cfg["d_model"],
         nhead=cfg["nhead"],
         num_layers=cfg["num_layers"],
         max_seq_len=cfg["max_seq_len"],
+        context_dim=context_dim,
     )
     model.load_state_dict(ck["model_state_dict"])
     model.to(device)
     model.eval()
+    model.context_dim = context_dim  # for downstream dataset-building
     return model
 
 
@@ -134,11 +142,17 @@ def per_pitch_nll_neural(
     loader = DataLoader(
         dataset, batch_size=batch_size, shuffle=False, collate_fn=_collate_fn,
     )
+    # v1 PitchGPT has context_dim=34 while datasets default to 35 — slice
+    # the tail (ump scalar) so v1 can be scored against a 35-dim dataset.
+    from src.analytics.pitchgpt import CONTEXT_DIM as _DATASET_CTX_DIM
+    m_ctx_dim = getattr(model, "context_dim", _DATASET_CTX_DIM)
     nlls: list[np.ndarray] = []
     for tokens, ctx, target in loader:
         tokens = tokens.to(device)
         ctx = ctx.to(device)
         target = target.to(device)
+        if ctx.size(-1) > m_ctx_dim:
+            ctx = ctx[..., :m_ctx_dim]
 
         logits = model(tokens, ctx)  # (B, S, V)
         log_probs = torch.nn.functional.log_softmax(logits, dim=-1)
@@ -246,6 +260,7 @@ def train_lstm(
     lr: float,
     batch_size: int,
     seed: int,
+    context_dim: int | None = None,
 ) -> tuple[PitchLSTMNetwork, dict]:
     _set_seed(seed)
     train_loader = DataLoader(
@@ -255,7 +270,10 @@ def train_lstm(
         val_ds, batch_size=batch_size, shuffle=False, collate_fn=_collate_fn,
     )
 
-    model = PitchLSTMNetwork().to(device)
+    if context_dim is None:
+        model = PitchLSTMNetwork().to(device)
+    else:
+        model = PitchLSTMNetwork(context_dim=context_dim).to(device)
     optimizer = torch.optim.AdamW(model.parameters(), lr=lr)
     criterion = nn.CrossEntropyLoss(ignore_index=PAD_TOKEN)
 
@@ -360,12 +378,31 @@ def main() -> int:
     parser.add_argument(
         "--db-path", type=str, default=None,
     )
+    parser.add_argument(
+        "--context-dim",
+        type=int,
+        default=None,
+        help=("Context tensor width for datasets + LSTM retrain.  "
+              "Default = inferred from PitchGPT checkpoint (v1=34, v2=35) "
+              "so LSTM and baselines match what PitchGPT saw at training "
+              "time.  Pass explicitly to override."),
+    )
     args = parser.parse_args()
 
     args.output_dir.mkdir(parents=True, exist_ok=True)
     _set_seed(args.seed)
     device = _get_device()
     logger.info("device=%s  seed=%d  checkpoint=%s", device, args.seed, args.checkpoint)
+
+    # Infer context_dim from the checkpoint if not explicitly set — so
+    # LSTM + baselines + datasets all see the same context width that
+    # PitchGPT saw at training time.  For v1 (34) this hides the ump
+    # scalar; for v2 (35) the full width is used.
+    if args.context_dim is None:
+        _ck_peek = torch.load(str(args.checkpoint), map_location="cpu", weights_only=True)
+        args.context_dim = int(_ck_peek["model_state_dict"]["context_proj.weight"].shape[1])
+        del _ck_peek
+    logger.info("context_dim resolved to %d", args.context_dim)
 
     # ── 1. Load datasets with the SAME pitcher-disjoint split as the
     #      training run that produced the PitchGPT checkpoint.  The
@@ -391,6 +428,7 @@ def main() -> int:
             val_range=VAL_RANGE,
             test_range=HOLDOUT_RANGE,
             max_games_per_split=args.max_train_games,
+            context_dim=args.context_dim,
         )
         val_ds = PitchSequenceDataset(
             conn,
@@ -400,6 +438,7 @@ def main() -> int:
             test_range=HOLDOUT_RANGE,
             max_games_per_split=args.max_val_games,
             exclude_pitcher_ids=train_pitchers_all,
+            context_dim=args.context_dim,
         )
         # Holdout = 2025 pitches, strictly pitcher-disjoint from train.
         holdout_ds = PitchSequenceDataset(
@@ -410,6 +449,7 @@ def main() -> int:
             test_range=HOLDOUT_RANGE,
             max_games_per_split=args.max_holdout_games,
             exclude_pitcher_ids=train_pitchers_all,
+            context_dim=args.context_dim,
         )
     finally:
         conn.close()
@@ -436,11 +476,14 @@ def main() -> int:
     logger.info("PitchGPT loaded (%d params)",
                 sum(p.numel() for p in pitchgpt.parameters()))
 
-    # ── 3. Train LSTM on the same split.
+    # ── 3. Train LSTM on the same split with the same context_dim as
+    #      PitchGPT — keeps the baseline apples-to-apples with the
+    #      v1 (34) vs v2 (35) runs.
     lstm, lstm_meta = train_lstm(
         train_ds, val_ds, device,
         epochs=args.epochs, lr=args.lr,
         batch_size=args.batch_size, seed=args.seed,
+        context_dim=args.context_dim,
     )
 
     # ── 4. Fit closed-form baselines on train.

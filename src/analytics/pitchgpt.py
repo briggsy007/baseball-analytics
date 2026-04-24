@@ -721,6 +721,7 @@ class PitchSequenceDataset(Dataset):
         test_range: tuple[int, int] = (2024, 2024),
         max_games_per_split: int | None = None,
         exclude_pitcher_ids: set[int] | None = None,
+        context_dim: int = CONTEXT_DIM,
     ) -> None:
         """Loads a PyTorch Dataset of pitch sequences.
 
@@ -765,6 +766,16 @@ class PitchSequenceDataset(Dataset):
         self.exclude_pitcher_ids: set[int] = (
             set(int(p) for p in exclude_pitcher_ids) if exclude_pitcher_ids else set()
         )
+        # ``context_dim`` controls the width of the per-pitch context
+        # tensor.  Default is module-level CONTEXT_DIM (35, v2 schema
+        # with the umpire scalar at index 34).  Pass ``context_dim=34``
+        # to reproduce the v1 schema (categoricals only, no ump) — the
+        # loader drops the umpire slot at sequence-build time.
+        if context_dim > CONTEXT_DIM or context_dim < 1:
+            raise ValueError(
+                f"context_dim={context_dim} must be in [1, {CONTEXT_DIM}]"
+            )
+        self.context_dim = context_dim
 
         if split_mode is not None:
             # Hard guard: the three ranges must be disjoint.
@@ -1020,6 +1031,11 @@ class PitchSequenceDataset(Dataset):
             target_tokens = torch.tensor(tokens[1:], dtype=torch.long)
             context_tensor = torch.stack(contexts[:-1])  # aligned with input
 
+            # Drop the tail (umpire scalar) if caller requested a
+            # narrower schema (v1: context_dim=34).  No-op at default.
+            if self.context_dim < CONTEXT_DIM:
+                context_tensor = context_tensor[:, : self.context_dim]
+
             self.sequences.append((input_tokens, context_tensor, target_tokens))
 
         logger.info(
@@ -1053,8 +1069,10 @@ def _collate_fn(batch):
             [target, torch.full((pad_len,), PAD_TOKEN, dtype=torch.long)]
         )
         if pad_len > 0:
+            # Use ctx's own last dim so collate works regardless of the
+            # dataset's context_dim (v1: 34, v2: 35).
             ctx_padded = torch.cat(
-                [ctx, torch.zeros(pad_len, CONTEXT_DIM)]
+                [ctx, torch.zeros(pad_len, ctx.size(-1))]
             )
         else:
             ctx_padded = ctx
@@ -1092,14 +1110,19 @@ class PitchGPTModel(nn.Module):
         num_layers: int = DEFAULT_LAYERS,
         max_seq_len: int = DEFAULT_MAX_SEQ,
         dropout: float = 0.1,
+        context_dim: int = CONTEXT_DIM,
     ) -> None:
         super().__init__()
         self.d_model = d_model
         self.max_seq_len = max_seq_len
+        # Store so checkpoints can round-trip the schema version.
+        # Default is module-level CONTEXT_DIM (35, v2 schema); v1 checkpoints
+        # were trained with 34 and the loader infers from state_dict shape.
+        self.context_dim = context_dim
 
         # Embeddings
         self.token_embedding = nn.Embedding(vocab_size, d_model, padding_idx=PAD_TOKEN)
-        self.context_proj = nn.Linear(CONTEXT_DIM, d_model)
+        self.context_proj = nn.Linear(context_dim, d_model)
         self.pos_embedding = nn.Embedding(max_seq_len, d_model)
 
         # Transformer decoder layers (self-attention only)
@@ -1398,7 +1421,11 @@ def train_pitchgpt(
 # ═════════════════════════════════════════════════════════════════════════════
 
 def _load_model(version: str = "1") -> PitchGPTModel:
-    """Load a trained PitchGPT checkpoint."""
+    """Load a trained PitchGPT checkpoint.
+
+    Infers ``context_dim`` from the checkpoint's
+    ``context_proj.weight`` shape so v1 (34) and v2 (35) both load.
+    """
     device = _get_device()
     path = _MODEL_DIR / f"pitchgpt_v{version}.pt"
     if not path.exists():
@@ -1407,12 +1434,15 @@ def _load_model(version: str = "1") -> PitchGPTModel:
         )
     checkpoint = torch.load(path, map_location=device, weights_only=True)
     cfg = checkpoint["config"]
+    ctx_weight = checkpoint["model_state_dict"]["context_proj.weight"]
+    context_dim = int(ctx_weight.shape[1])
     model = PitchGPTModel(
         vocab_size=cfg.get("vocab_size", TOTAL_VOCAB),
         d_model=cfg["d_model"],
         nhead=cfg["nhead"],
         num_layers=cfg["num_layers"],
         max_seq_len=cfg["max_seq_len"],
+        context_dim=context_dim,
     )
     model.load_state_dict(checkpoint["model_state_dict"])
     model.to(device)
@@ -1544,6 +1574,12 @@ def _score_sequences(
         input_tokens = torch.tensor(tokens_list[:-1], dtype=torch.long).unsqueeze(0).to(device)
         target_tokens = torch.tensor(tokens_list[1:], dtype=torch.long).to(device)
         context_tensor = torch.stack(contexts_list[:-1]).unsqueeze(0).to(device)
+
+        # Match the model's context schema: v1 (34) needs the ump scalar
+        # sliced off; v2+ uses the full CONTEXT_DIM width.
+        m_ctx_dim = getattr(model, "context_dim", CONTEXT_DIM)
+        if context_tensor.size(-1) > m_ctx_dim:
+            context_tensor = context_tensor[..., :m_ctx_dim]
 
         with torch.no_grad():
             logits = model(input_tokens, context_tensor)  # (1, S, V)

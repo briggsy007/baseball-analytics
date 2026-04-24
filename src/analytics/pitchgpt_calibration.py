@@ -90,10 +90,18 @@ def gather_predictions(
     tgt_logp: list[np.ndarray] = []
     logits_chunks: list[np.ndarray] = []
 
+    # Match the model's context schema: v1 models have context_dim=34
+    # while datasets default to 35.  Slice the tail (ump scalar) if
+    # needed so v1 can be scored against a 35-dim dataset.
+    from src.analytics.pitchgpt import CONTEXT_DIM as _DATASET_CTX_DIM
+    m_ctx_dim = getattr(model, "context_dim", _DATASET_CTX_DIM)
+
     for tokens, ctx, target in loader:
         tokens = tokens.to(device)
         ctx = ctx.to(device)
         target = target.to(device)
+        if ctx.size(-1) > m_ctx_dim:
+            ctx = ctx[..., :m_ctx_dim]
 
         logits = model(tokens, ctx)  # (B, S, V)
         log_probs = F.log_softmax(logits, dim=-1)

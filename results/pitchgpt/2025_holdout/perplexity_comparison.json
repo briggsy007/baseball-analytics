@@ -1,14 +1,14 @@
 {
-  "timestamp_utc": "2026-04-19T00:28:44Z",
+  "timestamp_utc": "2026-04-24T03:53:27Z",
   "seed": 42,
   "device": "cuda",
-  "checkpoint": "C:\\Users\\hunte\\projects\\baseball\\results\\validate_pitchgpt_20260418T150305Z\\pitchgpt_full.pt",
+  "checkpoint": "models\\pitchgpt_v2.pt",
   "train_range": "2015-2022",
   "val_range": "2023",
   "holdout_range": "2025",
-  "max_train_games": 1000,
-  "max_val_games": 300,
-  "max_holdout_games": 500,
+  "max_train_games": 10000,
+  "max_val_games": 1000,
+  "max_holdout_games": 2000,
   "epochs_lstm": 5,
   "leakage_audit": {
     "shared_game_pks": 0,
@@ -17,104 +17,104 @@
     "shared_game_pks_val_test": 0,
     "shared_pitcher_ids_train_test": 0,
     "shared_pitcher_ids_train_val": 0,
-    "n_train_game_pks": 1000,
-    "n_val_game_pks": 300,
-    "n_test_game_pks": 500,
-    "n_train_pitchers": 1426,
-    "n_val_pitchers": 115,
-    "n_test_pitchers": 334
+    "n_train_game_pks": 9998,
+    "n_val_game_pks": 998,
+    "n_test_game_pks": 1998,
+    "n_train_pitchers": 2094,
+    "n_val_pitchers": 161,
+    "n_test_pitchers": 469
   },
-  "n_train_sequences": 8412,
-  "n_val_sequences": 469,
-  "n_holdout_sequences": 1535,
+  "n_train_sequences": 85621,
+  "n_val_sequences": 1504,
+  "n_holdout_sequences": 5915,
   "models": {
     "pitchgpt": {
       "source": "results/validate_pitchgpt_20260418T150305Z/pitchgpt_full.pt (pitcher-disjoint)",
-      "params": 1398562,
+      "params": 1398690,
       "holdout_perplexity": {
-        "point": 152.187,
-        "ci95_lo": 150.086,
-        "ci95_hi": 154.265,
-        "n_pitches": 53723,
+        "point": 118.645,
+        "ci95_lo": 117.903,
+        "ci95_hi": 119.43,
+        "n_pitches": 202923,
         "n_bootstrap": 1000
       }
     },
     "lstm": {
       "source": "freshly trained on train_ds (pitcher-disjoint from 2025)",
-      "params": 837154,
+      "params": 837282,
       "epoch_best": 5,
-      "best_val_loss": 5.1488,
+      "best_val_loss": 4.7593,
       "history": [
         {
           "epoch": 1,
-          "train_loss": 5.7778,
-          "val_loss": 5.643,
-          "train_ppl": 323.044,
-          "val_ppl": 282.315,
-          "wall_clock_sec": 6.4
+          "train_loss": 5.028,
+          "val_loss": 4.9799,
+          "train_ppl": 152.624,
+          "val_ppl": 145.459,
+          "wall_clock_sec": 40.5
         },
         {
           "epoch": 2,
-          "train_loss": 5.2421,
-          "val_loss": 5.3914,
-          "train_ppl": 189.073,
-          "val_ppl": 219.516,
-          "wall_clock_sec": 5.4
+          "train_loss": 4.6921,
+          "val_loss": 4.8336,
+          "train_ppl": 109.083,
+          "val_ppl": 125.665,
+          "wall_clock_sec": 44.6
         },
         {
           "epoch": 3,
-          "train_loss": 5.0663,
-          "val_loss": 5.2781,
-          "train_ppl": 158.588,
-          "val_ppl": 195.996,
-          "wall_clock_sec": 5.4
+          "train_loss": 4.6312,
+          "val_loss": 4.7856,
+          "train_ppl": 102.637,
+          "val_ppl": 119.772,
+          "wall_clock_sec": 45.1
         },
         {
           "epoch": 4,
-          "train_loss": 4.951,
-          "val_loss": 5.1979,
-          "train_ppl": 141.316,
-          "val_ppl": 180.892,
-          "wall_clock_sec": 5.3
+          "train_loss": 4.6044,
+          "val_loss": 4.7652,
+          "train_ppl": 99.92,
+          "val_ppl": 117.352,
+          "wall_clock_sec": 45.2
         },
         {
           "epoch": 5,
-          "train_loss": 4.8746,
-          "val_loss": 5.1488,
-          "train_ppl": 130.926,
-          "val_ppl": 172.225,
-          "wall_clock_sec": 5.4
+          "train_loss": 4.5873,
+          "val_loss": 4.7593,
+          "train_ppl": 98.229,
+          "val_ppl": 116.662,
+          "wall_clock_sec": 45.0
         }
       ],
       "holdout_perplexity": {
-        "point": 176.554,
-        "ci95_lo": 174.058,
-        "ci95_hi": 179.036,
-        "n_pitches": 53723,
+        "point": 122.483,
+        "ci95_lo": 121.608,
+        "ci95_hi": 123.294,
+        "n_pitches": 202923,
         "n_bootstrap": 1000
       }
     },
     "markov2": {
       "source": "fitted on train_ds (2015-2022, pitcher-disjoint)",
       "params": 0,
-      "fit_seconds": 17.7,
+      "fit_seconds": 37.2,
       "holdout_perplexity": {
-        "point": 352.657,
-        "ci95_lo": 348.082,
-        "ci95_hi": 357.483,
-        "n_pitches": 53723,
+        "point": 344.347,
+        "ci95_lo": 341.929,
+        "ci95_hi": 346.705,
+        "n_pitches": 202923,
         "n_bootstrap": 1000
       }
     },
     "heuristic": {
       "source": "fitted on train_ds (2015-2022, pitcher-disjoint)",
       "params": 0,
-      "fit_seconds": 1.5,
+      "fit_seconds": 3.5,
       "holdout_perplexity": {
-        "point": 471.856,
-        "ci95_lo": 466.807,
-        "ci95_hi": 476.669,
-        "n_pitches": 53723,
+        "point": 469.899,
+        "ci95_lo": 467.29,
+        "ci95_hi": 472.55,
+        "n_pitches": 202923,
         "n_bootstrap": 1000
       }
     }
@@ -122,27 +122,27 @@
   "gates": {
     "vs_lstm": {
       "threshold_pct": 15.0,
-      "point_pct": 13.8,
-      "ci95_lo": 12.22,
-      "ci95_hi": 15.51,
+      "point_pct": 3.13,
+      "ci95_lo": 2.19,
+      "ci95_hi": 4.05,
       "pass_point": false,
       "pass_ci_lower_bound": false,
       "name": "PitchGPT vs LSTM"
     },
     "vs_markov2": {
       "threshold_pct": 20.0,
-      "point_pct": 56.85,
-      "ci95_lo": 55.96,
-      "ci95_hi": 57.64,
+      "point_pct": 65.54,
+      "ci95_lo": 65.23,
+      "ci95_hi": 65.87,
       "pass_point": true,
       "pass_ci_lower_bound": true,
       "name": "PitchGPT vs Markov-2"
     },
     "vs_heuristic": {
       "threshold_pct": 25.0,
-      "point_pct": 67.75,
-      "ci95_lo": 67.18,
-      "ci95_hi": 68.29,
+      "point_pct": 74.75,
+      "ci95_lo": 74.55,
+      "ci95_hi": 74.96,
       "pass_point": true,
       "pass_ci_lower_bound": true,
       "name": "PitchGPT vs Heuristic"
