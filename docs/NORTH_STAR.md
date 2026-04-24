@@ -193,3 +193,57 @@ The Path 2 reset above posited four flagships (CausalWAR, PitchGPT, VWR, DPI) ba
 - Re-promote VWR. The small-sample-artifact lesson is locked in.
 - Spin sub-spec numbers. PitchGPT's 13.80% LSTM delta is the number; the -2.8pp 2023→24 CausalWAR naive-lift is the number.
 - Build new models to replace VWR in the flagship slot. Three strong flagships beats four with one fake.
+
+---
+
+# 2026-04-24 update — PitchGPT scale-verify + sim-engine reframe
+
+## What changed
+
+Two concurrent workstreams this session produced evidence that further narrows PitchGPT's flagship claim and reframes its role:
+
+1. **Scale-verify (matched 10K LSTM).** The 2026-04-18 "13.80% LSTM improvement" was a 1K-vs-1K number. At matched 10K scale on the same pitcher-disjoint 2025 holdout:
+   - v1 (context_dim=34, no ump): **+2.57%** vs LSTM (CI +1.68 / +3.43) — **FAIL** 15% gate.
+   - v2 (context_dim=35, +ump): **+3.13%** vs LSTM (CI +2.19 / +4.05) — **FAIL** 15% gate.
+   - Umpire feature contributes +0.56 pp (within noise). Calibration survives (ECE post-temp v1=0.0090, v2=0.0075). Markov-2 and Heuristic gates still PASS with wide margins (>65%, >74%).
+   - This is the VWR scale-verify pattern recurring. Per `feedback_scale_verify_before_flagship.md`, small-sample LSTM deltas do not replicate at scale. The 13.80% number is retired as a live claim (historical only).
+
+2. **Sampling-fidelity eval (2000 PAs × 10 samples, 1000-iter bootstrap).** Tested whether PitchGPT's calibration translates to higher-fidelity simulated sequences vs a matched LSTM:
+   - PitchGPT WINS 3/5 marginals, Bonferroni-corrected: pitch_type_kl, zone_kl, velocity_wasserstein.
+   - LSTM WINS on 2-gram Frobenius (sequential transitions).
+   - Outcome χ² degenerate under a zone-heuristic proxy; informative only after the Phase 0.3 learned outcome head lands.
+
+## Flagship claim — further narrowed
+
+The sim-engine plan (`docs/pitchgpt_sim_engine/EXECUTION_PLAN.md`) §3.1 locks a stricter gate: for Phase 0.1 PASS, metric 4 (2-gram Frobenius — the sequence-awareness pillar) is **mandatory** among the wins. Metric 4 was lost to LSTM. Phase 0.1 FAILS under that gate; the claim narrows accordingly.
+
+**Allowed PitchGPT claims going forward:**
+- "Calibrated rollout engine" — primary, unconditional. ECE post-temp <0.02 on 2025 pitcher-disjoint OOS is the load-bearing number.
+- "Matches empirical marginal distributions (pitch type, zone, velocity) with calibrated uncertainty" — narrowed positive from sampling-fidelity marginals.
+- "Beats naive baselines by wide margins at matched 10K scale" — Markov-2 +65%, Heuristic +74%, CI-lower-bound PASS on both.
+
+**Not allowed:**
+- "Beats LSTM by spec margin on perplexity" — retracted (small-sample).
+- "Sequence-aware sampling superior to LSTM" — retracted (metric-4 loss).
+- Deceptiveness leaderboard (A4) — **demoted to Tier C** pending longer-horizon sequencing study or a different validation angle (per `EXECUTION_PLAN.md` §3.1 lock).
+
+## PitchGPT remains a flagship — under sim-engine reframe
+
+Three flagships stand: **DPI, CausalWAR, PitchGPT (as calibrated rollout engine)**. PitchGPT's forward value is as the **simulation backbone** for Tier-A downstream products:
+- A1: counterfactual pitch-call grades (simulated xwOBA delta per real pitch)
+- A2: probabilistic pitcher projections with real 90%/95% CI bands
+- A3: matchup sim (batter × pitcher wOBA distribution histograms)
+
+Tier B (live-game WP upgrade, reliever decision support, anomalous-outing detector, pitch-mix recommendation) and Tier C (umpire-conditioned strategy, behind ABS-drift gate) follow after Phase 1 lands at least two items.
+
+**Critical path is Phase 0.3** — train the 7-class PA outcome head on a frozen v2 backbone (design locked 2026-04-24 after a smoke comparison: joint route blew the calibration budget 2.5×; frozen preserves paper-checkpoint ECE). See `docs/pitchgpt_sim_engine/pa_outcome_head_design.md`.
+
+Cross-session coordination lives at `docs/pitchgpt_sim_engine/COORDINATION.md` — read this first when resuming sim-engine work.
+
+## What we explicitly do NOT do (2026-04-24 update)
+
+- Retry to close the LSTM perplexity gap by scaling up model capacity (6L/256d) or training longer. The sim-engine claim is about simulation fidelity + calibration, not next-token dominance. Retired as a goal.
+- Re-promote the 13.80% LSTM-beat number in any paper, dashboard, or tweet. It was a small-sample artifact; the locked number is 2.57-3.13% at matched 10K scale.
+- Ship A4 (deceptiveness leaderboard) without either (a) a longer-horizon sequencing study that restores a transformer 2-gram win, or (b) a regression-on-SwStr% analysis that beats a pitch-mix-entropy baseline.
+- Build umpire-centric edge products without an ABS-era drift check (`feedback_no_umpire_edges_until_abs_drift_check.md` still applies — C1 is gated).
+- Build new models. Path 2 constraint unchanged. The sim engine is a wrapping of the existing v2 backbone + an outcome head, not a new model.

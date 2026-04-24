@@ -206,15 +206,86 @@ calibration is not a fluke of feature selection" result. Do not
 re-promote the LSTM-gate number; the honesty-note from the Path 2
 reset stands.
 
-### 4.5 Follow-up tickets (deferred)
+### 4.5 Follow-up tickets (status updated in §5)
 
-- Full 10K-game retrain with ump context — confirm whether the
-  v1→v2 calibration drop holds at scale. Expected wall-clock ~90
-  min (within budget on a second GPU pass, not in this ticket's 2h).
-- Ump-scalar ablation at 10K (train v2-ump vs v2-no-ump) —
-  isolate whether the calibration improvement is the ump scalar
-  or sample variance between the two runs.
-- Per-at-bat ump scalar rather than per-pitch — the current
-  feature is constant within a game (the HP ump doesn't change),
-  so the per-pitch broadcast wastes information. A cleaner design
-  bakes it into an at-bat-level context token.
+- Full 10K-game retrain with ump context — **CLOSED** by §5.2. Actual wall-clock 8.5 min on RTX 3050 (docstring 4h25m estimate was stale).
+- Ump-scalar ablation at 10K — **CLOSED** by §5.1 + §5.2. v1 (context_dim=34) is effectively the v2-no-ump baseline at 10K; delta is +0.56 pp, within noise.
+- Per-at-bat ump scalar — **deferred indefinitely.** ABS drift risk (`feedback_no_umpire_edges_until_abs_drift_check.md`) makes further umpire-feature investment low-EV.
+
+---
+
+## 5. 10K matched-scale + sampling-fidelity (2026-04-24)
+
+Sections 3 and 4.1 reported 1K-vs-1K LSTM deltas (13.80% and 11.79%). Under scale-verify discipline (`feedback_scale_verify_before_flagship.md`), headline claims must replicate at larger matched scale. This section reports matched 10K retrains for both v1 and v2 plus a sampling-fidelity eval that tests the sim-engine reframe.
+
+### 5.1 v1 retrained at 10K (context_dim=34, no ump)
+
+- Artifact: `models/pitchgpt_v1_10k.pt`. Original `models/pitchgpt_v1.pt` preserved verbatim.
+- Results: `results/pitchgpt/2025_holdout_v1_10k/`.
+- Protocol: 2015-2022 train, 2023 val, 2025 holdout; pitcher-disjoint; seed 42; 5 epochs; batch 32; lr 1e-3.
+
+| Model | 2025 PPL | 95% CI |
+|---|---:|---|
+| PitchGPT v1 @ 10K | **119.829** | 119.09 – 120.60 |
+| LSTM (matched 10K) | ~122.9 | — |
+| Markov-2 | ~344 | — |
+| Heuristic | ~470 | — |
+
+| Gate | Point | CI-lower | Verdict |
+|---|---:|---:|:---|
+| vs LSTM (≥15%) | **+2.57%** | +1.68% | **FAIL** |
+| vs Markov-2 (≥20%) | +65.17% | +64.84% | PASS |
+| vs Heuristic (≥25%) | +74.35% | +74.14% | PASS |
+
+Calibration 2025: ECE pre 0.0131, post 0.0090 (T=1.048) — PASS.
+
+### 5.2 v2 retrained at 10K (context_dim=35, with ump)
+
+- Artifact: `models/pitchgpt_v2.pt` (replaces the 1K smoke from §4). `models/pitchgpt_v2_smoke.pt` preserves the prior smoke.
+- Results: `results/pitchgpt/2025_holdout/` (updated in-place with 10K numbers).
+- Same protocol as §5.1; same split seeds.
+
+| Gate | Point | CI-lower | Verdict |
+|---|---:|---:|:---|
+| vs LSTM (≥15%) | **+3.13%** | +2.19% | **FAIL** |
+| vs Markov-2 (≥20%) | +65.54% | +65.23% | PASS |
+| vs Heuristic (≥25%) | +74.75% | +74.55% | PASS |
+
+Calibration 2025: ECE pre 0.0124, post **0.0075** (T=1.055) — PASS, best-ever for PitchGPT.
+
+### 5.3 Interpretation — 1K→10K scale gap
+
+The 13.80% and 11.79% headlines do NOT replicate at matched 10K. Both architectures improve with scale; LSTM closes more ground than PitchGPT does, collapsing the gap to 2.6-3.1%. The ump feature (v2 vs v1) contributes +0.56 pp — within noise given overlapping CIs. This is the VWR scale-verify pattern from 2026-04-18; the lesson applies. Do NOT re-promote small-sample LSTM deltas.
+
+### 5.4 Sampling-fidelity eval
+
+Tests the sim-engine claim: can PitchGPT generate higher-fidelity pitch sequences than a matched LSTM? 2000 2025 pitcher-disjoint PAs × 10 samples per model, temperature=1.0, horizon=6; 1000-iteration bootstrap on each of 5 distributional metrics.
+
+- Artifact: `results/pitchgpt/sampling_fidelity_2026_04_24/`.
+- LSTM checkpoint: `models/pitch_lstm_10k.pt` (persisted for reuse by Phase 0.4+ of the sim engine).
+
+| Metric | PG | LSTM | Δ (PG−LSTM) | 95% CI on Δ | Verdict |
+|---|---:|---:|---:|---|:---|
+| pitch_type_kl | 0.0597 | 0.0717 | −0.012 | [−0.019, −0.006] | **PG WIN** |
+| zone_kl | 0.0149 | 0.0338 | −0.019 | [−0.022, −0.015] | **PG WIN** |
+| velocity_wasserstein | 1.63 | 1.91 | −0.28 | [−0.33, −0.23] | **PG WIN** |
+| transition_frobenius | 1.48 | 1.32 | +0.16 | [+0.008, +0.25] | **LSTM win** |
+| outcome_chi2 | 3.07 | 3.07 | 0.00 | [0.00, 0.00] | Tie (degenerate proxy) |
+
+Three PG wins survive Bonferroni correction at α=0.01. The pattern is mechanistically coherent: **transformers win on context-conditioned marginals (what pitches look like), LSTMs win on sequence dynamics (how pitches flow)**. The outcome_chi2 is degenerate under the zone-based ball/strike heuristic; a learned outcome head (Phase 0.3 of the sim-engine plan) will replace it.
+
+### 5.5 Updated verdict + flagship framing
+
+- **LSTM perplexity gate 15%:** FAIL at matched 10K. v1 +2.57%, v2 +3.13%. 1K headline did not replicate. Retired as a live claim.
+- **Markov-2 gate 20%:** PASS (v1 +65.17%, v2 +65.54%). Stable across scale.
+- **Heuristic gate 25%:** PASS (v1 +74.35%, v2 +74.75%). Stable.
+- **Calibration gate ECE 0.10:** PASS (v1 post-temp 0.0090, v2 0.0075). Durable across 1K→10K and across OOS windows.
+- **Sampling-fidelity (sim-engine claim):** PitchGPT wins 3/5 marginals with CIs excluding zero, loses 2-gram transitions. Per sim-engine plan §3.1 locked gate (metric 4 mandatory), Phase 0.1 FAILS. Claim narrows to "calibrated rollout engine that matches empirical marginals with CIs."
+
+**Flagship status preserved under the narrowed framing.** PitchGPT's go-forward value is as the simulation backbone for Tier-A downstream products (counterfactual pitch-call grades, probabilistic projections with CIs, matchup sim). See `docs/pitchgpt_sim_engine/EXECUTION_PLAN.md` for the full roadmap and `docs/pitchgpt_sim_engine/COORDINATION.md` for cross-session coordination.
+
+### 5.6 Infrastructure added in this session
+
+- `CONTEXT_DIM` parameterized across `src/analytics/pitchgpt.py`, `pitchgpt_calibration.py`, `scripts/pitchgpt_2025_holdout.py`, `scripts/train_pitchgpt_v2_ump.py`. Default preserved at 35 (backwards-compat). v1 (34) and v2 (35) checkpoints load from one codebase; loader infers from state_dict shape.
+- `scripts/pitchgpt_sampling_fidelity.py` — new 2077-line harness for the §5.4 eval. Bootstrap CIs over 5 distributional metrics + stratified-by-context analysis.
+- `models/pitch_lstm_10k.pt` — matched LSTM baseline checkpoint, persisted for reuse by Phase 0.4 outcome-head OOS validation.
