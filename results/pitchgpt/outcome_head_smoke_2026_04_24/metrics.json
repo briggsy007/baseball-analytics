@@ -1,0 +1,128 @@
+{
+  "config": {
+    "train_games": 500,
+    "eval_games": 100,
+    "batch_size": 8,
+    "lr": 0.001,
+    "epochs_joint": 2,
+    "epochs_frozen": 3,
+    "lambda_outcome": 0.5,
+    "train_range": [
+      2015,
+      2022
+    ],
+    "eval_range": [
+      2023,
+      2023
+    ],
+    "seed": 42,
+    "device": "cuda"
+  },
+  "baselines": {
+    "uniform_log_loss": 1.9459101490553135,
+    "train_prior_log_loss": 1.6413527597156445,
+    "train_outcome_distribution": {
+      "ball": 0.3663246228717407,
+      "called_strike": 0.16160498936762335,
+      "swinging_strike": 0.11023419771939089,
+      "foul": 0.1921748562131613,
+      "in_play_out": 0.11204669682741297,
+      "in_play_hit": 0.05471749275713939,
+      "hbp": 0.0028971442435313764
+    },
+    "eval_outcome_distribution": {
+      "ball": 0.3704824639487271,
+      "called_strike": 0.15524301228413745,
+      "swinging_strike": 0.0902617055367634,
+      "foul": 0.20313334520206516,
+      "in_play_out": 0.11465194943920243,
+      "in_play_hit": 0.06320099697347338,
+      "hbp": 0.0030265266156311197
+    },
+    "reference_v2_backbone_ece": 0.009272001881350696,
+    "reference_v2_backbone_accuracy": 0.04771230194053765,
+    "n_train_valid_outcomes": 140138,
+    "n_eval_valid_outcomes": 5617
+  },
+  "joint": {
+    "log_loss": 1.6445224285125732,
+    "ece": 0.017111880081668113,
+    "backbone_token_ece": 0.02192157093227939,
+    "backbone_token_accuracy": 0.04094712479971515,
+    "n_tokens": 5617,
+    "n_outcome_labels": 5617,
+    "per_class_log_loss": {
+      "0": 0.9553447961807251,
+      "1": 1.9576183557510376,
+      "2": 2.152766227722168,
+      "3": 1.6552895307540894,
+      "4": 2.257471799850464,
+      "5": 2.8463478088378906,
+      "6": 5.750822067260742
+    },
+    "train_seconds": 14.2,
+    "history": [
+      {
+        "epoch": 1,
+        "train_token_loss": 4.6658,
+        "train_outcome_loss": 1.7004,
+        "seconds": 6.6
+      },
+      {
+        "epoch": 2,
+        "train_token_loss": 4.587,
+        "train_outcome_loss": 1.6459,
+        "seconds": 6.6
+      }
+    ]
+  },
+  "frozen": {
+    "log_loss": 1.6337488889694214,
+    "ece": 0.010329151394444893,
+    "backbone_token_ece": 0.009272001881350696,
+    "backbone_token_accuracy": 0.04771230194053765,
+    "n_tokens": 5617,
+    "n_outcome_labels": 5617,
+    "per_class_log_loss": {
+      "0": 1.0166881084442139,
+      "1": 1.7626744508743286,
+      "2": 2.1958532333374023,
+      "3": 1.6543867588043213,
+      "4": 2.16351056098938,
+      "5": 2.898223876953125,
+      "6": 5.933201313018799
+    },
+    "train_seconds": 6.7,
+    "history": [
+      {
+        "epoch": 1,
+        "train_outcome_loss": 1.6956,
+        "seconds": 2.4
+      },
+      {
+        "epoch": 2,
+        "train_outcome_loss": 1.6379,
+        "seconds": 2.2
+      },
+      {
+        "epoch": 3,
+        "train_outcome_loss": 1.633,
+        "seconds": 2.2
+      }
+    ]
+  },
+  "verdict": {
+    "decision": "FROZEN",
+    "rationale": [
+      "ref v2 backbone token ECE = 0.0093 (eval slice); budget = +0.0050",
+      "joint  backbone token ECE = 0.0219  (delta vs ref = +0.0126)",
+      "frozen backbone token ECE = 0.0093  (delta vs ref = +0.0000)",
+      "joint  7-class log-loss   = 1.6445  (ece=0.0171)",
+      "frozen 7-class log-loss   = 1.6337  (ece=0.0103)",
+      "joint exceeded ECE budget (+0.0126 > +0.0050); falling back to frozen per \u00a74.1 hard constraint."
+    ],
+    "joint_ece_degradation": 0.012649569050928695,
+    "frozen_ece_degradation": 0.0,
+    "log_loss_delta_joint_minus_frozen": 0.010773539543151855
+  }
+}
