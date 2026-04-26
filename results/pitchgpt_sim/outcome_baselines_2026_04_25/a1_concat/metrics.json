@@ -1,0 +1,424 @@
+{
+  "variant": "a1_concat",
+  "config": {
+    "train_games": 10000,
+    "val_games": 2000,
+    "test_games": 2000,
+    "batch_size": 32,
+    "lr": 0.001,
+    "epochs_requested": 5,
+    "patience": 2,
+    "class_weight_cap": 10.0,
+    "seed": 42,
+    "n_boot": 1000,
+    "device": "cuda",
+    "best_epoch": 3,
+    "temperature": 0.8003096499977166,
+    "class_weights": {
+      "ball": 0.36804720759391785,
+      "called_strike": 0.8204116821289062,
+      "swinging_strike": 1.2357630729675293,
+      "foul": 0.695588231086731,
+      "in_play_out": 1.1931527853012085,
+      "in_play_hit": 1.3435184955596924,
+      "hbp": 1.3435184955596924
+    }
+  },
+  "cohort": {
+    "train_sequences": 85879,
+    "val_sequences": 1890,
+    "test_sequences": 5956,
+    "train_valid_outcomes": 2793715,
+    "val_valid_outcomes": 75384,
+    "test_valid_outcomes": 204513,
+    "train_freq_prior": {
+      "ball": 0.3650397409900437,
+      "called_strike": 0.1637615146856426,
+      "swinging_strike": 0.1087197512988977,
+      "foul": 0.19314854951202967,
+      "in_play_out": 0.11260239501881902,
+      "in_play_hit": 0.05401553129077232,
+      "hbp": 0.002712517203794947
+    },
+    "n_unique_test_pitchers": 473
+  },
+  "training": {
+    "history": [
+      {
+        "epoch": 1,
+        "train_loss_weighted": 1.5543,
+        "val_log_loss": 1.375,
+        "seconds": 23.2
+      },
+      {
+        "epoch": 2,
+        "train_loss_weighted": 1.5068,
+        "val_log_loss": 1.385,
+        "seconds": 23.5
+      },
+      {
+        "epoch": 3,
+        "train_loss_weighted": 1.4966,
+        "val_log_loss": 1.3555,
+        "seconds": 24.2
+      },
+      {
+        "epoch": 4,
+        "train_loss_weighted": 1.4921,
+        "val_log_loss": 1.3698,
+        "seconds": 23.8
+      },
+      {
+        "epoch": 5,
+        "train_loss_weighted": 1.49,
+        "val_log_loss": 1.3737,
+        "seconds": 23.7
+      }
+    ],
+    "best_epoch": 3,
+    "wall_clock_seconds": 119.3
+  },
+  "val_metrics": {
+    "log_loss_pre_temp": 1.3555446863174438,
+    "log_loss_post_temp": 1.3438804149627686,
+    "ece_pre_temp": 0.06755118980089735,
+    "ece_post_temp": 0.017223988777590103,
+    "freq_prior_log_loss": 1.648779223129149,
+    "lift_post_temp": 0.18492397519889037,
+    "temperature": 0.8003096499977166
+  },
+  "test_metrics": {
+    "log_loss_pre_temp": 1.360062837600708,
+    "log_loss_post_temp": 1.3506721258163452,
+    "ece_pre_temp": 0.0614403106926628,
+    "ece_post_temp": 0.011409712028199842,
+    "freq_prior_log_loss": 1.6534831196362672,
+    "lift_pre_temp": 0.1774558678894198,
+    "lift_post_temp": 0.1831352193583532,
+    "log_loss_post_ci_lo": 1.3471381604671477,
+    "log_loss_post_ci_hi": 1.354370653629303,
+    "lift_ci_lo": 0.18103484159236988,
+    "lift_ci_hi": 0.18531771672538208,
+    "per_class_log_loss": {
+      "ball": 0.9623799920082092,
+      "called_strike": 1.2916587591171265,
+      "swinging_strike": 1.439900279045105,
+      "foul": 1.596185564994812,
+      "in_play_out": 1.6069532632827759,
+      "in_play_hit": 2.342233657836914,
+      "hbp": 3.023425817489624
+    },
+    "top1_accuracy": 0.46709500129576115,
+    "per_pitcher_log_loss": [
+      {
+        "pitcher_id": 676440,
+        "n": 2734,
+        "log_loss": 1.3362548351287842
+      },
+      {
+        "pitcher_id": 808967,
+        "n": 2709,
+        "log_loss": 1.3644275665283203
+      },
+      {
+        "pitcher_id": 701542,
+        "n": 2706,
+        "log_loss": 1.2832660675048828
+      },
+      {
+        "pitcher_id": 668909,
+        "n": 2563,
+        "log_loss": 1.316288709640503
+      },
+      {
+        "pitcher_id": 694297,
+        "n": 2536,
+        "log_loss": 1.3711698055267334
+      },
+      {
+        "pitcher_id": 667755,
+        "n": 2488,
+        "log_loss": 1.319685697555542
+      },
+      {
+        "pitcher_id": 671106,
+        "n": 2481,
+        "log_loss": 1.3231548070907593
+      },
+      {
+        "pitcher_id": 663623,
+        "n": 2470,
+        "log_loss": 1.395938515663147
+      },
+      {
+        "pitcher_id": 683004,
+        "n": 2372,
+        "log_loss": 1.3193037509918213
+      },
+      {
+        "pitcher_id": 694973,
+        "n": 2355,
+        "log_loss": 1.3390834331512451
+      },
+      {
+        "pitcher_id": 682990,
+        "n": 2229,
+        "log_loss": 1.3454151153564453
+      },
+      {
+        "pitcher_id": 680732,
+        "n": 2150,
+        "log_loss": 1.315652847290039
+      },
+      {
+        "pitcher_id": 681343,
+        "n": 2132,
+        "log_loss": 1.3313932418823242
+      },
+      {
+        "pitcher_id": 680730,
+        "n": 2125,
+        "log_loss": 1.3892141580581665
+      },
+      {
+        "pitcher_id": 608372,
+        "n": 2119,
+        "log_loss": 1.4013506174087524
+      },
+      {
+        "pitcher_id": 671737,
+        "n": 2005,
+        "log_loss": 1.3633626699447632
+      },
+      {
+        "pitcher_id": 671096,
+        "n": 2000,
+        "log_loss": 1.396061658859253
+      },
+      {
+        "pitcher_id": 693433,
+        "n": 1860,
+        "log_loss": 1.3796707391738892
+      },
+      {
+        "pitcher_id": 677944,
+        "n": 1841,
+        "log_loss": 1.309430480003357
+      },
+      {
+        "pitcher_id": 702070,
+        "n": 1803,
+        "log_loss": 1.3236075639724731
+      },
+      {
+        "pitcher_id": 700249,
+        "n": 1781,
+        "log_loss": 1.3212939500808716
+      },
+      {
+        "pitcher_id": 695418,
+        "n": 1774,
+        "log_loss": 1.3627036809921265
+      },
+      {
+        "pitcher_id": 801403,
+        "n": 1757,
+        "log_loss": 1.2741637229919434
+      },
+      {
+        "pitcher_id": 673540,
+        "n": 1682,
+        "log_loss": 1.3187556266784668
+      },
+      {
+        "pitcher_id": 694738,
+        "n": 1671,
+        "log_loss": 1.3680262565612793
+      },
+      {
+        "pitcher_id": 694477,
+        "n": 1620,
+        "log_loss": 1.3571182489395142
+      },
+      {
+        "pitcher_id": 684007,
+        "n": 1588,
+        "log_loss": 1.3931833505630493
+      },
+      {
+        "pitcher_id": 686563,
+        "n": 1527,
+        "log_loss": 1.3629285097122192
+      },
+      {
+        "pitcher_id": 686799,
+        "n": 1526,
+        "log_loss": 1.3279539346694946
+      },
+      {
+        "pitcher_id": 682243,
+        "n": 1525,
+        "log_loss": 1.3421064615249634
+      },
+      {
+        "pitcher_id": 676962,
+        "n": 1508,
+        "log_loss": 1.3608647584915161
+      },
+      {
+        "pitcher_id": 687473,
+        "n": 1466,
+        "log_loss": 1.3526887893676758
+      },
+      {
+        "pitcher_id": 678024,
+        "n": 1462,
+        "log_loss": 1.308941125869751
+      },
+      {
+        "pitcher_id": 682052,
+        "n": 1442,
+        "log_loss": 1.343461036682129
+      },
+      {
+        "pitcher_id": 656550,
+        "n": 1394,
+        "log_loss": 1.2973874807357788
+      },
+      {
+        "pitcher_id": 693645,
+        "n": 1394,
+        "log_loss": 1.3561514616012573
+      },
+      {
+        "pitcher_id": 676282,
+        "n": 1385,
+        "log_loss": 1.2685433626174927
+      },
+      {
+        "pitcher_id": 672456,
+        "n": 1382,
+        "log_loss": 1.32076895236969
+      },
+      {
+        "pitcher_id": 680885,
+        "n": 1368,
+        "log_loss": 1.3788182735443115
+      },
+      {
+        "pitcher_id": 676467,
+        "n": 1361,
+        "log_loss": 1.3995513916015625
+      },
+      {
+        "pitcher_id": 700241,
+        "n": 1346,
+        "log_loss": 1.371174693107605
+      },
+      {
+        "pitcher_id": 663568,
+        "n": 1334,
+        "log_loss": 1.330976128578186
+      },
+      {
+        "pitcher_id": 669387,
+        "n": 1301,
+        "log_loss": 1.3621450662612915
+      },
+      {
+        "pitcher_id": 691587,
+        "n": 1293,
+        "log_loss": 1.312502384185791
+      },
+      {
+        "pitcher_id": 669372,
+        "n": 1276,
+        "log_loss": 1.3468334674835205
+      },
+      {
+        "pitcher_id": 687765,
+        "n": 1263,
+        "log_loss": 1.3727748394012451
+      },
+      {
+        "pitcher_id": 681347,
+        "n": 1236,
+        "log_loss": 1.3454368114471436
+      },
+      {
+        "pitcher_id": 690990,
+        "n": 1193,
+        "log_loss": 1.3660879135131836
+      },
+      {
+        "pitcher_id": 677958,
+        "n": 1190,
+        "log_loss": 1.374865174293518
+      },
+      {
+        "pitcher_id": 681517,
+        "n": 1174,
+        "log_loss": 1.3532531261444092
+      }
+    ],
+    "per_pitcher_summary": {
+      "mean": 1.3455038452148438,
+      "var": 0.0010277074367283149,
+      "min": 1.2685433626174927,
+      "max": 1.4013506174087524,
+      "n_pitchers": 50
+    }
+  },
+  "vs_a3": {
+    "a3_metrics_path": "C:\\Users\\hunte\\projects\\baseball\\results\\pitchgpt_sim\\outcome_baselines_2026_04_25\\a3_xgboost\\metrics.json",
+    "a3_test_freq_ll": 1.6515836355093199,
+    "a3_test_lift_post": 0.16122521065179585,
+    "n_paired_rows": 204513,
+    "n_a1_rows": 204513,
+    "n_a3_rows": 210482,
+    "delta_lift": {
+      "delta_point": 0.0247684044283647,
+      "delta_ci_lo": 0.022379886152090096,
+      "delta_ci_hi": 0.027189111969981895,
+      "lift_a1_point": 0.18340805617678035,
+      "lift_a3_point": 0.15863965174841566,
+      "boot_mean": 0.024791956404872757,
+      "boot_std": 0.0012376759252808506
+    },
+    "delta_log_loss": {
+      "delta_point": -0.04096782207489014,
+      "delta_ci_lo": -0.04496586620807648,
+      "delta_ci_hi": -0.037008562684059144
+    }
+  },
+  "gates": {
+    "verdict_a1": "WEAKER PASS",
+    "verdict_ship": "SHIP A1",
+    "PASS_lift_threshold": 0.1,
+    "PASS_ci_lo_threshold": 0.05,
+    "WEAK_lift_threshold": 0.05,
+    "WEAK_ci_lo_threshold": 0.02,
+    "ECE_max": 0.05,
+    "hit_ll_PASS_max": 2.0,
+    "hit_ll_WEAK_max": 2.5,
+    "hbp_ll_PASS_max": 4.0,
+    "hbp_ll_WEAK_max": 5.0,
+    "kill_check_a1_beats_a3_min_pp": 1.0,
+    "a1_beats_a3_pp": 2.47684044283647
+  },
+  "backbone_byte_identity": {
+    "v2_pt_sha256_pre": "6f952054d14ac6f918f3eb9502b496b70bc0c87dfc65dc50d98ee7244a62883c",
+    "v2_pt_sha256_post": "6f952054d14ac6f918f3eb9502b496b70bc0c87dfc65dc50d98ee7244a62883c",
+    "v2_pt_size_pre": 5616625,
+    "v2_pt_size_post": 5616625,
+    "backbone_param_sha256_pre": "c9b79869f0dc6da75821f0de3a0d3b32e920ef128c0fc19c7f127a375529fb12",
+    "backbone_param_sha256_post": "c9b79869f0dc6da75821f0de3a0d3b32e920ef128c0fc19c7f127a375529fb12",
+    "identity_verified": true,
+    "phase03_ckpt_present": true,
+    "phase03_ckpt_sha256": "6b47f97dd69604355f598bd3fc52bc1b34a41ea9854f5cd23060f6c64cbb54a0"
+  },
+  "checkpoint": {
+    "path": "C:\\Users\\hunte\\projects\\baseball\\models\\pitchgpt_v2_outcomehead_a1.pt",
+    "size_bytes": 151289
+  }
+}

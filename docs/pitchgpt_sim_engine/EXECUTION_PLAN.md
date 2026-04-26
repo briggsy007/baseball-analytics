@@ -209,8 +209,23 @@ Each dossier follows: Goal / Edge claim / Methodology / Artifacts / Success crit
 - **Artifacts.** New checkpoint at `models/pitchgpt_v2_outcomehead.pt`. Does NOT overwrite `models/pitchgpt_v2.pt` — the paper checkpoint stays frozen.
 - **Success criteria.** 7-class log-loss lower than a frequency-prior baseline by ≥15% on 2025 pitcher-disjoint holdout. ECE (10-bin) < 0.05 post-temperature. Backbone next-token ECE un-degraded by more than +0.005 (see §4.1).
 - **Dependencies.** 0.2.
-- **Effort.** M (~1 day GPU).
-- **Status.** not started.
+- **Effort.** M (~1 day GPU). Actual training: 159 sec (5 epochs, early-stopped at ep3 of 10).
+- **Status. PARTIAL FAIL — 2026-04-24 (results) / 2026-04-25 (logged).** Log-loss gate FAIL; ECE + backbone-integrity gates PASS.
+  - 7-class log-loss post-temp: 1.7367 vs frequency-prior 1.6487 → **−5.34% lift (FAIL the +15% gate; model is WORSE than constant frequency prior).**
+  - ECE post-temp 0.0213 (PASS <0.05). Pre-temp 0.0054 — temperature scaling sharpened (T=0.7488) and incidentally hurt ECE while reducing log-loss. T<1 means head logits were too smooth pre-fit.
+  - Backbone byte-identity verified pre/post (frozen by construction). v2.pt SHA256 unchanged.
+  - Per-class log-loss: ball/called_strike/swinging_strike/foul all near frequency prior (~1.66–1.69). `in_play_out` 1.74. `in_play_hit` **2.58** and `hbp` **5.96** — the head catastrophically fails on the rare classes. Inverse-frequency capped-at-10× weights were insufficient to force discrimination.
+  - **Diagnosis:** The frozen backbone hidden state alone is insufficient for outcome discrimination — the model essentially regresses to the prior with noise on rare classes. The 0.2 smoke (1.634 log-loss, +0.47% vs prior at 100-game eval) was within sampling noise of the now-observed −5.34% — small-scale smokes are not reliable for log-loss gates.
+  - **Implications:** Critical-path unblocker is not yet earned. Three options under consideration: (a) larger head + context-vector concat at head input (cheap retry, recover discriminative info the hidden state alone may have lost), (b) revisit joint training despite 0.2's ECE-budget verdict, (c) accept null and narrow sim engine to pitch-token rollouts only (no outcome rollouts; A1/A2/A3 would need a separate xwOBA model). User decision pending.
+  - Artifacts: `models/pitchgpt_v2_outcomehead.pt` (39KB), `results/pitchgpt/outcome_head_train_2026_04_24/{metrics.json,report.md,train.log}`, `scripts/pitchgpt_outcome_head_train.py`.
+
+- **UPDATE — 2026-04-26 — REOPENED + RESOLVED via A1 (Plan B Step 2).** Phase 0.3 is **COMPLETE; A1 ships.** The −5.34% diagnosis was wrong: it was a head-capacity issue, not a backbone-information issue. Plan B ran four candidate predictors on the same 7-class target / 2025 pitcher-disjoint holdout (~204K rows). A1 (frozen v2 backbone + concat-input 3-layer MLP head, 211→128→64→7 over `concat(hidden[128] + context[35] + pitch_type_oh[17] + zone_oh[26] + velo_oh[5])`) lifts **+18.31%** vs frequency prior (CI [+18.10%, +18.53%]); ECE post-T 0.0114; HBP log-loss 3.02 (first variant under <4.0 PASS); `in_play_hit` log-loss 2.34 (misses full <2.0 PASS, clears WEAKER <2.5).
+  - **Verdict:** WEAKER PASS — clears 4 of 5 PASS gates; misses `in_play_hit` < 2.0 because hit-vs-out depends on launch_speed/launch_angle (post-pitch features no variant has access to). Tier-A consumers inherit this ceiling and must disclose.
+  - **A1 vs A3 paired bootstrap (204,513-row intersection):** A1 − A3 lift delta **+2.48 pp** (CI [+2.24, +2.72]) — clears the ship-A1 threshold by ~2×. CI excludes zero by ~22 SE. The PG v2 backbone DOES carry outcome-discriminative information beyond engineered features; Phase 0.3's frozen-MLP-on-hidden-state alone simply lacked the head capacity (and the concatenated pitch-token + context features) to decode it.
+  - **Comparison vs other Plan B variants (2025 holdout):** A4 logistic +17.35% (ECE 0.0264, hbp 4.91); A3 XGBoost +16.12% (ECE 0.0181, hbp 3.57); A5 empirical +4.33% (FAIL kill criterion). A1 wins on overall lift, ECE, and HBP per-class log-loss. Per-pitcher stability (top-50 most-frequent test pitchers): A1 mean log-loss 1.346, var 0.0010, range [1.27, 1.40] — best in study; tightens the upper end vs A3's 1.91 outlier.
+  - **Backbone integrity verified:** `models/pitchgpt_v2.pt` SHA256 pre/post identical (`6f952054…62883c`). Phase 0.3 checkpoint at `models/pitchgpt_v2_outcomehead.pt` preserved untouched (`6b47f97d…cbb54a0`). A1 head saved to **NEW path** `models/pitchgpt_v2_outcomehead_a1.pt`.
+  - **Artifacts:** `results/pitchgpt_sim/outcome_baselines_2026_04_25/SUMMARY.md` (Plan B summary), `results/pitchgpt_sim/outcome_baselines_2026_04_25/a1_concat/{metrics.json, report.md, train.log}`, A1 training script `scripts/pitchgpt_outcome_a1_concat.py`, shared cohort code `scripts/pitchgpt_outcome_baselines_common.py`.
+  - **Implication:** Critical-path unblocker is earned. Phase 0.5 + 0.6 unblocked. Tier-A consumers (A1 grades, A2 projections, A3 matchup sims) can be scaffolded against the API. The production OutcomePredictor is `PGConcatHeadPredictor` (see `SIM_ENGINE_API.md` §4) backed by `models/pitchgpt_v2_outcomehead_a1.pt`. The Phase 0.3 checkpoint is preserved for replay-ability of the FAIL artifact but is NOT production.
 
 #### 0.4 — Outcome-head OOS validation
 
@@ -220,7 +235,7 @@ Each dossier follows: Goal / Edge claim / Methodology / Artifacts / Success crit
 - **Success criteria.** Matches 0.3 thresholds on fresh 2025 data; per-pitcher log-loss 5th–95th percentile band width < 0.5 nats (sanity — pitcher-specific drift is bounded).
 - **Dependencies.** 0.3.
 - **Effort.** S.
-- **Status.** not started.
+- **Status.** not started, **unblocked 2026-04-26**. A1's per-pitcher variance was already measured during Plan B Step 2 on the 2025 pitcher-disjoint holdout: top-50 most-frequent test pitchers (n≥30 each) → mean log-loss 1.346, variance 0.0010, range [1.27, 1.40]. Per-class log-loss also measured (see `results/pitchgpt_sim/outcome_baselines_2026_04_25/a1_concat/report.md`). The 0.4 ticket as scoped (per-pitcher confusion matrix + per-class reliability diagrams + 5th–95th percentile band check) remains open as a follow-up but is no longer blocking Phase 0.5/0.6.
 
 #### 0.5 — Rollout harness `src/analytics/pitchgpt_sim.py`
 
@@ -230,7 +245,7 @@ Each dossier follows: Goal / Edge claim / Methodology / Artifacts / Success crit
 - **Success criteria.** API is callable on a 10-PA batch in <5s on RTX 3050. Samples match single-pitch distribution when horizon=1 (regression check against next-token sampling).
 - **Dependencies.** 0.3.
 - **Effort.** M.
-- **Status.** not started.
+- **Status.** not started. **Production OutcomePredictor for this phase = `PGConcatHeadPredictor` per Plan B verdict 2026-04-26; checkpoint `models/pitchgpt_v2_outcomehead_a1.pt`.** See `SIM_ENGINE_API.md` §4 for the predictor spec. Implementation handed off to next session per `docs/pitchgpt_sim_engine/PHASE_0.5_PLAN.md`.
 
 #### 0.6 — Rollout sanity check on 2025
 
@@ -240,7 +255,7 @@ Each dossier follows: Goal / Edge claim / Methodology / Artifacts / Success crit
 - **Success criteria.** Sampled K%, BB%, HR% within ±10% relative or ±1pp absolute of 2025 league. Mean wOBA within ±0.015 of 2025 league.
 - **Dependencies.** 0.5.
 - **Effort.** S.
-- **Status.** not started.
+- **Status.** not started. **Production OutcomePredictor for this phase = `PGConcatHeadPredictor` per Plan B verdict 2026-04-26; checkpoint `models/pitchgpt_v2_outcomehead_a1.pt`.**
 
 ### Phase 1 — Tier A dossiers
 
@@ -544,35 +559,36 @@ Every Tier-A item must pass, before being allowed to publish a public-facing edg
 
 ## 11. Where to pick up next session
 
-**First action:** Execute Phase 0.1 — the sampling-fidelity script has been drafted as `scripts/pitchgpt_sampling_fidelity.py`. Run it end-to-end, commit results to `results/pitchgpt/sampling_fidelity_2026_04_24/`, and update this document's Phase 0 exit-criteria section with the PASS/FAIL verdict.
+**First action:** Execute Phase 0.5 — implement `src/analytics/pitchgpt_sim.py` per `docs/pitchgpt_sim_engine/SIM_ENGINE_API.md` and the new `docs/pitchgpt_sim_engine/PHASE_0.5_PLAN.md`. Production OutcomePredictor: `PGConcatHeadPredictor` backed by `models/pitchgpt_v2_outcomehead_a1.pt`. Do NOT overwrite `models/pitchgpt_v2.pt` or `models/pitchgpt_v2_outcomehead_a1.pt`.
+
+**Context.** Phase 0.1 FAILed (metric-4 loss); Phase 0.2 COMPLETE (frozen-backbone route locked); Phase 0.3 COMPLETE 2026-04-26 — Plan B Step 2 landed A1 (frozen v2 + concat-input 3-layer MLP head, 211→128→64→7). A1 lifts +18.31% over freq prior on 2025 pitcher-disjoint holdout (CI [+18.10%, +18.53%]); ECE post-T 0.0114; HBP log-loss 3.02. Verdict: WEAKER PASS — clears 4 of 5 PASS gates; misses `in_play_hit < 2.0` (structural ceiling, depends on launch_speed/launch_angle). Tier-A consumers must inherit and disclose. See `results/pitchgpt_sim/outcome_baselines_2026_04_25/SUMMARY.md`.
 
 **Exact agent prompt (paste into a fresh session):**
 
-> You are the Phase 0.1 execution agent for the PitchGPT sim engine at `C:\Users\hunte\projects\baseball`. Your task is to land the sampling-fidelity comparison vs a matched LSTM on 2025 pitcher-disjoint PA starts.
+> You are the Phase 0.5 execution agent for the PitchGPT sim engine at `C:\Users\hunte\projects\baseball`. Your task is to implement `src/analytics/pitchgpt_sim.py` per the SIM_ENGINE_API spec.
 >
 > Read first:
-> 1. `docs/pitchgpt_sim_engine/EXECUTION_PLAN.md` §5 Phase 0 and §9 Validation gates.
-> 2. `scripts/pitchgpt_sampling_fidelity.py` (already drafted — complete it if needed).
-> 3. `docs/awards/methodology_paper_pitchgpt.md` §1–3 (for claim constraints).
+> 1. `docs/pitchgpt_sim_engine/SIM_ENGINE_API.md` — the API contract.
+> 2. `docs/pitchgpt_sim_engine/PHASE_0.5_PLAN.md` — implementation breakdown.
+> 3. `docs/pitchgpt_sim_engine/EXECUTION_PLAN.md` §6.0.5 + §6.0.3 UPDATE — the production OutcomePredictor and its checkpoint.
+> 4. `docs/pitchgpt_sim_engine/COORDINATION.md` — checkpoint registry + locked decisions.
 >
 > Execute:
-> 1. Complete the script if it is not end-to-end runnable.
-> 2. Train the matched LSTM at the 10K-game scale per the script's docstring contract.
-> 3. Run the 5-metric comparison: marginal pitch-type KL, marginal zone KL, velocity Wasserstein, 2-gram Frobenius, PA-outcome-rate L1. Bootstrap CIs at 95%.
-> 4. Write `results/pitchgpt/sampling_fidelity_2026_04_24/metrics.json` + `report.md`.
-> 5. Commit ONLY the results JSON + report; do NOT commit model checkpoint files that are already committed-in-place, do NOT overwrite `models/pitchgpt_v2.pt`.
-> 6. Update `docs/pitchgpt_sim_engine/EXECUTION_PLAN.md` §5 Phase 0 exit criteria with the PASS/FAIL verdict of Phase 0.1.
+> 1. Implement the `rollout()` entry point and the `PAContext` / `RolloutResult` dataclasses per `SIM_ENGINE_API.md` §3.
+> 2. Implement the `OutcomePredictor` protocol with `PGConcatHeadPredictor` as the production implementation (loads `models/pitchgpt_v2_outcomehead_a1.pt`).
+> 3. Implement the calibration-validity contract per §6 and the aggregation utilities per §5.
+> 4. Implement the registry + checkpoint discovery per §8.
+> 5. Add unit tests at `tests/test_pitchgpt_sim.py` covering the §9 validation gates (NaN-mask round-trip, calibration-validity flag round-trip, latency on a small batch).
+> 6. Land Phase 0.6 sanity check after Phase 0.5 lands.
 >
 > Guardrails:
-> - Do NOT touch the PitchGPT v2 checkpoint. Only train the LSTM.
-> - Use read-only DuckDB connections (`read_only=True`) — user may have dashboard open.
-> - Per `feedback_pm_role.md` equivalents at the agent level: ONE agent does this, linearly; do not fan out.
-> - If the result is a null (PitchGPT loses on ≥3 of 5 metrics), commit the null result honestly; per §7.5 of the EXECUTION_PLAN it is scientifically valuable.
-> - Return a 200-word summary: verdict, key numbers, gate PASS/FAIL, any unexpected findings.
+> - Do NOT touch the v2 backbone checkpoint or the A1 head checkpoint.
+> - Use read-only DuckDB connections (`read_only=True`).
+> - Disclose the `in_play_hit` ceiling in any artifact that aggregates outcomes to wOBA / PA outcomes — per the WEAKER PASS verdict, Tier-A consumers MUST inherit.
+> - Per `feedback_pm_role.md`: act as PM, delegate implementation, do not write code directly.
+> - Run a validation agent after the implementation lands.
 
-**Second action after 0.1 lands:** Launch Phase 0.2 agent (PA-outcome head design doc). Smoke experiment — joint vs frozen-backbone — at 500 games per option. Final choice drives 0.3's full training run.
-
-**Downstream:** After Phase 0 passes its exit criteria, launch A1 + A3 in parallel as the Phase 1 opener (A1 is the most pitchable; A3 unblocks B1). Run a validation agent after the A1/A3 batch completes per `feedback_validation_agent.md`.
+**Downstream:** After Phase 0.5 + 0.6 land, launch A1 + A3 in parallel as the Phase 1 opener (A1 is the most pitchable; A3 unblocks B1). Run a validation agent after the A1/A3 batch completes per `feedback_validation_agent.md`. Tier-A consumer code MUST disclose the WEAKER PASS `in_play_hit` ceiling in any wOBA / PA-outcome aggregation.
 
 ---
 

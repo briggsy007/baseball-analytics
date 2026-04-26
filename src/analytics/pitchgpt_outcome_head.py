@@ -376,6 +376,96 @@ class FrozenOutcomeHead(nn.Module):
         return self.net(hidden_states)
 
 
+class FrozenOutcomeHeadConcat(nn.Module):
+    """3-layer MLP head over concat(hidden_state, raw_context, pitch token components).
+
+    Plan B hypothesis A1.  The frozen v2 backbone supplies a 128-D
+    per-pitch hidden state; we concatenate it with the raw 35-D
+    situational context vector that fed the backbone (count, outs,
+    runners, batter hand, inning bucket, score diff, ump scalar) plus
+    the actual pitch token's three components (pitch_type one-hot 17,
+    zone-idx one-hot 26, velocity-bucket one-hot 5) — i.e., the same
+    engineered features XGBoost (A3) sees.
+
+    Input width: ``d_model (128) + context_dim (35) + 17 + 26 + 5 = 211``.
+
+    Topology: ``211 -> 128 -> 64 -> 7`` with ReLU + dropout 0.1.
+
+    The concat head tests whether the backbone hidden state carries any
+    marginal information beyond the engineered features.  If it does,
+    A1 should beat A3; if it doesn't, A1 lands at A3's floor with
+    extra parameters.
+
+    The head is trained on a frozen backbone — backbone parameters never
+    receive gradients.  See ``scripts/pitchgpt_outcome_a1_concat.py``
+    for the training harness.
+    """
+
+    def __init__(
+        self,
+        d_model: int = 128,
+        context_dim: int = 35,
+        n_pitch_types: int = 17,
+        n_zones: int = 26,
+        n_velo_buckets: int = 5,
+        hidden_dims: tuple[int, int] = (128, 64),
+        dropout: float = 0.1,
+        n_classes: int = NUM_OUTCOME_CLASSES,
+    ):
+        super().__init__()
+        self.d_model = d_model
+        self.context_dim = context_dim
+        self.n_pitch_types = n_pitch_types
+        self.n_zones = n_zones
+        self.n_velo_buckets = n_velo_buckets
+        in_dim = d_model + context_dim + n_pitch_types + n_zones + n_velo_buckets
+        self.in_dim = in_dim
+        h1, h2 = hidden_dims
+        self.net = nn.Sequential(
+            nn.Linear(in_dim, h1),
+            nn.ReLU(),
+            nn.Dropout(dropout),
+            nn.Linear(h1, h2),
+            nn.ReLU(),
+            nn.Dropout(dropout),
+            nn.Linear(h2, n_classes),
+        )
+        for m in self.net:
+            if isinstance(m, nn.Linear):
+                nn.init.xavier_uniform_(m.weight)
+                nn.init.zeros_(m.bias)
+
+    def forward(
+        self,
+        hidden_states: torch.Tensor,
+        context: torch.Tensor,
+        pitch_type_oh: torch.Tensor,
+        zone_oh: torch.Tensor,
+        velo_oh: torch.Tensor,
+    ) -> torch.Tensor:
+        """
+        Parameters
+        ----------
+        hidden_states : (B, S, d_model)
+            Frozen backbone hidden state at each position.
+        context : (B, S, context_dim)
+            The raw situational context vector aligned with the input.
+        pitch_type_oh : (B, S, n_pitch_types)
+            One-hot of the predicted pitch's pitch_type (derived from the
+            target token at position j).
+        zone_oh : (B, S, n_zones)
+            One-hot of the predicted pitch's zone index.
+        velo_oh : (B, S, n_velo_buckets)
+            One-hot of the predicted pitch's velocity bucket.
+
+        Returns
+        -------
+        torch.Tensor of shape (B, S, n_classes)
+        """
+        x = torch.cat([hidden_states, context, pitch_type_oh, zone_oh, velo_oh], dim=-1)
+        return self.net(x)
+
+
 @torch.no_grad()
 def extract_backbone_hidden_states(
     backbone: PitchGPTModel,

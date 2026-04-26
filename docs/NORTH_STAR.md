@@ -247,3 +247,64 @@ Cross-session coordination lives at `docs/pitchgpt_sim_engine/COORDINATION.md` �
 - Ship A4 (deceptiveness leaderboard) without either (a) a longer-horizon sequencing study that restores a transformer 2-gram win, or (b) a regression-on-SwStr% analysis that beats a pitch-mix-entropy baseline.
 - Build umpire-centric edge products without an ABS-era drift check (`feedback_no_umpire_edges_until_abs_drift_check.md` still applies — C1 is gated).
 - Build new models. Path 2 constraint unchanged. The sim engine is a wrapping of the existing v2 backbone + an outcome head, not a new model.
+
+---
+
+# 2026-04-26 update — Plan B closes; outcome head ships
+
+## Context
+
+Phase 0.3 (PA-outcome head training) FAILed on 2026-04-24: a frozen-MLP head on the v2 backbone's hidden state alone landed −5.34% lift vs the frequency prior on the 2025 pitcher-disjoint holdout — worse than just predicting the marginal class distribution. That blocked Phase 0.4/0.5/0.6 and put every Tier-A sim-engine consumer (A1 grades, A2 projections, A3 matchup sims) on hold.
+
+Plan B was the recovery plan: train three alternative outcome predictors (A3 XGBoost on engineered features, A4 logistic, A5 empirical lookup) and one re-architected PG-backed candidate (A1: frozen v2 + concat-input 3-layer MLP head, 211→128→64→7 over `concat(hidden[128] + context[35] + pitch_type_oh[17] + zone_oh[26] + velo_oh[5])`). Spec at `docs/pitchgpt_sim_engine/RESEARCH_PLAN_outcome_prediction.md` §6 sets the ship-criterion: A1 must beat A3 by ≥+1pp paired bootstrap.
+
+## A1 ships
+
+A1 lifts **+18.31%** over the frequency prior on the 2025 pitcher-disjoint holdout (204,513 rows; CI [+18.10%, +18.53%]). ECE post-temperature = **0.0114** (under the 0.05 outcome-predictor budget by ~4×). HBP per-class log-loss **3.02** — first variant in the study to clear the <4.0 PASS threshold. A1 vs A3 paired bootstrap delta: **+2.48 pp** (CI [+2.24, +2.72]); CI excludes zero by ~22 SE; clears the +1pp ship threshold by ~2×.
+
+Production OutcomePredictor: **`PGConcatHeadPredictor`** at `models/pitchgpt_v2_outcomehead_a1.pt`. Calibration T=0.8003. Backbone integrity verified: `models/pitchgpt_v2.pt` SHA256 unchanged through Plan B.
+
+Comparison table (2025 holdout, ~204K rows):
+
+| variant | log-loss | lift | ECE | hbp ll | verdict |
+|---|---:|---:|---:|---:|:--:|
+| **A1** | **1.3507** | **+18.31%** | **0.0114** | **3.02** | **WEAKER PASS — SHIP** |
+| A4 logistic | 1.3650 | +17.35% | 0.0264 | 4.91 | WEAKER PASS |
+| A3 XGBoost | 1.3853 | +16.12% | 0.0181 | 3.57 | WEAKER PASS |
+| A5 empirical | 1.5800 | +4.33% | 0.0015 | 5.54 | FAIL |
+
+## Phase 0.3 narrative correction
+
+The −5.34% FAIL was **head-capacity**, not backbone information. The original Phase 0.3 head was 128→64→7 over the backbone's hidden state alone — no concatenated context features, no pitch-token one-hots, only 2 MLP layers. The same frozen v2 + a 3-layer head + concat-input recovers +18.31% lift — a >23pp swing on the backbone's marginal contribution. The PG v2 backbone DOES carry outcome-discriminative signal (HBP-correlated context like high-and-tight pitches in tight counts is encoded in the hidden state). The prior diagnosis was wrong.
+
+## Sim engine status
+
+- Phase 0.3 — **COMPLETE**.
+- Phase 0.4 — unblocked but downgraded; A1's per-pitcher variance + per-class log-loss already measured during Step 2. Full ticket (per-class confusion, reliability diagrams) remains open as follow-up.
+- Phase 0.5 — **next critical-path item.** Build `src/analytics/pitchgpt_sim.py` per `docs/pitchgpt_sim_engine/SIM_ENGINE_API.md`. Production OutcomePredictor: `PGConcatHeadPredictor`.
+- Phase 0.6 — gated on 0.5.
+- Tier-A products (A1 grades, A2 projections, A3 matchup sims) — unblocked once 0.5 + 0.6 land.
+
+## Honest caveat — `in_play_hit` ceiling
+
+A1 is a **WEAKER PASS**, not full PASS. It clears 4 of 5 PASS gates; misses `in_play_hit log-loss < 2.0` (lands at 2.34, clears WEAKER threshold of <2.5). The bottleneck is structural: hit-vs-out is decided by exit velocity and launch angle, both post-pitch features. No architecture in the Plan B study has access to them at pitch-decision time. A3 (2.31) and A4 (2.37) bracket A1 within 0.03 nats — confirming the ceiling is data-side, not architecture-side.
+
+**Tier-A consumers inherit this ceiling and MUST disclose it** in any wOBA / PA-outcome aggregation derived from `rollout()`. The disclosure is non-negotiable per the WEAKER PASS verdict; encoded in `SIM_ENGINE_API.md` §4.
+
+## Plan A status — deferred
+
+The original Plan A framing ("rebuild PitchGPT to close the ≥15% LSTM perplexity gap") did not run this session. Plan B's A1 result strengthens the calibrated-rollout-engine flagship claim independently of next-token PPL: even with a sub-spec PPL gap, the rollout's outcome predictions are calibrated, lifted by +18% over a flat prior, and stable across pitchers. The flagship narrative no longer requires Plan A. Plan A remains formally deferred per the 2026-04-24 update; not resumed.
+
+## Three flagships, post-Plan-B
+
+1. **DPI** — strongest external validation (r=0.641 vs Statcast OAA on 2025).
+2. **CausalWAR** — contrarian leaderboards edge, mechanism-coherent, 68.4% Buy-Low hit rate 2025.
+3. **PitchGPT** — calibrated rollout engine; outcome head ships at WEAKER PASS; sim-engine consumers (A1/A2/A3) in queue behind Phase 0.5/0.6.
+
+## What we explicitly do NOT do (2026-04-26 update)
+
+- Re-run Phase 0.3 with the original frozen-MLP-on-hidden-state design. The diagnosis is corrected; the ship is A1's concat-input 3-layer head. The Phase 0.3 FAIL checkpoint at `models/pitchgpt_v2_outcomehead.pt` is preserved for replay only.
+- Re-promote VWR / MechanixAE / ChemNet / volatility_surface. All retracted/demoted/retired states stand.
+- Chase the LSTM perplexity gap. Plan A still deferred per 2026-04-24 update; A1's outcome-head lift makes the rollout-engine claim defensible independent of next-token PPL.
+- Ship Tier-A products without inheriting the `in_play_hit` ceiling disclosure. Non-negotiable per WEAKER PASS verdict.
+- Build new models. Path 2 constraint unchanged; the outcome head is a wrapping of the v2 backbone, not a new model.

@@ -1,0 +1,347 @@
+{
+  "variant": "a5_empirical",
+  "config": {
+    "train_games": 10000,
+    "val_games": 2000,
+    "test_games": 2000,
+    "alpha": 1.0,
+    "seed": 42,
+    "n_boot": 1000,
+    "levels": [
+      "['pitcher_id', 'balls', 'strikes', 'pitch_type', 'stand']",
+      "['balls', 'strikes', 'pitch_type', 'stand']",
+      "['pitch_type', 'stand']",
+      "[]"
+    ]
+  },
+  "cohort": {
+    "train_rows": 2879316,
+    "val_rows": 77281,
+    "test_rows": 210482,
+    "train_freq_prior": {
+      "ball": 0.36584105391697197,
+      "called_strike": 0.16927110466513576,
+      "swinging_strike": 0.1073185437096866,
+      "foul": 0.19057130235097502,
+      "in_play_out": 0.11099684786247845,
+      "in_play_hit": 0.053304326444197164,
+      "hbp": 0.0026968210505550626
+    }
+  },
+  "val_metrics": {
+    "log_loss_pre_temp": 1.5764187168914752,
+    "log_loss_post_temp": 1.5761822039704367,
+    "ece_pre_temp": 0.004233893377459062,
+    "ece_post_temp": 0.00749885613323653,
+    "freq_prior_log_loss": 1.646866605628158,
+    "lift_pre_temp": 0.04277692467375771,
+    "lift_post_temp": 0.04292053856466438,
+    "temperature": 1.0330523262216358
+  },
+  "test_metrics": {
+    "log_loss_pre_temp": 1.5804893447222113,
+    "log_loss_post_temp": 1.5800212264123268,
+    "ece_pre_temp": 0.0066296916434676065,
+    "ece_post_temp": 0.0015327933944451735,
+    "freq_prior_log_loss": 1.6515836355093199,
+    "lift_pre_temp": 0.04304613418210845,
+    "lift_post_temp": 0.04332957021272765,
+    "log_loss_post_ci_lo": 1.5767989117720767,
+    "log_loss_post_ci_hi": 1.5827925081490393,
+    "lift_ci_lo": 0.04236836255275,
+    "lift_ci_hi": 0.044353955105469384,
+    "per_class_log_loss": {
+      "ball": 1.0150416509720805,
+      "called_strike": 1.5361895430276724,
+      "swinging_strike": 2.1094105595692074,
+      "foul": 1.6047215311844958,
+      "in_play_out": 2.132478689756132,
+      "in_play_hit": 2.8585064529015076,
+      "hbp": 5.543721992046298
+    },
+    "top1_accuracy": 0.3673995876131926,
+    "per_pitcher_log_loss": [
+      {
+        "pitcher_id": 676440,
+        "n": 2763,
+        "log_loss": 1.5871207175278452
+      },
+      {
+        "pitcher_id": 808967,
+        "n": 2738,
+        "log_loss": 1.5643203048447047
+      },
+      {
+        "pitcher_id": 701542,
+        "n": 2738,
+        "log_loss": 1.5576191085430708
+      },
+      {
+        "pitcher_id": 668909,
+        "n": 2591,
+        "log_loss": 1.545497455108995
+      },
+      {
+        "pitcher_id": 694297,
+        "n": 2565,
+        "log_loss": 1.598045924798829
+      },
+      {
+        "pitcher_id": 667755,
+        "n": 2516,
+        "log_loss": 1.5430108350485712
+      },
+      {
+        "pitcher_id": 671106,
+        "n": 2509,
+        "log_loss": 1.547168801631636
+      },
+      {
+        "pitcher_id": 663623,
+        "n": 2498,
+        "log_loss": 1.569922996900103
+      },
+      {
+        "pitcher_id": 683004,
+        "n": 2399,
+        "log_loss": 1.5877337787002817
+      },
+      {
+        "pitcher_id": 694973,
+        "n": 2381,
+        "log_loss": 1.5797696849413958
+      },
+      {
+        "pitcher_id": 682990,
+        "n": 2256,
+        "log_loss": 1.5688225428338924
+      },
+      {
+        "pitcher_id": 680732,
+        "n": 2176,
+        "log_loss": 1.5605615647286863
+      },
+      {
+        "pitcher_id": 681343,
+        "n": 2158,
+        "log_loss": 1.587399836546001
+      },
+      {
+        "pitcher_id": 680730,
+        "n": 2152,
+        "log_loss": 1.5903746899706446
+      },
+      {
+        "pitcher_id": 608372,
+        "n": 2144,
+        "log_loss": 1.5706914571438437
+      },
+      {
+        "pitcher_id": 671737,
+        "n": 2029,
+        "log_loss": 1.581528688147111
+      },
+      {
+        "pitcher_id": 671096,
+        "n": 2022,
+        "log_loss": 1.5876810210769363
+      },
+      {
+        "pitcher_id": 693433,
+        "n": 1882,
+        "log_loss": 1.6098727072590635
+      },
+      {
+        "pitcher_id": 677944,
+        "n": 1862,
+        "log_loss": 1.5615900077886324
+      },
+      {
+        "pitcher_id": 702070,
+        "n": 1823,
+        "log_loss": 1.5474035729602353
+      },
+      {
+        "pitcher_id": 695418,
+        "n": 1818,
+        "log_loss": 1.5748965190711457
+      },
+      {
+        "pitcher_id": 700249,
+        "n": 1801,
+        "log_loss": 1.551027073739629
+      },
+      {
+        "pitcher_id": 801403,
+        "n": 1778,
+        "log_loss": 1.561115689840929
+      },
+      {
+        "pitcher_id": 673540,
+        "n": 1702,
+        "log_loss": 1.5781908496691353
+      },
+      {
+        "pitcher_id": 694738,
+        "n": 1691,
+        "log_loss": 1.543837851515969
+      },
+      {
+        "pitcher_id": 694477,
+        "n": 1647,
+        "log_loss": 1.5773143738615714
+      },
+      {
+        "pitcher_id": 684007,
+        "n": 1607,
+        "log_loss": 1.603820628249667
+      },
+      {
+        "pitcher_id": 686563,
+        "n": 1546,
+        "log_loss": 1.5784282971849144
+      },
+      {
+        "pitcher_id": 686799,
+        "n": 1545,
+        "log_loss": 1.5793396582617225
+      },
+      {
+        "pitcher_id": 682243,
+        "n": 1544,
+        "log_loss": 1.5934273582057414
+      },
+      {
+        "pitcher_id": 676962,
+        "n": 1530,
+        "log_loss": 1.6253824522389408
+      },
+      {
+        "pitcher_id": 678024,
+        "n": 1506,
+        "log_loss": 1.543866148705943
+      },
+      {
+        "pitcher_id": 687473,
+        "n": 1489,
+        "log_loss": 1.6089557795896172
+      },
+      {
+        "pitcher_id": 682052,
+        "n": 1460,
+        "log_loss": 1.5452285776459087
+      },
+      {
+        "pitcher_id": 676282,
+        "n": 1415,
+        "log_loss": 1.5512617718109685
+      },
+      {
+        "pitcher_id": 693645,
+        "n": 1410,
+        "log_loss": 1.5920265809975518
+      },
+      {
+        "pitcher_id": 656550,
+        "n": 1410,
+        "log_loss": 1.562547683909472
+      },
+      {
+        "pitcher_id": 672456,
+        "n": 1402,
+        "log_loss": 1.588078441060905
+      },
+      {
+        "pitcher_id": 680885,
+        "n": 1383,
+        "log_loss": 1.6172296026373307
+      },
+      {
+        "pitcher_id": 676467,
+        "n": 1380,
+        "log_loss": 1.613016908686241
+      },
+      {
+        "pitcher_id": 700241,
+        "n": 1362,
+        "log_loss": 1.550285678487141
+      },
+      {
+        "pitcher_id": 663568,
+        "n": 1349,
+        "log_loss": 1.597860371171999
+      },
+      {
+        "pitcher_id": 669387,
+        "n": 1329,
+        "log_loss": 1.549207745444301
+      },
+      {
+        "pitcher_id": 691587,
+        "n": 1308,
+        "log_loss": 1.5303672583474341
+      },
+      {
+        "pitcher_id": 669372,
+        "n": 1296,
+        "log_loss": 1.5825930906765449
+      },
+      {
+        "pitcher_id": 687765,
+        "n": 1293,
+        "log_loss": 1.62806368424414
+      },
+      {
+        "pitcher_id": 681347,
+        "n": 1255,
+        "log_loss": 1.6115220464279845
+      },
+      {
+        "pitcher_id": 681517,
+        "n": 1230,
+        "log_loss": 1.6226430284823432
+      },
+      {
+        "pitcher_id": 690990,
+        "n": 1209,
+        "log_loss": 1.6035773004571814
+      },
+      {
+        "pitcher_id": 677958,
+        "n": 1205,
+        "log_loss": 1.5870953500850433
+      }
+    ],
+    "per_pitcher_summary": {
+      "mean": 1.5779668699441578,
+      "var": 0.0006138029138417297,
+      "min": 1.5303672583474341,
+      "max": 1.62806368424414,
+      "n_pitchers": 50
+    },
+    "depth_utilisation": {
+      "level_0": 0,
+      "level_1": 210474,
+      "level_2": 4,
+      "level_3": 4,
+      "fallback_global": 0
+    }
+  },
+  "gates": {
+    "verdict": "FAIL",
+    "PASS_lift_threshold": 0.1,
+    "PASS_ci_lo_threshold": 0.05,
+    "WEAK_lift_threshold": 0.05,
+    "WEAK_ci_lo_threshold": 0.02,
+    "ECE_max": 0.05,
+    "hit_ll_PASS_max": 2.0,
+    "hit_ll_WEAK_max": 2.5,
+    "hbp_ll_PASS_max": 4.0,
+    "hbp_ll_WEAK_max": 5.0
+  },
+  "wall_clock": {
+    "cohort_seconds": 487.86153507232666,
+    "build_seconds": 10.846256017684937,
+    "total_seconds": 583.4437029361725
+  }
+}

@@ -1,0 +1,128 @@
+15:29:28  INFO     device=cuda  train_games=10000  val_games=2000  batch=32  seed=42
+15:29:28  INFO     Computing pre-run SHA256 of C:\Users\hunte\projects\baseball\models\pitchgpt_v2.pt...
+15:29:28  INFO     v2.pt SHA256 (pre): 6f952054d14ac6f918f3eb9502b496b70bc0c87dfc65dc50d98ee7244a62883c  size=5616625 bytes
+15:29:28  INFO     Loading PitchGPT v2 backbone...
+C:\Users\hunte\projects\baseball\src\analytics\pitchgpt.py:1137: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(
+15:29:28  INFO     Backbone loaded: d_model=128, context_dim=35
+15:29:28  INFO     Backbone param-level SHA256 (pre): c9b79869f0dc6da75821f0de3a0d3b32e920ef128c0fc19c7f127a375529fb12
+15:29:28  INFO     Fetching train pitcher cohort (for pitcher-disjoint val)...
+15:29:28  INFO     Train cohort candidate pitchers: 2247
+15:29:28  INFO     Building train dataset (seasons [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022], max_games=10000)...
+15:56:57  INFO     PitchGPT dataset: 85797 sequences from 2937399 pitches.
+15:56:57  INFO     Train sequences: 85797 (1649.3s)
+15:56:57  INFO     Building val dataset (seasons [2023], pitcher-disjoint, max_games=2000)...
+15:57:34  INFO     PitchGPT dataset: 1890 sequences from 77281 pitches.
+15:57:34  INFO     Val sequences: 1890  (168 unique pitchers) (36.3s)
+15:57:34  INFO     Attaching outcome labels to train...
+15:57:46  INFO     OutcomeLabelledDataset: attached 85797 label tensors  (base sequences=85797, total tokens=2851210, UNK=62088 [2.18%])
+15:57:46  INFO     Train labels attached (12.2s)
+15:57:46  INFO     Attaching outcome labels to val...
+15:57:47  INFO     OutcomeLabelledDataset: attached 1890 label tensors  (base sequences=1890, total tokens=75384, UNK=0 [0.00%])
+15:57:47  INFO     Val labels attached (0.7s)
+15:57:47  INFO     Train valid outcomes: 2789122  Val valid outcomes: 75384
+15:57:47  INFO     Class weights (inv-freq cap=10):  {'ball': 0.368, 'called_strike': 0.821, 'swinging_strike': 1.241, 'foul': 0.695, 'in_play_out': 1.188, 'in_play_hit': 1.343, 'hbp': 1.343}
+15:57:47  INFO     Frequency-prior log-loss on val: 1.6487  (uniform: 1.9459)
+15:57:47  INFO     \u2550\u2550\u2550 Starting frozen-backbone + MLP head training \u2550\u2550\u2550
+C:\Users\hunte\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\nn\modules\transformer.py:431: UserWarning: Support for mismatched src_key_padding_mask and mask is deprecated. Use same type for both instead.
+  src_key_padding_mask = F._canonical_mask(
+15:57:50  INFO       [epoch 1] batch 0/2682  train_loss=2.6163
+15:57:53  INFO       [epoch 1] batch 200/2682  train_loss=1.8165
+15:57:55  INFO       [epoch 1] batch 400/2682  train_loss=1.7716
+15:57:57  INFO       [epoch 1] batch 600/2682  train_loss=1.8115
+15:57:59  INFO       [epoch 1] batch 800/2682  train_loss=1.7746
+15:58:01  INFO       [epoch 1] batch 1000/2682  train_loss=1.7701
+15:58:03  INFO       [epoch 1] batch 1200/2682  train_loss=1.7648
+15:58:05  INFO       [epoch 1] batch 1400/2682  train_loss=1.7670
+15:58:07  INFO       [epoch 1] batch 1600/2682  train_loss=1.7925
+15:58:09  INFO       [epoch 1] batch 1800/2682  train_loss=1.7712
+15:58:11  INFO       [epoch 1] batch 2000/2682  train_loss=1.7562
+15:58:13  INFO       [epoch 1] batch 2200/2682  train_loss=1.7607
+15:58:15  INFO       [epoch 1] batch 2400/2682  train_loss=1.7804
+15:58:17  INFO       [epoch 1] batch 2600/2682  train_loss=1.7976
+15:58:19  INFO     Epoch 1/10  train_loss(w)=1.7892  val_ll=1.7536  28.7s  (best nan @ ep0)
+15:58:19  INFO       [epoch 2] batch 0/2682  train_loss=1.7954
+15:58:21  INFO       [epoch 2] batch 200/2682  train_loss=1.7683
+15:58:23  INFO       [epoch 2] batch 400/2682  train_loss=1.7445
+15:58:25  INFO       [epoch 2] batch 600/2682  train_loss=1.7540
+15:58:27  INFO       [epoch 2] batch 800/2682  train_loss=1.7958
+15:58:29  INFO       [epoch 2] batch 1000/2682  train_loss=1.7887
+15:58:31  INFO       [epoch 2] batch 1200/2682  train_loss=1.7614
+15:58:33  INFO       [epoch 2] batch 1400/2682  train_loss=1.7998
+15:58:35  INFO       [epoch 2] batch 1600/2682  train_loss=1.7780
+15:58:38  INFO       [epoch 2] batch 1800/2682  train_loss=1.7669
+15:58:40  INFO       [epoch 2] batch 2000/2682  train_loss=1.7709
+15:58:42  INFO       [epoch 2] batch 2200/2682  train_loss=1.7702
+15:58:44  INFO       [epoch 2] batch 2400/2682  train_loss=1.7808
+15:58:46  INFO       [epoch 2] batch 2600/2682  train_loss=1.7682
+15:58:47  INFO     Epoch 2/10  train_loss(w)=1.7755  val_ll=1.7509  28.6s  (best 1.7536 @ ep1)
+15:58:47  INFO       [epoch 3] batch 0/2682  train_loss=1.7840
+15:58:49  INFO       [epoch 3] batch 200/2682  train_loss=1.7799
+15:58:51  INFO       [epoch 3] batch 400/2682  train_loss=1.7704
+15:58:54  INFO       [epoch 3] batch 600/2682  train_loss=1.7649
+15:58:56  INFO       [epoch 3] batch 800/2682  train_loss=1.7907
+15:58:58  INFO       [epoch 3] batch 1000/2682  train_loss=1.8174
+15:59:00  INFO       [epoch 3] batch 1200/2682  train_loss=1.7769
+15:59:02  INFO       [epoch 3] batch 1400/2682  train_loss=1.7669
+15:59:04  INFO       [epoch 3] batch 1600/2682  train_loss=1.7604
+15:59:06  INFO       [epoch 3] batch 1800/2682  train_loss=1.7522
+15:59:08  INFO       [epoch 3] batch 2000/2682  train_loss=1.7881
+15:59:10  INFO       [epoch 3] batch 2200/2682  train_loss=1.7758
+15:59:12  INFO       [epoch 3] batch 2400/2682  train_loss=1.7767
+15:59:15  INFO       [epoch 3] batch 2600/2682  train_loss=1.7626
+15:59:16  INFO     Epoch 3/10  train_loss(w)=1.7742  val_ll=1.7424  28.9s  (best 1.7509 @ ep2)
+15:59:16  INFO       [epoch 4] batch 0/2682  train_loss=1.7742
+15:59:18  INFO       [epoch 4] batch 200/2682  train_loss=1.7648
+15:59:20  INFO       [epoch 4] batch 400/2682  train_loss=1.7578
+15:59:23  INFO       [epoch 4] batch 600/2682  train_loss=1.7683
+15:59:25  INFO       [epoch 4] batch 800/2682  train_loss=1.7519
+15:59:27  INFO       [epoch 4] batch 1000/2682  train_loss=1.7603
+15:59:29  INFO       [epoch 4] batch 1200/2682  train_loss=1.7544
+15:59:31  INFO       [epoch 4] batch 1400/2682  train_loss=1.7658
+15:59:33  INFO       [epoch 4] batch 1600/2682  train_loss=1.7889
+15:59:35  INFO       [epoch 4] batch 1800/2682  train_loss=1.7644
+15:59:38  INFO       [epoch 4] batch 2000/2682  train_loss=1.7836
+15:59:40  INFO       [epoch 4] batch 2200/2682  train_loss=1.7682
+15:59:42  INFO       [epoch 4] batch 2400/2682  train_loss=1.7491
+15:59:44  INFO       [epoch 4] batch 2600/2682  train_loss=1.7515
+15:59:46  INFO     Epoch 4/10  train_loss(w)=1.7735  val_ll=1.7497  29.5s  (best 1.7424 @ ep3)
+15:59:46  INFO       [epoch 5] batch 0/2682  train_loss=1.7823
+15:59:48  INFO       [epoch 5] batch 200/2682  train_loss=1.7863
+15:59:50  INFO       [epoch 5] batch 400/2682  train_loss=1.7564
+15:59:52  INFO       [epoch 5] batch 600/2682  train_loss=1.7750
+15:59:54  INFO       [epoch 5] batch 800/2682  train_loss=1.7886
+15:59:56  INFO       [epoch 5] batch 1000/2682  train_loss=1.7752
+15:59:59  INFO       [epoch 5] batch 1200/2682  train_loss=1.7809
+16:00:01  INFO       [epoch 5] batch 1400/2682  train_loss=1.7553
+16:00:04  INFO       [epoch 5] batch 1600/2682  train_loss=1.7581
+16:00:07  INFO       [epoch 5] batch 1800/2682  train_loss=1.7695
+16:00:11  INFO       [epoch 5] batch 2000/2682  train_loss=1.7834
+16:00:16  INFO       [epoch 5] batch 2200/2682  train_loss=1.8088
+16:00:19  INFO       [epoch 5] batch 2400/2682  train_loss=1.7568
+16:00:23  INFO       [epoch 5] batch 2600/2682  train_loss=1.7814
+16:00:26  INFO     Epoch 5/10  train_loss(w)=1.7730  val_ll=1.7509  40.8s  (best 1.7424 @ ep3)
+16:00:26  INFO     Early stopping triggered at epoch 5 (patience=2, best val ll=1.7424 @ epoch 3).
+16:00:26  INFO     Training done in 159.0s.  Best epoch=3
+16:00:26  INFO     Backbone param-level SHA256 (post): c9b79869f0dc6da75821f0de3a0d3b32e920ef128c0fc19c7f127a375529fb12 (MATCH)
+16:00:26  INFO     Collecting val logits for temperature scaling + ECE...
+16:00:28  INFO     Val logits shape: (75384, 7)  targets: 75384  tokens: 75384
+16:00:28  INFO     Fitted temperature T = 0.7488
+16:00:29  INFO     VAL  7-class ll pre=1.7424 post=1.7367  ECE pre=0.0054 post=0.0213  freq-prior=1.6487  lift_pre=-5.68%  lift_post=-5.34%  T=0.7488
+16:00:29  INFO     VAL  backbone token ECE=0.0111  acc=0.0447
+16:00:29  INFO       per-class [ball             ] n=  27531  ll_pre=1.6952  ll_post=1.6737
+16:00:29  INFO       per-class [called_strike    ] n=  12054  ll_pre=1.6859  ll_post=1.6647
+16:00:29  INFO       per-class [swinging_strike  ] n=   8088  ll_pre=1.6542  ll_post=1.6179
+16:00:29  INFO       per-class [foul             ] n=  14372  ll_pre=1.6889  ll_post=1.6640
+16:00:29  INFO       per-class [in_play_out      ] n=   8740  ll_pre=1.7447  ll_post=1.7386
+16:00:29  INFO       per-class [in_play_hit      ] n=   4382  ll_pre=2.3714  ll_post=2.5759
+16:00:29  INFO       per-class [hbp              ] n=    217  ll_pre=4.9042  ll_post=5.9580
+16:00:29  INFO     GATE  log-loss >=15%: FAIL  (lift_post=-5.34%)
+16:00:29  INFO     GATE  ECE <0.05 post-temp: PASS  (0.0213)
+16:00:29  INFO     GATE  backbone ECE <= +0.005: PASS  (frozen by construction)
+16:00:29  INFO     Saving outcome-head checkpoint to C:\Users\hunte\projects\baseball\models\pitchgpt_v2_outcomehead.pt
+16:00:29  INFO     Saved outcome-head checkpoint (0.0 MB)
+16:00:29  INFO     v2.pt SHA256 (post): 6f952054d14ac6f918f3eb9502b496b70bc0c87dfc65dc50d98ee7244a62883c  size=5616625 bytes
+16:00:29  INFO     v2.pt byte-identity verified: PRE == POST
+16:00:29  INFO     Wrote C:\Users\hunte\projects\baseball\results\pitchgpt\outcome_head_train_2026_04_24\metrics.json
+16:00:29  INFO     Wrote C:\Users\hunte\projects\baseball\results\pitchgpt\outcome_head_train_2026_04_24\report.md
+16:00:29  INFO     \u2550\u2550\u2550 DONE.  All gates pass: False \u2550\u2550\u2550

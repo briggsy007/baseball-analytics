@@ -1,0 +1,384 @@
+{
+  "variant": "a3_xgboost",
+  "config": {
+    "train_games": 10000,
+    "val_games": 2000,
+    "test_games": 2000,
+    "max_depths_grid": [
+      6,
+      8
+    ],
+    "learning_rates_grid": [
+      0.08,
+      0.12
+    ],
+    "n_estimators": 400,
+    "cv_folds": 3,
+    "cv_subsample": 100000,
+    "early_stop": 20,
+    "seed": 42,
+    "n_boot": 1000,
+    "best_max_depth": 8,
+    "best_learning_rate": 0.08,
+    "best_iteration": 185,
+    "class_weights": {
+      "ball": 0.3664406024280992,
+      "called_strike": 0.791978149226775,
+      "swinging_strike": 1.2491691701754406,
+      "foul": 0.7034585718649786,
+      "in_play_out": 1.2077731824993876,
+      "in_play_hit": 1.3405901619026594,
+      "hbp": 1.3405901619026594
+    }
+  },
+  "cohort": {
+    "train_rows": 2879316,
+    "val_rows": 77281,
+    "test_rows": 210482,
+    "n_features": 16,
+    "train_freq_prior": {
+      "ball": 0.36584105391697197,
+      "called_strike": 0.16927110466513576,
+      "swinging_strike": 0.1073185437096866,
+      "foul": 0.19057130235097502,
+      "in_play_out": 0.11099684786247845,
+      "in_play_hit": 0.053304326444197164,
+      "hbp": 0.0026968210505550626
+    }
+  },
+  "cv_history": [
+    {
+      "max_depth": 6,
+      "learning_rate": 0.08,
+      "cv_log_loss_mean": 1.3859216372172039,
+      "cv_log_loss_std": 0.0008834539582833195
+    },
+    {
+      "max_depth": 6,
+      "learning_rate": 0.12,
+      "cv_log_loss_mean": 1.3868045806884766,
+      "cv_log_loss_std": 0.0008825871359866177
+    },
+    {
+      "max_depth": 8,
+      "learning_rate": 0.08,
+      "cv_log_loss_mean": 1.3845245838165283,
+      "cv_log_loss_std": 0.0014681315128296623
+    },
+    {
+      "max_depth": 8,
+      "learning_rate": 0.12,
+      "cv_log_loss_mean": 1.3855781157811482,
+      "cv_log_loss_std": 0.0008285785393502453
+    }
+  ],
+  "val_metrics": {
+    "log_loss_pre_temp": 1.3185828924179077,
+    "log_loss_post_temp": 1.3041918277740479,
+    "ece_pre_temp": 0.07496965217629818,
+    "ece_post_temp": 0.021325077818018814,
+    "freq_prior_log_loss": 1.646866605628158,
+    "lift_post_temp": 0.20807682703809827,
+    "temperature": 0.7988244563945377
+  },
+  "test_metrics": {
+    "log_loss_pre_temp": 1.3817776441574097,
+    "log_loss_post_temp": 1.385306715965271,
+    "ece_pre_temp": 0.05415378000863928,
+    "ece_post_temp": 0.018128859623533874,
+    "freq_prior_log_loss": 1.6515836355093199,
+    "lift_pre_temp": 0.16336199121318296,
+    "lift_post_temp": 0.16122521065179585,
+    "log_loss_post_ci_lo": 1.3810818791389465,
+    "log_loss_post_ci_hi": 1.389476028084755,
+    "lift_ci_lo": 0.15871522935522786,
+    "lift_ci_hi": 0.1637202642266333,
+    "per_class_log_loss": {
+      "ball": 1.006166934967041,
+      "called_strike": 1.233736515045166,
+      "swinging_strike": 1.5433244705200195,
+      "foul": 1.6764159202575684,
+      "in_play_out": 1.6418468952178955,
+      "in_play_hit": 2.3113207817077637,
+      "hbp": 3.570782423019409
+    },
+    "top1_accuracy": 0.4754705865584706,
+    "per_pitcher_log_loss": [
+      {
+        "pitcher_id": 676440,
+        "n": 2763,
+        "log_loss": 1.359848976135254
+      },
+      {
+        "pitcher_id": 808967,
+        "n": 2738,
+        "log_loss": 1.910173773765564
+      },
+      {
+        "pitcher_id": 701542,
+        "n": 2738,
+        "log_loss": 1.3553704023361206
+      },
+      {
+        "pitcher_id": 668909,
+        "n": 2591,
+        "log_loss": 1.3250813484191895
+      },
+      {
+        "pitcher_id": 694297,
+        "n": 2565,
+        "log_loss": 1.3907957077026367
+      },
+      {
+        "pitcher_id": 667755,
+        "n": 2516,
+        "log_loss": 1.2850475311279297
+      },
+      {
+        "pitcher_id": 671106,
+        "n": 2509,
+        "log_loss": 1.3427101373672485
+      },
+      {
+        "pitcher_id": 663623,
+        "n": 2498,
+        "log_loss": 1.3805419206619263
+      },
+      {
+        "pitcher_id": 683004,
+        "n": 2399,
+        "log_loss": 1.3692567348480225
+      },
+      {
+        "pitcher_id": 694973,
+        "n": 2381,
+        "log_loss": 1.3613131046295166
+      },
+      {
+        "pitcher_id": 682990,
+        "n": 2256,
+        "log_loss": 1.328068733215332
+      },
+      {
+        "pitcher_id": 680732,
+        "n": 2176,
+        "log_loss": 1.3376352787017822
+      },
+      {
+        "pitcher_id": 681343,
+        "n": 2158,
+        "log_loss": 1.3300120830535889
+      },
+      {
+        "pitcher_id": 680730,
+        "n": 2152,
+        "log_loss": 1.328795075416565
+      },
+      {
+        "pitcher_id": 608372,
+        "n": 2144,
+        "log_loss": 1.3931238651275635
+      },
+      {
+        "pitcher_id": 671737,
+        "n": 2029,
+        "log_loss": 1.3143022060394287
+      },
+      {
+        "pitcher_id": 671096,
+        "n": 2022,
+        "log_loss": 1.361633062362671
+      },
+      {
+        "pitcher_id": 693433,
+        "n": 1882,
+        "log_loss": 1.415462613105774
+      },
+      {
+        "pitcher_id": 677944,
+        "n": 1862,
+        "log_loss": 1.3245503902435303
+      },
+      {
+        "pitcher_id": 702070,
+        "n": 1823,
+        "log_loss": 1.3341821432113647
+      },
+      {
+        "pitcher_id": 695418,
+        "n": 1818,
+        "log_loss": 1.3761861324310303
+      },
+      {
+        "pitcher_id": 700249,
+        "n": 1801,
+        "log_loss": 1.3016725778579712
+      },
+      {
+        "pitcher_id": 801403,
+        "n": 1778,
+        "log_loss": 1.7596057653427124
+      },
+      {
+        "pitcher_id": 673540,
+        "n": 1702,
+        "log_loss": 1.3390098810195923
+      },
+      {
+        "pitcher_id": 694738,
+        "n": 1691,
+        "log_loss": 1.3231061697006226
+      },
+      {
+        "pitcher_id": 694477,
+        "n": 1647,
+        "log_loss": 1.3578662872314453
+      },
+      {
+        "pitcher_id": 684007,
+        "n": 1607,
+        "log_loss": 1.4123780727386475
+      },
+      {
+        "pitcher_id": 686563,
+        "n": 1546,
+        "log_loss": 1.322757363319397
+      },
+      {
+        "pitcher_id": 686799,
+        "n": 1545,
+        "log_loss": 1.3108901977539062
+      },
+      {
+        "pitcher_id": 682243,
+        "n": 1544,
+        "log_loss": 1.354948878288269
+      },
+      {
+        "pitcher_id": 676962,
+        "n": 1530,
+        "log_loss": 1.3380396366119385
+      },
+      {
+        "pitcher_id": 678024,
+        "n": 1506,
+        "log_loss": 1.2943336963653564
+      },
+      {
+        "pitcher_id": 687473,
+        "n": 1489,
+        "log_loss": 1.3800829648971558
+      },
+      {
+        "pitcher_id": 682052,
+        "n": 1460,
+        "log_loss": 1.3193719387054443
+      },
+      {
+        "pitcher_id": 676282,
+        "n": 1415,
+        "log_loss": 1.3384274244308472
+      },
+      {
+        "pitcher_id": 693645,
+        "n": 1410,
+        "log_loss": 1.3992115259170532
+      },
+      {
+        "pitcher_id": 656550,
+        "n": 1410,
+        "log_loss": 1.2728546857833862
+      },
+      {
+        "pitcher_id": 672456,
+        "n": 1402,
+        "log_loss": 1.3657766580581665
+      },
+      {
+        "pitcher_id": 680885,
+        "n": 1383,
+        "log_loss": 1.3666925430297852
+      },
+      {
+        "pitcher_id": 676467,
+        "n": 1380,
+        "log_loss": 1.4046670198440552
+      },
+      {
+        "pitcher_id": 700241,
+        "n": 1362,
+        "log_loss": 1.3475496768951416
+      },
+      {
+        "pitcher_id": 663568,
+        "n": 1349,
+        "log_loss": 1.3541992902755737
+      },
+      {
+        "pitcher_id": 669387,
+        "n": 1329,
+        "log_loss": 1.32550847530365
+      },
+      {
+        "pitcher_id": 691587,
+        "n": 1308,
+        "log_loss": 1.2977932691574097
+      },
+      {
+        "pitcher_id": 669372,
+        "n": 1296,
+        "log_loss": 1.3662160634994507
+      },
+      {
+        "pitcher_id": 687765,
+        "n": 1293,
+        "log_loss": 1.4089590311050415
+      },
+      {
+        "pitcher_id": 681347,
+        "n": 1255,
+        "log_loss": 1.3893828392028809
+      },
+      {
+        "pitcher_id": 681517,
+        "n": 1230,
+        "log_loss": 1.3867664337158203
+      },
+      {
+        "pitcher_id": 690990,
+        "n": 1209,
+        "log_loss": 1.38589346408844
+      },
+      {
+        "pitcher_id": 677958,
+        "n": 1205,
+        "log_loss": 1.2952138185501099
+      }
+    ],
+    "per_pitcher_summary": {
+      "mean": 1.3688653373718263,
+      "var": 0.01046659918550406,
+      "min": 1.2728546857833862,
+      "max": 1.910173773765564,
+      "n_pitchers": 50
+    }
+  },
+  "gates": {
+    "verdict": "WEAKER PASS",
+    "PASS_lift_threshold": 0.1,
+    "PASS_ci_lo_threshold": 0.05,
+    "WEAK_lift_threshold": 0.05,
+    "WEAK_ci_lo_threshold": 0.02,
+    "ECE_max": 0.05,
+    "hit_ll_PASS_max": 2.0,
+    "hit_ll_WEAK_max": 2.5,
+    "hbp_ll_PASS_max": 4.0,
+    "hbp_ll_WEAK_max": 5.0
+  },
+  "wall_clock": {
+    "cohort_seconds": 1.0771327018737793,
+    "feat_seconds": 34.19689226150513,
+    "fit_seconds": 315.2027380466461,
+    "total_seconds": 540.0675075054169
+  }
+}
