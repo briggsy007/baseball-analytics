@@ -666,6 +666,7 @@ import torch.nn.functional as F
 from src.analytics.pitchgpt import (
     BOS_TOKEN,
     CONTEXT_DIM,
+    NUM_COUNT_STATES,
     NUM_PITCH_TYPES,
     NUM_VELO_BUCKETS,
     NUM_ZONES,
@@ -738,10 +739,27 @@ _EMPIRICAL_LOOKUP_PATH: Path = (
     _MODELS_DIR / "pitchgpt_outcome_empirical_lookup.parquet"
 )
 _HEAD_CONCAT_A1_CALIB_PATH: Path = (
-    _MODELS_DIR / "pitchgpt_v2_outcomehead_a1_calibration.json"
+    # Phase 0.5 ticket 0.5.5 wrote this file with a leading
+    # `calibration_` prefix; the §7.3 doc lists it with a
+    # `_calibration` suffix.  Use the actual on-disk name so
+    # PGConcatHeadPredictor picks up class_calibration / T from disk
+    # (Phase 0.6, 2026-04-26).
+    _MODELS_DIR / "calibration_pitchgpt_v2_outcomehead_a1.json"
 )
 _HEAD_FROZEN_DEPRECATED_CALIB_PATH: Path = (
     _MODELS_DIR / "pitchgpt_v2_outcomehead_calibration.json"
+)
+#: Position-0 class-marginal recalibration vector.  Saved by
+#: ``scripts/pitchgpt_build_pos0_calibration.py`` as a 7-vector under the
+#: ``class_calibration_pos0`` key.  Phase 0.6 fix (2026-04-26) -- closes
+#: the +7.8pp `ball` under-emission at PA position 0 that the
+#: static-context diagnostic surfaced as the dominant driver of the
+#: Phase 0.6 BB% deficit.  Applied AFTER the existing JSON
+#: ``class_calibration`` (which is fit on the OVERALL training-cohort
+#: marginal -- this second-order vector targets pos-0 specifically).
+#: Optional: missing file ⇒ identity (backwards-compat).
+_HEAD_CONCAT_A1_POS0_CALIB_PATH: Path = (
+    _MODELS_DIR / "calibration_class_marginal_pos0.npz"
 )
 
 
@@ -954,7 +972,34 @@ class PGConcatHeadPredictor(nn.Module):
         checkpoint_path: Path | str = _HEAD_CONCAT_A1_PATH,
         calibration_path: Path | str | None = None,
         require_calibration: bool = False,
+        pos0_calibration_path: Path | str | None = None,
     ):
+        """
+        Parameters
+        ----------
+        checkpoint_path
+            A1 head checkpoint (``models/pitchgpt_v2_outcomehead_a1.pt``).
+        calibration_path
+            JSON calibration (T + per-class re-weighting `class_calibration`,
+            length-7).  Optional; default = sibling
+            ``calibration_pitchgpt_v2_outcomehead_a1.json``.
+        require_calibration
+            If True, raise on missing/invalid calibration JSON; else fall
+            back to embedded checkpoint metadata.
+        pos0_calibration_path
+            **NEW (Phase 0.6, 2026-04-26).**  Optional npz path containing
+            a ``class_calibration_pos0`` length-7 vector that recalibrates
+            the position-0 class marginal.  This calibration is applied
+            in ``predict_outcome_probs`` AFTER the JSON
+            ``class_calibration``: ``p_i ← p_i * w_pos0_i / sum(p * w_pos0)``.
+            Built by ``scripts/pitchgpt_build_pos0_calibration.py`` from the
+            2025 pitcher-disjoint cohort's empirical pos-0 marginal divided
+            by the rollout's H=1 pos-0 marginal (post-existing-calibration).
+            Default ``None`` resolves to the sibling
+            ``calibration_class_marginal_pos0.npz``; missing file silently
+            no-ops (identity).  Closes the Phase 0.6 BB% deficit by
+            restoring the +7.8pp `ball` under-emission at PA-start.
+        """
         super().__init__()
         path = Path(checkpoint_path)
         if not path.exists():
@@ -1037,6 +1082,85 @@ class PGConcatHeadPredictor(nn.Module):
                 f"{cpath} and require_calibration=True."
             )
 
+        # Phase 0.6 (2026-04-26): post-hoc per-class probability
+        # re-weighting to close A1's class-marginal bias (under-predicts
+        # `ball` by 11.6pp, over-predicts `swinging_strike` by 8.6pp;
+        # see PHASE_0.6_DIAGNOSIS.md).  Optional: missing/None ⇒
+        # identity (backwards-compat with prior calibration JSONs).
+        # Length-7 vector indexed by OUTCOME_CLASSES order:
+        # [ball, called_strike, swinging_strike, foul, in_play_out,
+        #  in_play_hit, hbp].  Applied AFTER temperature scaling and
+        # softmax, BEFORE return: p_i = p_i * w_i / sum_j(p_j * w_j).
+        # Top-1 ECE is unaffected (top-1 reliability is independent of
+        # class-marginal balance); per-PA K%/BB% are restored.
+        cc = self.calibration.get("class_calibration", None)
+        if cc is None:
+            self._class_calibration: torch.Tensor | None = None
+        else:
+            cc_arr = np.asarray(cc, dtype=np.float32)
+            if cc_arr.shape != (7,):
+                raise CalibrationError(
+                    f"PGConcatHeadPredictor: class_calibration has "
+                    f"shape {cc_arr.shape}; expected (7,) matching "
+                    f"OUTCOME_CLASSES."
+                )
+            if not np.all(np.isfinite(cc_arr)) or np.any(cc_arr <= 0):
+                raise CalibrationError(
+                    f"PGConcatHeadPredictor: class_calibration must "
+                    f"be all-positive finite floats; got {cc_arr.tolist()}"
+                )
+            self._class_calibration = torch.from_numpy(cc_arr).to(device)
+
+        # Phase 0.6 (2026-04-26): position-0 class-marginal
+        # recalibration.  Applied AFTER the JSON `class_calibration` to
+        # close the +7.8pp `ball` under-emission at PA position 0
+        # (the dominant driver of the Phase 0.6 BB% gate FAIL per
+        # `results/pitchgpt/rollout_sanity_2025/diagnose_static_context.md`).
+        # Missing npz ⇒ identity (backwards-compat: prior calibration
+        # JSONs without a pos-0 npz still work).
+        ppath = (
+            Path(pos0_calibration_path)
+            if pos0_calibration_path is not None
+            else _HEAD_CONCAT_A1_POS0_CALIB_PATH
+        )
+        if ppath.exists():
+            try:
+                npz = np.load(ppath, allow_pickle=False)
+                pos0 = np.asarray(
+                    npz["class_calibration_pos0"], dtype=np.float32
+                )
+                if pos0.shape != (7,):
+                    raise CalibrationError(
+                        f"PGConcatHeadPredictor: class_calibration_pos0 "
+                        f"in {ppath} has shape {pos0.shape}; expected "
+                        f"(7,) matching OUTCOME_CLASSES."
+                    )
+                if not np.all(np.isfinite(pos0)) or np.any(pos0 <= 0):
+                    raise CalibrationError(
+                        f"PGConcatHeadPredictor: class_calibration_pos0 "
+                        f"must be all-positive finite floats; got "
+                        f"{pos0.tolist()}"
+                    )
+                self._class_calibration_pos0: torch.Tensor | None = (
+                    torch.from_numpy(pos0).to(device)
+                )
+                logger.info(
+                    "PGConcatHeadPredictor: loaded pos-0 class calibration "
+                    "from %s (vector=%s)",
+                    ppath, np.array2string(pos0, precision=4),
+                )
+            except CalibrationError:
+                raise
+            except Exception as exc:  # corrupt npz / missing key
+                logger.warning(
+                    "PGConcatHeadPredictor: pos-0 class-calibration npz at "
+                    "%s exists but failed to load (%s); using identity.",
+                    ppath, exc,
+                )
+                self._class_calibration_pos0 = None
+        else:
+            self._class_calibration_pos0 = None
+
     @torch.no_grad()
     def predict_outcome_probs(
         self,
@@ -1044,14 +1168,43 @@ class PGConcatHeadPredictor(nn.Module):
         context_vec: torch.Tensor,
         pitch_token: torch.Tensor,
     ) -> torch.Tensor:
-        """Return calibrated 7-class probabilities, shape ``(B, S, 7)``."""
+        """Return calibrated 7-class probabilities, shape ``(B, S, 7)``.
+
+        Calibration application order (Phase 0.6, 2026-04-26):
+          1. Logits / T  (T = locked checkpoint temperature)
+          2. Softmax
+          3. ``class_calibration`` (overall training-cohort marginal
+             match, fit on 2023 val)
+          4. ``class_calibration_pos0`` (PA-start pos-0 marginal match,
+             fit on 2025 val) -- closes +7.8pp `ball` under-emission at
+             PA position 0.
+
+        Each multiplicative step is followed by per-row renormalization
+        on the last axis.  Missing pos-0 calibration ⇒ identity.
+        """
         pt_idx, zone_idx, velo_idx = _decompose_pitch_token(pitch_token)
         pt_oh = F.one_hot(pt_idx, num_classes=self._n_pitch_types).float()
         zn_oh = F.one_hot(zone_idx, num_classes=self._n_zones).float()
         vl_oh = F.one_hot(velo_idx, num_classes=self._n_velo_buckets).float()
         logits = self.head(backbone_hidden, context_vec, pt_oh, zn_oh, vl_oh)
         scaled = logits / max(self.temperature, 1e-8)
-        return F.softmax(scaled, dim=-1)
+        probs = F.softmax(scaled, dim=-1)
+        if self._class_calibration is not None:
+            # Element-wise re-weight + renormalize on the last (class)
+            # axis.  Broadcasts (..., 7) * (7,) -> (..., 7).
+            weighted = probs * self._class_calibration
+            denom = weighted.sum(dim=-1, keepdim=True).clamp_min(1e-12)
+            probs = weighted / denom
+        if self._class_calibration_pos0 is not None:
+            # Phase 0.6 pos-0 recalibration: same broadcast pattern as
+            # the JSON class_calibration.  Stacks multiplicatively;
+            # mathematically equivalent to a single combined vector
+            # (kept separate so they can be retired/refit
+            # independently).
+            weighted = probs * self._class_calibration_pos0
+            denom = weighted.sum(dim=-1, keepdim=True).clamp_min(1e-12)
+            probs = weighted / denom
+        return probs
 
 
 class PGFrozenHeadPredictor(nn.Module):
@@ -1750,9 +1903,31 @@ def rollout(
     balls_arr = np.full((n_samples,), starting_context.count[0], dtype=np.int64)
     strikes_arr = np.full((n_samples,), starting_context.count[1], dtype=np.int64)
 
-    # The single (CONTEXT_DIM,) vector to append after each sample;
-    # context held constant within a PA (Phase-1 mid-PA-mutation TBD).
-    one_step_ctx = init_context[0, 0:1, :].clone()
+    # ── Phase 0.6 fix (2026-04-26): mid-PA context mutation ────────────
+    # Per PHASE_0.5_PLAN §5.2 risk 2 + the Phase 0.6 static-context
+    # diagnostic (`results/pitchgpt/rollout_sanity_2025/diagnose_static_context.md`),
+    # holding the context vector CONSTANT within a PA causes the
+    # per-position outcome distribution to flatten across positions
+    # (rollout's CS rate ~0.20 across all positions vs empirical 0.29
+    # at pos 0 dropping to 0.045 at pos 5).  Result: K% over-emits by
+    # +6pp.  Fix: re-emit the count_state one-hot of the context vector
+    # for each next position based on the running (balls, strikes)
+    # per sample.  The runner_state, outs, score_diff, inning_bucket,
+    # and ump_scalar fields stay constant within a PA -- only
+    # count_state mutates.  Encoding follows
+    # PitchTokenizer.encode_context (count_state = balls*3 + strikes,
+    # capped at balls<=3, strikes<=2 since walk/K terminate first).
+    # The count_state one-hot occupies the FIRST NUM_COUNT_STATES (=12)
+    # slots of the CONTEXT_DIM vector (offset 0); see
+    # context_to_tensor.
+
+    # Per-sample running context for the NEXT position.  We seed it
+    # from the starting context and mutate the count_state one-hot
+    # in-place each position based on the new (balls, strikes) per
+    # sample, after PA-termination has been resolved for that position.
+    running_context = init_context[0, 0, :].clone().unsqueeze(0).expand(
+        n_samples, -1,
+    ).contiguous()  # shape (n_samples, CONTEXT_DIM)
 
     n_truncated = n_samples
 
@@ -1880,9 +2055,9 @@ def rollout(
                     # K terminates via count; no terminal-outcome class.
                     continue
 
-        # Append sampled token + constant context for the next-position
-        # forward pass.  Dead samples get PAD_TOKEN so the backbone's
-        # padding-mask ignores them.
+        # Append sampled token + per-sample mutated context for the
+        # next-position forward pass.  Dead samples get PAD_TOKEN so
+        # the backbone's padding-mask ignores them.
         next_tok_full = next_tok.clone()
         if not alive.all():
             dead_mask = torch.from_numpy(~alive).to(device)
@@ -1894,7 +2069,31 @@ def rollout(
         cur_tokens = torch.cat(
             [cur_tokens, next_tok_full.unsqueeze(1)], dim=1
         )
-        ctx_step = one_step_ctx.expand(n_samples, 1, -1).contiguous()
+
+        # Phase 0.6 fix: re-emit per-sample count_state one-hot for the
+        # NEXT position based on running (balls, strikes).  All other
+        # context fields (outs, runner_state, batter_hand, inning,
+        # score_diff, ump_scalar) are PA-invariant and remain whatever
+        # was in the seeded `running_context`.  Walks (4 balls) and
+        # strikeouts (3 strikes) terminate the PA at the current
+        # position, so the next-position context is only consumed for
+        # samples whose new count is in the 12-bucket grid (balls 0..3,
+        # strikes 0..2).  We still cap defensively in case of any edge.
+        new_count_state = (
+            np.minimum(balls_arr, 3) * 3 + np.minimum(strikes_arr, 2)
+        ).astype(np.int64)  # (n_samples,)
+        # Zero the count_state one-hot slots [0, NUM_COUNT_STATES) and
+        # set the new bucket.  This is a vectorised in-place update.
+        running_context[:, :NUM_COUNT_STATES] = 0.0
+        new_count_idx_t = torch.from_numpy(new_count_state).to(
+            running_context.device,
+        )
+        running_context.scatter_(
+            1,
+            new_count_idx_t.unsqueeze(1),
+            torch.ones((n_samples, 1), device=running_context.device),
+        )
+        ctx_step = running_context.unsqueeze(1)  # (n_samples, 1, CONTEXT_DIM)
         cur_context = torch.cat([cur_context, ctx_step], dim=1)
 
     # Update final counters for unterminated (truncated) samples.

@@ -4,7 +4,22 @@
   "ECE_post": 0.011409712028199842,
   "holdout_season": 2025,
   "holdout_n_pitches": 204513,
-  "fit_date": "2026-04-25",
+  "fit_date": "2026-04-26",
   "checkpoint_sha256": "37b50e87599013c281560c9f63286fe5b7645297d0042694d907287417bb25e5",
-  "predictor_kind": "pg_concat_head"
+  "predictor_kind": "pg_concat_head",
+  "class_calibration": [
+    2.2914540293874124,
+    0.9295122332982364,
+    0.65703805024933,
+    1.1814752292302275,
+    0.7655137563637985,
+    0.8184806219741774,
+    0.9652886469018666
+  ],
+  "class_calibration_method": "closed_form_then_lbfgs",
+  "class_calibration_val_kl_pre": 0.052020396015504004,
+  "class_calibration_val_kl_post": 5.959421992324217e-15,
+  "class_calibration_val_max_delta_pp": 1.3861711667395582e-06,
+  "class_calibration_val_n_pitches": 75384,
+  "class_calibration_val_season": 2023
 }

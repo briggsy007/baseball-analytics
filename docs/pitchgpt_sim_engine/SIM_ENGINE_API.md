@@ -398,7 +398,8 @@ When and how to re-measure calibration. The API enforces these contracts; consum
   "holdout_n_pitches": 412877,
   "fit_date": "2026-01-15",
   "checkpoint_sha256": "1a2b3c4d...",
-  "predictor_kind": "backbone"
+  "predictor_kind": "backbone",
+  "class_calibration": [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
 }
 ```
 
@@ -410,8 +411,9 @@ When and how to re-measure calibration. The API enforces these contracts; consum
 - `fit_date`: ISO-8601 date of the fit. > 12 months stale is auto-rejected.
 - `checkpoint_sha256`: hex digest of the checkpoint binary, recomputed at load time and asserted to match.
 - `predictor_kind`: `"backbone"` | `"pg_concat_head"` | `"pg_frozen_head"` | `"xgboost"` | `"empirical_pa_terminal"`.
+- `class_calibration` *(optional, outcome predictors only, added Phase 0.6 2026-04-26)*: length-7 list of positive floats indexed by `OUTCOME_CLASSES = (ball, called_strike, swinging_strike, foul, in_play_out, in_play_hit, hbp)`. Applied AFTER temperature scaling and softmax, BEFORE return: `p_i ← p_i * w_i / sum_j(p_j * w_j)`. This is a post-hoc per-class probability re-weighting that closes class-marginal bias (PHASE_0.6_DIAGNOSIS.md). Does not affect top-1 ECE (top-1 reliability is independent of class-marginal balance). Missing or `null` ⇒ identity (no re-weighting), backwards-compatible.
 
-**Refusal behavior.** If `calibration.json` is missing, has a stale `fit_date`, has an out-of-budget `ECE_post`, has a mismatched `checkpoint_sha256`, or is missing `calibration_feature_cdfs.npz`, the API raises `CalibrationError` at checkpoint-load time. There is no override flag; bad calibration must be corrected upstream.
+**Refusal behavior.** If `calibration.json` is missing, has a stale `fit_date`, has an out-of-budget `ECE_post`, has a mismatched `checkpoint_sha256`, or is missing `calibration_feature_cdfs.npz`, the API raises `CalibrationError` at checkpoint-load time. `class_calibration`, when present, must be length-7 with all-positive finite floats (else `CalibrationError`). There is no override flag; bad calibration must be corrected upstream.
 
 ---
 

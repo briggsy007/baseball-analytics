@@ -354,7 +354,9 @@ def test_calibration_a1_json_values_match_metrics():
     assert cal["holdout_season"] == 2025
     assert cal["holdout_n_pitches"] == metrics["cohort"]["test_valid_outcomes"]
     assert cal["predictor_kind"] == "pg_concat_head"
-    assert cal["fit_date"] == "2026-04-25"
+    # fit_date was 2026-04-25 at ticket-0.5.5 write; bumped to
+    # 2026-04-26 by the Phase 0.6 class_calibration refit.
+    assert cal["fit_date"] in ("2026-04-25", "2026-04-26")
     # checkpoint_sha256 is recomputed at write time; verify it's a 64-char hex.
     assert len(cal["checkpoint_sha256"]) == 64
     assert all(c in "0123456789abcdef" for c in cal["checkpoint_sha256"])
@@ -796,3 +798,143 @@ def test_metadata_required_keys_present():
     }
     missing = required.difference(res.sampling_metadata.keys())
     assert not missing, f"sampling_metadata missing keys: {sorted(missing)}"
+
+
+# ═════════════════════════════════════════════════════════════════════════════
+# Phase 0.6 -- per-class probability re-weighting on PGConcatHeadPredictor
+# ═════════════════════════════════════════════════════════════════════════════
+
+
+def _has_pg_concat_head_predictor() -> bool:
+    """Return True iff the A1 checkpoint + backbone are present on disk."""
+    a1 = _MODELS / "pitchgpt_v2_outcomehead_a1.pt"
+    bb = _MODELS / "pitchgpt_v2.pt"
+    return a1.exists() and bb.exists()
+
+
+_PGCH_SKIP_MSG = (
+    "PGConcatHeadPredictor checkpoint missing -- skipping class_calibration test."
+)
+
+
+@pytest.mark.skipif(
+    not _has_pg_concat_head_predictor(), reason=_PGCH_SKIP_MSG
+)
+def test_pg_concat_head_predictor_no_class_calibration_is_identity(
+    tmp_path,
+):
+    """Backwards-compat: a calibration JSON WITHOUT a `class_calibration`
+    field leaves `predict_outcome_probs` behavior byte-identical to the
+    pre-fix path (no re-weighting applied)."""
+    import torch
+    from src.analytics.pitchgpt_sim import PGConcatHeadPredictor
+
+    # Write a minimal calibration JSON with NO class_calibration field.
+    cpath = tmp_path / "calib_no_cc.json"
+    cpath.write_text(json.dumps({
+        "T": 0.8003096499977166,
+        "ECE_pre": 0.0614403106926628,
+        "ECE_post": 0.011409712028199842,
+        "holdout_season": 2025,
+        "holdout_n_pitches": 204513,
+        "fit_date": "2026-04-25",
+        "checkpoint_sha256": (
+            "37b50e87599013c281560c9f63286fe5b7645297d0042694d907287417bb25e5"
+        ),
+        "predictor_kind": "pg_concat_head",
+    }))
+
+    pred = PGConcatHeadPredictor(calibration_path=cpath)
+    assert pred._class_calibration is None
+    # Sanity: predict on dummy inputs.  Just verify the returned probs
+    # are valid (sum to 1, no NaN), which is the contract under the
+    # backwards-compat path.
+    B, S = 2, 3
+    d_model = pred.head.d_model if hasattr(pred.head, "d_model") else 128
+    ctx_dim = (
+        pred.head.context_dim if hasattr(pred.head, "context_dim") else 35
+    )
+    hidden = torch.zeros(B, S, d_model, device=pred._device)
+    ctx = torch.zeros(B, S, ctx_dim, device=pred._device)
+    tokens = torch.zeros(B, S, dtype=torch.long, device=pred._device)
+    out = pred.predict_outcome_probs(hidden, ctx, tokens)
+    assert out.shape == (B, S, 7)
+    assert torch.all(torch.isfinite(out))
+    sums = out.sum(dim=-1).cpu().numpy()
+    assert np.allclose(sums, 1.0, atol=1e-5)
+
+
+@pytest.mark.skipif(
+    not _has_pg_concat_head_predictor(), reason=_PGCH_SKIP_MSG
+)
+def test_pg_concat_head_predictor_class_calibration_reweights(tmp_path):
+    """Synthetic test: with a known `class_calibration` ``w``, the post-T
+    softmax ``p`` is reweighted to ``p_i * w_i / sum_j(p_j * w_j)``.
+
+    Strategy: construct two predictors -- one with no class_calibration
+    (baseline ``p``), one with a known ``w``.  Run both on identical
+    inputs.  Verify the reweighted output matches the analytic answer
+    ``p * w / (p * w).sum(-1, keepdim=True)``.
+    """
+    import torch
+    from src.analytics.pitchgpt_sim import PGConcatHeadPredictor
+
+    # Baseline: no class_calibration.
+    cpath_baseline = tmp_path / "calib_baseline.json"
+    base_dict = {
+        "T": 0.8003096499977166,
+        "ECE_pre": 0.0614403106926628,
+        "ECE_post": 0.011409712028199842,
+        "holdout_season": 2025,
+        "holdout_n_pitches": 204513,
+        "fit_date": "2026-04-25",
+        "checkpoint_sha256": (
+            "37b50e87599013c281560c9f63286fe5b7645297d0042694d907287417bb25e5"
+        ),
+        "predictor_kind": "pg_concat_head",
+    }
+    cpath_baseline.write_text(json.dumps(base_dict))
+
+    # Reweighted: same JSON + a known class_calibration vector.
+    w = np.array(
+        [1.5, 0.8, 0.5, 1.2, 1.0, 1.0, 2.0], dtype=np.float64
+    )
+    cpath_rw = tmp_path / "calib_rw.json"
+    rw_dict = dict(base_dict)
+    rw_dict["class_calibration"] = w.tolist()
+    cpath_rw.write_text(json.dumps(rw_dict))
+
+    pred_base = PGConcatHeadPredictor(calibration_path=cpath_baseline)
+    pred_rw = PGConcatHeadPredictor(calibration_path=cpath_rw)
+    assert pred_base._class_calibration is None
+    assert pred_rw._class_calibration is not None
+
+    # Random non-degenerate inputs, deterministic seed.
+    torch.manual_seed(20260426)
+    B, S = 4, 5
+    d_model = pred_base.head.d_model if hasattr(pred_base.head, "d_model") else 128
+    ctx_dim = (
+        pred_base.head.context_dim if hasattr(pred_base.head, "context_dim") else 35
+    )
+    hidden = torch.randn(B, S, d_model, device=pred_base._device)
+    ctx = torch.randn(B, S, ctx_dim, device=pred_base._device)
+    # Tokens drawn from valid VOCAB range.
+    rng = np.random.default_rng(42)
+    tokens = torch.from_numpy(
+        rng.integers(0, 100, size=(B, S))
+    ).long().to(pred_base._device)
+
+    p_base = pred_base.predict_outcome_probs(hidden, ctx, tokens)
+    p_rw = pred_rw.predict_outcome_probs(hidden, ctx, tokens)
+
+    # Analytic expected output.
+    p_base_np = p_base.cpu().numpy().astype(np.float64)
+    weighted = p_base_np * w[None, None, :]
+    expected = weighted / weighted.sum(axis=-1, keepdims=True).clip(min=1e-12)
+
+    p_rw_np = p_rw.cpu().numpy().astype(np.float64)
+    np.testing.assert_allclose(p_rw_np, expected, atol=1e-6, rtol=1e-6)
+    # And renormalization correctness:
+    np.testing.assert_allclose(
+        p_rw_np.sum(axis=-1), np.ones((B, S)), atol=1e-6
+    )

@@ -1,5 +1,5 @@
 {
-  "timestamp_utc": "2026-04-26T15:20:17Z",
+  "timestamp_utc": "2026-04-26T17:10:34Z",
   "spec": "docs/pitchgpt_sim_engine/PHASE_0.5_PLAN.md \u00a73 + \u00a76.3 / \u00a76.4 / \u00a76.6",
   "args": {
     "n_pa": 10000,
@@ -10,9 +10,9 @@
   },
   "device": "cuda",
   "wall_clock": {
-    "primary_seconds": 406.0,
-    "secondary_seconds": 191.4,
-    "empirical_seconds": 1.2
+    "primary_seconds": 682.1,
+    "secondary_seconds": 377.3,
+    "empirical_seconds": 3.2
   },
   "cohort": {
     "season": 2025,
@@ -26,89 +26,89 @@
     "n_pas": 64460,
     "k_pct": {
       "value": 0.217965,
-      "ci_95_lo": 0.214722,
-      "ci_95_hi": 0.221006,
+      "ci_95_lo": 0.21497,
+      "ci_95_hi": 0.221207,
       "n": 64460
     },
     "bb_pct": {
       "value": 0.087636,
-      "ci_95_lo": 0.085463,
-      "ci_95_hi": 0.089777,
+      "ci_95_lo": 0.085541,
+      "ci_95_hi": 0.089715,
       "n": 64460
     },
     "hr_pct": {
       "value": 0.032051,
-      "ci_95_lo": 0.030732,
+      "ci_95_lo": 0.030779,
       "ci_95_hi": 0.033463,
       "n": 64460
     },
     "mean_woba": {
       "value": 0.330186,
-      "ci_95_lo": 0.326184,
-      "ci_95_hi": 0.334411,
+      "ci_95_lo": 0.326252,
+      "ci_95_hi": 0.334025,
       "n": 64460
     },
     "mean_pa_length_pitches": {
       "value": 3.885759,
-      "ci_95_lo": 3.871592,
-      "ci_95_hi": 3.900614,
+      "ci_95_lo": 3.871703,
+      "ci_95_hi": 3.901248,
       "n": 64460
     }
   },
   "primary": {
     "k_pct": {
-      "value": 0.306806,
-      "ci_95_lo": 0.305794,
-      "ci_95_hi": 0.307767,
+      "value": 0.25581,
+      "ci_95_lo": 0.254898,
+      "ci_95_hi": 0.25673,
       "n": 10000,
       "n_valid": 10000
     },
     "bb_pct": {
-      "value": 0.04299,
-      "ci_95_lo": 0.042582,
-      "ci_95_hi": 0.043401,
+      "value": 0.130909,
+      "ci_95_lo": 0.130223,
+      "ci_95_hi": 0.13161,
       "n": 10000,
       "n_valid": 10000
     },
     "in_play_hit_pct": {
-      "value": 0.191178,
-      "ci_95_lo": 0.190412,
-      "ci_95_hi": 0.191975,
+      "value": 0.181946,
+      "ci_95_lo": 0.181153,
+      "ci_95_hi": 0.182694,
       "n": 10000,
       "n_valid": 10000
     },
     "hbp_pct": {
-      "value": 0.018439,
-      "ci_95_lo": 0.018168,
-      "ci_95_hi": 0.018699,
+      "value": 0.011376,
+      "ci_95_lo": 0.011158,
+      "ci_95_hi": 0.011587,
       "n": 10000,
       "n_valid": 10000
     },
     "hr_pct": {
-      "value": 0.02763,
-      "ci_95_lo": 0.027524,
-      "ci_95_hi": 0.027742,
+      "value": 0.026295,
+      "ci_95_lo": 0.026178,
+      "ci_95_hi": 0.026408,
       "n": 10000,
       "n_valid": 10000
     },
     "mean_woba": {
-      "value": 0.293927,
-      "ci_95_lo": 0.292856,
-      "ci_95_hi": 0.294934,
+      "value": 0.3052,
+      "ci_95_lo": 0.304093,
+      "ci_95_hi": 0.306275,
       "n": 10000,
       "n_valid": 10000
     },
     "mean_pa_length_pitches": {
-      "value": 3.225885,
-      "ci_95_lo": 3.222914,
-      "ci_95_hi": 3.229021,
+      "value": 3.697459,
+      "ci_95_lo": 3.694078,
+      "ci_95_hi": 3.701362,
       "n": 10000,
       "n_valid": 10000
     },
     "p_truncated_per_pa": {
-      "value": 0.025712,
-      "ci_95_lo": 0.025409,
-      "ci_95_hi": 0.026006,
+      "value": 0.055279,
+      "ci_95_lo": 0.054835,
+      "ci_95_hi": 0.055735,
       "n": 10000,
       "n_valid": 10000
     },
@@ -119,16 +119,16 @@
   },
   "secondary": {
     "k_pct": {
-      "value": 0.590518,
-      "ci_95_lo": 0.589526,
-      "ci_95_hi": 0.591576,
+      "value": 0.590512,
+      "ci_95_lo": 0.5895,
+      "ci_95_hi": 0.591584,
       "n": 10000,
       "n_valid": 10000
     },
     "bb_pct": {
-      "value": 0.409482,
-      "ci_95_lo": 0.408465,
-      "ci_95_hi": 0.410571,
+      "value": 0.409488,
+      "ci_95_lo": 0.408317,
+      "ci_95_hi": 0.410539,
       "n": 10000,
       "n_valid": 10000
     },
@@ -141,9 +141,9 @@
       "note": "outcome_predictor=None -> pa_woba is NaN"
     },
     "mean_pa_length_pitches": {
-      "value": 4.903479,
-      "ci_95_lo": 4.901478,
-      "ci_95_hi": 4.905445,
+      "value": 4.903962,
+      "ci_95_lo": 4.901727,
+      "ci_95_hi": 4.906176,
       "n": 10000,
       "n_valid": 10000
     },
@@ -155,14 +155,14 @@
       "n_valid": 10000
     },
     "calibration_invalid_reason_counts": {},
-    "wall_clock_seconds": 191.4
+    "wall_clock_seconds": 377.3
   },
   "gates": {
     "k_pct": {
-      "sampled": 0.306806,
+      "sampled": 0.25581,
       "empirical": 0.217965,
-      "delta_abs": 0.088841,
-      "delta_rel": 0.407593,
+      "delta_abs": 0.037845,
+      "delta_rel": 0.173629,
       "tol_used": 0.01,
       "tol_rule": "min(rel*emp, abs)",
       "abs_tol": 0.01,
@@ -172,10 +172,10 @@
       "pass": false
     },
     "bb_pct": {
-      "sampled": 0.04299,
+      "sampled": 0.130909,
       "empirical": 0.087636,
-      "delta_abs": -0.044646,
-      "delta_rel": -0.509448,
+      "delta_abs": 0.043273,
+      "delta_rel": 0.493781,
       "tol_used": 0.008764,
       "tol_rule": "min(rel*emp, abs)",
       "abs_tol": 0.01,
@@ -185,10 +185,10 @@
       "pass": false
     },
     "hr_pct": {
-      "sampled": 0.02763,
+      "sampled": 0.026295,
       "empirical": 0.032051,
-      "delta_abs": -0.004421,
-      "delta_rel": -0.137936,
+      "delta_abs": -0.005756,
+      "delta_rel": -0.179589,
       "tol_used": 0.003205,
       "tol_rule": "min(rel*emp, abs)",
       "abs_tol": 0.01,
@@ -198,9 +198,9 @@
       "pass": false
     },
     "mean_woba": {
-      "sampled": 0.293927,
+      "sampled": 0.3052,
       "empirical": 0.330186,
-      "delta_abs": -0.036259,
+      "delta_abs": -0.024986,
       "tol_used": 0.015,
       "tol_rule": "abs",
       "pass_band_lo": 0.315186,
@@ -208,14 +208,14 @@
       "pass": false
     },
     "mean_pa_length_pitches": {
-      "sampled": 3.225885,
+      "sampled": 3.697459,
       "empirical": 3.885759,
-      "delta_abs": -0.659874,
+      "delta_abs": -0.1883,
       "tol_used": 0.5,
       "tol_rule": "abs",
       "pass_band_lo": 3.385759,
       "pass_band_hi": 4.385759,
-      "pass": false
+      "pass": true
     },
     "calibration_valid_coverage": {
       "sampled": 1.0,
@@ -226,10 +226,10 @@
   "overall_pass": false,
   "woba_decomposition": {
     "table": "WObaTable.default() -- 7-element scalar (PHASE_0.5_PLAN \u00a72.0.5.3)",
-    "in_play_hit_contrib": 0.170531,
-    "hbp_contrib": 0.013055,
-    "computed_mean_woba": 0.183586,
-    "walk_attribution_if_added": 0.029663,
+    "in_play_hit_contrib": 0.162296,
+    "hbp_contrib": 0.008054,
+    "computed_mean_woba": 0.17035,
+    "walk_attribution_if_added": 0.090327,
     "walk_attribution_note": "WObaTable.default() does NOT attribute wOBA to walks (which terminate via count-only and have pa_outcome=ROLLOUT_PAD_OUTCOME). The empirical 2025 league mean wOBA does include walks at the league mean wOBA-on-walk ~0.69; PHASE_0.5_PLAN \u00a75.5 marks this as the most-likely under-attribution source."
   },
   "checkpoint_integrity": {
