@@ -1,0 +1,10 @@
+{
+  "T": 0.8003096499977166,
+  "ECE_pre": 0.0614403106926628,
+  "ECE_post": 0.011409712028199842,
+  "holdout_season": 2025,
+  "holdout_n_pitches": 204513,
+  "fit_date": "2026-04-25",
+  "checkpoint_sha256": "37b50e87599013c281560c9f63286fe5b7645297d0042694d907287417bb25e5",
+  "predictor_kind": "pg_concat_head"
+}

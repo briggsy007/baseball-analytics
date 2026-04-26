@@ -1,0 +1,249 @@
+{
+  "timestamp_utc": "2026-04-26T15:20:17Z",
+  "spec": "docs/pitchgpt_sim_engine/PHASE_0.5_PLAN.md \u00a73 + \u00a76.3 / \u00a76.4 / \u00a76.6",
+  "args": {
+    "n_pa": 10000,
+    "n_samples": 100,
+    "horizon": 6,
+    "temperature": 1.0,
+    "seed": 42
+  },
+  "device": "cuda",
+  "wall_clock": {
+    "primary_seconds": 406.0,
+    "secondary_seconds": 191.4,
+    "empirical_seconds": 1.2
+  },
+  "cohort": {
+    "season": 2025,
+    "n_pas_total_eligible": 64460,
+    "n_pas_sampled": 10000,
+    "league_median_ump_scalar_2025": 0.525333,
+    "pitcher_disjoint_from_train_seasons": "2015-2022",
+    "n_train_pitchers_excluded": 2247
+  },
+  "empirical": {
+    "n_pas": 64460,
+    "k_pct": {
+      "value": 0.217965,
+      "ci_95_lo": 0.214722,
+      "ci_95_hi": 0.221006,
+      "n": 64460
+    },
+    "bb_pct": {
+      "value": 0.087636,
+      "ci_95_lo": 0.085463,
+      "ci_95_hi": 0.089777,
+      "n": 64460
+    },
+    "hr_pct": {
+      "value": 0.032051,
+      "ci_95_lo": 0.030732,
+      "ci_95_hi": 0.033463,
+      "n": 64460
+    },
+    "mean_woba": {
+      "value": 0.330186,
+      "ci_95_lo": 0.326184,
+      "ci_95_hi": 0.334411,
+      "n": 64460
+    },
+    "mean_pa_length_pitches": {
+      "value": 3.885759,
+      "ci_95_lo": 3.871592,
+      "ci_95_hi": 3.900614,
+      "n": 64460
+    }
+  },
+  "primary": {
+    "k_pct": {
+      "value": 0.306806,
+      "ci_95_lo": 0.305794,
+      "ci_95_hi": 0.307767,
+      "n": 10000,
+      "n_valid": 10000
+    },
+    "bb_pct": {
+      "value": 0.04299,
+      "ci_95_lo": 0.042582,
+      "ci_95_hi": 0.043401,
+      "n": 10000,
+      "n_valid": 10000
+    },
+    "in_play_hit_pct": {
+      "value": 0.191178,
+      "ci_95_lo": 0.190412,
+      "ci_95_hi": 0.191975,
+      "n": 10000,
+      "n_valid": 10000
+    },
+    "hbp_pct": {
+      "value": 0.018439,
+      "ci_95_lo": 0.018168,
+      "ci_95_hi": 0.018699,
+      "n": 10000,
+      "n_valid": 10000
+    },
+    "hr_pct": {
+      "value": 0.02763,
+      "ci_95_lo": 0.027524,
+      "ci_95_hi": 0.027742,
+      "n": 10000,
+      "n_valid": 10000
+    },
+    "mean_woba": {
+      "value": 0.293927,
+      "ci_95_lo": 0.292856,
+      "ci_95_hi": 0.294934,
+      "n": 10000,
+      "n_valid": 10000
+    },
+    "mean_pa_length_pitches": {
+      "value": 3.225885,
+      "ci_95_lo": 3.222914,
+      "ci_95_hi": 3.229021,
+      "n": 10000,
+      "n_valid": 10000
+    },
+    "p_truncated_per_pa": {
+      "value": 0.025712,
+      "ci_95_lo": 0.025409,
+      "ci_95_hi": 0.026006,
+      "n": 10000,
+      "n_valid": 10000
+    },
+    "calibration_valid_coverage": 1.0,
+    "calibration_invalid_reason_counts": {},
+    "hr_given_hit_assumption_used": 0.1445,
+    "hr_given_hit_assumption_source": "empirical_2025: hr_pct / hit_pct"
+  },
+  "secondary": {
+    "k_pct": {
+      "value": 0.590518,
+      "ci_95_lo": 0.589526,
+      "ci_95_hi": 0.591576,
+      "n": 10000,
+      "n_valid": 10000
+    },
+    "bb_pct": {
+      "value": 0.409482,
+      "ci_95_lo": 0.408465,
+      "ci_95_hi": 0.410571,
+      "n": 10000,
+      "n_valid": 10000
+    },
+    "hr_pct": {
+      "value": NaN,
+      "note": "outcome_predictor=None cannot resolve HR vs non-HR hit"
+    },
+    "mean_woba": {
+      "value": NaN,
+      "note": "outcome_predictor=None -> pa_woba is NaN"
+    },
+    "mean_pa_length_pitches": {
+      "value": 4.903479,
+      "ci_95_lo": 4.901478,
+      "ci_95_hi": 4.905445,
+      "n": 10000,
+      "n_valid": 10000
+    },
+    "p_truncated_per_pa": {
+      "value": 0.0,
+      "ci_95_lo": 0.0,
+      "ci_95_hi": 0.0,
+      "n": 10000,
+      "n_valid": 10000
+    },
+    "calibration_invalid_reason_counts": {},
+    "wall_clock_seconds": 191.4
+  },
+  "gates": {
+    "k_pct": {
+      "sampled": 0.306806,
+      "empirical": 0.217965,
+      "delta_abs": 0.088841,
+      "delta_rel": 0.407593,
+      "tol_used": 0.01,
+      "tol_rule": "min(rel*emp, abs)",
+      "abs_tol": 0.01,
+      "rel_tol": 0.1,
+      "pass_band_lo": 0.207965,
+      "pass_band_hi": 0.227965,
+      "pass": false
+    },
+    "bb_pct": {
+      "sampled": 0.04299,
+      "empirical": 0.087636,
+      "delta_abs": -0.044646,
+      "delta_rel": -0.509448,
+      "tol_used": 0.008764,
+      "tol_rule": "min(rel*emp, abs)",
+      "abs_tol": 0.01,
+      "rel_tol": 0.1,
+      "pass_band_lo": 0.078872,
+      "pass_band_hi": 0.0964,
+      "pass": false
+    },
+    "hr_pct": {
+      "sampled": 0.02763,
+      "empirical": 0.032051,
+      "delta_abs": -0.004421,
+      "delta_rel": -0.137936,
+      "tol_used": 0.003205,
+      "tol_rule": "min(rel*emp, abs)",
+      "abs_tol": 0.01,
+      "rel_tol": 0.1,
+      "pass_band_lo": 0.028846,
+      "pass_band_hi": 0.035256,
+      "pass": false
+    },
+    "mean_woba": {
+      "sampled": 0.293927,
+      "empirical": 0.330186,
+      "delta_abs": -0.036259,
+      "tol_used": 0.015,
+      "tol_rule": "abs",
+      "pass_band_lo": 0.315186,
+      "pass_band_hi": 0.345186,
+      "pass": false
+    },
+    "mean_pa_length_pitches": {
+      "sampled": 3.225885,
+      "empirical": 3.885759,
+      "delta_abs": -0.659874,
+      "tol_used": 0.5,
+      "tol_rule": "abs",
+      "pass_band_lo": 3.385759,
+      "pass_band_hi": 4.385759,
+      "pass": false
+    },
+    "calibration_valid_coverage": {
+      "sampled": 1.0,
+      "threshold": 0.95,
+      "pass": true
+    }
+  },
+  "overall_pass": false,
+  "woba_decomposition": {
+    "table": "WObaTable.default() -- 7-element scalar (PHASE_0.5_PLAN \u00a72.0.5.3)",
+    "in_play_hit_contrib": 0.170531,
+    "hbp_contrib": 0.013055,
+    "computed_mean_woba": 0.183586,
+    "walk_attribution_if_added": 0.029663,
+    "walk_attribution_note": "WObaTable.default() does NOT attribute wOBA to walks (which terminate via count-only and have pa_outcome=ROLLOUT_PAD_OUTCOME). The empirical 2025 league mean wOBA does include walks at the league mean wOBA-on-walk ~0.69; PHASE_0.5_PLAN \u00a75.5 marks this as the most-likely under-attribution source."
+  },
+  "checkpoint_integrity": {
+    "backbone_path": "C:\\Users\\hunte\\projects\\baseball\\models\\pitchgpt_v2.pt",
+    "backbone_sha256_recomputed": "6f952054d14ac6f918f3eb9502b496b70bc0c87dfc65dc50d98ee7244a62883c",
+    "backbone_sha256_locked": "6f952054d14ac6f918f3eb9502b496b70bc0c87dfc65dc50d98ee7244a62883c",
+    "backbone_sha_match_locked": true,
+    "backbone_sha_match_runtime": true,
+    "a1_path": "C:\\Users\\hunte\\projects\\baseball\\models\\pitchgpt_v2_outcomehead_a1.pt",
+    "a1_sha256_recomputed": "37b50e87599013c281560c9f63286fe5b7645297d0042694d907287417bb25e5",
+    "a1_sha256_runtime": "37b50e87599013c281560c9f63286fe5b7645297d0042694d907287417bb25e5",
+    "a1_sha_match_runtime": true,
+    "a1_size_bytes": 151289,
+    "a1_size_expected_bytes": 151289,
+    "a1_size_matches": true
+  }
+}

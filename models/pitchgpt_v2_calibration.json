@@ -1,0 +1,11 @@
+{
+  "T": 1.055,
+  "ECE_pre": 0.0124,
+  "ECE_post": 0.0075,
+  "holdout_season": 2025,
+  "holdout_n_pitches": 202923,
+  "fit_date": "2026-04-23",
+  "checkpoint_sha256": "6f952054d14ac6f918f3eb9502b496b70bc0c87dfc65dc50d98ee7244a62883c",
+  "predictor_kind": "backbone",
+  "_provenance": "Assembled from results/pitchgpt/2025_holdout/calibration_2025.json by Phase 0.5 Agent 2 per PHASE_0.5_PLAN.md §0.5.5 fallback (no re-fit). 2023 val (n_val_tokens=59117) used for temperature scaling; 2025 pitcher-disjoint holdout used for ECE measurement."
+}
