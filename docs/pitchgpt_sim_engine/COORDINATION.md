@@ -129,3 +129,24 @@ Artifacts:
 - **Empirical (single 0-0 PA, directional not gate):** per-position CS marginals stay ~0.28-0.33 calibrated even though context mutates — the model's count-conditioning is weak. class_calibration INFLATES PA-level K% (raw 0.269 → calibrated 0.402; target 0.218). So disabling class_calibration is a real lever, but it CRASHES BB% (0.114 → 0.033) — not a clean win alone.
 - Tests: `tests/test_pitchgpt_sim.py` +19 (state machine, non-constant-context integration, disable flag + env). Full file 49 passed.
 - **For orchestrator:** re-run `scripts/pitchgpt_rollout_sanity_2025.py` A/B (with and without `PITCHGPT_DISABLE_CLASS_CALIBRATION=1`). KILL CRITERION: if K%/BB%/HR% still FAIL, the ONE principled follow-up is refitting `class_calibration` on the mutated rollout (old fit is bug-contaminated). Beyond that, stop and keep the narrowed claim — no hack-tuning.
+
+### 2026-08-04 — Phase 0.6.1 sanity A/B verdict
+
+Post-mutation-verification A/B on the 2025 pitcher-disjoint cohort (10K PA x 100 samples, seed 42):
+
+| variant | K% (emp 0.218) | BB% (emp 0.088) | HR% (emp 0.032) | wOBA | PA len | overall |
+|---|---:|---:|---:|:--:|:--:|:--:|
+| class_calibration ON (default) | 0.3339 FAIL | 0.1177 FAIL | 0.0242 FAIL | PASS | PASS | **FAIL** |
+| class_calibration OFF (`PITCHGPT_DISABLE_CLASS_CALIBRATION=1`) | 0.3651 FAIL | 0.0376 FAIL | 0.0261 FAIL | FAIL | PASS | **FAIL (worse)** |
+
+Verdict: keep class_calibration ON as production default. Root cause of residual K% surplus is the
+model's flat per-position strike response in the self-generated rollout regime (CS ~0.28-0.33 across
+positions vs empirical collapse to 0.045 by pos 5) — the teacher-forced class_calibration amplifies
+it. NOTE: class_calibration was fit teacher-forced on true 2023 val contexts; it is NOT contaminated
+by the (already-fixed-in-6111cd6) static-context bug, correcting the 2026-08-04 morning assumption.
+
+Next (designed follow-up, own kill criterion required before starting): refit class-marginal
+re-weighting ON ROLLOUT OUTPUTS over the 2023 val cohort (per-position generalization of the pos-0
+npz); PASS only if it transfers to the untouched 2025 gates. Until then the flagship claim stays
+narrowed: per-pitch calibration (ECE 0.0114) intact; PA-level K/BB/HR marginals biased — Tier-A
+rank/differential products usable with disclosure, absolute-rate products blocked.
