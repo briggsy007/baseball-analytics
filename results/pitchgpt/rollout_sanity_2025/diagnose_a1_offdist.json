@@ -1,0 +1,191 @@
+{
+  "timestamp_utc": "2026-04-26T16:56:25Z",
+  "spec": "Phase 0.6 hypothesis: A1 outcome head off-distribution at counterfactually-sampled pitches",
+  "args": {
+    "n_pa": 5000,
+    "n_pa_actually_processed": 5000,
+    "n_samples": 20,
+    "horizon": 6,
+    "seed": 42
+  },
+  "device": "cuda",
+  "wall_clock_seconds": {
+    "pass_a_in_distribution": 68.6,
+    "pass_b_counterfactual": 393.2,
+    "total": 478.4
+  },
+  "n_eval_rows": {
+    "in_distribution_pitches": 19528,
+    "counterfactual_pitches": 320939
+  },
+  "outcome_marginals": {
+    "in_distribution": {
+      "ball": 0.268487,
+      "called_strike": 0.194302,
+      "swinging_strike": 0.202636,
+      "foul": 0.14261,
+      "in_play_out": 0.128377,
+      "in_play_hit": 0.058916,
+      "hbp": 0.004671
+    },
+    "counterfactual": {
+      "ball": 0.29476,
+      "called_strike": 0.206486,
+      "swinging_strike": 0.170544,
+      "foul": 0.134074,
+      "in_play_out": 0.128906,
+      "in_play_hit": 0.059469,
+      "hbp": 0.005688
+    },
+    "per_class_delta_pp": {
+      "ball": 2.6272,
+      "called_strike": 1.2184,
+      "swinging_strike": -3.2093,
+      "foul": -0.8536,
+      "in_play_out": 0.0529,
+      "in_play_hit": 0.0553,
+      "hbp": 0.1017
+    }
+  },
+  "distributional_distances": {
+    "tvd": 0.040592,
+    "kl_in_to_cf": 0.00486,
+    "kl_cf_to_in": 0.004602,
+    "js_divergence": 0.001182,
+    "tvd_confirm_threshold": 0.05,
+    "kl_confirm_threshold": 0.05
+  },
+  "rare_token_analysis": {
+    "skipped": false,
+    "train_rare_threshold": 0.001,
+    "rollout_common_threshold": 0.01,
+    "n_rare_tokens": 0,
+    "n_rare_eval_rows": 0,
+    "n_common_eval_rows": 320939,
+    "rare_token_outcome_marginal": null,
+    "common_token_outcome_marginal": {
+      "ball": 0.29476,
+      "called_strike": 0.206486,
+      "swinging_strike": 0.170544,
+      "foul": 0.134074,
+      "in_play_out": 0.128906,
+      "in_play_hit": 0.059469,
+      "hbp": 0.005688
+    },
+    "tvd_rare_vs_common": null,
+    "top_oversampled_tokens": [
+      {
+        "token": 168,
+        "train_freq": 0.008143,
+        "rollout_freq": 0.010304,
+        "delta": 0.002161
+      },
+      {
+        "token": 173,
+        "train_freq": 0.006285,
+        "rollout_freq": 0.008301,
+        "delta": 0.002016
+      },
+      {
+        "token": 218,
+        "train_freq": 0.004919,
+        "rollout_freq": 0.006525,
+        "delta": 0.001606
+      },
+      {
+        "token": 53,
+        "train_freq": 0.007999,
+        "rollout_freq": 0.009326,
+        "delta": 0.001326
+      },
+      {
+        "token": 198,
+        "train_freq": 0.006572,
+        "rollout_freq": 0.007877,
+        "delta": 0.001305
+      },
+      {
+        "token": 138,
+        "train_freq": 0.004532,
+        "rollout_freq": 0.005836,
+        "delta": 0.001304
+      },
+      {
+        "token": 193,
+        "train_freq": 0.008434,
+        "rollout_freq": 0.009563,
+        "delta": 0.001129
+      },
+      {
+        "token": 13,
+        "train_freq": 0.005276,
+        "rollout_freq": 0.006319,
+        "delta": 0.001043
+      },
+      {
+        "token": 143,
+        "train_freq": 0.005673,
+        "rollout_freq": 0.006599,
+        "delta": 0.000927
+      },
+      {
+        "token": 28,
+        "train_freq": 0.005208,
+        "rollout_freq": 0.006001,
+        "delta": 0.000793
+      },
+      {
+        "token": 18,
+        "train_freq": 0.004928,
+        "rollout_freq": 0.00568,
+        "delta": 0.000752
+      },
+      {
+        "token": 163,
+        "train_freq": 0.007424,
+        "rollout_freq": 0.008123,
+        "delta": 0.000699
+      },
+      {
+        "token": 158,
+        "train_freq": 0.005091,
+        "rollout_freq": 0.005718,
+        "delta": 0.000626
+      },
+      {
+        "token": 188,
+        "train_freq": 0.008215,
+        "rollout_freq": 0.008603,
+        "delta": 0.000388
+      },
+      {
+        "token": 78,
+        "train_freq": 0.007184,
+        "rollout_freq": 0.007534,
+        "delta": 0.00035
+      }
+    ]
+  },
+  "calibration_drift": {
+    "ece_in_distribution_T_locked": 0.020589,
+    "ece_in_distribution_T1": 0.038267,
+    "ece_locked_T_value": 0.8003096499977166,
+    "note": "Counterfactual ECE cannot be computed without ground-truth labels for sampled pitches.  We report in-distribution ECE with T=0.8003 (production) vs T=1.0 (no scaling).  If the T=0.8003 ECE is much smaller than T=1.0 ECE in-distribution AND the marginal TVD(in, cf) > 0.05, the temperature is over-fit in-distribution and contributes to the off-dist bias under counterfactual sampling."
+  },
+  "k_pct_attribution_estimate": {
+    "in_dist_strike_marginal": 0.396938,
+    "counterfactual_strike_marginal": 0.37703,
+    "delta_strike_marginal_pp": -1.9908,
+    "naive_k_pct_pp_attribution": -1.9908,
+    "phase06_observed_k_pct_pp_gap": 8.88,
+    "fraction_of_observed_gap_explained_naive": -0.2242,
+    "note": "Naive attribution: per-pitch strike-marginal shift in pp is an upper-bound estimate of per-PA K% shift contribution.  Compounding across PA-length distribution may amplify (strike-per-pitch -> K-per-PA is a positive-feedback loop).  Use this value as a rough order-of-magnitude only."
+  },
+  "verdict": "FALSIFIED",
+  "verdict_explanation": "FALSIFIED (direction-opposite): TVD=0.0406, KL=0.0049.  Counterfactual A1 outcome distribution drifts in the OPPOSITE direction from the Phase 0.6 K%/BB% bias: ball: +2.63pp (OVER-predicts ball), called_strike: +1.22pp, swinging_strike: -3.21pp (net strike-marginal goes DOWN under counterfactual sampling, not UP).  Whatever drift exists in A1 under counterfactual sampling is in the WRONG direction to explain the +8.9pp K% / -4.5pp BB% gate FAIL.  The bias must come from elsewhere -- pitch-token sampling, PA-termination logic, or static-context (parallel agents).",
+  "checkpoints": {
+    "backbone_v2_sha256": "6f952054d14ac6f918f3eb9502b496b70bc0c87dfc65dc50d98ee7244a62883c",
+    "a1_head_sha256": "37b50e87599013c281560c9f63286fe5b7645297d0042694d907287417bb25e5",
+    "a1_temperature_locked": 0.8003096499977166
+  }
+}

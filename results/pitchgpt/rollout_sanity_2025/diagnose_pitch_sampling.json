@@ -1,0 +1,251 @@
+{
+  "timestamp_utc": "2026-04-26T16:38:24Z",
+  "spec": "Phase 0.6 diagnostic: pitch-token sampling hypothesis",
+  "args": {
+    "n_pa_main": 10000,
+    "n_samples": 100,
+    "n_pa_temp_sweep": 2000,
+    "seed": 42,
+    "horizon_for_kbb_heuristic": 6
+  },
+  "wall_clock_seconds": 141.9,
+  "scope_cuts": [],
+  "verdict": "FALSIFIED",
+  "headline": {
+    "observed_k_bias_pp": 8.884,
+    "observed_bb_bias_pp": -4.465,
+    "delta_in_zone_t10_tokenizer_pp": -6.2932,
+    "heuristic_implied_k_gap_t10_pp": -11.5866,
+    "heuristic_implied_bb_gap_t10_pp": 11.5866,
+    "attributable_k_bias_pp": 0.0,
+    "attributable_bb_bias_pp": 0.0,
+    "attribution_pct_of_observed_k_bias": 0.0
+  },
+  "empirical_2025_first_pitch": {
+    "statcast_zone": {
+      "p_in_zone": 0.549525,
+      "p_out_zone": 0.450475,
+      "p_missing": 0.0,
+      "n_total": 190155,
+      "zone_counts": {
+        "1": 8993,
+        "2": 10909,
+        "3": 7992,
+        "4": 13002,
+        "5": 16956,
+        "6": 13213,
+        "7": 9265,
+        "8": 13192,
+        "9": 10973,
+        "11": 21221,
+        "12": 15662,
+        "13": 19586,
+        "14": 29191
+      }
+    },
+    "tokenizer": {
+      "p_in_zone": 0.539018,
+      "p_out_zone": 0.460982,
+      "p_missing": 0.0,
+      "n_pitches": 190155,
+      "pitch_type_counts": {
+        "FF": 62372,
+        "SI": 36044,
+        "FC": 16482,
+        "SL": 26984,
+        "CU": 14430,
+        "CH": 12224,
+        "FS": 3429,
+        "KC": 3233,
+        "KN": 29,
+        "EP": 399,
+        "CS": 121,
+        "SV": 904,
+        "ST": 13152,
+        "SC": 2,
+        "FO": 53,
+        "FA": 272,
+        "UN": 25
+      },
+      "zone_counts": [
+        2952,
+        5534,
+        8646,
+        8487,
+        7061,
+        4164,
+        9130,
+        13473,
+        10819,
+        6044,
+        5930,
+        11912,
+        16320,
+        12150,
+        5958,
+        5396,
+        8994,
+        11567,
+        8132,
+        3842,
+        4566,
+        5907,
+        6453,
+        4322,
+        2396,
+        0
+      ],
+      "velo_bucket_counts": [
+        15668,
+        29504,
+        41459,
+        65983,
+        37541
+      ]
+    }
+  },
+  "sampled_t10": {
+    "n_pa": 10000,
+    "n_samples": 100,
+    "n_total_pitches": 1000000,
+    "tvd_token_vs_empirical": 0.213272,
+    "kl_sampled_vs_empirical_token": 0.252226,
+    "kl_empirical_vs_sampled_token": 0.163183,
+    "tvd_zone_vs_empirical": 0.07081,
+    "kl_sampled_vs_empirical_zone": 0.024416,
+    "tvd_pitch_type_vs_empirical": 0.108914,
+    "tvd_velo_bucket_vs_empirical": 0.083882,
+    "p_in_zone_tokenizer": 0.476086,
+    "p_in_zone_minus_empirical": -0.062932,
+    "p_in_zone_minus_uniform_grid": 0.129932,
+    "pitch_type_counts": {
+      "FF": 365101,
+      "SI": 229583,
+      "FC": 80087,
+      "SL": 118542,
+      "CU": 41104,
+      "CH": 70847,
+      "FS": 27397,
+      "KC": 26082,
+      "KN": 2301,
+      "EP": 1594,
+      "CS": 459,
+      "SV": 5702,
+      "ST": 25667,
+      "SC": 287,
+      "FO": 1237,
+      "FA": 2463,
+      "UN": 1547
+    },
+    "zone_counts": [
+      24711,
+      36212,
+      45264,
+      47992,
+      46025,
+      32002,
+      48771,
+      60214,
+      57105,
+      38916,
+      38632,
+      54541,
+      69096,
+      59905,
+      38588,
+      28662,
+      37634,
+      48913,
+      39907,
+      25230,
+      22035,
+      27268,
+      33002,
+      22803,
+      16110,
+      462
+    ],
+    "velo_bucket_counts": [
+      73940,
+      141382,
+      213136,
+      430878,
+      140664
+    ],
+    "wall_clock_seconds": 89.8
+  },
+  "heuristic_implied_kbb": {
+    "horizon": 6,
+    "note": "Closed-form K%/BB% under count-only None-predictor heuristic (in-zone -> +1 strike, otherwise +1 ball) given i.i.d. H=0 in-zone draw probability.  Worst-case proxy that ISOLATES the marginal-sampling effect from the outcome predictor.",
+    "empirical_tokenizer_in_zone_rate": {
+      "p_in_zone": 0.5390181693881307,
+      "horizon": 6,
+      "implied_k_pct": 0.726275415468272,
+      "implied_bb_pct": 0.27372458453172777,
+      "implied_truncated_pct": 0.0
+    },
+    "empirical_statcast_in_zone_rate": {
+      "p_in_zone": 0.5495253871841392,
+      "horizon": 6,
+      "implied_k_pct": 0.7439505585953387,
+      "implied_bb_pct": 0.25604944140466135,
+      "implied_truncated_pct": 0.0
+    },
+    "sampled_t10_in_zone_rate": {
+      "p_in_zone": 0.476086,
+      "horizon": 6,
+      "implied_k_pct": 0.6104097598010232,
+      "implied_bb_pct": 0.389590240198977,
+      "implied_truncated_pct": 0.0
+    }
+  },
+  "temperature_sweep": {
+    "T": {
+      "0.8": {
+        "wall_clock_seconds": 16.0,
+        "n_pa": 2000,
+        "tvd_token_vs_empirical": 0.261254,
+        "tvd_zone_vs_empirical": 0.05313,
+        "p_in_zone_tokenizer": 0.509145,
+        "delta_in_zone_vs_empirical": -0.029873,
+        "heuristic_implied_kbb": {
+          "p_in_zone": 0.509145,
+          "horizon": 6,
+          "implied_k_pct": 0.6732362956335389,
+          "implied_bb_pct": 0.32676370436646096,
+          "implied_truncated_pct": 0.0
+        }
+      },
+      "1.2": {
+        "wall_clock_seconds": 21.8,
+        "n_pa": 2000,
+        "tvd_token_vs_empirical": 0.224386,
+        "tvd_zone_vs_empirical": 0.090854,
+        "p_in_zone_tokenizer": 0.45376,
+        "delta_in_zone_vs_empirical": -0.085258,
+        "heuristic_implied_kbb": {
+          "p_in_zone": 0.45376,
+          "horizon": 6,
+          "implied_k_pct": 0.5660682505546109,
+          "implied_bb_pct": 0.4339317494453895,
+          "implied_truncated_pct": 0.0
+        }
+      }
+    },
+    "T_1.0_in_zone": 0.476086,
+    "comparison": {
+      "0.8": {
+        "delta_in_zone_vs_T_1.0": 0.033059
+      },
+      "1.2": {
+        "delta_in_zone_vs_T_1.0": -0.022326
+      }
+    }
+  },
+  "conventions": {
+    "statcast_in_zone": "zones {1,..,9}",
+    "statcast_out_zone": "zones {11,..,14}",
+    "tokenizer_in_zone": "PitchTokenizer 5x5 inner-3x3 indices [6, 7, 8, 11, 12, 13, 16, 17, 18] (matches src/analytics/pitchgpt_sim.py _IN_ZONE_INDICES, used by None-predictor count-only fallback).",
+    "tokenizer_out_zone": "all other 5x5 indices except 25 (missing)."
+  }
+}
