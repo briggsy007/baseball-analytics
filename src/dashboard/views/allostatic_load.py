@@ -22,23 +22,18 @@ import streamlit as st
 from src.dashboard.db_helper import get_db_connection, has_data
 
 # ---------------------------------------------------------------------------
-# Graceful imports
+# Imports
 # ---------------------------------------------------------------------------
 
-_ABL_AVAILABLE = False
-try:
-    from src.analytics.allostatic_load import (
-        ABLConfig,
-        AllostaticLoadModel,
-        calculate_abl,
-        batch_calculate,
-        compute_game_stressors,
-        validate_against_outcomes,
-        predict_recovery_days,
-    )
-    _ABL_AVAILABLE = True
-except ImportError:
-    pass
+from src.analytics.allostatic_load import (
+    ABLConfig,
+    AllostaticLoadModel,
+    calculate_abl,
+    batch_calculate,
+    compute_game_stressors,
+    validate_against_outcomes,
+    predict_recovery_days,
+)
 
 _CACHE_AVAILABLE = False
 try:
@@ -46,8 +41,6 @@ try:
     _CACHE_AVAILABLE = True
 except Exception:
     pass
-
-_USE_MOCK = False
 
 # Phillies red / blue palette
 _PHILLIES_RED = "#E81828"
@@ -71,56 +64,6 @@ _CHANNEL_LABELS = {
     "travel_stress": "Travel Stress",
     "composite_abl": "Composite ABL",
 }
-
-
-# ---------------------------------------------------------------------------
-# Mock data
-# ---------------------------------------------------------------------------
-
-def _generate_mock_leaderboard() -> pd.DataFrame:
-    """Generate mock ABL data for development / demo mode."""
-    rng = np.random.RandomState(42)
-    n = 25
-    names = [f"Player {chr(65 + i)}" for i in range(n)]
-    abls = np.clip(rng.normal(45, 20, size=n), 0, 100)
-
-    df = pd.DataFrame({
-        "batter_id": range(100000, 100000 + n),
-        "name": names,
-        "season": 2025,
-        "composite_abl": np.round(abls, 2),
-        "peak_abl": np.round(np.clip(abls + rng.uniform(5, 20, n), 0, 100), 2),
-        "peak_date": "2025-07-15",
-        "games_played": rng.randint(60, 140, size=n),
-        "pitch_processing": np.round(rng.uniform(20, 80, n), 1),
-        "decision_conflict": np.round(rng.uniform(5, 30, n), 1),
-        "swing_exertion": np.round(rng.uniform(15, 60, n), 1),
-        "temporal_demand": np.round(rng.uniform(3, 7, n), 1),
-        "travel_stress": np.round(rng.uniform(0, 15, n), 1),
-    })
-    return df.sort_values("composite_abl", ascending=False).reset_index(drop=True)
-
-
-def _generate_mock_timeline() -> pd.DataFrame:
-    """Generate mock timeline for a single batter."""
-    rng = np.random.RandomState(42)
-    n = 80
-    dates = pd.date_range("2025-04-01", periods=n, freq="2D")
-
-    # Simulate gradual buildup with noise
-    base = np.cumsum(rng.normal(0.5, 0.3, n))
-    base = np.clip(base, 0, None)
-
-    df = pd.DataFrame({
-        "game_date": dates,
-        "pitch_processing": np.clip(base * 1.2 + rng.normal(0, 3, n), 0, None),
-        "decision_conflict": np.clip(base * 0.5 + rng.normal(0, 1.5, n), 0, None),
-        "swing_exertion": np.clip(base * 0.8 + rng.normal(0, 2, n), 0, None),
-        "temporal_demand": np.clip(rng.uniform(3, 7, n), 0, None),
-        "travel_stress": np.clip(rng.exponential(3, n), 0, None),
-        "composite_abl": np.clip(base * 3 + rng.normal(0, 5, n), 0, 100),
-    })
-    return df
 
 
 # ---------------------------------------------------------------------------
@@ -151,14 +94,7 @@ def render() -> None:
 
     conn = get_db_connection()
 
-    if not _ABL_AVAILABLE and not _USE_MOCK:
-        st.error(
-            "The `allostatic_load` analytics module could not be imported. "
-            "Check that `src/analytics/allostatic_load.py` exists."
-        )
-        return
-
-    if not _USE_MOCK and (conn is None or not has_data(conn)):
+    if conn is None or not has_data(conn):
         st.warning(
             "No pitch data available. Run the data backfill pipeline first "
             "(`python scripts/backfill.py`)."
@@ -273,12 +209,6 @@ def _load_leaderboard(
     min_games: int,
 ) -> pd.DataFrame | None:
     """Load ABL leaderboard, using cache then live computation."""
-    if _USE_MOCK:
-        return _generate_mock_leaderboard()
-
-    if not _ABL_AVAILABLE:
-        return None
-
     # Try cache first
     if _CACHE_AVAILABLE:
         try:
@@ -331,16 +261,10 @@ def _render_load_timeline(conn, batter_id: int, season: int) -> None:
     """Multi-line chart showing all 5 channels + composite ABL over the season."""
     st.subheader("Fatigue Load Timeline")
 
-    if _USE_MOCK:
-        timeline = _generate_mock_timeline()
-    elif _ABL_AVAILABLE:
-        result = _cached_calculate_abl(batter_id, season)
-        timeline = result.get("timeline")
-        if timeline is None or timeline.empty:
-            st.info("No timeline data available for this batter.")
-            return
-    else:
-        st.info("ABL module not available.")
+    result = _cached_calculate_abl(batter_id, season)
+    timeline = result.get("timeline")
+    if timeline is None or timeline.empty:
+        st.info("No timeline data available for this batter.")
         return
 
     fig = go.Figure()
@@ -392,24 +316,11 @@ def _render_current_gauges(conn, batter_id: int, season: int) -> None:
     """Gauge charts for each channel + composite."""
     st.subheader("Current Fatigue Load")
 
-    if _USE_MOCK:
-        channel_loads = {
-            "pitch_processing": 45.2,
-            "decision_conflict": 18.7,
-            "swing_exertion": 32.1,
-            "temporal_demand": 5.8,
-            "travel_stress": 8.3,
-        }
-        composite = 62.4
-    elif _ABL_AVAILABLE:
-        result = _cached_calculate_abl(batter_id, season)
-        channel_loads = result.get("channel_loads", {})
-        composite = result.get("composite_abl")
-        if composite is None:
-            st.info("No ABL data available for this batter.")
-            return
-    else:
-        st.info("ABL module not available.")
+    result = _cached_calculate_abl(batter_id, season)
+    channel_loads = result.get("channel_loads", {})
+    composite = result.get("composite_abl")
+    if composite is None:
+        st.info("No ABL data available for this batter.")
         return
 
     # Composite gauge (full width)
@@ -479,79 +390,66 @@ def _render_fatigue_scatter(conn, batter_id: int, season: int) -> None:
     """Scatter of ABL vs chase rate or contact rate with regression line."""
     st.subheader("Fatigue vs Performance")
 
-    if _USE_MOCK:
-        rng = np.random.RandomState(42)
-        n = 60
-        abl = np.clip(rng.normal(50, 20, n), 0, 100)
-        chase = 0.25 + 0.002 * abl + rng.normal(0, 0.05, n)
-        scatter_df = pd.DataFrame({
-            "composite_abl": abl,
-            "chase_rate": chase,
-        })
-    elif _ABL_AVAILABLE:
-        validation = _cached_validate_against_outcomes(batter_id, season)
-        # Also get the per-game timeline for scatter
-        result = _cached_calculate_abl(batter_id, season)
-        timeline = result.get("timeline")
-        if timeline is None or timeline.empty:
-            st.info("No timeline data available for this batter.")
-            return
-
-        # Compute per-game chase rate
-        game_pks = timeline["game_pk"].tolist()
-        if not game_pks:
-            st.info("No games available.")
-            return
-
-        gp_str = ", ".join(str(int(g)) for g in game_pks)
-        try:
-            outcome_query = f"""
-                SELECT
-                    game_pk,
-                    SUM(CASE
-                        WHEN zone IS NOT NULL AND zone > 9
-                         AND description IN (
-                            'swinging_strike', 'swinging_strike_blocked',
-                            'foul', 'foul_tip', 'hit_into_play',
-                            'hit_into_play_no_out', 'hit_into_play_score',
-                            'missed_bunt', 'foul_bunt'
-                        )
-                        THEN 1 ELSE 0
-                    END) AS o_swings,
-                    SUM(CASE WHEN zone IS NOT NULL AND zone > 9
-                        THEN 1 ELSE 0
-                    END) AS o_pitches
-                FROM pitches
-                WHERE batter_id = $1
-                  AND game_pk IN ({gp_str})
-                GROUP BY game_pk
-            """
-            outcomes = conn.execute(outcome_query, [batter_id]).fetchdf()
-        except Exception:
-            st.info("Could not query outcome data.")
-            return
-
-        outcomes["chase_rate"] = np.where(
-            outcomes["o_pitches"] > 0,
-            outcomes["o_swings"] / outcomes["o_pitches"],
-            np.nan,
-        )
-        scatter_df = timeline[["game_pk", "composite_abl"]].merge(
-            outcomes[["game_pk", "chase_rate"]], on="game_pk", how="inner"
-        ).dropna()
-
-        if scatter_df.empty:
-            st.info("No overlapping ABL and chase rate data.")
-            return
-
-        # Show validation stats
-        if validation.get("chase_rate_corr") is not None:
-            st.metric("ABL-Chase Rate Correlation", f"{validation['chase_rate_corr']:.3f}")
-        if validation.get("zone_contact_corr") is not None:
-            st.metric("ABL-Zone Contact Correlation", f"{validation['zone_contact_corr']:.3f}")
-    else:
-        st.info("ABL module not available.")
+    validation = _cached_validate_against_outcomes(batter_id, season)
+    # Also get the per-game timeline for scatter
+    result = _cached_calculate_abl(batter_id, season)
+    timeline = result.get("timeline")
+    if timeline is None or timeline.empty:
+        st.info("No timeline data available for this batter.")
         return
+
+    # Compute per-game chase rate
+    game_pks = timeline["game_pk"].tolist()
+    if not game_pks:
+        st.info("No games available.")
+        return
+
+    gp_str = ", ".join(str(int(g)) for g in game_pks)
+    try:
+        outcome_query = f"""
+            SELECT
+                game_pk,
+                SUM(CASE
+                    WHEN zone IS NOT NULL AND zone > 9
+                     AND description IN (
+                        'swinging_strike', 'swinging_strike_blocked',
+                        'foul', 'foul_tip', 'hit_into_play',
+                        'hit_into_play_no_out', 'hit_into_play_score',
+                        'missed_bunt', 'foul_bunt'
+                    )
+                    THEN 1 ELSE 0
+                END) AS o_swings,
+                SUM(CASE WHEN zone IS NOT NULL AND zone > 9
+                    THEN 1 ELSE 0
+                END) AS o_pitches
+            FROM pitches
+            WHERE batter_id = $1
+              AND game_pk IN ({gp_str})
+            GROUP BY game_pk
+        """
+        outcomes = conn.execute(outcome_query, [batter_id]).fetchdf()
+    except Exception:
+        st.info("Could not query outcome data.")
+        return
+
+    outcomes["chase_rate"] = np.where(
+        outcomes["o_pitches"] > 0,
+        outcomes["o_swings"] / outcomes["o_pitches"],
+        np.nan,
+    )
+    scatter_df = timeline[["game_pk", "composite_abl"]].merge(
+        outcomes[["game_pk", "chase_rate"]], on="game_pk", how="inner"
+    ).dropna()
+
+    if scatter_df.empty:
+        st.info("No overlapping ABL and chase rate data.")
+        return
+
+    # Show validation stats
+    if validation.get("chase_rate_corr") is not None:
+        st.metric("ABL-Chase Rate Correlation", f"{validation['chase_rate_corr']:.3f}")
+    if validation.get("zone_contact_corr") is not None:
+        st.metric("ABL-Zone Contact Correlation", f"{validation['zone_contact_corr']:.3f}")
 
     if scatter_df.empty:
         st.info("Not enough data for scatter plot.")
@@ -614,19 +512,12 @@ def _render_rest_optimisation(
     """Predict days until ABL drops below threshold."""
     st.subheader("Rest Optimisation")
 
-    if _USE_MOCK:
-        current_abl = 72.5
-        days_needed = 4
-    elif _ABL_AVAILABLE:
-        result = _cached_calculate_abl(batter_id, season)
-        current_abl = result.get("composite_abl")
-        if current_abl is None:
-            st.info("No ABL data available for this batter.")
-            return
-        days_needed = predict_recovery_days(current_abl, threshold)
-    else:
-        st.info("ABL module not available.")
+    result = _cached_calculate_abl(batter_id, season)
+    current_abl = result.get("composite_abl")
+    if current_abl is None:
+        st.info("No ABL data available for this batter.")
         return
+    days_needed = predict_recovery_days(current_abl, threshold)
 
     col1, col2, col3 = st.columns(3)
     col1.metric("Current ABL", f"{current_abl:.1f}")

@@ -7,3 +7,14 @@ font = "sans serif"
 
 [server]
 headless = true
+runOnSave = false
+fileWatcherType = "none"
+
+[client]
+showErrorDetails = false
+
+[logger]
+level = "error"
+
+[runner]
+magicEnabled = false

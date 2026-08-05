@@ -14,28 +14,20 @@ import requests
 import streamlit as st
 
 # ---------------------------------------------------------------------------
-# Graceful imports
+# Imports
 # ---------------------------------------------------------------------------
 
-_USE_MOCK_MATCHUP = False
-try:
-    from src.analytics.matchups import (
-        get_matchup_stats as _real_get_matchup_stats,
-        get_lineup_matchups as _real_get_lineup_matchups,
-        get_pitcher_profile as _real_get_pitcher_profile,
-    )
-except ImportError:
-    _USE_MOCK_MATCHUP = True
+from src.analytics.matchups import (
+    get_matchup_stats as _real_get_matchup_stats,
+    get_lineup_matchups as _real_get_lineup_matchups,
+    get_pitcher_profile as _real_get_pitcher_profile,
+)
 
-_USE_MOCK_ROSTER = False
-try:
-    from src.ingest.roster_tracker import (
-        get_active_roster as _real_get_active_roster,
-        get_recent_transactions as _real_get_recent_transactions,
-        get_phillies_pitching_staff as _real_get_phillies_pitching_staff,
-    )
-except ImportError:
-    _USE_MOCK_ROSTER = True
+from src.ingest.roster_tracker import (
+    get_active_roster as _real_get_active_roster,
+    get_recent_transactions as _real_get_recent_transactions,
+    get_phillies_pitching_staff as _real_get_phillies_pitching_staff,
+)
 
 _HAS_LIVE_FEED = False
 try:
@@ -47,14 +39,6 @@ try:
 except ImportError:
     pass
 
-from src.dashboard.mock_data import (
-    mock_lineup,
-    mock_matchup_stats,
-    mock_pitcher_profile,
-    mock_schedule,
-    mock_standings,
-    mock_transactions,
-)
 from src.dashboard.db_helper import (
     get_db_connection,
     has_data,
@@ -70,8 +54,6 @@ from src.dashboard.components.pitch_movement import create_pitch_movement_chart
 @st.cache_data(ttl=3600)
 def _cached_active_roster() -> list[dict] | None:
     """Cached active roster from the MLB API (TTL 1 hour)."""
-    if _USE_MOCK_ROSTER:
-        return None
     try:
         roster = _real_get_active_roster(143)
         return roster if roster else None
@@ -82,8 +64,6 @@ def _cached_active_roster() -> list[dict] | None:
 @st.cache_data(ttl=300)
 def _cached_transactions() -> list[dict] | None:
     """Cached recent transactions from the MLB API (TTL 5 min)."""
-    if _USE_MOCK_ROSTER:
-        return None
     try:
         txns = _real_get_recent_transactions(143)
         return txns if txns else None
@@ -97,8 +77,6 @@ def _cached_pitching_staff() -> dict | None:
 
     Passes the DB connection for enrichment if available.
     """
-    if _USE_MOCK_ROSTER:
-        return None
     try:
         conn = get_db_connection()
         return _real_get_phillies_pitching_staff(conn=conn)
@@ -117,7 +95,7 @@ def _cached_player_id_by_name(name: str) -> int | None:
 def _cached_lineup_matchups(pitcher_id: int, lineup_ids: tuple[int, ...]) -> list[dict] | None:
     """Cached lineup matchup cards (TTL 5 min)."""
     conn = get_db_connection()
-    if conn is None or _USE_MOCK_MATCHUP:
+    if conn is None:
         return None
     try:
         return _real_get_lineup_matchups(conn, pitcher_id, list(lineup_ids))
@@ -129,7 +107,7 @@ def _cached_lineup_matchups(pitcher_id: int, lineup_ids: tuple[int, ...]) -> lis
 def _cached_standings() -> dict[str, Any] | None:
     """Fetch real Phillies standings from the MLB Stats API (TTL 5 min).
 
-    Returns a dict matching the mock_standings() format, or None on failure.
+    Returns a dict with team record / division standings, or None on failure.
     """
     try:
         resp = requests.get(
@@ -205,7 +183,7 @@ def _cached_schedule() -> list[dict[str, Any]] | None:
     """Fetch real Phillies schedule from the MLB Stats API (TTL 30 min).
 
     Uses a single date-range API call instead of 7 sequential requests.
-    Returns a list of game dicts in mock_schedule() format, or None on failure.
+    Returns a list of game dicts with date/opponent/starter info, or None on failure.
     """
     from datetime import datetime, timedelta
     try:
@@ -340,7 +318,7 @@ def _cached_todays_game() -> dict[str, Any] | None:
 def _get_matchup_stats(pitcher_name: str, batter_name: str) -> dict[str, Any] | None:
     """Get matchup stats. Tries real DB first, returns None if unavailable."""
     conn = get_db_connection()
-    if has_data(conn) and not _USE_MOCK_MATCHUP:
+    if has_data(conn):
         try:
             pitcher_id = _cached_player_id_by_name(pitcher_name)
             batter_id = _cached_player_id_by_name(batter_name)
@@ -401,7 +379,7 @@ def _adapt_matchup_stats(real: dict, pitcher_name: str, batter_name: str) -> dic
 
 @st.cache_data(ttl=300)
 def _get_transactions() -> list[dict[str, Any]]:
-    """Return recent transactions.  Tries real API, falls back to mock."""
+    """Return recent transactions from the real API."""
     real_txns = _cached_transactions()
     if real_txns is not None:
         # Adapt API output format to what dashboard expects
@@ -414,8 +392,7 @@ def _get_transactions() -> list[dict[str, Any]]:
                 "detail": txn.get("description", ""),
             })
         return adapted
-    st.warning("Showing demo data -- real transaction data unavailable")
-    return mock_transactions()
+    return []
 
 
 @st.cache_data(ttl=600)
@@ -442,17 +419,16 @@ def render() -> None:
     conn = get_db_connection()
     use_real = has_data(conn)
 
-    # Fetch REAL standings from MLB API, fall back to mock only on failure
+    # Fetch REAL standings from MLB API
     standings = _cached_standings()
     if standings is None:
-        standings = mock_standings()
-        st.warning("Showing demo data -- standings API unreachable")
+        st.warning("Standings API unreachable -- cannot display team record.")
 
-    # Fetch REAL schedule from MLB API, fall back to mock only on failure
+    # Fetch REAL schedule from MLB API
     schedule = _cached_schedule()
     if schedule is None:
-        schedule = mock_schedule()
-        st.warning("Showing demo data -- schedule API unreachable")
+        st.warning("Schedule API unreachable -- cannot display upcoming games.")
+        schedule = []
 
     # Fetch REAL today's game info
     today_game = _cached_todays_game()
@@ -467,9 +443,9 @@ def render() -> None:
         st.caption("Roster data unavailable from MLB API.")
 
     # ----- Record & standings -----
-    _render_record(standings)
-
-    st.markdown("---")
+    if standings is not None:
+        _render_record(standings)
+        st.markdown("---")
 
     # ----- Pitching staff (from real API + DB enrichment) -----
     pitching_staff = _get_pitching_staff()
@@ -594,9 +570,9 @@ def _render_scouting_report(pitcher_name: str, use_real: bool = False) -> None:
     """Opponent starting pitcher scouting report."""
     st.subheader(f"Scouting Report: {pitcher_name}")
 
-    # Try real pitcher profile from DB first, fall back to mock
+    # Try real pitcher profile from DB
     profile = None
-    if use_real and not _USE_MOCK_MATCHUP:
+    if use_real:
         try:
             conn = get_db_connection()
             pitcher_id = _cached_player_id_by_name(pitcher_name)
@@ -609,8 +585,8 @@ def _render_scouting_report(pitcher_name: str, use_real: bool = False) -> None:
         except Exception:
             pass
     if profile is None:
-        profile = mock_pitcher_profile(pitcher_name)
-        st.warning("Using demo data for scouting report -- real data unavailable for this pitcher.")
+        st.warning("Real scouting data unavailable for this pitcher -- run backfill.py to load Statcast data.")
+        return
 
     # Headline stats
     c1, c2, c3, c4, c5 = st.columns(5)
@@ -711,10 +687,11 @@ def _render_lineup_matchups(opp_starter: str, use_real: bool = False) -> None:
                 })
                 order += 1
     else:
-        lineup = mock_lineup("PHI")
+        st.info("Roster API unreachable -- cannot build lineup matchups.")
+        return
 
     # Try real lineup matchups if DB is available
-    if use_real and not _USE_MOCK_MATCHUP:
+    if use_real:
         pitcher_id = _cached_player_id_by_name(opp_starter)
         if pitcher_id is not None:
             # Resolve batter IDs (cached individually -- avoids N sequential DB hits)

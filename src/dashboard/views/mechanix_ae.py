@@ -109,11 +109,22 @@ def _mdi_label(mdi: float) -> str:
 # ---------------------------------------------------------------------------
 
 
+@st.cache_resource(ttl=3600)
+def _cached_load_mechanix_model(pitcher_id: int | None):
+    """Cache the loaded MechanixVAE torch model + checkpoint dict.
+
+    ``@st.cache_resource`` is required (not ``@st.cache_data``) because
+    torch ``nn.Module`` instances aren't hashable/serialisable and we
+    want one process-wide instance, not a per-call copy.
+    """
+    return _load_model(pitcher_id)
+
+
 @st.cache_data(ttl=3600)
 def _cached_mdi(pitcher_id: int) -> dict:
     """Cached MDI calculation for a pitcher."""
     conn = get_db_connection()
-    model, checkpoint = _load_model(pitcher_id)
+    model, checkpoint = _cached_load_mechanix_model(pitcher_id)
     return calculate_mdi(conn, pitcher_id, model=model, checkpoint=checkpoint)
 
 
@@ -121,7 +132,7 @@ def _cached_mdi(pitcher_id: int) -> dict:
 def _cached_drift_velocity(pitcher_id: int) -> dict:
     """Cached drift velocity calculation."""
     conn = get_db_connection()
-    model, checkpoint = _load_model(pitcher_id)
+    model, checkpoint = _cached_load_mechanix_model(pitcher_id)
     return calculate_drift_velocity(conn, pitcher_id, model=model, checkpoint=checkpoint)
 
 
@@ -193,7 +204,7 @@ def _render_pitcher_analysis(conn) -> None:
     model = None
     checkpoint = None
     try:
-        model, checkpoint = _load_model(pitcher_id)
+        model, checkpoint = _cached_load_mechanix_model(pitcher_id)
     except FileNotFoundError:
         st.info(
             "No trained MechanixAE model found.  "
@@ -204,7 +215,12 @@ def _render_pitcher_analysis(conn) -> None:
                 result = train_mechanix_ae(conn, pitcher_id=pitcher_id, epochs=15)
             if result["status"] == "trained":
                 st.success(f"Model trained! Final loss: {result['final_loss']:.5f}")
-                model, checkpoint = _load_model(pitcher_id)
+                # Bust the cache for this pitcher after a fresh train
+                try:
+                    _cached_load_mechanix_model.clear()
+                except Exception:
+                    pass
+                model, checkpoint = _cached_load_mechanix_model(pitcher_id)
             else:
                 st.warning("Training failed -- not enough data for this pitcher.")
                 return

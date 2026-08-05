@@ -8,8 +8,6 @@ and batter anomaly panels.
 
 from __future__ import annotations
 
-import random
-from datetime import datetime, timedelta
 from typing import Any
 
 import numpy as np
@@ -18,24 +16,16 @@ import plotly.graph_objects as go
 import streamlit as st
 
 # ---------------------------------------------------------------------------
-# Graceful imports
+# Imports
 # ---------------------------------------------------------------------------
 
-_USE_MOCK_ANOMALY = False
-try:
-    from src.analytics.anomaly import (
-        GameAnomalyMonitor,
-        calculate_pitcher_baselines as _real_calculate_pitcher_baselines,
-        detect_batter_anomalies as _real_detect_batter_anomalies,
-    )
-except ImportError:
-    _USE_MOCK_ANOMALY = True
-
-from src.dashboard.mock_data import (
-    ARSENALS,
-    PHILLIES_SP,
-    PITCH_TYPES,
+from src.analytics.anomaly import (
+    GameAnomalyMonitor,
+    calculate_pitcher_baselines as _real_calculate_pitcher_baselines,
+    detect_batter_anomalies as _real_detect_batter_anomalies,
 )
+
+from src.dashboard.mock_data import PITCH_TYPES
 from src.dashboard.db_helper import (
     get_db_connection,
     has_data,
@@ -49,9 +39,9 @@ from src.dashboard.db_helper import (
 # Cached wrappers
 # ---------------------------------------------------------------------------
 
-@st.cache_data(ttl=3600)
+@st.cache_data(ttl=600)
 def _cached_player_id_by_name(name: str) -> int | None:
-    """Cached player ID lookup (TTL 1 hour) -- avoids repeated DB queries."""
+    """Cached player ID lookup (TTL 10 min) -- avoids repeated DB queries."""
     conn = get_db_connection()
     return get_player_id_by_name(conn, name)
 
@@ -60,7 +50,7 @@ def _cached_player_id_by_name(name: str) -> int | None:
 def _cached_pitcher_baselines(pitcher_id: int) -> dict | None:
     """Cached pitcher baselines from the real analytics module (TTL 5 min)."""
     conn = get_db_connection()
-    if conn is None or _USE_MOCK_ANOMALY:
+    if conn is None:
         return None
     try:
         return _real_calculate_pitcher_baselines(conn, pitcher_id)
@@ -72,7 +62,7 @@ def _cached_pitcher_baselines(pitcher_id: int) -> dict | None:
 def _cached_batter_anomalies(batter_id: int) -> list[dict] | None:
     """Cached batter anomaly alerts from the real analytics module (TTL 5 min)."""
     conn = get_db_connection()
-    if conn is None or _USE_MOCK_ANOMALY:
+    if conn is None:
         return None
     try:
         return _real_detect_batter_anomalies(conn, batter_id)
@@ -80,16 +70,16 @@ def _cached_batter_anomalies(batter_id: int) -> list[dict] | None:
         return None
 
 
-@st.cache_data(ttl=3600)
+@st.cache_data(ttl=600)
 def _cached_all_pitchers() -> list[dict]:
-    """Cached list of all pitchers in the DB (TTL 1 hour)."""
+    """Cached list of all pitchers in the DB (TTL 10 min)."""
     conn = get_db_connection()
     return get_all_pitchers(conn)
 
 
-@st.cache_data(ttl=3600)
+@st.cache_data(ttl=600)
 def _cached_all_batters() -> list[dict]:
-    """Cached list of all batters in the DB (TTL 1 hour)."""
+    """Cached list of all batters in the DB (TTL 10 min)."""
     conn = get_db_connection()
     return get_all_batters(conn)
 
@@ -99,15 +89,7 @@ def _cached_all_batters() -> list[dict]:
 # ---------------------------------------------------------------------------
 
 def _get_live_anomalies() -> list[dict[str, Any]]:
-    """Return live anomaly alerts from the active game session.
-
-    Only returns mock data if the anomaly module is missing AND there
-    is no live game state available.
-    """
-    if _USE_MOCK_ANOMALY:
-        # Module not importable -- no way to produce real alerts
-        return []
-
+    """Return live anomaly alerts from the active game session."""
     # Try to pull live anomalies from the live_game page's session data
     # The live_game page runs the GameAnomalyMonitor and stores alerts
     game = st.session_state.get("_live_game_state")
@@ -188,11 +170,9 @@ def _get_historical_anomalies() -> list[dict[str, Any]]:
     """Return historical anomaly alerts.
 
     When real DB data is available, queries for recent anomalies.
-    Falls back to mock only if no real data source is available.
     """
     conn = get_db_connection()
-    if not has_data(conn) or _USE_MOCK_ANOMALY:
-        # No DB or no anomaly module -- return empty instead of mock
+    if not has_data(conn):
         return []
     # Real historical anomalies would need a stored alert table;
     # for now return empty rather than fake data
@@ -219,7 +199,7 @@ def render() -> None:
     conn = get_db_connection()
     use_real = has_data(conn)
 
-    if use_real and not _USE_MOCK_ANOMALY:
+    if use_real:
         st.info("Using real data from database for anomaly baselines.")
     else:
         st.warning("Anomaly detection requires pitch data in the database. Run backfill.py to load data.")
@@ -239,8 +219,8 @@ def render() -> None:
     # ----- Pitcher anomaly deep-dive -----
     st.subheader("Pitcher Deep Dive")
 
-    # Build pitcher list from DB or mock
-    if use_real and not _USE_MOCK_ANOMALY:
+    # Build pitcher list from DB
+    if use_real:
         db_pitchers = _cached_all_pitchers()
     else:
         db_pitchers = []
@@ -266,7 +246,7 @@ def render() -> None:
 
     # Try to get real baselines
     real_baselines: dict | None = None
-    if pitcher_id is not None and use_real and not _USE_MOCK_ANOMALY:
+    if pitcher_id is not None and use_real:
         real_baselines = _cached_pitcher_baselines(pitcher_id)
 
     tab_velo, tab_rp, tab_spin, tab_mix = st.tabs(
@@ -403,7 +383,7 @@ def _render_velocity_trend(pitcher_name: str, baselines: dict | None = None) -> 
     # Try real pitch data from DB first
     velo_df = pd.DataFrame()
     conn = get_db_connection()
-    if has_data(conn) and not _USE_MOCK_ANOMALY:
+    if has_data(conn):
         pitcher_id = _cached_player_id_by_name(pitcher_name)
         if pitcher_id is not None:
             try:
@@ -476,7 +456,7 @@ def _render_release_point(pitcher_name: str, baselines: dict | None = None) -> N
     # Try real pitch data from DB first
     rp_df = pd.DataFrame()
     conn = get_db_connection()
-    if has_data(conn) and not _USE_MOCK_ANOMALY:
+    if has_data(conn):
         pitcher_id = _cached_player_id_by_name(pitcher_name)
         if pitcher_id is not None:
             try:
@@ -544,7 +524,7 @@ def _render_spin_rate_trend(pitcher_name: str, baselines: dict | None = None) ->
     # Try real DB data first
     conn = get_db_connection()
     spin_df = pd.DataFrame()
-    if has_data(conn) and not _USE_MOCK_ANOMALY:
+    if has_data(conn):
         pitcher_id = _cached_player_id_by_name(pitcher_name)
         if pitcher_id is not None:
             try:
@@ -609,7 +589,7 @@ def _render_pitch_mix_comparison(pitcher_name: str, baselines: dict | None = Non
     # Try real pitch mix from DB
     conn = get_db_connection()
     mix_df = pd.DataFrame()
-    if has_data(conn) and not _USE_MOCK_ANOMALY:
+    if has_data(conn):
         pitcher_id = _cached_player_id_by_name(pitcher_name)
         if pitcher_id is not None:
             try:
@@ -656,8 +636,11 @@ def _render_batter_anomalies(use_real: bool = False) -> None:
     When real DB data is available, also runs ``detect_batter_anomalies``
     and displays any alerts.
     """
+    batter_id: int | None = None
+    batter_name: str = ""
+
     # Show real batter anomaly alerts if available
-    if use_real and not _USE_MOCK_ANOMALY:
+    if use_real:
         db_batters = _cached_all_batters()
         if db_batters:
             batter_name = st.selectbox(
@@ -691,16 +674,166 @@ def _render_batter_anomalies(use_real: bool = False) -> None:
         st.info("Batter anomaly trends require pitch data in the database.")
         return
 
+    name_suffix = f" - {batter_name}" if batter_name else ""
+
     col1, col2 = st.columns(2)
 
     with col1:
-        st.markdown("**Exit Velocity Trend (Last 10 Games)**")
-        st.info("Exit velocity trend requires batted ball data in the database.")
+        st.markdown(f"**Exit Velocity Trend (Last 10 Games){name_suffix}**")
+        _render_batter_ev_trend(batter_id)
 
     with col2:
-        st.markdown("**Chase Rate Trend (Last 10 Games)**")
-        st.info("Chase rate trend requires pitch data in the database.")
+        st.markdown(f"**Chase Rate Trend (Last 10 Games){name_suffix}**")
+        _render_batter_chase_trend(batter_id)
 
-    # Placeholder -- keeping layout consistent. Charts would be rendered
-    # here from real DB data once batted ball and plate discipline data
-    # is loaded.
+
+def _render_batter_ev_trend(batter_id: int | None) -> None:
+    """Exit-velocity trend (last 10 games) from the ``pitches`` table.
+
+    Uses the same columns that ``detect_batter_anomalies`` reads:
+    ``type = 'X'`` (ball in play) and ``launch_speed``. Aggregates per game.
+    """
+    if batter_id is None:
+        st.info("Select a batter above to view exit velocity trend.")
+        return
+
+    conn = get_db_connection()
+    if conn is None or not has_data(conn):
+        st.info("No pitch data available in the database.")
+        return
+
+    try:
+        df = conn.execute(
+            """
+            SELECT game_date,
+                   AVG(launch_speed) AS avg_ev
+            FROM   pitches
+            WHERE  batter_id = $1
+                   AND type = 'X'
+                   AND launch_speed IS NOT NULL
+            GROUP  BY game_date
+            ORDER  BY game_date DESC
+            LIMIT  10
+            """,
+            [batter_id],
+        ).fetchdf()
+    except Exception:
+        st.info("Exit velocity trend query failed.")
+        return
+
+    if df.empty:
+        st.info("No batted-ball data available for this batter.")
+        return
+
+    df = df.sort_values("game_date")
+    df["game_date"] = df["game_date"].astype(str)
+    season_avg = float(df["avg_ev"].mean())
+
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(
+        x=df["game_date"],
+        y=df["avg_ev"].round(1),
+        mode="lines+markers",
+        marker=dict(size=8, color="#E81828"),
+        line=dict(color="#E81828", width=2),
+        name="Exit Velo (per game)",
+        hovertemplate="%{x}<br>%{y:.1f} mph<extra></extra>",
+    ))
+    fig.add_hline(
+        y=season_avg,
+        line=dict(color="white", width=1, dash="dash"),
+        annotation_text=f"Window Avg: {season_avg:.1f}",
+        annotation_position="top right",
+    )
+    fig.update_layout(
+        xaxis=dict(title="Game Date"),
+        yaxis=dict(title="Avg Exit Velocity (mph)"),
+        template="plotly_dark",
+        height=320,
+        margin=dict(l=50, r=30, t=30, b=50),
+        showlegend=False,
+    )
+    st.plotly_chart(fig, use_container_width=True, key="anomaly_batter_ev_trend")
+
+
+def _render_batter_chase_trend(batter_id: int | None) -> None:
+    """Chase-rate trend (last 10 games) from the ``pitches`` table.
+
+    Uses the same columns ``detect_batter_anomalies`` reads:
+    ``zone IN (11,12,13,14)`` for chase opportunities and swing-type
+    descriptions for chases.
+    """
+    if batter_id is None:
+        st.info("Select a batter above to view chase rate trend.")
+        return
+
+    conn = get_db_connection()
+    if conn is None or not has_data(conn):
+        st.info("No pitch data available in the database.")
+        return
+
+    try:
+        df = conn.execute(
+            """
+            SELECT game_date,
+                   SUM(CASE WHEN zone IN (11,12,13,14)
+                             AND description IN (
+                                 'swinging_strike','swinging_strike_blocked',
+                                 'foul_tip','foul','hit_into_play',
+                                 'hit_into_play_no_out','hit_into_play_score')
+                            THEN 1 ELSE 0 END) AS chases,
+                   SUM(CASE WHEN zone IN (11,12,13,14)
+                            THEN 1 ELSE 0 END) AS chase_opps
+            FROM   pitches
+            WHERE  batter_id = $1
+            GROUP  BY game_date
+            HAVING SUM(CASE WHEN zone IN (11,12,13,14) THEN 1 ELSE 0 END) > 0
+            ORDER  BY game_date DESC
+            LIMIT  10
+            """,
+            [batter_id],
+        ).fetchdf()
+    except Exception:
+        st.info("Chase rate trend query failed.")
+        return
+
+    if df.empty:
+        st.info("No chase-zone pitches available for this batter.")
+        return
+
+    df = df.sort_values("game_date")
+    df["game_date"] = df["game_date"].astype(str)
+    df["chase_rate"] = (df["chases"] / df["chase_opps"].replace(0, np.nan) * 100.0).round(1)
+    df = df.dropna(subset=["chase_rate"])
+
+    if df.empty:
+        st.info("No chase-zone pitches available for this batter.")
+        return
+
+    window_avg = float(df["chase_rate"].mean())
+
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(
+        x=df["game_date"],
+        y=df["chase_rate"],
+        mode="lines+markers",
+        marker=dict(size=8, color="#F39C12"),
+        line=dict(color="#F39C12", width=2),
+        name="Chase Rate (per game)",
+        hovertemplate="%{x}<br>%{y:.1f}%<extra></extra>",
+    ))
+    fig.add_hline(
+        y=window_avg,
+        line=dict(color="white", width=1, dash="dash"),
+        annotation_text=f"Window Avg: {window_avg:.1f}%",
+        annotation_position="top right",
+    )
+    fig.update_layout(
+        xaxis=dict(title="Game Date"),
+        yaxis=dict(title="Chase Rate (%)", ticksuffix="%"),
+        template="plotly_dark",
+        height=320,
+        margin=dict(l=50, r=30, t=30, b=50),
+        showlegend=False,
+    )
+    st.plotly_chart(fig, use_container_width=True, key="anomaly_batter_chase_trend")

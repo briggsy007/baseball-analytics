@@ -10,7 +10,6 @@ from __future__ import annotations
 
 from typing import Any
 
-import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
@@ -18,22 +17,17 @@ import streamlit as st
 from src.dashboard.db_helper import get_db_connection, has_data
 
 # ---------------------------------------------------------------------------
-# Graceful imports
+# Imports
 # ---------------------------------------------------------------------------
 
-_CAUSAL_AVAILABLE = False
-try:
-    from src.analytics.causal_war import (
-        CausalWARConfig,
-        CausalWARModel,
-        train,
-        batch_calculate,
-        calculate_causal_war,
-        get_leaderboard,
-    )
-    _CAUSAL_AVAILABLE = True
-except ImportError:
-    pass
+from src.analytics.causal_war import (
+    CausalWARConfig,
+    CausalWARModel,
+    train,
+    batch_calculate,
+    calculate_causal_war,
+    get_leaderboard,
+)
 
 _CACHE_AVAILABLE = False
 try:
@@ -42,10 +36,6 @@ try:
 except Exception:
     pass
 
-# Mock flag -- set True to render the page with synthetic data when the
-# analytics module is unavailable or the model hasn't been trained.
-_USE_MOCK = False
-
 # Phillies red / blue palette
 _PHILLIES_RED = "#E81828"
 _PHILLIES_BLUE = "#002D72"
@@ -53,34 +43,6 @@ _PHILLIES_LIGHT = "#B0B7BC"
 _POSITIVE_GREEN = "#2ECC71"
 _NEGATIVE_RED = "#E74C3C"
 _CI_BAND = "rgba(232, 24, 40, 0.25)"
-
-
-# ---------------------------------------------------------------------------
-# Mock data
-# ---------------------------------------------------------------------------
-
-def _generate_mock_leaderboard() -> pd.DataFrame:
-    """Generate mock CausalWAR data for development / demo mode."""
-    rng = np.random.RandomState(42)
-    n = 30
-    names = [f"Player {chr(65 + i)}" for i in range(n)]
-    causal_war = rng.normal(2.0, 2.5, size=n)
-    traditional_war = causal_war + rng.normal(0, 1.2, size=n)
-
-    df = pd.DataFrame({
-        "player_id": range(100000, 100000 + n),
-        "name": names,
-        "season": 2025,
-        "causal_war": np.round(causal_war, 2),
-        "ci_low": np.round(causal_war - rng.uniform(0.5, 1.5, n), 2),
-        "ci_high": np.round(causal_war + rng.uniform(0.5, 1.5, n), 2),
-        "park_adj_woba": np.round(rng.uniform(0.280, 0.400, n), 3),
-        "raw_woba": np.round(rng.uniform(0.270, 0.410, n), 3),
-        "pa": rng.randint(200, 650, size=n),
-        "causal_run_value": np.round(causal_war * 10, 2),
-        "traditional_war": np.round(traditional_war, 1),
-    })
-    return df.sort_values("causal_war", ascending=False).reset_index(drop=True)
 
 
 # ---------------------------------------------------------------------------
@@ -110,15 +72,7 @@ def render() -> None:
 
     conn = get_db_connection()
 
-    if not _CAUSAL_AVAILABLE and not _USE_MOCK:
-        st.error(
-            "The `causal_war` analytics module could not be imported. "
-            "Ensure `scikit-learn` is installed:\n\n"
-            "```\npip install scikit-learn\n```"
-        )
-        return
-
-    if not _USE_MOCK and (conn is None or not has_data(conn)):
+    if conn is None or not has_data(conn):
         st.warning(
             "No pitch data available. Run the data backfill pipeline first "
             "(`python scripts/backfill.py`)."
@@ -147,10 +101,9 @@ def render() -> None:
             "Pitchers": "pitcher",
         }[position_filter]
 
-        if _CAUSAL_AVAILABLE and not _USE_MOCK:
-            if st.button("Train CausalWAR Model", type="primary"):
-                _train_model_ui(conn, season)
-                st.rerun()
+        if st.button("Train CausalWAR Model", type="primary"):
+            _train_model_ui(conn, season)
+            st.rerun()
 
     # ---- Load data -------------------------------------------------------
     df = _load_leaderboard(conn, season, position_type)
@@ -161,10 +114,9 @@ def render() -> None:
             "Click **Train CausalWAR Model** in the sidebar, or run "
             "`python scripts/precompute.py` to generate cached results."
         )
-        if _CAUSAL_AVAILABLE and not _USE_MOCK:
-            if st.button("Train CausalWAR Model Now", type="primary", key="causal_train_main"):
-                _train_model_ui(conn, season)
-                st.rerun()
+        if st.button("Train CausalWAR Model Now", type="primary", key="causal_train_main"):
+            _train_model_ui(conn, season)
+            st.rerun()
         return
 
     # ---- Tabs ------------------------------------------------------------
@@ -220,12 +172,6 @@ def _load_leaderboard(
     position_type: str,
 ) -> pd.DataFrame | None:
     """Load CausalWAR leaderboard, using cache then live computation."""
-    if _USE_MOCK:
-        return _generate_mock_leaderboard()
-
-    if not _CAUSAL_AVAILABLE:
-        return None
-
     # Try precomputed cache first
     if _CACHE_AVAILABLE:
         try:
@@ -292,9 +238,23 @@ def _render_leaderboard(df: pd.DataFrame) -> None:
 
     available_cols = [c for c in display_cols if c in display_df.columns]
 
+    # Pagination: default to top 200 rows, with a toggle to see everything.
+    # Leaderboard can easily exceed 500 rows (all qualifying batters +
+    # pitchers), which makes the rendered table sluggish without a cap.
+    total_rows = len(display_df)
+    show_all = False
+    if total_rows > 200:
+        show_all = st.checkbox(
+            f"Show all {total_rows} players (default shows top 200)",
+            value=False,
+            key="causal_war_leaderboard_show_all",
+        )
+    rendered_df = display_df if show_all else display_df.head(200)
+
     st.dataframe(
-        display_df[available_cols],
+        rendered_df[available_cols],
         use_container_width=True,
+        height=500,
         column_config={
             "name": st.column_config.TextColumn("Player"),
             "causal_war": st.column_config.NumberColumn("CausalWAR", format="%.2f"),
@@ -307,7 +267,7 @@ def _render_leaderboard(df: pd.DataFrame) -> None:
         },
     )
 
-    # Distribution chart
+    # Distribution chart (always uses the full df)
     if len(df) >= 5 and "causal_war" in df.columns:
         st.markdown("**CausalWAR Distribution**")
         _render_distribution(df)

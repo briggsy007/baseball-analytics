@@ -7,32 +7,22 @@ for optimal bullpen deployment.
 
 from __future__ import annotations
 
-import random
 from typing import Any
 
-import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
 # ---------------------------------------------------------------------------
-# Graceful imports
+# Imports
 # ---------------------------------------------------------------------------
 
-_USE_MOCK_BULLPEN = False
-try:
-    from src.analytics.bullpen import (
-        get_bullpen_state as _real_get_bullpen_state,
-        recommend_reliever as _real_recommend_reliever,
-    )
-except ImportError:
-    _USE_MOCK_BULLPEN = True
+from src.analytics.bullpen import (
+    get_bullpen_state as _real_get_bullpen_state,
+    recommend_reliever as _real_recommend_reliever,
+)
 
-_USE_MOCK_MATCHUP = False
-try:
-    from src.analytics.matchups import get_matchup_stats as _real_get_matchup_stats
-except ImportError:
-    _USE_MOCK_MATCHUP = True
+from src.analytics.matchups import get_matchup_stats as _real_get_matchup_stats
 
 _HAS_LIVE_FEED = False
 try:
@@ -50,11 +40,6 @@ try:
 except ImportError:
     pass
 
-from src.dashboard.mock_data import (
-    OPPONENT_BATTERS,
-    PHILLIES_BATTERS,
-    mock_bullpen_state,
-)
 from src.dashboard.db_helper import (
     get_db_connection,
     has_data,
@@ -70,7 +55,7 @@ from src.dashboard.db_helper import (
 def _cached_bullpen_state(team: str) -> list[dict] | None:
     """Cached real bullpen state (TTL 300s)."""
     conn = get_db_connection()
-    if conn is None or _USE_MOCK_BULLPEN:
+    if conn is None:
         return None
     try:
         return _real_get_bullpen_state(conn, team)
@@ -88,7 +73,7 @@ def _cached_batch_matchup_stats(
     Returns a dict keyed by (pitcher_id, batter_id) -> matchup stats dict.
     """
     conn = get_db_connection()
-    if conn is None or _USE_MOCK_MATCHUP:
+    if conn is None:
         return {}
 
     # Filter out None IDs
@@ -150,15 +135,15 @@ def _cached_batch_matchup_stats(
 # ---------------------------------------------------------------------------
 
 def _get_bullpen_state(team: str = "PHI") -> list[dict[str, Any]]:
-    """Get bullpen state from real module, API roster, or show warning.
+    """Get bullpen state from real module or API roster.
 
-    Priority: 1) DB analytics, 2) API roster (without fatigue), 3) warning.
+    Priority: 1) DB analytics, 2) API roster (without fatigue), 3) empty list + warning.
     """
     conn = get_db_connection()
     use_real = has_data(conn)
 
     # Try real DB analytics first
-    if use_real and not _USE_MOCK_BULLPEN:
+    if use_real:
         real = _cached_bullpen_state(team)
         if real is not None and len(real) > 0:
             return _adapt_bullpen_state(real)
@@ -195,8 +180,8 @@ def _get_bullpen_state(team: str = "PHI") -> list[dict[str, Any]]:
         except Exception:
             pass
 
-    st.warning("Showing demo data -- real bullpen data unavailable")
-    return mock_bullpen_state(team=team)
+    st.warning("Real bullpen data unavailable -- run backfill.py to load pitch data.")
+    return []
 
 
 def _adapt_bullpen_state(real_list: list[dict]) -> list[dict[str, Any]]:
@@ -385,7 +370,7 @@ def _render_live_context(game: dict[str, Any], bullpen: list[dict[str, Any]]) ->
     # Try real recommendation engine
     conn = get_db_connection()
     recommendation_used = False
-    if has_data(conn) and not _USE_MOCK_BULLPEN:
+    if has_data(conn):
         try:
             # Build game_state dict for the recommendation engine
             game_state = {

@@ -16,44 +16,24 @@ import plotly.graph_objects as go
 import streamlit as st
 
 # ---------------------------------------------------------------------------
-# Graceful imports -- fall back to mock data when backend isn't ready
+# Imports
 # ---------------------------------------------------------------------------
 
-# -- Live feed --
-_USE_MOCK_FEED = False
-try:
-    from src.ingest.live_feed import (
-        get_phillies_game,
-        fetch_live_feed,
-        parse_game_state as _real_parse_game_state,
-        parse_pitch_events as _real_parse_pitch_events,
-    )
-except ImportError:
-    _USE_MOCK_FEED = True
+from src.ingest.live_feed import (
+    get_phillies_game,
+    fetch_live_feed,
+    parse_game_state as _real_parse_game_state,
+    parse_pitch_events as _real_parse_pitch_events,
+)
 
-# -- Win probability --
-_USE_MOCK_WP = False
-try:
-    from src.analytics.win_probability import (
-        calculate_win_probability,
-        build_win_prob_curve as _real_build_win_prob_curve,
-    )
-except ImportError:
-    _USE_MOCK_WP = True
+from src.analytics.win_probability import (
+    calculate_win_probability,
+    build_win_prob_curve as _real_build_win_prob_curve,
+)
 
-# -- Anomaly detection --
-_USE_MOCK_ANOMALY = False
-try:
-    from src.analytics.anomaly import GameAnomalyMonitor
-except ImportError:
-    _USE_MOCK_ANOMALY = True
+from src.analytics.anomaly import GameAnomalyMonitor
 
-# -- Matchup --
-_USE_MOCK_MATCHUP = False
-try:
-    from src.analytics.matchups import get_matchup_stats as _real_get_matchup_stats
-except ImportError:
-    _USE_MOCK_MATCHUP = True
+from src.analytics.matchups import get_matchup_stats as _real_get_matchup_stats
 
 # -- DB connection helper --
 from src.dashboard.db_helper import get_db_connection, has_data, get_player_id_by_name
@@ -70,12 +50,8 @@ from src.dashboard.constants import PITCH_COLORS, PITCH_LABELS, FASTBALL_TYPES
 def _get_game_state() -> dict[str, Any] | None:
     """Return game state from the real API.
 
-    Falls back to a 'No Game' state on error rather than showing mock data.
-    Mock data should NEVER be shown as if it were real game data.
+    Falls back to a 'No Game' state on error.
     """
-    if _USE_MOCK_FEED:
-        # live_feed module unavailable -- show no game rather than fake data
-        return {"status": "No Game"}
     try:
         game_info = get_phillies_game()
         if game_info is None:
@@ -152,26 +128,22 @@ def _adapt_game_state(state: dict) -> dict[str, Any]:
     }
 
     # Compute win probability for the current state
-    if not _USE_MOCK_WP:
-        try:
-            wp_result = calculate_win_probability(
-                inning=state.get("inning", 1),
-                inning_half=inning_half,
-                outs=state.get("outs", 0),
-                runners={
-                    "on_1b": runners.get("first", False),
-                    "on_2b": runners.get("second", False),
-                    "on_3b": runners.get("third", False),
-                },
-                home_score=state.get("home_score", 0),
-                away_score=state.get("away_score", 0),
-            )
-            adapted["home_win_prob"] = wp_result["home_win_prob"]
-            adapted["leverage_index"] = wp_result["leverage_index"]
-        except Exception:
-            adapted["home_win_prob"] = 0.5
-            adapted["leverage_index"] = 1.0
-    else:
+    try:
+        wp_result = calculate_win_probability(
+            inning=state.get("inning", 1),
+            inning_half=inning_half,
+            outs=state.get("outs", 0),
+            runners={
+                "on_1b": runners.get("first", False),
+                "on_2b": runners.get("second", False),
+                "on_3b": runners.get("third", False),
+            },
+            home_score=state.get("home_score", 0),
+            away_score=state.get("away_score", 0),
+        )
+        adapted["home_win_prob"] = wp_result["home_win_prob"]
+        adapted["leverage_index"] = wp_result["leverage_index"]
+    except Exception:
         adapted["home_win_prob"] = 0.5
         adapted["leverage_index"] = 1.0
 
@@ -181,8 +153,6 @@ def _adapt_game_state(state: dict) -> dict[str, Any]:
 @st.cache_data(ttl=15)
 def _get_pitch_log() -> pd.DataFrame:
     """Return the pitch log as a DataFrame."""
-    if _USE_MOCK_FEED:
-        return pd.DataFrame()
     try:
         feed = st.session_state.get("_live_feed")
         if feed is None:
@@ -207,12 +177,9 @@ def _get_pitch_log() -> pd.DataFrame:
 
 def _get_win_prob_curve(game: dict[str, Any]) -> pd.DataFrame:
     """Return the win probability curve as a DataFrame."""
-    if _USE_MOCK_WP:
-        return pd.DataFrame()
     try:
         feed = st.session_state.get("_live_feed")
         if feed is None:
-            # No live feed -- return empty rather than mock
             return pd.DataFrame()
 
         # Build game events from the feed's all plays
@@ -256,10 +223,6 @@ def _get_live_anomalies() -> list[dict[str, Any]]:
     a ``GameAnomalyMonitor`` with real baselines and feeds it the current
     game's pitches.  Returns empty list if no live game or insufficient data.
     """
-    if _USE_MOCK_ANOMALY:
-        # No anomaly module -- just return empty, not mock alerts
-        return []
-
     conn = get_db_connection()
     if not has_data(conn):
         # No DB data for baselines
@@ -325,11 +288,68 @@ def _get_live_anomalies() -> list[dict[str, Any]]:
         return []
 
 
+@st.cache_data(ttl=10)
+def _get_pitchgpt_predictions(game_pk: int) -> pd.DataFrame:
+    """Read PitchGPT predictions written by the standalone Plan B logger.
+
+    The logger (``scripts/live_game_logger.py``) appends one JSONL row per
+    pitch to ``<output-dir>/pitch_by_pitch.jsonl``.  We read it here so the
+    dashboard can show predictions WITHOUT loading the PitchGPT model (which
+    would create GPU contention with the logger process).
+
+    Tries the case-study path first, then falls back to a ``current/``
+    convenience symlink/dir.  Returns empty DataFrame on any failure
+    (file missing, mid-write, malformed JSON).
+
+    Cached for 10 seconds — slightly shorter than the 15s pitch log cache
+    so predictions feel fresh.
+
+    Parameters
+    ----------
+    game_pk : int
+        MLB StatsAPI gamePk for the active game (currently unused for
+        path selection — the logger writes to a fixed dir per game; we
+        accept it so the cache key incorporates the game and clears when
+        switching games).
+
+    Returns
+    -------
+    pd.DataFrame
+        Columns at minimum: ``at_bat_number, pitch_number,
+        pitchgpt_top1_type, pitchgpt_top1_prob, pitchgpt_top3_json,
+        correct_top1, log_loss``.  Empty DataFrame if no JSONL is found.
+    """
+    from pathlib import Path
+
+    candidates = [
+        Path("results/live_game/2026-04-19_PHI_vs_ATL/pitch_by_pitch.jsonl"),
+        Path("results/live_game/current/pitch_by_pitch.jsonl"),
+    ]
+    jsonl_path = next((p for p in candidates if p.exists()), None)
+    if jsonl_path is None:
+        return pd.DataFrame()
+
+    try:
+        df = pd.read_json(jsonl_path, lines=True)
+        if df.empty:
+            return pd.DataFrame()
+        # Ensure expected columns exist (defensive against schema drift)
+        expected = [
+            "at_bat_number", "pitch_number",
+            "pitchgpt_top1_type", "pitchgpt_top1_prob",
+            "pitchgpt_top3_json", "correct_top1", "log_loss",
+        ]
+        for col in expected:
+            if col not in df.columns:
+                df[col] = pd.NA
+        return df
+    except Exception:
+        # File may be mid-write or empty — return empty rather than crash
+        return pd.DataFrame()
+
+
 def _get_matchup_stats(pitcher_name: str, batter_name: str) -> dict[str, Any] | None:
     """Get matchup stats -- resolves names to IDs via DB, returns None if unavailable."""
-    if _USE_MOCK_MATCHUP:
-        return None
-
     conn = get_db_connection()
     if not has_data(conn):
         return None
@@ -457,6 +477,11 @@ def render() -> None:
 
     # ----- Scoreboard -----
     _render_scoreboard(game)
+
+    st.markdown("---")
+
+    # ----- PitchGPT Live -----
+    _render_pitchgpt_live_block(st.session_state.get("_game_pk", 0))
 
     st.markdown("---")
 
@@ -609,16 +634,71 @@ def _render_bases(game: dict[str, Any]) -> None:
     )
 
 
+def _render_pitchgpt_live_block(game_pk: int) -> None:
+    """Render the PitchGPT Live metric strip.
+
+    Reads the standalone logger's JSONL (no model loaded in dashboard
+    process) and shows three metrics: pitches scored, top-1 accuracy,
+    avg log-loss.  Shows an info card while waiting for the first
+    prediction.
+    """
+    st.markdown("#### PitchGPT Live")
+    try:
+        preds = _get_pitchgpt_predictions(game_pk)
+    except Exception:
+        preds = pd.DataFrame()
+
+    if preds is None or preds.empty:
+        st.info("Waiting for first PitchGPT prediction...")
+        return
+
+    n_scored = int(len(preds))
+
+    # Top-1 accuracy: mean of bool column, percent
+    try:
+        correct_series = preds["correct_top1"].dropna()
+        if len(correct_series) > 0:
+            top1_acc = float(correct_series.astype(bool).mean()) * 100.0
+            top1_str = f"{top1_acc:.1f}%"
+        else:
+            top1_str = "n/a"
+    except Exception:
+        top1_str = "n/a"
+
+    # Avg log-loss
+    try:
+        ll_series = pd.to_numeric(preds["log_loss"], errors="coerce").dropna()
+        if len(ll_series) > 0:
+            avg_ll = float(ll_series.mean())
+            ll_str = f"{avg_ll:.3f}"
+        else:
+            ll_str = "n/a"
+    except Exception:
+        ll_str = "n/a"
+
+    c1, c2, c3 = st.columns(3)
+    c1.metric("Pitches Scored", n_scored)
+    c2.metric("Top-1 Accuracy", top1_str)
+    c3.metric("Avg Log-Loss", ll_str)
+
+
 def _render_pitch_log(pitch_log: pd.DataFrame) -> None:
     """Render a clean, scannable pitch-by-pitch log table.
 
-    Columns shown: #, Type, Velo, Spin, Result, Count, Zone.
+    Columns shown: #, Type, Velo, Spin, Result, Count, Zone, Predicted.
     Most recent pitches appear first.  Rows are color-coded by outcome:
       - Strikes (called/swinging): light red
       - Balls: light blue
       - In play (hits): light green
       - In play (outs): light gray
       - Fouls: light yellow
+
+    The Predicted column is populated by joining ``pitch_log`` against
+    the standalone PitchGPT logger's JSONL on
+    ``(at_bat_number, pitch_number)``.  High-confidence-wrong predictions
+    (top-1 prob > 0.5 AND wrong) are highlighted with a red left border
+    overlay so they stand out without overriding the result-color
+    background.
     """
     st.markdown("#### Pitch Log")
 
@@ -628,6 +708,33 @@ def _render_pitch_log(pitch_log: pd.DataFrame) -> None:
 
     # --- Build the display DataFrame (most-recent first) ---------------
     display = pitch_log.tail(30).iloc[::-1].copy().reset_index(drop=True)
+
+    # --- Join PitchGPT predictions (defensive — degrade to no Predicted) ---
+    pred_lookup: dict[tuple[int, int], dict[str, Any]] = {}
+    try:
+        game_pk = int(st.session_state.get("_game_pk", 0) or 0)
+        preds_df = _get_pitchgpt_predictions(game_pk)
+        if (
+            preds_df is not None
+            and not preds_df.empty
+            and "at_bat_number" in display.columns
+            and "pitch_number" in display.columns
+            and "at_bat_number" in preds_df.columns
+            and "pitch_number" in preds_df.columns
+        ):
+            for _, prow in preds_df.iterrows():
+                ab_v = prow.get("at_bat_number")
+                pn_v = prow.get("pitch_number")
+                if pd.isna(ab_v) or pd.isna(pn_v):
+                    continue
+                key = (int(ab_v), int(pn_v))
+                pred_lookup[key] = {
+                    "type": prow.get("pitchgpt_top1_type"),
+                    "prob": prow.get("pitchgpt_top1_prob"),
+                    "correct": prow.get("correct_top1"),
+                }
+    except Exception:
+        pred_lookup = {}
 
     # Resolve the velocity column (real data uses release_speed after rename)
     velo_col = next(
@@ -708,6 +815,52 @@ def _render_pitch_log(pitch_log: pd.DataFrame) -> None:
     elif has_in_zone:
         out["Zone"] = display["in_zone"].map({True: "In", False: "Out"}).values
 
+    # --- Predicted column (from PitchGPT logger JSONL) -----------------
+    # Per-row "high-confidence wrong" flags drive the styler border.
+    high_conf_wrong: list[bool] = [False] * len(display)
+    pred_strs: list[str] = []
+    if pred_lookup and "at_bat_number" in display.columns and "pitch_number" in display.columns:
+        try:
+            for i, row in display.iterrows():
+                ab_v = row.get("at_bat_number")
+                pn_v = row.get("pitch_number")
+                if pd.isna(ab_v) or pd.isna(pn_v):
+                    pred_strs.append("")
+                    continue
+                key = (int(ab_v), int(pn_v))
+                pred = pred_lookup.get(key)
+                if pred is None:
+                    pred_strs.append("")
+                    continue
+                ptype = pred.get("type")
+                pprob = pred.get("prob")
+                if ptype is None or pd.isna(ptype) or pprob is None or pd.isna(pprob):
+                    pred_strs.append("")
+                    continue
+                try:
+                    pred_strs.append(f"{ptype} ({float(pprob):.0%})")
+                except Exception:
+                    pred_strs.append(f"{ptype}")
+                # Mark high-confidence-wrong (top1 prob > 0.5 AND wrong)
+                try:
+                    correct = pred.get("correct")
+                    if (
+                        correct is not None
+                        and not pd.isna(correct)
+                        and bool(correct) is False
+                        and float(pprob) > 0.5
+                        and i < len(high_conf_wrong)
+                    ):
+                        high_conf_wrong[i] = True
+                except Exception:
+                    pass
+            if any(s for s in pred_strs):
+                out["Predicted"] = pred_strs
+        except Exception:
+            # Any failure -> drop the column rather than crash
+            if "Predicted" in out.columns:
+                out = out.drop(columns=["Predicted"])
+
     out = out.reset_index(drop=True)
 
     # --- Row color-coding ----------------------------------------------
@@ -726,6 +879,11 @@ def _render_pitch_log(pitch_log: pd.DataFrame) -> None:
             bg = "background-color: rgba(241, 196, 15, 0.15)"
         else:
             bg = ""
+        # High-conf-wrong overlay: thick red left border + bold (subtle,
+        # doesn't override the result-color background).
+        if idx < len(high_conf_wrong) and high_conf_wrong[idx]:
+            border = "; border-left: 4px solid #E81828; font-weight: 600"
+            return [bg + border] * len(row)
         return [bg] * len(row)
 
     styled = out.style.apply(_style_row, axis=1)
@@ -739,6 +897,10 @@ def _render_pitch_log(pitch_log: pd.DataFrame) -> None:
         "Result": st.column_config.TextColumn(width="medium"),
         "Count": st.column_config.TextColumn(width="small"),
         "Zone": st.column_config.TextColumn(width="small"),
+        "Predicted": st.column_config.TextColumn(
+            width="medium",
+            help="PitchGPT top-1 prediction (probability). Bold red border = high-confidence wrong call.",
+        ),
     }
     col_config = {k: v for k, v in col_config.items() if k in out.columns}
 

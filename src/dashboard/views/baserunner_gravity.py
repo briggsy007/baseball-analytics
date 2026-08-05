@@ -10,7 +10,6 @@ from __future__ import annotations
 
 from typing import Any
 
-import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
@@ -18,24 +17,19 @@ import streamlit as st
 from src.dashboard.db_helper import get_db_connection, has_data
 
 # ---------------------------------------------------------------------------
-# Graceful imports
+# Imports
 # ---------------------------------------------------------------------------
 
-_BGI_AVAILABLE = False
-try:
-    from src.analytics.baserunner_gravity import (
-        BGIConfig,
-        BaserunnerGravityModel,
-        calculate_bgi,
-        batch_calculate,
-        get_gravity_leaderboard,
-        compute_runner_threat_rate,
-        compute_gravity_effect,
-        train,
-    )
-    _BGI_AVAILABLE = True
-except ImportError:
-    pass
+from src.analytics.baserunner_gravity import (
+    BGIConfig,
+    BaserunnerGravityModel,
+    calculate_bgi,
+    batch_calculate,
+    get_gravity_leaderboard,
+    compute_runner_threat_rate,
+    compute_gravity_effect,
+    train,
+)
 
 _CACHE_AVAILABLE = False
 try:
@@ -44,8 +38,6 @@ try:
 except Exception:
     pass
 
-_USE_MOCK = False
-
 # Phillies red / blue palette
 _PHILLIES_RED = "#E81828"
 _PHILLIES_BLUE = "#002D72"
@@ -53,34 +45,6 @@ _PHILLIES_LIGHT = "#B0B7BC"
 _POSITIVE_GREEN = "#2ECC71"
 _NEGATIVE_RED = "#E74C3C"
 _NEUTRAL_GRAY = "#95A5A6"
-
-
-# ---------------------------------------------------------------------------
-# Mock data
-# ---------------------------------------------------------------------------
-
-
-def _generate_mock_leaderboard() -> pd.DataFrame:
-    """Generate mock BGI data for development / demo mode."""
-    rng = np.random.RandomState(42)
-    n = 25
-    names = [f"Runner {chr(65 + i)}" for i in range(n)]
-    bgi = rng.normal(100, 15, size=n)
-
-    df = pd.DataFrame({
-        "runner_id": range(300000, 300000 + n),
-        "name": names,
-        "season": 2025,
-        "bgi": np.round(bgi, 1),
-        "sb_attempt_rate": np.round(rng.uniform(0, 0.15, n), 4),
-        "velocity_effect": np.round(rng.normal(0, 0.3, n), 4),
-        "location_effect": np.round(rng.normal(0, 0.02, n), 4),
-        "selection_effect": np.round(rng.normal(0, 0.03, n), 4),
-        "outcome_effect": np.round(rng.normal(0, 0.01, n), 4),
-        "n_pitches": rng.randint(100, 800, size=n),
-        "percentile": np.round(rng.uniform(5, 99, n), 0).astype(int),
-    })
-    return df.sort_values("bgi", ascending=False).reset_index(drop=True)
 
 
 # ---------------------------------------------------------------------------
@@ -111,14 +75,7 @@ def render() -> None:
 
     conn = get_db_connection()
 
-    if not _BGI_AVAILABLE and not _USE_MOCK:
-        st.error(
-            "The `baserunner_gravity` analytics module could not be imported. "
-            "Check that all dependencies are installed."
-        )
-        return
-
-    if not _USE_MOCK and (conn is None or not has_data(conn)):
+    if conn is None or not has_data(conn):
         st.warning(
             "No pitch data available. Run the data backfill pipeline first "
             "(`python scripts/backfill.py`)."
@@ -135,10 +92,9 @@ def render() -> None:
             key="bgi_season",
         )
 
-        if _BGI_AVAILABLE and not _USE_MOCK:
-            if st.button("Compute BGI Scores", type="primary"):
-                _train_model_ui(conn, season)
-                st.rerun()
+        if st.button("Compute BGI Scores", type="primary"):
+            _train_model_ui(conn, season)
+            st.rerun()
 
     # ---- Load data -------------------------------------------------------
     df = _load_leaderboard(conn, season)
@@ -195,12 +151,6 @@ def _get_available_seasons() -> list[int]:
 
 def _load_leaderboard(conn, season: int) -> pd.DataFrame | None:
     """Load BGI leaderboard, using cache then live computation."""
-    if _USE_MOCK:
-        return _generate_mock_leaderboard()
-
-    if not _BGI_AVAILABLE:
-        return None
-
     # Try cache first
     if _CACHE_AVAILABLE:
         try:

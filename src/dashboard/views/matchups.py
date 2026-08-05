@@ -13,19 +13,15 @@ import pandas as pd
 import streamlit as st
 
 # ---------------------------------------------------------------------------
-# Graceful imports
+# Imports
 # ---------------------------------------------------------------------------
 
-_USE_MOCK_MATCHUP = False
-try:
-    from src.analytics.matchups import (
-        get_matchup_stats as _real_get_matchup_stats,
-        get_pitcher_profile as _real_get_pitcher_profile,
-        get_batter_profile as _real_get_batter_profile,
-        estimate_matchup_woba as _real_estimate_matchup_woba,
-    )
-except ImportError:
-    _USE_MOCK_MATCHUP = True
+from src.analytics.matchups import (
+    get_matchup_stats as _real_get_matchup_stats,
+    get_pitcher_profile as _real_get_pitcher_profile,
+    get_batter_profile as _real_get_batter_profile,
+    estimate_matchup_woba as _real_estimate_matchup_woba,
+)
 
 _HAS_QUERIES = False
 try:
@@ -34,11 +30,6 @@ try:
 except ImportError:
     pass
 
-from src.dashboard.mock_data import (
-    ARSENALS,
-    OPPONENT_BATTERS,
-    PHILLIES_BATTERS,
-)
 from src.dashboard.db_helper import (
     get_db_connection,
     has_data,
@@ -56,25 +47,25 @@ from src.dashboard.components.strike_zone import create_strike_zone_heatmap
 # Cached lookups (wrappers without conn argument for st.cache_data)
 # ---------------------------------------------------------------------------
 
-@st.cache_data(ttl=3600)
+@st.cache_data(ttl=600)
 def _cached_all_pitchers() -> list[dict]:
-    """Cached list of all pitchers in the DB (TTL 1 hour)."""
+    """Cached list of all pitchers in the DB (TTL 10 min)."""
     conn = get_db_connection()
     return get_all_pitchers(conn)
 
 
-@st.cache_data(ttl=3600)
+@st.cache_data(ttl=600)
 def _cached_all_batters() -> list[dict]:
-    """Cached list of all batters in the DB (TTL 1 hour)."""
+    """Cached list of all batters in the DB (TTL 10 min)."""
     conn = get_db_connection()
     return get_all_batters(conn)
 
 
-@st.cache_data(ttl=3600)
+@st.cache_data(ttl=600)
 def _cached_pitcher_profile(pitcher_id: int) -> dict[str, Any] | None:
-    """Cached pitcher profile from the real analytics module (TTL 5 min)."""
+    """Cached pitcher profile from the real analytics module (TTL 10 min)."""
     conn = get_db_connection()
-    if conn is None or _USE_MOCK_MATCHUP:
+    if conn is None:
         return None
     try:
         return _real_get_pitcher_profile(conn, pitcher_id)
@@ -82,11 +73,11 @@ def _cached_pitcher_profile(pitcher_id: int) -> dict[str, Any] | None:
         return None
 
 
-@st.cache_data(ttl=3600)
+@st.cache_data(ttl=600)
 def _cached_batter_profile(batter_id: int) -> dict[str, Any] | None:
-    """Cached batter profile from the real analytics module (TTL 5 min)."""
+    """Cached batter profile from the real analytics module (TTL 10 min)."""
     conn = get_db_connection()
-    if conn is None or _USE_MOCK_MATCHUP:
+    if conn is None:
         return None
     try:
         return _real_get_batter_profile(conn, batter_id)
@@ -94,11 +85,11 @@ def _cached_batter_profile(batter_id: int) -> dict[str, Any] | None:
         return None
 
 
-@st.cache_data(ttl=3600)
+@st.cache_data(ttl=600)
 def _cached_matchup_stats(pitcher_id: int, batter_id: int) -> dict[str, Any] | None:
-    """Cached matchup stats from the real analytics module (TTL 5 min)."""
+    """Cached matchup stats from the real analytics module (TTL 10 min)."""
     conn = get_db_connection()
-    if conn is None or _USE_MOCK_MATCHUP:
+    if conn is None:
         return None
     try:
         return _real_get_matchup_stats(conn, pitcher_id, batter_id)
@@ -106,11 +97,11 @@ def _cached_matchup_stats(pitcher_id: int, batter_id: int) -> dict[str, Any] | N
         return None
 
 
-@st.cache_data(ttl=3600)
+@st.cache_data(ttl=600)
 def _cached_matchup_woba(pitcher_id: int, batter_id: int) -> dict[str, Any] | None:
-    """Cached Bayesian matchup wOBA estimate (TTL 5 min)."""
+    """Cached Bayesian matchup wOBA estimate (TTL 10 min)."""
     conn = get_db_connection()
-    if conn is None or _USE_MOCK_MATCHUP:
+    if conn is None:
         return None
     try:
         return _real_estimate_matchup_woba(conn, pitcher_id, batter_id)
@@ -118,9 +109,9 @@ def _cached_matchup_woba(pitcher_id: int, batter_id: int) -> dict[str, Any] | No
         return None
 
 
-@st.cache_data(ttl=3600)
+@st.cache_data(ttl=600)
 def _cached_matchup_history(pitcher_id: int, batter_id: int) -> pd.DataFrame | None:
-    """Cached matchup pitch history for zone heatmaps (TTL 5 min)."""
+    """Cached matchup pitch history for zone heatmaps (TTL 10 min)."""
     conn = get_db_connection()
     if conn is None or not _HAS_QUERIES:
         return None
@@ -315,17 +306,6 @@ def _adapt_batter_profile(real: dict) -> dict[str, Any]:
         "hard_hit_rate": statcast.get("hard_hit_pct") or 0.0,
         "zone_grid": [],  # Real module doesn't provide a 3x3 grid directly
     }
-
-
-# ---------------------------------------------------------------------------
-# Build name lists for selectors
-# ---------------------------------------------------------------------------
-
-_MOCK_PITCHERS: list[str] = sorted(list(ARSENALS.keys()))
-
-_MOCK_BATTERS: list[str] = sorted(
-    [b["name"] for b in PHILLIES_BATTERS + OPPONENT_BATTERS],
-)
 
 
 # ---------------------------------------------------------------------------

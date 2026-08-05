@@ -13,7 +13,6 @@ from __future__ import annotations
 
 from typing import Any
 
-import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
@@ -22,27 +21,22 @@ import streamlit as st
 from src.dashboard.db_helper import get_db_connection, has_data
 
 # ---------------------------------------------------------------------------
-# Graceful imports
+# Imports
 # ---------------------------------------------------------------------------
 
-_DPI_AVAILABLE = False
-try:
-    from src.analytics.defensive_pressing import (
-        DPIConfig,
-        DefensivePressingModel,
-        train_expected_out_model,
-        compute_expected_outs,
-        calculate_game_dpi,
-        calculate_team_dpi,
-        batch_calculate,
-        get_player_dpi,
-        get_team_game_dpi_timeline,
-        build_bip_features,
-        compute_spray_angle,
-    )
-    _DPI_AVAILABLE = True
-except ImportError:
-    pass
+from src.analytics.defensive_pressing import (
+    DPIConfig,
+    DefensivePressingModel,
+    train_expected_out_model,
+    compute_expected_outs,
+    calculate_game_dpi,
+    calculate_team_dpi,
+    batch_calculate,
+    get_player_dpi,
+    get_team_game_dpi_timeline,
+    build_bip_features,
+    compute_spray_angle,
+)
 
 _CACHE_AVAILABLE = False
 try:
@@ -51,8 +45,6 @@ try:
 except Exception:
     pass
 
-_USE_MOCK = False
-
 # Phillies red / blue palette
 _PHILLIES_RED = "#E81828"
 _PHILLIES_BLUE = "#002D72"
@@ -60,72 +52,6 @@ _PHILLIES_LIGHT = "#B0B7BC"
 _POSITIVE_GREEN = "#2ECC71"
 _NEGATIVE_RED = "#E74C3C"
 _NEUTRAL_GOLD = "#FFC145"
-
-
-# ---------------------------------------------------------------------------
-# Mock data
-# ---------------------------------------------------------------------------
-
-def _generate_mock_leaderboard() -> pd.DataFrame:
-    """Generate mock team DPI data for development / demo mode."""
-    rng = np.random.RandomState(42)
-    teams = [
-        "PHI", "NYM", "ATL", "WSH", "MIA", "LAD", "SDP", "SFG", "ARI", "COL",
-        "NYY", "BOS", "TBR", "TOR", "BAL", "CLE", "MIN", "DET", "CHW", "KCR",
-        "HOU", "SEA", "TEX", "LAA", "OAK", "STL", "CHC", "MIL", "CIN", "PIT",
-    ]
-    n = len(teams)
-    dpi_mean = np.round(rng.normal(0, 2, size=n), 3)
-
-    df = pd.DataFrame({
-        "team_id": teams,
-        "season": 2025,
-        "dpi_mean": sorted(dpi_mean, reverse=True),
-        "dpi_total": np.round(sorted(dpi_mean, reverse=True) * rng.randint(100, 162, n), 1),
-        "dpi_std": np.round(rng.uniform(1.0, 4.0, n), 3),
-        "consistency": np.round(rng.uniform(0.2, 0.6, n), 4),
-        "extra_base_prevention": np.round(rng.uniform(0.55, 0.80, n), 3),
-        "n_games": rng.randint(100, 162, n),
-    })
-    df = df.sort_values("dpi_mean", ascending=False).reset_index(drop=True)
-    df["rank"] = range(1, len(df) + 1)
-    df["percentile"] = np.round(100 * (1 - (df["rank"] - 1) / len(df)), 1)
-    return df
-
-
-def _generate_mock_timeline() -> pd.DataFrame:
-    """Generate mock game-by-game DPI timeline."""
-    rng = np.random.RandomState(42)
-    n = 100
-    dates = pd.date_range("2025-04-01", periods=n, freq="2D")
-    dpi_vals = np.cumsum(rng.normal(0, 1.5, n)) / np.arange(1, n + 1) * 3
-
-    return pd.DataFrame({
-        "game_date": dates,
-        "game_pk": range(800000, 800000 + n),
-        "dpi": np.round(dpi_vals, 3),
-        "n_bip": rng.randint(15, 40, n),
-        "actual_outs": rng.randint(8, 28, n),
-        "expected_outs": np.round(rng.uniform(8, 25, n), 1),
-        "extra_base_prevention": np.round(rng.uniform(0.5, 0.9, n), 3),
-    })
-
-
-def _generate_mock_bip_scatter() -> pd.DataFrame:
-    """Generate mock BIP scatter data for the outcome chart."""
-    rng = np.random.RandomState(42)
-    n = 300
-    launch_speed = rng.normal(88, 12, n)
-    launch_angle = rng.normal(12, 20, n)
-    expected_out = 1 / (1 + np.exp(0.03 * (launch_speed - 85) + 0.02 * launch_angle))
-    actual_out = (rng.random(n) < expected_out).astype(int)
-
-    return pd.DataFrame({
-        "launch_speed": np.round(launch_speed, 1),
-        "launch_angle": np.round(launch_angle, 1),
-        "expected_out_prob": np.round(expected_out, 3),
-        "actual_out": actual_out,
-    })
 
 
 # ---------------------------------------------------------------------------
@@ -162,14 +88,7 @@ def render() -> None:
 
     conn = get_db_connection()
 
-    if not _DPI_AVAILABLE and not _USE_MOCK:
-        st.error(
-            "The `defensive_pressing` analytics module could not be imported. "
-            "Check that `src/analytics/defensive_pressing.py` exists."
-        )
-        return
-
-    if not _USE_MOCK and (conn is None or not has_data(conn)):
+    if conn is None or not has_data(conn):
         st.warning(
             "No pitch data available. Run the data backfill pipeline first "
             "(`python scripts/backfill.py`)."
@@ -254,12 +173,6 @@ def _get_available_seasons() -> list[int]:
 
 def _load_leaderboard(conn, season: int) -> pd.DataFrame | None:
     """Load DPI leaderboard, using cache then live computation."""
-    if _USE_MOCK:
-        return _generate_mock_leaderboard()
-
-    if not _DPI_AVAILABLE:
-        return None
-
     # Try cache first
     if _CACHE_AVAILABLE:
         try:
@@ -361,15 +274,10 @@ def _render_bip_scatter(conn, team_id: str, season: int) -> None:
     """Scatter of launch_speed vs launch_angle, colored by outcome vs expected."""
     st.subheader("Batted Ball Outcomes vs Expected")
 
-    if _USE_MOCK:
-        scatter_df = _generate_mock_bip_scatter()
-    elif _DPI_AVAILABLE:
-        try:
-            scatter_df = _load_bip_data(team_id, season)
-        except Exception as exc:
-            st.error(f"Error loading BIP data: {exc}")
-            return
-    else:
+    try:
+        scatter_df = _load_bip_data(team_id, season)
+    except Exception as exc:
+        st.error(f"Error loading BIP data: {exc}")
         return
 
     if scatter_df is None or scatter_df.empty:
@@ -602,15 +510,10 @@ def _render_timeline(conn, team_id: str, season: int) -> None:
     """Game-by-game DPI timeline across the season."""
     st.subheader(f"{team_id} DPI Timeline ({season})")
 
-    if _USE_MOCK:
-        timeline = _generate_mock_timeline()
-    elif _DPI_AVAILABLE:
-        try:
-            timeline = _cached_dpi_timeline(team_id, season)
-        except Exception as exc:
-            st.error(f"Error loading timeline: {exc}")
-            return
-    else:
+    try:
+        timeline = _cached_dpi_timeline(team_id, season)
+    except Exception as exc:
+        st.error(f"Error loading timeline: {exc}")
         return
 
     if timeline is None or timeline.empty:

@@ -178,9 +178,6 @@ def _step_retrain_model() -> bool:
     model_dir.mkdir(parents=True, exist_ok=True)
 
     try:
-        # Attempt to import and run model training if it exists
-        # This is a placeholder -- the actual training module may not
-        # exist yet.  We degrade gracefully.
         try:
             from src.analytics.stuff_model import train_stuff_model
             train_stuff_model(_get_conn())
