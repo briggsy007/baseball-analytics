@@ -150,3 +150,6 @@ re-weighting ON ROLLOUT OUTPUTS over the 2023 val cohort (per-position generaliz
 npz); PASS only if it transfers to the untouched 2025 gates. Until then the flagship claim stays
 narrowed: per-pitch calibration (ECE 0.0114) intact; PA-level K/BB/HR marginals biased — Tier-A
 rank/differential products usable with disclosure, absolute-rate products blocked.
+
+Plan for the refit: `PHASE_0.6.2_PLAN.md` (2026-08-04) — includes remediation of the pos-0
+npz 2025 fit-on-holdout taint discovered during planning.
