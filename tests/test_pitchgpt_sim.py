@@ -938,3 +938,202 @@ def test_pg_concat_head_predictor_class_calibration_reweights(tmp_path):
     np.testing.assert_allclose(
         p_rw_np.sum(axis=-1), np.ones((B, S)), atol=1e-6
     )
+
+
+# ═════════════════════════════════════════════════════════════════════════════
+# Phase 0.6.1 — mid-PA count-state mutation
+# ═════════════════════════════════════════════════════════════════════════════
+
+
+@pytest.mark.parametrize(
+    ("balls", "strikes", "outcome_name", "expected"),
+    [
+        # ball advances balls
+        (0, 0, "OUTCOME_BALL", (1, 0)),
+        (1, 2, "OUTCOME_BALL", (2, 2)),
+        (3, 0, "OUTCOME_BALL", (4, 0)),   # -> caller sees walk (balls >= 4)
+        # called / swinging strike advances strikes
+        (0, 0, "OUTCOME_CALLED_STRIKE", (0, 1)),
+        (2, 1, "OUTCOME_CALLED_STRIKE", (2, 2)),
+        (0, 2, "OUTCOME_CALLED_STRIKE", (0, 3)),   # -> caller sees K (strikes >= 3)
+        (0, 0, "OUTCOME_SWINGING_STRIKE", (0, 1)),
+        (1, 2, "OUTCOME_SWINGING_STRIKE", (1, 3)),  # -> caller sees K
+        # foul advances strikes ONLY below the 2-strike cap
+        (0, 0, "OUTCOME_FOUL", (0, 1)),
+        (0, 1, "OUTCOME_FOUL", (0, 2)),
+        (0, 2, "OUTCOME_FOUL", (0, 2)),   # capped: no advance at 2 strikes
+        (3, 2, "OUTCOME_FOUL", (3, 2)),   # capped even on a full count
+        # terminal in-play / HBP leave the count unchanged
+        (1, 1, "OUTCOME_IN_PLAY_OUT", (1, 1)),
+        (2, 2, "OUTCOME_IN_PLAY_HIT", (2, 2)),
+        (0, 2, "OUTCOME_HBP", (0, 2)),
+    ],
+)
+def test_advance_count_state_machine(balls, strikes, outcome_name, expected):
+    """Phase 0.6.1: `_advance_count` is the pure per-pitch count transition.
+
+    Covers ball / called-strike / swinging-strike / foul-at-<2 / foul-at-2
+    (capped) / terminal-in-play (unchanged).  Also documents the caller-side
+    termination thresholds: balls >= _WALK_BALLS ⇒ walk, strikes >=
+    _STRIKEOUT_STRIKES ⇒ strikeout.
+    """
+    import src.analytics.pitchgpt_sim as sim
+
+    outcome_class = getattr(sim, outcome_name)
+    got = sim._advance_count(balls, strikes, outcome_class)
+    assert got == expected, (
+        f"_advance_count({balls},{strikes},{outcome_name})={got}, want {expected}"
+    )
+    # Purity: no negative counts ever produced.
+    assert got[0] >= 0 and got[1] >= 0
+
+
+def test_advance_count_termination_thresholds():
+    """Phase 0.6.1: walk (4 balls) / strikeout (3 strikes) are detectable on
+    the count `_advance_count` returns; foul-at-2-strikes never terminates."""
+    import src.analytics.pitchgpt_sim as sim
+
+    # A 4th ball is a walk.
+    b, s = sim._advance_count(3, 1, sim.OUTCOME_BALL)
+    assert b >= sim._WALK_BALLS and s < sim._STRIKEOUT_STRIKES
+
+    # A 3rd strike (called or swinging) is a strikeout.
+    b, s = sim._advance_count(1, 2, sim.OUTCOME_CALLED_STRIKE)
+    assert s >= sim._STRIKEOUT_STRIKES and b < sim._WALK_BALLS
+
+    # A foul at two strikes prolongs the PA: neither threshold trips.
+    b, s = sim._advance_count(1, 2, sim.OUTCOME_FOUL)
+    assert b < sim._WALK_BALLS and s < sim._STRIKEOUT_STRIKES
+
+
+class _RecordingFoulPredictor:
+    """Mock predictor that always emits `foul` (class 3) and records the
+    context vector it is handed at each rollout position.
+
+    Foul never terminates the PA (and is capped at 2 strikes), so the count
+    marches 0-0 -> 0-1 -> 0-2 -> 0-2 -> ... deterministically, exercising the
+    Phase 0.6.1 count-state mutation without any GPU-scale sampling.
+    """
+
+    name = "pg_concat_head"  # allowed name so rollout() doesn't warn
+    checkpoint_sha256 = "0" * 64
+    calibration: dict = {
+        "T": 1.0, "ECE_pre": 0.0, "ECE_post": 0.0,
+        "holdout_season": 2025, "holdout_n_pitches": 1,
+        "fit_date": "2026-04-25", "checkpoint_sha256": "0" * 64,
+        "predictor_kind": "pg_concat_head",
+    }
+
+    def __init__(self):
+        self.seen_contexts = []  # list of (N, CTX) numpy arrays, one per position
+
+    def predict_outcome_probs(self, backbone_hidden, context_vec, pitch_token):
+        import torch
+        # Record the last-position context handed to the outcome head.
+        self.seen_contexts.append(
+            context_vec[:, -1, :].detach().cpu().numpy().copy()
+        )
+        B, S = backbone_hidden.shape[0], backbone_hidden.shape[1]
+        out = torch.zeros(B, S, 7)
+        out[..., 3] = 1.0  # foul
+        return out
+
+
+@pytest.mark.skipif(
+    not (_MODELS / "pitchgpt_v2.pt").exists(),
+    reason="backbone models/pitchgpt_v2.pt missing — skip mid-PA mutation integration test.",
+)
+def test_mid_pa_context_mutation_produces_nonconstant_context():
+    """Phase 0.6.1 integration: a short rollout re-emits the count_state
+    one-hot each position, so the context tensor is NON-constant across
+    positions; every non-count field stays PA-invariant.
+
+    Uses the real backbone (CPU or GPU) with a mock foul-only predictor so no
+    GPU-scale sampling is required.
+    """
+    from src.analytics.pitchgpt import NUM_COUNT_STATES
+    from src.analytics.pitchgpt_sim import rollout
+
+    ctx = _make_default_context()  # 0-0 count start
+    pred = _RecordingFoulPredictor()
+    horizon = 5
+    rollout(
+        ctx,
+        outcome_predictor=pred,
+        n_samples=3,
+        horizon=horizon,
+        temperature=1.0,
+        seed=7,
+    )
+
+    assert len(pred.seen_contexts) == horizon, (
+        f"expected {horizon} recorded contexts, got {len(pred.seen_contexts)}"
+    )
+    # count_state one-hot argmax per position (sample 0).  Foul-only path:
+    # 0-0 -> 0-1 -> 0-2 -> 0-2 -> 0-2  == count_state 0,1,2,2,2.
+    cs_by_pos = [
+        int(np.argmax(c[0, :NUM_COUNT_STATES])) for c in pred.seen_contexts
+    ]
+    assert cs_by_pos == [0, 1, 2, 2, 2], (
+        f"count_state sequence not mutated as expected: {cs_by_pos}"
+    )
+    # The context MUST be non-constant across positions (the whole point).
+    assert len(set(cs_by_pos)) > 1, "context count_state did not vary across positions"
+
+    # Every NON-count field must stay PA-invariant across all positions.
+    for c in pred.seen_contexts[1:]:
+        np.testing.assert_array_equal(
+            c[:, NUM_COUNT_STATES:],
+            pred.seen_contexts[0][:, NUM_COUNT_STATES:],
+            err_msg="non-count context fields changed mid-PA (should be invariant)",
+        )
+    # The count one-hot slice DID change between position 0 and position 2.
+    assert not np.array_equal(
+        pred.seen_contexts[0][:, :NUM_COUNT_STATES],
+        pred.seen_contexts[2][:, :NUM_COUNT_STATES],
+    ), "count_state one-hot did not mutate between pos 0 and pos 2"
+
+
+@pytest.mark.skipif(
+    not _has_pg_concat_head_predictor(), reason=_PGCH_SKIP_MSG
+)
+def test_disable_class_calibration_flag_drops_class_cal_keeps_pos0():
+    """Phase 0.6.1 A/B switch: `disable_class_calibration=True` nulls the
+    all-position class_calibration but retains the position-0 recalibration."""
+    from src.analytics.pitchgpt_sim import PGConcatHeadPredictor
+
+    # Default (calibration enabled): the shipped JSON carries class_calibration.
+    pred_on = PGConcatHeadPredictor()
+    assert pred_on._class_calibration is not None, (
+        "default calibration JSON is expected to carry class_calibration"
+    )
+    assert pred_on.class_calibration_disabled is False
+
+    # Disabled: class_calibration dropped, pos-0 recalibration retained.
+    pred_off = PGConcatHeadPredictor(disable_class_calibration=True)
+    assert pred_off._class_calibration is None
+    assert pred_off.class_calibration_disabled is True
+    # pos-0 npz ships in models/, so it must still be loaded.
+    assert pred_off._class_calibration_pos0 is not None, (
+        "pos-0 recalibration must be retained when class_calibration is disabled"
+    )
+    assert pred_off.calibration.get("class_calibration_disabled") is True
+
+
+@pytest.mark.skipif(
+    not _has_pg_concat_head_predictor(), reason=_PGCH_SKIP_MSG
+)
+def test_disable_class_calibration_env_var(monkeypatch):
+    """Phase 0.6.1: PITCHGPT_DISABLE_CLASS_CALIBRATION=1 disables the
+    all-position class_calibration with no code change (default arg = None)."""
+    from src.analytics.pitchgpt_sim import PGConcatHeadPredictor
+
+    monkeypatch.setenv("PITCHGPT_DISABLE_CLASS_CALIBRATION", "1")
+    pred = PGConcatHeadPredictor()  # disable_class_calibration=None -> read env
+    assert pred.class_calibration_disabled is True
+    assert pred._class_calibration is None
+
+    # Explicit False must OVERRIDE the env var.
+    pred2 = PGConcatHeadPredictor(disable_class_calibration=False)
+    assert pred2.class_calibration_disabled is False
+    assert pred2._class_calibration is not None

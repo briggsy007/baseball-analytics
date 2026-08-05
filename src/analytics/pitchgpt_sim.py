@@ -508,6 +508,19 @@ def _isclose(a: float, b: float, *, atol: float = 1e-9) -> bool:
     return abs(float(a) - float(b)) <= atol
 
 
+def _env_truthy(name: str) -> bool:
+    """Return True if environment variable ``name`` is set to a truthy value.
+
+    Truthy = one of ``{"1", "true", "yes", "on"}`` (case-insensitive).  Used
+    for the Phase 0.6.1 ``PITCHGPT_DISABLE_CLASS_CALIBRATION`` A/B switch so
+    the orchestrator can flip the all-position class_calibration off for the
+    sanity re-run WITHOUT editing any script.
+    """
+    import os
+
+    return os.environ.get(name, "").strip().lower() in {"1", "true", "yes", "on"}
+
+
 # ═════════════════════════════════════════════════════════════════════════════
 # Calibration JSON loading (for §7.3 refusal behavior wiring)
 # ═════════════════════════════════════════════════════════════════════════════
@@ -650,9 +663,17 @@ def load_calibration_json(
 # (3) The "in-zone" heuristic for outcome_predictor=None uses Statcast's 5x5
 #     grid inner 3x3 indices.  Documented in _zone_is_in_strike_zone.
 #
-# (4) Constant-context-within-a-PA: rollout broadcasts the starting context
-#     across all positions.  Mid-PA counterfactual mutation is Phase-1
-#     (PHASE_0.5_PLAN §5.2 risk 2 — not blocking 0.5/0.6).
+# (4) Mid-PA context mutation (Phase 0.6.1, 2026-08-04): the rollout seeds
+#     the starting context at position 0 and then re-emits the ``count_state``
+#     one-hot for each subsequent position from the running (balls, strikes)
+#     per sample (see ``_advance_count`` + the sampling loop).  The
+#     mutated context flows through the SAME encode path (count_state one-hot
+#     at offset 0 of CONTEXT_DIM) into BOTH the pitch-token backbone forward
+#     and the outcome-head forward, since they share ``cur_context``.  All
+#     other context fields (outs / runners / hand / inning / score / ump) are
+#     PA-invariant and stay constant, which is correct.  This closes the
+#     static-context drift documented in
+#     ``results/pitchgpt/rollout_sanity_2025/diagnose_static_context.md``.
 
 
 import hashlib
@@ -713,6 +734,50 @@ _IN_ZONE_INDICES: frozenset[int] = frozenset(
     for z_bin in (1, 2, 3)
     for x_bin in (1, 2, 3)
 )
+
+# ── Count-state mutation thresholds (Phase 0.6.1 mid-PA context mutation) ──
+#: Ball count that ends the PA in a walk.
+_WALK_BALLS: int = 4
+#: Strike count that ends the PA in a strikeout.
+_STRIKEOUT_STRIKES: int = 3
+#: Foul balls never advance the strike count at or beyond this many strikes.
+_FOUL_STRIKE_CAP: int = 2
+
+
+def _advance_count(balls: int, strikes: int, outcome_class: int) -> tuple[int, int]:
+    """Pure per-pitch count transition — Phase 0.6.1 mid-PA state machine.
+
+    Given the pre-pitch ``(balls, strikes)`` and the sampled 7-class
+    ``outcome_class``, return the post-pitch ``(balls, strikes)`` following
+    baseball rules:
+
+        * ``ball``                          → ``balls + 1``
+        * ``called_strike`` / ``swinging_strike`` → ``strikes + 1``
+        * ``foul``                          → ``strikes + 1`` **unless** already
+          at ``_FOUL_STRIKE_CAP`` (2) strikes, in which case the count is
+          unchanged (a foul with two strikes prolongs the PA without
+          advancing).
+        * ``in_play_out`` / ``in_play_hit`` / ``hbp`` (terminal) and any pad /
+          out-of-range value → count **unchanged** (the caller ends the PA
+          before ever advancing the count for these).
+
+    This function does NOT decide termination.  The caller detects a walk via
+    ``balls >= _WALK_BALLS`` and a strikeout via ``strikes >= _STRIKEOUT_STRIKES``
+    on the returned count, and handles terminal in-play outcomes separately.
+
+    Pure (no side effects); unit-tested directly in
+    ``tests/test_pitchgpt_sim.py``.
+    """
+    if outcome_class == OUTCOME_BALL:
+        return balls + 1, strikes
+    if outcome_class in _STRIKE_OUTCOMES:
+        return balls, strikes + 1
+    if outcome_class == OUTCOME_FOUL:
+        if strikes < _FOUL_STRIKE_CAP:
+            return balls, strikes + 1
+        return balls, strikes
+    # Terminal in-play / HBP / pad / unknown: count unchanged.
+    return balls, strikes
 
 
 # Allowed outcome_predictor names.  NEW name "pg_concat_head" is added per
@@ -973,6 +1038,7 @@ class PGConcatHeadPredictor(nn.Module):
         calibration_path: Path | str | None = None,
         require_calibration: bool = False,
         pos0_calibration_path: Path | str | None = None,
+        disable_class_calibration: bool | None = None,
     ):
         """
         Parameters
@@ -986,6 +1052,20 @@ class PGConcatHeadPredictor(nn.Module):
         require_calibration
             If True, raise on missing/invalid calibration JSON; else fall
             back to embedded checkpoint metadata.
+        disable_class_calibration
+            **NEW (Phase 0.6.1, 2026-08-04).**  A/B switch for the all-position
+            ``class_calibration`` re-weighting.  This vector was fit on the
+            pre-mutation (static-context) rollout, so after the mid-PA
+            count-state mutation lands it may over-correct the per-pitch
+            marginal.  When True, the loaded ``class_calibration`` is dropped
+            (``_class_calibration = None``) so the head returns the pure
+            temperature-scaled softmax.  The position-0 recalibration
+            (``pos0_calibration_path``) is INTENTIONALLY retained — it was fit
+            on the always-correct position-0 context and stays valid.
+            Default ``None`` reads the ``PITCHGPT_DISABLE_CLASS_CALIBRATION``
+            environment variable (unset/false ⇒ existing behavior preserved),
+            letting the orchestrator A/B the sanity run without editing any
+            script.
         pos0_calibration_path
             **NEW (Phase 0.6, 2026-04-26).**  Optional npz path containing
             a ``class_calibration_pos0`` length-7 vector that recalibrates
@@ -1110,6 +1190,29 @@ class PGConcatHeadPredictor(nn.Module):
                     f"be all-positive finite floats; got {cc_arr.tolist()}"
                 )
             self._class_calibration = torch.from_numpy(cc_arr).to(device)
+
+        # Phase 0.6.1 (2026-08-04): A/B switch to DISABLE the all-position
+        # class_calibration.  It was fit on the pre-mutation static-context
+        # rollout; after the mid-PA count-state mutation it may over-correct
+        # the per-pitch marginal (empirically it inflates PA-level K%).
+        # Dropping it here yields the pure temperature-scaled softmax while
+        # KEEPING the position-0 recalibration (which was fit on the
+        # always-correct pos-0 context).  Default None ⇒ read the
+        # PITCHGPT_DISABLE_CLASS_CALIBRATION env var so the orchestrator can
+        # A/B the sanity run with no script edits.
+        if disable_class_calibration is None:
+            disable_class_calibration = _env_truthy(
+                "PITCHGPT_DISABLE_CLASS_CALIBRATION"
+            )
+        self.class_calibration_disabled: bool = bool(disable_class_calibration)
+        if self.class_calibration_disabled:
+            self._class_calibration = None
+            self.calibration = dict(self.calibration)
+            self.calibration["class_calibration_disabled"] = True
+            logger.info(
+                "PGConcatHeadPredictor: class_calibration DISABLED "
+                "(Phase 0.6.1 A/B); pos-0 recalibration retained."
+            )
 
         # Phase 0.6 (2026-04-26): position-0 class-marginal
         # recalibration.  Applied AFTER the JSON `class_calibration` to
@@ -1582,9 +1685,11 @@ def _build_starting_tokens_and_context(
     """Build the (initial tokens, initial context, prefix_len) tensors.
 
     Decoder-only backbone with a BOS token at position 0; prefix tokens
-    follow.  The context vector is held CONSTANT across all positions
-    in a PA -- counterfactual mid-PA context mutation is Phase 1
-    (PHASE_0.5_PLAN §5.2).
+    follow.  This builds only the position-0 (starting) context; the rollout
+    loop then mutates the ``count_state`` one-hot per subsequent position from
+    the running count (Phase 0.6.1 mid-PA context mutation).  The remaining
+    context fields (outs / runners / hand / inning / score / ump) are
+    PA-invariant and are correctly broadcast unchanged.
 
     Returns
     -------
@@ -1728,9 +1833,13 @@ def rollout(
     SIM_ENGINE_API §3.4 enumeration; see PHASE_0.5_PLAN §2.0.5.2.  It
     is the production A1 head as of 2026-04-26.
 
-    Note: the rollout broadcasts a CONSTANT context vector across every
-    position in the PA -- mid-PA counterfactual context mutation is
-    Phase-1 (PHASE_0.5_PLAN §5.2 risk 2).
+    Note (Phase 0.6.1, 2026-08-04): the rollout MUTATES the ``count_state``
+    one-hot of the context vector at each position from the running
+    (balls, strikes) of each sample (per ``_advance_count``), so both the
+    pitch-token backbone forward and the outcome-head forward see the updated
+    count at position t+1.  All other context fields are PA-invariant and stay
+    constant.  This closes the static-context drift diagnosed in
+    ``results/pitchgpt/rollout_sanity_2025/diagnose_static_context.md``.
     """
     # ── Edge cases (§3.1) ────────────────────────────────────────────────
     if int(n_samples) <= 0:
@@ -2014,16 +2123,15 @@ def rollout(
                     terminated_here = True
                     continue
 
-                # Counter advance per outcome class.
-                if outc_i == OUTCOME_BALL:
-                    balls_arr[i] += 1
-                elif outc_i in _STRIKE_OUTCOMES:
-                    strikes_arr[i] += 1
-                elif outc_i == OUTCOME_FOUL:
-                    # Foul on 0-1 strikes -> +1 strike; foul on 2 strikes
-                    # does not advance.  Per §3.3 condition 3.
-                    if strikes_arr[i] < 2:
-                        strikes_arr[i] += 1
+                # Counter advance per outcome class (Phase 0.6.1 state
+                # machine).  ball -> +1 ball; called/swinging strike -> +1
+                # strike; foul -> +1 strike capped at 2.  Terminal in-play
+                # outcomes never reach here (handled by the `continue` above).
+                new_b, new_s = _advance_count(
+                    int(balls_arr[i]), int(strikes_arr[i]), outc_i
+                )
+                balls_arr[i] = new_b
+                strikes_arr[i] = new_s
 
             else:
                 # outcome_predictor is None -> count-only fallback.
