@@ -61,3 +61,9 @@ results/**/_*_cache.csv
 
 # Per-script intermediate caches (can be large — e.g. PitchGPT downstream feature cache)
 results/**/_cache/
+
+# Ingestion staging area — large regenerable parquets/zips (45+ MB)
+data/staging/
+
+# Daily hit-parlay outputs — dated, regenerable, would accumulate forever
+results/hit_parlay/*.json
