@@ -67,3 +67,6 @@ data/staging/
 
 # Daily hit-parlay outputs — dated, regenerable, would accumulate forever
 results/hit_parlay/*.json
+
+# Nightly refresh run logs
+logs/nightly/
