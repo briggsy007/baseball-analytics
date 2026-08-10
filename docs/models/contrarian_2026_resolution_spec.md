@@ -557,3 +557,4 @@ clause invocation.
 | # | Date | Author | Entry |
 |---|------|--------|-------|
 | — | — | — | *(empty at freeze)* |
+| 1 | 2026-08-10 | orchestrator (Batch A) | Freeze commit of this spec: `912ede6a8a179284ffcc5c1e4039c9c59078c24c`. File sha256 at freeze: `1a27cd0e2d9b7d08c69c5a8a5944602585931121d9396be922e1e519557c760e` (= §5.7 rule_hash, referenced from the dashboard 2026-board banner). Verify against the frozen blob via `git show 912ede6:docs/models/contrarian_2026_resolution_spec.md` — the working-tree file legitimately diverges from the frozen hash from this entry onward. Does not touch scoring. |
