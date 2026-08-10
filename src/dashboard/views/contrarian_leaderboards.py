@@ -34,18 +34,26 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 
+from src.claims import get_claim
 from src.dashboard.db_helper import get_db_connection
 
 # ---------------------------------------------------------------------------
 # Constants
 # ---------------------------------------------------------------------------
 
+# Registry-backed claims (WS2.2). Retracted claims raise here, so a retracted
+# number is structurally unable to render on this page.
+_CLAIM_BUY_LOW = get_claim("causal_war_buy_low_68_4")
+_CLAIM_OVER_VALUED = get_claim("causal_war_v2_over_valued")
+_CLAIM_RELIEVER = get_claim("causal_war_reliever_tag")
+_CLAIM_OOS = get_claim("causal_war_oos_windows")
+
 # Pinned 2026-08-10 to the v2 (production-default) comparison artifact.
 # The previous pin was v1's revert-run CSV
 # (results/validate_causal_war_20260418T194415Z/...) while the production
 # model default was v2 — the 2026-08-10 audit (§2 finding 7) flagged the
-# version mismatch. v2 numbers: Buy-Low 13/19 = 68.4%, Over-Valued
-# 13/23 = 56.5% (v1: 14/23 = 60.9%); Buy-Low overlap v1→v2 is 10/13.
+# version mismatch. v2 numbers: Buy-Low 13/19 = 68.4%, Over-Valued  # claim:causal_war_buy_low_68_4
+# 13/23 = 56.5% (v1: 14/23 = 60.9%); Buy-Low overlap v1→v2 is 10/13.  # claim:causal_war_v2_over_valued
 _CSV_PATH = (
     Path(__file__).resolve().parents[3]
     / "results"
@@ -101,10 +109,40 @@ def _resolve_board_2026_csv() -> Path:
     return _BOARD_2026_LEGACY_CSV
 
 
+# Reliever board (plan WS1.3, spec section 6): a ONE-TIME freeze dated
+# 2026-08-10. Later batter-board runs may rewrite latest.json without the
+# reliever keys; the frozen dated path below never changes, so it is the
+# always-correct fallback.
+_RELIEVER_2026_FROZEN_DATE = "2026-08-10"
+_RELIEVER_2026_FROZEN_CSV = (
+    _BOARD_2026_DIR / _RELIEVER_2026_FROZEN_DATE / "reliever_board.csv"
+)
+_RELIEVER_2026_FROZEN_SUMMARY = (
+    _BOARD_2026_DIR / _RELIEVER_2026_FROZEN_DATE / "reliever_summary.md"
+)
+
+
+def _resolve_reliever_2026_csv() -> Path:
+    """Reliever board via latest.json reliever keys; frozen dated path as fallback."""
+    try:
+        import json as _json
+
+        pointer = _json.loads(
+            _BOARD_2026_LATEST_POINTER.read_text(encoding="utf-8")
+        )
+        candidate = _BOARD_2026_DIR / pointer["reliever_board_csv"]
+        if candidate.exists():
+            return candidate
+    except Exception:
+        pass
+    return _RELIEVER_2026_FROZEN_CSV
+
+
 def _resolve_board_2026_summary() -> Path:
     """Newest dated summary via latest.json; legacy top-level file as fallback.
 
-    WS0.3 (2026-08-10): the dated summaries carry the detached 68.4% language;
+    WS0.3 (2026-08-10): the dated summaries carry the detached 68.4% (claim:causal_war_buy_low_68_4)
+    language;
     the frozen legacy top-level summary.md pre-dates it (bounded by an appended
     erratum). Point users at the dated copy whenever the pointer resolves.
     """
@@ -138,11 +176,12 @@ _RESOLUTION_SPEC_SHA256 = (
 
 _BANNER_2026 = (
     "APPLICATION of the 2023-2025 methodology to PARTIAL-SEASON 2026 data. "
-    "The headline Buy-Low hit rate (68.4%, 13/19) is NOT a validated edge: "
-    "its hit criterion was defined post-hoc, the 95% CI [0.474, 0.843] "
-    "includes chance, intention-to-treat scoring (exits count against the "
-    "pick) is 13/25 = 52%, and matched-naive mean-reversion baselines score "
-    "66.5-73% on the same pools. It was measured on FULL-SEASON 2023-24 "
+    f"The headline Buy-Low hit rate ({_CLAIM_BUY_LOW.value}) is NOT a "  # claim:causal_war_buy_low_68_4
+    "validated edge: its hit criterion was defined post-hoc, the 95% CI "
+    "[0.474, 0.843] includes chance, intention-to-treat scoring (exits "  # claim:causal_war_buy_low_68_4
+    "count against the pick) is 13/25 = 52%, and matched-naive "  # claim:causal_war_buy_low_68_4
+    "mean-reversion baselines score 66.5-73% on the same pools. It was "  # claim:causal_war_buy_low_68_4
+    "measured on FULL-SEASON 2023-24 "
     "picks resolved against 2025 outcomes and does NOT transfer to these "
     "mid-season boards. 2026 picks are UNRESOLVED -- they can only be "
     "scored after future seasons. Resolution is PRE-REGISTERED: every pick "
@@ -479,19 +518,15 @@ def _render_validated_board() -> None:
         "Where my CausalWAR most disagreed with Baseball-Reference WAR on "
         "full-season 2023-24 data -- and what 2025 said. Rendered from the "
         "v2 (production-model) comparison artifact "
-        "(`results/causal_war_v2_umpweather/`): Buy-Low 13/19 = 68.4%, "
-        "Over-Valued 13/23 = 56.5%."
+        f"(`results/causal_war_v2_umpweather/`): Buy-Low {_CLAIM_BUY_LOW.value}, "  # claim:causal_war_buy_low_68_4
+        f"Over-Valued {_CLAIM_OVER_VALUED.value}."  # claim:causal_war_v2_over_valued
     )
     st.warning(
-        "The 68.4% Buy-Low number is NOT a validated edge. The hit "
-        "criterion was defined after the outcomes were known (post-hoc); "
-        "the 95% CI [0.474, 0.843] includes chance; intention-to-treat "
-        "scoring -- counting the 6 excluded no-2025-record picks as misses "
-        "-- is 13/25 = 52%; and matched-naive mean-reversion baselines "
-        "score 66.5-73% on the same pools. The defensible results are the "
-        "reliever-tag subset (78.1% vs 56.9% within-filter naive, n=32) "
+        "The 68.4% Buy-Low number is NOT a validated edge. "  # claim:causal_war_buy_low_68_4
+        f"{_CLAIM_BUY_LOW.caveat} The defensible results are the "
+        f"reliever-tag subset ({_CLAIM_RELIEVER.value}) "  # claim:causal_war_reliever_tag
         "and two fully-OOS windows averaging ~+4pp with a sign flip "
-        "(-2.8pp and +10.8pp vs matched naive)."
+        "(-2.8pp and +10.8pp vs matched naive)."  # claim:causal_war_oos_windows
     )
 
     df = _load_comparison_csv()
@@ -705,6 +740,128 @@ def _render_2026_table(df: pd.DataFrame, key: str) -> None:
     )
 
 
+# Reliever-board banner: same detached-claims framing as _BANNER_2026, with
+# the reliever cohort's within-filter evidence stated through the claims
+# registry (value + mandatory n=32 caveat travel together).
+_BANNER_2026_RELIEVER = (
+    "FROZEN 2026-08-10: pitcher-side RELIEVER board -- an APPLICATION of the "
+    "2023-2025 methodology to PARTIAL-SEASON 2026 data. NOT a validated "
+    "edge. Historical reliever-cohort evidence: "
+    f"{_CLAIM_RELIEVER.value}. {_CLAIM_RELIEVER.caveat} "  # claim:causal_war_reliever_tag
+    "That historical rate does NOT transfer to these picks, which are "
+    "UNRESOLVED. The criterion was PRE-REGISTERED before this board "
+    f"existed: frozen spec `{_RESOLUTION_SPEC_PATH}` section 6 (hypothesis "
+    "H4) -- ITT scoring with the section-5.3 exit asymmetry, WITHIN-FILTER "
+    "matched-naive control, pitcher-Marcel RA9 control, one resolution "
+    "event at end of 2026 regular season + 7 days; kill criterion K4 -- a "
+    "miss publishes as prominently as a win. Every pick is frozen in "
+    "`predictions/picks.jsonl` (evidence_class prospective). Spec SHA-256 "
+    f"at freeze: `{_RESOLUTION_SPEC_SHA256}`; freeze record in the spec's "
+    "Deviations Log (entry 2)."
+)
+
+
+@st.cache_data(ttl=1800, show_spinner=False)
+def _load_2026_reliever_board() -> pd.DataFrame | None:
+    """Load the frozen 2026 reliever board CSV if it exists."""
+    board_csv = _resolve_reliever_2026_csv()
+    if not board_csv.exists():
+        return None
+    try:
+        df = pd.read_csv(board_csv)
+        return df if not df.empty else None
+    except Exception:
+        return None
+
+
+def _render_2026_reliever_table(df: pd.DataFrame, key: str) -> None:
+    """Render one side of the reliever board (IP volume instead of PA)."""
+    show = df[
+        [
+            "side_rank", "name", "team",
+            "causal_war", "trad_war", "rank_diff", "ip_total", "tag",
+        ]
+    ].copy()
+    show = show.rename(
+        columns={
+            "side_rank": "Rank",
+            "name": "Player",
+            "team": "Team",
+            "causal_war": "CausalWAR",
+            "trad_war": "bWAR",
+            "rank_diff": "Rank Diff",
+            "ip_total": "IP",
+            "tag": "Methodology Tag",
+        }
+    )
+    show["Team"] = show["Team"].fillna("-")
+    styler = (
+        show.style.apply(_highlight_phillies, axis=1).format(
+            {
+                "CausalWAR": "{:.2f}",
+                "bWAR": "{:.2f}",
+                "Rank Diff": "{:+d}",
+                "IP": "{:.1f}",
+            },
+            na_rep="-",
+        )
+    )
+    st.dataframe(
+        styler,
+        use_container_width=True,
+        hide_index=True,
+        height=min(900, 38 * (len(show) + 1) + 3),
+        key=f"contrarian2026_reliever_{key}",
+    )
+
+
+def _render_2026_reliever_section() -> None:
+    """Render the frozen pitcher-side reliever board (spec section 6)."""
+    st.markdown("---")
+    st.subheader("Reliever Board (pitcher side) -- frozen 2026-08-10")
+    board = _load_2026_reliever_board()
+    if board is None:
+        st.info(
+            "The 2026 reliever board has not been generated yet.\n\n"
+            "Run:\n\n"
+            "```\npython scripts/contrarian_2026_reliever_board.py\n```"
+        )
+        return
+
+    st.warning(_BANNER_2026_RELIEVER)
+    try:
+        summary_ref = _RELIEVER_2026_FROZEN_SUMMARY.relative_to(
+            Path(__file__).resolve().parents[3]
+        ).as_posix()
+    except ValueError:
+        summary_ref = _RELIEVER_2026_FROZEN_SUMMARY.as_posix()
+    st.caption(
+        "Reliever band: 15 <= IP < 45.186 -- the full-season reliever tag "
+        "(IP < 60) and stability floor (IP >= 20) pro-rated by measured "
+        "season progress p_f = 0.7531 through 2026-08-09 (spec s6.2/s6.3). "
+        "Ranks computed within the qualified reliever pool (n=244); sides "
+        "require a rank_diff sign (s6.4). Baselines: frozen staging parquet "
+        "as-of 2026-08-09 (spec artifact A3); CausalWAR pitcher effects "
+        "from the frozen 2015-2022 nuisance checkpoint (>= 50 batters "
+        f"faced). Full detail + freeze hashes in `{summary_ref}`."
+    )
+
+    reliever_bl = board[board["board"] == "reliever_buy_low"].sort_values("side_rank")
+    reliever_ov = board[board["board"] == "reliever_over_valued"].sort_values("side_rank")
+
+    st.markdown("**Buy-Low (CausalWAR > bWAR)** -- UNRESOLVED picks.")
+    if reliever_bl.empty:
+        st.info("No Buy-Low reliever rows.")
+    else:
+        _render_2026_reliever_table(reliever_bl, key="buylow")
+
+    st.markdown("**Over-Valued (bWAR > CausalWAR)** -- UNRESOLVED picks.")
+    if reliever_ov.empty:
+        st.info("No Over-Valued reliever rows.")
+    else:
+        _render_2026_reliever_table(reliever_ov, key="overvalued")
+
+
 def _render_2026_board() -> None:
     """Render the 2026 mid-season (live) board."""
     board = _load_2026_board()
@@ -716,6 +873,8 @@ def _render_2026_board() -> None:
             "(requires 2026 bWAR backfilled first via "
             "`python scripts/backfill_2026_war.py`)."
         )
+        # The frozen reliever board renders independently of the batter board.
+        _render_2026_reliever_section()
         return
 
     st.warning(_BANNER_2026)
@@ -727,8 +886,11 @@ def _render_2026_board() -> None:
     except ValueError:
         summary_ref = summary_path.as_posix()
     st.caption(
-        "Cohort gate: the validated full-season PA>=300 gate pro-rated to ~68% "
-        "season progress through Aug 3 (PA>=204). CausalWAR-2026 is a batter-only "
+        "Cohort gate: PA>=204 -- the full-season PA>=300 gate pro-rated to "
+        "~68% season progress through Aug 3. Pro-rated gates are themselves "
+        "UNVALIDATED (2026-08-10 audit, finding 2.11): 'validated' describes "
+        "only the full-season 2023-24 cohort the methodology was measured "
+        "on, not this pro-rated variant. CausalWAR-2026 is a batter-only "
         "leaderboard, so pitcher tags do not appear here. Full detail in "
         f"`{summary_ref}`."
     )
@@ -771,6 +933,8 @@ def _render_2026_board() -> None:
         st.info("No rows match the current filter.")
     else:
         _render_2026_table(over_valued, key="overvalued")
+
+    _render_2026_reliever_section()
 
 
 def render() -> None:

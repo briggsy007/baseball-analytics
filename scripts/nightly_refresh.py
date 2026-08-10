@@ -1,16 +1,26 @@
 #!/usr/bin/env python
 """Nightly automation wrapper for the baseball analytics platform.
 
-Orchestrates the three scripts that must run, in order, every night so the
+Orchestrates the scripts that must run, in order, every night so the
 dashboard's data and leaderboard caches stay fresh:
 
-    1. scripts/daily_refresh.py                              (required)
+    1. scripts/verify_artifacts.py                           (required, WS2.1)
+       registry integrity gate BEFORE any work -- a tampered/overwritten
+       frozen artifact ABORTS the whole chain
+    2. scripts/daily_refresh.py                              (required)
        yesterday's Statcast ETL + roster/txn sync + matchup cache + pregame
-    2. scripts/precompute.py --season <S> --tier 1 --force   (required)
+    3. scripts/precompute.py --season <S> --tier 1 --force   (required)
        rebuilds tier-1 leaderboard caches (Stuff+, DPI, etc.) -- daily_refresh
        does NOT do this, so caches go stale without it
-    3. scripts/hit_parlay_today.py                           (non-fatal)
-       needs live lineups; tolerated to fail early in the day
+    4. scripts/hit_parlay_today.py                           (non-fatal)
+       needs live lineups; tolerated to fail early in the day; emits its
+       picks into the append-only ledger (predictions/picks.jsonl, WS1.2)
+    5. scripts/resolve_picks.py                              (non-fatal, WS1.2)
+       morning resolver: appends resolutions for any due pick (read-only
+       DB; prior days' hit-parlay legs resolve here)
+    6. scripts/verify_artifacts.py                           (required, WS2.1)
+       re-verify AFTER the run: proves the chain modified no pinned
+       (frozen-validated) artifact; advisory in-season churn is tolerated
 
 This is a *wrapper only*. It does not modify daily_refresh.py / precompute.py
 and it does not open a long-lived DuckDB writer -- each wrapped script opens
@@ -32,11 +42,11 @@ Usage
     python scripts/nightly_refresh.py --season 2026   # override derived season
 
 Logs land under  logs/nightly/YYYY-MM-DD/  :
-    nightly.log            orchestrator timeline
-    01_daily_refresh.log   subprocess stdout+stderr
-    02_precompute.log
-    03_hit_parlay.log
-    status.json            final machine-readable summary
+    nightly.log                   orchestrator timeline
+    01_verify_artifacts_pre.log   subprocess stdout+stderr (one per step,
+    02_daily_refresh.log           numbered in plan order)
+    ...
+    status.json                   final machine-readable summary
 """
 
 from __future__ import annotations
@@ -65,6 +75,8 @@ TASK_NAME = "BaseballNightlyRefresh"
 TIMEOUT_DAILY = 3600      # ETL can be slow on a big Statcast day
 TIMEOUT_PRECOMPUTE = 3600  # tier-1 trains Stuff+ and xOut models
 TIMEOUT_PARLAY = 900      # network-bound (MLB StatsAPI)
+TIMEOUT_RESOLVE_PICKS = 600  # WS1.2 morning resolver (read-only DB + JSONL appends)
+TIMEOUT_VERIFY = 300      # sha256 over registered artifacts (local disk)
 
 
 # ---------------------------------------------------------------------------
@@ -412,6 +424,34 @@ def verify_hit_parlay(step: dict, run_day: str, run_start: float) -> dict:
     return step
 
 
+def verify_resolve_picks(step: dict) -> dict:
+    """Status for the WS1.2 morning resolver step (non-fatal).
+
+    Read-only DuckDB + JSONL appends; "nothing due to resolve" is a clean
+    exit 0, so the exit code is trusted. Never fails the chain.
+    """
+    step["verify"] = {
+        "check": "scripts/resolve_picks.py exit code (0 = ledger consistent)",
+        "effect_ok": step["returncode"] == 0,
+    }
+    step["status"] = "ok" if step["returncode"] == 0 else "warn"
+    return step
+
+
+def verify_artifact_check(step: dict) -> dict:
+    """Status for a verify_artifacts step (WS2.1).
+
+    Pure read-only file hashing -- no DuckDB involvement, so the exit-127
+    teardown quirk does not apply: the exit code is trusted as-is.
+    """
+    step["verify"] = {
+        "check": "scripts/verify_artifacts.py exit code (0 = registry green)",
+        "effect_ok": step["returncode"] == 0,
+    }
+    step["status"] = "ok" if step["returncode"] == 0 else "fail"
+    return step
+
+
 # ---------------------------------------------------------------------------
 # Status writer
 # ---------------------------------------------------------------------------
@@ -533,7 +573,9 @@ def _run() -> int:
     run_start_epoch = time.time()
 
     # Plan: (name, cmd, timeout, required)
+    verify_cmd = [PY, "-u", str(ROOT / "scripts" / "verify_artifacts.py")]
     plan = [
+        ("verify_artifacts_pre", list(verify_cmd), TIMEOUT_VERIFY, True),
         ("daily_refresh",
          [PY, "-u", str(ROOT / "scripts" / "daily_refresh.py")],
          TIMEOUT_DAILY, True),
@@ -544,6 +586,10 @@ def _run() -> int:
         ("hit_parlay",
          [PY, "-u", str(ROOT / "scripts" / "hit_parlay_today.py")],
          TIMEOUT_PARLAY, False),
+        ("resolve_picks",
+         [PY, "-u", str(ROOT / "scripts" / "resolve_picks.py")],
+         TIMEOUT_RESOLVE_PICKS, False),
+        ("verify_artifacts_post", list(verify_cmd), TIMEOUT_VERIFY, True),
     ]
 
     log("=" * 64)
@@ -593,6 +639,17 @@ def _run() -> int:
     if args.dry_run:
         log("DRY RUN: writer lock is only probed at write-time in a real run; "
             "not opening a writer now.")
+        # The artifact-registry check is pure read-only file hashing, so a
+        # dry run executes it for real (WS2.1): a red registry must surface
+        # here, not at 3am.
+        vstep = run_step(log, step_dir, 1, "verify_artifacts_pre",
+                         list(verify_cmd), TIMEOUT_VERIFY, True)
+        vstep = verify_artifact_check(vstep)
+        log(f"STEP 1 [verify_artifacts_pre] status={vstep['status']}")
+        status["steps"].append(vstep)
+        if vstep["status"] == "fail":
+            blocked.append("artifact registry verification failed "
+                           "(scripts/verify_artifacts.py nonzero)")
         would_block = bool(blocked)
         for b in blocked:
             log(f"DRY RUN would BLOCK on: {b}", "WARN")
@@ -638,6 +695,7 @@ def _run() -> int:
     before = read_watermark()
     log(f"Pre-run watermark: pitches_max={before.get('pitches_max_game_date')}")
 
+    aborted = False
     for i, (name, cmd, to, req) in enumerate(plan, 1):
         step = run_step(log, step_dir, i, name, cmd, to, req)
         if name == "daily_refresh":
@@ -646,6 +704,10 @@ def _run() -> int:
             step = verify_precompute(step)
         elif name == "hit_parlay":
             step = verify_hit_parlay(step, run_day, run_start_epoch)
+        elif name == "resolve_picks":
+            step = verify_resolve_picks(step)
+        elif name.startswith("verify_artifacts"):
+            step = verify_artifact_check(step)
         note = ""
         if step["status"] == "ok_verified":
             note = " (nonzero exit tolerated: effect verified -- see exit-127 quirk)"
@@ -653,9 +715,19 @@ def _run() -> int:
         status["steps"].append(step)
         # persist incrementally so a crash still leaves a partial status.json
         write_status(step_dir, status)
+        # WS2.1: a pre-run registry failure means a frozen-validated artifact
+        # no longer matches its manifest -- running the chain would score and
+        # cache with tampered/unknown model state. Abort everything.
+        if name == "verify_artifacts_pre" and step["status"] == "fail":
+            log("ABORT: artifact registry verification failed BEFORE the run; "
+                "no further step will execute (frozen evidence integrity).",
+                "ERROR")
+            aborted = True
+            break
 
     # --- Post-run summary ---------------------------------------------------
     status["post_run"] = read_watermark()
+    status["aborted_on_preverify"] = aborted
 
     required_fail = any(s["required"] and s["status"] == "fail" for s in status["steps"])
     has_warnings = any(

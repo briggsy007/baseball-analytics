@@ -96,7 +96,7 @@ logger = logging.getLogger("build_pos0_calibration")
 
 
 TRAIN_RANGE = (2015, 2022)
-HOLDOUT_SEASON = 2025
+HOLDOUT_SEASON = 2025  # holdout-contact: historical contacts registered in docs/holdout_ledger.jsonl; any NEW run must append a new contact via src.holdout (@holdout_access / record_contact)
 N_PA_DEFAULT = 5_000
 N_SAMPLES_DEFAULT = 100
 SEED_DEFAULT = 42

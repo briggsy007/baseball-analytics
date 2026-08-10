@@ -1,0 +1,574 @@
+# Claims registry -- WS2.2 (plan docs/plans/2026-08-10_platform_improvement_plan.md §2.2)
+#
+# One entry per reportable number (HF model-index-inspired). This file is the
+# ONLY sanctioned source for headline numbers rendered on dashboards or quoted
+# in outward-facing docs (kill criterion K6). Access via
+# src/claims.py::get_claim(id) -- it raises ClaimRetracted on retracted
+# entries and always returns the mandatory caveat alongside the value.
+#
+# Statuses:
+#   active     -- current defensible claim; quote WITH the caveat.
+#   narrowed   -- the number stands but only inside the stated bounds; the
+#                 caveat is load-bearing, not optional.
+#   retracted  -- must never render; get_claim raises. Views may reference the
+#                 id only to BOUND the old number (demotion banners, errata).
+#   superseded -- replaced by superseded_by; quote the successor instead.
+#
+# Editing rules: never soften a caveat after seeing new results; retractions
+# are append-only state transitions (active -> narrowed -> retracted), never
+# reversed silently. Dataset hashes are sha256 of the artifact at registration.
+# Canonical wording follows the 2026-08-10 audit
+# (docs/audits/FLAGSHIP_AUDIT_2026-08-10.md) and the Batch-A correction pass.
+
+schema_version: 1
+updated: "2026-08-10"
+
+claims:
+  # ------------------------------------------------------------------
+  # DPI (Defensive Pressing)
+  # ------------------------------------------------------------------
+  - id: dpi_oaa_2025_r
+    model: defensive_pressing
+    artifact_version: "xout_v1 frozen (train 2015-2022, sha256 e689bff6ab069474c57df6950ba3ed7d376de8b0a3a7a71861d2a96dc3d3bb39)"
+    metric: "Team DPI vs Statcast OAA, Pearson r, 2025 (n=30 teams)"
+    value: 0.6406
+    ci: "pairs-cluster 95% [0.424, 0.797]; wild-cluster bootstrap-t [0.270, 1.006]"
+    dataset:
+      path: results/defensive_pressing/reliability_2026-08-10/gate_ci_reissue.csv
+      sha256: c2f4f32c27d425bb6195e98868cfe9dfa35a6aa7832ccaef27fb9368425e9e9a
+    source_doc: docs/models/defensive_pressing_reliability_2026-08.md
+    status: active
+    superseded_by: null
+    effective: "2026-08-10"
+    caveat: >-
+      Clears the Gate 6 threshold (0.45, set after the first measurement) on
+      the point estimate only -- under cluster-honest CIs no Gate 6 window is
+      separated from the threshold (wild-cluster p=0.162 vs 0.45 for 2025).
+      Quote with the CI, never as a bare r.
+
+  - id: dpi_partial_r_oaa_given_babip
+    model: defensive_pressing
+    artifact_version: "xout_v1 frozen (sha256 e689bff6...d3bb39)"
+    metric: "Partial correlation r(DPI, OAA | BABIP-against), by year and pooled 2023-25"
+    value:
+      "2023": 0.42
+      "2024": 0.69
+      "2025": 0.54
+      pooled_2023_25: 0.41
+    ci: null
+    dataset:
+      path: results/defensive_pressing/2025_validation/team_rankings_all_years.csv
+      sha256: 498ee4b24d92f1b7f61748563f17bdc31c2e2e3a8adc796d620a29d4d680f989
+    source_doc: docs/audits/FLAGSHIP_AUDIT_2026-08-10.md
+    status: active
+    superseded_by: null
+    effective: "2026-08-10"
+    caveat: >-
+      The defensible core: OAA-aligned signal beyond raw outcomes. First
+      computed by the 2026-08-10 audit (marked recomputed-from-artifacts
+      there); not part of the original gate suite and carries no
+      pre-registered threshold.
+
+  - id: dpi_yoy_stability
+    model: defensive_pressing
+    artifact_version: "xout_v1 frozen (sha256 e689bff6...d3bb39)"
+    metric: "Year-over-year team DPI stability, Pearson r"
+    value:
+      "2023_to_2024": 0.5898
+      "2024_to_2025": 0.3699
+      fisher_z_mean_2015_2025: 0.4414
+    ci: "2024->25 95% [0.076, 0.640]"
+    dataset:
+      path: results/defensive_pressing/reliability_2026-08-10/yoy_stability.csv
+      sha256: 282e283223c6548449647fb18e13350c1dd284cb041dd4bb78a6b9320d633c82
+    source_doc: docs/models/defensive_pressing_reliability_2026-08.md
+    status: narrowed
+    superseded_by: null
+    effective: "2026-08-10"
+    caveat: >-
+      Replaces the mislabeled "three-year stability 0.58/0.56/0.64" talking
+      point (those were cross-metric DPI-vs-OAA correlations). 2023->24 was
+      the single strongest of ten adjacent-season windows (range 0.225-0.594;
+      three windows have CIs including zero). Honest claim: YoY r ~ 0.44 on
+      average; 2024->25 is 0.37 [0.08, 0.64].
+
+  - id: dpi_split_half_reliability
+    model: defensive_pressing
+    artifact_version: "xout_v1 frozen (sha256 e689bff6...d3bb39)"
+    metric: "Split-half reliability of season team DPI, Spearman-Brown corrected (Fisher-z mean over the ten 162-game seasons 2015-2025)"
+    value: 0.584
+    ci: "per-season SB-corrected range 0.495-0.635 (162-game seasons)"
+    dataset:
+      path: results/defensive_pressing/reliability_2026-08-10/split_half_reliability.csv
+      sha256: 0a29f8e6661516fba7ed603daf8c48110401feff00ead3905cb91e9cb332e29e
+    source_doc: docs/models/defensive_pressing_reliability_2026-08.md
+    status: active
+    superseded_by: null
+    effective: "2026-08-10"
+    caveat: >-
+      No 162-game season clears the FanGraphs 0.707 reliability bar. Season
+      DPI should be quoted regressed (~42% toward the league mean); raw
+      leaderboard gaps overstate true team separation by ~1.7x.
+
+  - id: dpi_gate6_pooled
+    model: defensive_pressing
+    artifact_version: "xout_v1 frozen (sha256 e689bff6...d3bb39)"
+    metric: "Pooled 2023-25 team DPI vs OAA, Pearson r (n=90 team-seasons)"
+    value: 0.4869
+    ci: "pairs-cluster 95% [0.317, 0.627]; wild-cluster bootstrap-t [0.273, 0.700]"
+    dataset:
+      path: results/defensive_pressing/reliability_2026-08-10/gate_ci_reissue.csv
+      sha256: c2f4f32c27d425bb6195e98868cfe9dfa35a6aa7832ccaef27fb9368425e9e9a
+    source_doc: docs/models/defensive_pressing_reliability_2026-08.md
+    status: active
+    superseded_by: null
+    effective: "2026-08-10"
+    caveat: >-
+      Clears the RETROFITTED 0.45 threshold by 0.037 with a wild-cluster
+      bootstrap p of 0.707 against H0 r=0.45 -- statistically
+      indistinguishable from its own gate line. Passing is not evidence of
+      margin; the threshold was set after the first measurement.
+
+  - id: dpi_babip_corroboration
+    model: defensive_pressing
+    artifact_version: "xout_v1"
+    metric: "Team DPI vs BABIP-against correlation framed as external corroboration"
+    value: -0.80
+    ci: null
+    dataset:
+      path: results/defensive_pressing/2025_validation/team_rankings_all_years.csv
+      sha256: 498ee4b24d92f1b7f61748563f17bdc31c2e2e3a8adc796d620a29d4d680f989
+    source_doc: docs/audits/FLAGSHIP_AUDIT_2026-08-10.md
+    status: retracted
+    superseded_by: dpi_partial_r_oaa_given_babip
+    effective: "2026-08-10"
+    caveat: >-
+      RETRACTED as a corroboration claim: majority circular. DPI's numerator
+      is the team BIP out-rate minus an expectation and BABIP-against is the
+      same out-rate inverted -- shared team variance R^2 0.63/0.43/0.65 by
+      year, by construction. Any residual-on-outcome metric wins this
+      comparison against an externally measured metric. Use
+      dpi_partial_r_oaa_given_babip instead.
+
+  # ------------------------------------------------------------------
+  # CausalWAR
+  # ------------------------------------------------------------------
+  - id: causal_war_v2_correlation_gates
+    model: causal_war
+    artifact_version: "v2_umpweather (models/causal_war/causal_war_trainsplit_2015_2022_v2_umpweather.pkl)"
+    metric: "Combined-cohort correlation vs bWAR, test 2023-2024 (n=968 qualified players)"
+    value:
+      pearson_r: 0.6995
+      spearman_rho: 0.6165
+    ci: "Pearson [0.6534, 0.7416]; Spearman [0.5701, 0.6620]"
+    dataset:
+      path: results/causal_war_v2_umpweather/causal_war_baseline_comparison_2023_2024_metrics.json
+      sha256: 3c8cf06704eb80de38ec1751e8c4d6537d61603e4487436345c3c3b380957118
+    source_doc: docs/models/causal_war_results.md
+    status: active
+    superseded_by: null
+    effective: "2026-04-23"
+    caveat: >-
+      Pre-registered gates (r >= 0.50, rho >= 0.60) PASS; the Spearman lower
+      CI (0.5701) sits below the 0.60 line and is recorded FRAGILE. Train
+      2015-2022, test 2023-2024. Correlation with bWAR is agreement, not
+      validation of any contrarian edge.
+
+  - id: causal_war_buy_low_68_4
+    model: causal_war
+    artifact_version: "v2_umpweather"
+    metric: "Buy-Low 2023/24 -> 2025 hit rate (survivor-evaluated)"
+    value: "13/19 = 68.4%"
+    ci: >-
+      95% bootstrap [0.474, 0.843] (stability-reproduction artifact; the v2
+      reproduction artifact prints [0.474, 0.895] from the same estimator --
+      Monte-Carlo/ordering instability at n=19, see the 2026-08-10
+      reconciliation note in docs/models/causal_war_results.md; exact
+      binomial [0.434, 0.874])
+    dataset:
+      path: results/causal_war/contrarian_stability/hit_rates_reproduction.json
+      sha256: ca737d1d53a22611d4c6e4c41eb6dd6c60ea7b58a6770a59fe1085af7adb05b4
+    source_doc: docs/models/causal_war_results.md
+    status: narrowed
+    superseded_by: null
+    effective: "2026-08-10"
+    caveat: >-
+      NOT a validated edge. The hit criterion was defined post-hoc (no
+      hit-rate gate exists in the spec); intention-to-treat scoring (exits
+      count against the pick) is 13/25 = 52%; matched-naive mean-reversion
+      controls score 66.5-73.0% on the same pools; the 95% CI includes
+      chance. Measured on FULL-SEASON 2023-24 picks resolved against 2025 --
+      does not transfer to mid-season boards.
+
+  - id: causal_war_buy_low_validated
+    model: causal_war
+    artifact_version: "v1/v2"
+    metric: "'68.4% validated edge' framing of the Buy-Low hit rate"
+    value: "68.4% (validated)"
+    ci: null
+    dataset:
+      path: results/causal_war/contrarian_stability/hit_rates_reproduction.json
+      sha256: ca737d1d53a22611d4c6e4c41eb6dd6c60ea7b58a6770a59fe1085af7adb05b4
+    source_doc: docs/audits/FLAGSHIP_AUDIT_2026-08-10.md
+    status: retracted
+    superseded_by: causal_war_buy_low_68_4
+    effective: "2026-08-10"
+    caveat: >-
+      RETRACTED framing: "validated" may not attach to 68.4%. The criterion
+      was post-hoc, ITT is 52%, and the platform's own matched-naive controls
+      score 66.5-73.0%. Use causal_war_buy_low_68_4 (narrowed) instead.
+
+  - id: causal_war_v2_over_valued
+    model: causal_war
+    artifact_version: "v2_umpweather"
+    metric: "Over-Valued 2023/24 -> 2025 hit rate (survivor-evaluated)"
+    value: "13/23 = 56.5%"
+    ci: "95% bootstrap [0.391, 0.783]"
+    dataset:
+      path: results/causal_war_v2_umpweather/contrarian/hit_rates_reproduction.json
+      sha256: ebc61c262451dc2f1019b177ed18dace8d425eefa3702c819790abcd1bfaf335
+    source_doc: docs/models/causal_war_results.md
+    status: narrowed
+    superseded_by: null
+    effective: "2026-08-10"
+    caveat: >-
+      Same post-hoc hit criterion and survivor trimming as the Buy-Low
+      number; CI includes chance. This is the v2 (production-model) rate --
+      do not quote v1's 14/23 = 60.9% against v2 production.
+
+  - id: causal_war_reliever_tag
+    model: causal_war
+    artifact_version: "v1 boards, three windows 2022->23 / 2023->24 / 2024->25"
+    metric: "RELIEVER LEVERAGE GAP Buy-Low hit rate vs within-filter naive"
+    value: "25/32 = 78.1% vs 56.9% within-filter naive"
+    ci: "random-within-filter (n=32 draws) mean 56.9%, 95% [0.406, 0.750]; top-N-by-bWAR comparator 10.0% (3/30)"
+    dataset:
+      path: results/causal_war/tag_filter_baserate/hit_rates_comparison.json
+      sha256: e264863f0802c1dd7bcfcf8ad5f5728ade84a3b7357e87426d06de07f4975aad
+    source_doc: results/causal_war/tag_filter_baserate/report.md
+    status: active
+    superseded_by: null
+    effective: "2026-08-10"
+    caveat: >-
+      The only base-rate-cleared CausalWAR cohort. Aggregated over three
+      windows (8/10, 8/12, 9/10); n=32 is small and the hit rule inherits
+      the post-hoc criterion. Structurally absent from the batter-only 2026
+      board; the 2026 reliever board resolves per the frozen resolution spec.
+
+  - id: causal_war_oos_windows
+    model: causal_war
+    artifact_version: "v1 boards"
+    metric: "Buy-Low lift vs matched-naive control, fully out-of-sample windows only"
+    value:
+      "2023_to_2024_lift_pp": -2.8
+      "2024_to_2025_lift_pp": 10.8
+    ci: null
+    dataset:
+      path: results/causal_war/contrarian_stability/hit_rates_by_year.json
+      sha256: 2cad50cf72a2872d64d6bc30e39bebbe866e19a17b371486b5dad1ecadee5c84
+    source_doc: docs/models/causal_war_results.md
+    status: active
+    superseded_by: null
+    effective: "2026-08-10"
+    caveat: >-
+      Only two fully-OOS windows exist and their signs flip (-2.8pp /
+      +10.8pp; mean ~ +4pp). The 2022->23 window (+7.8pp) is partially
+      in-sample (2022 inside the train range) and must not be counted as
+      OOS. No post-hoc subgroup rescues (kill criterion K3).
+
+  # ------------------------------------------------------------------
+  # PitchGPT
+  # ------------------------------------------------------------------
+  - id: pitchgpt_per_pitch_ece
+    model: pitchgpt
+    artifact_version: "v1@10K backbone (models/pitchgpt_v1_10k.pt); A1 PGConcatHead outcome head"
+    metric: "Per-pitch post-temperature expected calibration error (top-1), 2025 pitcher-disjoint holdout"
+    value: "0.0090-0.0114"
+    ci: null
+    dataset:
+      path: results/pitchgpt/2025_holdout_v1_10k/calibration_2025.json
+      sha256: 1bb14b8ae08d30cb30d91d2198df6bf9b2897cdb6c3ac6fe7be1a5f24f9cdec6
+    source_doc: docs/models/pitchgpt_results.md
+    status: narrowed
+    superseded_by: null
+    effective: "2026-08-10"
+    caveat: >-
+      SCOPED: describes the pre-class-calibration per-pitch stack (backbone
+      next-pitch top-1 post-temp 0.0090; A1 outcome-head 7-class post-temp
+      0.0114, results/pitchgpt_sim/outcome_baselines_2026_04_25/a1_concat/
+      metrics.json sha256 bf4aadbe...20ef872). The production-path ECE (after
+      the class_calibration and pos-0 corrections production applies) has
+      never been measured, and the 0.10 top-1 gate is near-unfailable at
+      C=2210 (mean confidence ~5%) -- passing carries little information.
+
+  - id: pitchgpt_vs_lstm_10k
+    model: pitchgpt
+    artifact_version: "v1@10K / v2@10K"
+    metric: "Perplexity improvement vs matched LSTM, 2025 pitcher-disjoint holdout, matched 10K-game scale"
+    value: "+2.57% (v1) / +3.13% (v2)"
+    ci: "CI-lower +1.68% (v1) / +2.19% (v2)"
+    dataset:
+      path: results/pitchgpt/2025_holdout_v1_10k/perplexity_comparison.json
+      sha256: f4f228d24f73e1335a908fae6520526ab1efe34ceb132de0daa90c86746b8c6f
+    source_doc: docs/models/pitchgpt_results.md
+    status: active
+    superseded_by: null
+    effective: "2026-04-24"
+    caveat: >-
+      FAIL against the pre-registered >=15% gate -- decisively, not narrowly.
+      Direction correct and CIs exclude zero. This is the locked replacement
+      for the retired 1K-scale +13.80% headline (claim lstm_13_80,
+      retracted).
+
+  - id: lstm_13_80
+    model: pitchgpt
+    artifact_version: "v1@1K (validate_pitchgpt_20260418T150305Z)"
+    metric: "Perplexity improvement vs LSTM at 1K-game scale"
+    value: "+13.80%"
+    ci: "1K CI [+12.22, +15.51]"
+    dataset:
+      path: results/pitchgpt/2025_holdout/report.md
+      sha256: null
+    source_doc: docs/models/pitchgpt_results.md
+    status: retracted
+    superseded_by: pitchgpt_vs_lstm_10k
+    effective: "2026-04-24"
+    caveat: >-
+      RETRACTED: 1K-vs-1K small-sample artifact that collapsed to
+      +2.57/+3.13% at matched 10K scale. Banned as a live claim
+      (NORTH_STAR.md 2026-04-24 lock). Never quote.
+
+  - id: pitchgpt_vs_markov2
+    model: pitchgpt
+    artifact_version: "v1@10K / v2@10K"
+    metric: "Perplexity improvement vs 2nd-order Markov baseline, 2025 pitcher-disjoint holdout"
+    value: "+65.17% (v1@10K) / +65.54% (v2@10K)"
+    ci: "CI-lower +64.84% / +65.23%"
+    dataset:
+      path: results/pitchgpt/2025_holdout_v1_10k/perplexity_comparison.json
+      sha256: f4f228d24f73e1335a908fae6520526ab1efe34ceb132de0daa90c86746b8c6f
+    source_doc: docs/models/pitchgpt_results.md
+    status: active
+    superseded_by: null
+    effective: "2026-04-24"
+    caveat: >-
+      PASS vs the >=20% gate, stable across 1K->10K scale (1K
+      pitcher-disjoint run: +56.85%). A margin over naive baselines, not
+      evidence of PA-level simulation fidelity.
+
+  - id: pitchgpt_vs_heuristic
+    model: pitchgpt
+    artifact_version: "v1@10K / v2@10K"
+    metric: "Perplexity improvement vs frequency heuristic, 2025 pitcher-disjoint holdout"
+    value: "+74.35% (v1@10K) / +74.75% (v2@10K)"
+    ci: "CI-lower +74.14% / +74.55%"
+    dataset:
+      path: results/pitchgpt/2025_holdout_v1_10k/perplexity_comparison.json
+      sha256: f4f228d24f73e1335a908fae6520526ab1efe34ceb132de0daa90c86746b8c6f
+    source_doc: docs/models/pitchgpt_results.md
+    status: active
+    superseded_by: null
+    effective: "2026-04-24"
+    caveat: >-
+      PASS vs the >=25% gate, stable across scale. Same scope limit as
+      pitchgpt_vs_markov2: next-pitch prediction margin only.
+
+  - id: pitchgpt_pa_rates_fail
+    model: pitchgpt
+    artifact_version: "v2 sim stack, Phase 0.6.1 A/B (class_calibration ON, production default)"
+    metric: "PA-level rollout marginal rates vs 2025 empirical (10K PA x 100 samples, seed 42)"
+    value:
+      k_pct: "0.3339 vs empirical 0.218 -- FAIL"
+      bb_pct: "0.1177 vs empirical 0.0876 -- FAIL"
+      hr_pct: "0.0242 vs empirical 0.0321 -- FAIL"
+    ci: null
+    dataset:
+      path: docs/pitchgpt_sim_engine/COORDINATION.md
+      sha256: null
+    source_doc: docs/pitchgpt_sim_engine/COORDINATION.md
+    status: active
+    superseded_by: null
+    effective: "2026-08-04"
+    caveat: >-
+      PA-level absolute rates from the rollout engine FAIL their fidelity
+      gates -- no product may quote absolute K%/BB%/HR% from rollouts. The
+      wOBA and PA-length PASSes from the same runs are tainted (claim
+      pitchgpt_woba_pa_pass_pre062, retracted) pending the 0.6.2 clean
+      re-evaluation.
+
+  - id: pitchgpt_woba_pa_pass_pre062
+    model: pitchgpt
+    artifact_version: "v2 sim stack with pos-0 npz (pre-0.6.2)"
+    metric: "PA-level wOBA and PA-length gate PASSes, Phase 0.6/0.6.1"
+    value: "wOBA PASS / PA-length PASS (pre-0.6.2)"
+    ci: null
+    dataset:
+      path: docs/pitchgpt_sim_engine/COORDINATION.md
+      sha256: null
+    source_doc: docs/pitchgpt_sim_engine/PHASE_0.6.2_PLAN.md
+    status: retracted
+    superseded_by: null
+    effective: "2026-08-10"
+    caveat: >-
+      RETRACTED (tainted): the pos-0 calibration active in those runs was fit
+      ON the 2025 pitcher-disjoint eval cohort, so the PASSes were partly
+      bought with holdout-fitted weights. They must be re-earned under the
+      pre-registered 0.6.2 protocol (fit on 2023 only, single 2025 eval)
+      before either gate may be quoted as PASS.
+
+  - id: pitchgpt_outcome_head_in_play_hit
+    model: pitchgpt
+    artifact_version: "A1 PGConcatHead (outcome_baselines_2026_04_25/a1_concat)"
+    metric: "in_play_hit per-class log-loss, 2025 pitcher-disjoint holdout"
+    value: 2.34
+    ci: null
+    dataset:
+      path: results/pitchgpt_sim/outcome_baselines_2026_04_25/a1_concat/metrics.json
+      sha256: bf4aadbefe660f2678381288e3726c94e0199dd55eecd7ef944d40ce720ef872
+    source_doc: docs/awards/methodology_paper_pitchgpt_v2.md
+    status: active
+    superseded_by: null
+    effective: "2026-04-25"
+    caveat: >-
+      WEAKER PASS only (< 2.5 bar; misses the full < 2.0 PASS). Hit-vs-out at
+      pitch time has a structural ceiling (launch_speed/launch_angle are
+      post-pitch); treat any hit/out-dependent split with elevated
+      uncertainty.
+
+  - id: pitchgpt_perfect_calibration
+    model: pitchgpt
+    artifact_version: "n/a (awards framing)"
+    metric: "'Perfect mathematical calibration' framing"
+    value: "perfect mathematical calibration"
+    ci: null
+    dataset:
+      path: docs/awards/summary.md
+      sha256: null
+    source_doc: docs/audits/FLAGSHIP_AUDIT_2026-08-10.md
+    status: retracted
+    superseded_by: pitchgpt_per_pitch_ece
+    effective: "2026-08-10"
+    caveat: >-
+      RETRACTED inflation. The measured numbers are post-temperature ECE
+      0.0090-0.0114 on the pre-class-calibration stack, with the
+      production-path ECE unmeasured and a near-unfailable gate. Use
+      pitchgpt_per_pitch_ece (narrowed) instead.
+
+  # ------------------------------------------------------------------
+  # Cross-model / awards-page retractions
+  # ------------------------------------------------------------------
+  - id: contrarian_70_80_pct
+    model: causal_war
+    artifact_version: "n/a (awards framing)"
+    metric: "'70-80% hit rates' framing of the contrarian leaderboards"
+    value: "70-80%"
+    ci: null
+    dataset:
+      path: docs/awards/summary.md
+      sha256: null
+    source_doc: docs/audits/FLAGSHIP_AUDIT_2026-08-10.md
+    status: retracted
+    superseded_by: causal_war_buy_low_68_4
+    effective: "2026-08-10"
+    caveat: >-
+      RETRACTED inflation of numbers NORTH_STAR itself bounds as
+      statistically indistinguishable from 45-50% at n=19. Use the narrowed
+      per-board claims (causal_war_buy_low_68_4, causal_war_v2_over_valued,
+      causal_war_reliever_tag) instead.
+
+  - id: mechanix_ae_injury_prediction
+    model: mechanix_ae
+    artifact_version: "beta-VAE MDI (pre-demotion)"
+    metric: "MDI as injury early-warning signal (30-day pre-IL classification); '$10M+ savings' framing"
+    value: "ROC AUC 0.387 (below random)"
+    ci: null
+    dataset:
+      path: results/mechanix_roc_analysis
+      sha256: null
+    source_doc: docs/models/mechanix_ae_results.md
+    status: retracted
+    superseded_by: null
+    effective: "2026-04-18"
+    caveat: >-
+      RETRACTED: MechanixAE scored ROC AUC 0.387 -- below random -- on the
+      injury-prediction task. Demoted to descriptive pitcher profiling; no
+      injury-prediction or dollar-value claim may render. Views may cite the
+      0.387 only inside a demotion banner that bounds it.
+
+  - id: vwr_flagship_promotion
+    model: viscoelastic_workload
+    artifact_version: "VWR (2026-04-18 promotion)"
+    metric: "VWR flagship promotion on 64-fit seasonal-residual validation (residual AUC 0.768)"
+    value: "residual AUC 0.768 (2015-16, 64 fits)"
+    ci: null
+    dataset:
+      path: docs/models/viscoelastic_workload_results.md
+      sha256: null
+    source_doc: docs/models/viscoelastic_workload_results.md
+    status: retracted
+    superseded_by: null
+    effective: "2026-04-18"
+    caveat: >-
+      RETRACTED the same day the scale run landed: out-of-sample residual
+      AUC collapsed to 0.438 (below chance) on n=563 injured fits 2017-2024;
+      2025 holdout AUC 0.493. The 0.768 was a small-sample label-calendar
+      artifact. VWR is permanently off the flagship-candidate list
+      (small-sample promotion lesson).
+
+  # ------------------------------------------------------------------
+  # Honest negatives that remain quotable (bounded)
+  # ------------------------------------------------------------------
+  - id: chemnet_v1_validation_fail
+    model: chemnet
+    artifact_version: "v1 (36KB GAT checkpoint)"
+    metric: "Per-game-side synergy prediction vs actual, held-out 2023-2024"
+    value: "Pearson r = 0.09 vs gate >= 0.30; 4 of 5 hard gates FAIL"
+    ci: null
+    dataset:
+      path: results/validate_chemnet_20260418T204255Z/chemnet_validation_per_game.csv
+      sha256: b5f8f524a41e979cf6885f51899b68a562fd036a8a114c60bf765c0a6c9d12a8
+    source_doc: docs/models/chemnet_results.md
+    status: active
+    superseded_by: null
+    effective: "2026-04-18"
+    caveat: >-
+      Honest negative (n=9,836 game-sides): the GNN does not beat its
+      non-graph baseline, so synergy scores, protection coefficients, and
+      optimizer output are statistical noise. Retired; v2 (r=0.155) also
+      failed. UI retained for future development only.
+
+  - id: volatility_surface_null
+    model: volatility_surface
+    artifact_version: "v1"
+    metric: "Predictability-tax hypothesis test (entropy vs performance)"
+    value: "r = -0.013, p = 0.89"
+    ci: null
+    dataset:
+      path: docs/models/volatility_surface_results.md
+      sha256: null
+    source_doc: docs/models/volatility_surface_results.md
+    status: active
+    superseded_by: null
+    effective: "2026-04-18"
+    caveat: >-
+      Clean null: no measurable performance tax on predictable pitch cells.
+      Kept as a descriptive visualization only -- no edge claim may attach.
+
+  - id: allostatic_load_ews_fail
+    model: allostatic_load
+    artifact_version: "ABL v1"
+    metric: "Injury/fatigue early-warning validation (30-day pre-IL)"
+    value: "AUC 0.581 (gate >= 0.60); FPR 77.5% at ABL=75 (gate <= 30%); delta-AUC +0.014 vs games-played baseline (gate >= 0.05) -- 3 of 4 gates FAIL"
+    ci: "AUC 95% [0.559, 0.603]"
+    dataset:
+      path: docs/models/allostatic_load_results.md
+      sha256: null
+    source_doc: docs/models/allostatic_load_results.md
+    status: active
+    superseded_by: null
+    effective: "2026-04-19"
+    caveat: >-
+      Honest negative: only the lead-time gate passed (42-day median vs >=14).
+      ABL is descriptive workload/recovery telemetry, NOT an injury
+      predictor; the saturation pathology (77.5% of healthy seasons breach
+      ABL 75) makes threshold alerts unusable.

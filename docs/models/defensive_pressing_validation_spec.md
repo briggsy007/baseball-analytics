@@ -241,3 +241,27 @@ defensible nulls and documented per gate.
 Status: Specified 2026-04-18 by `defensive_pressing` flagship-candidate
 promotion review. First validation run: see
 `docs/models/defensive_pressing_results.md`.
+
+---
+
+## Foreknowledge (appended 2026-08-10, WS2.3 — holdout-contact accounting; append-only, no text above modified)
+
+Per `docs/holdout_ledger.jsonl` (created 2026-08-10):
+
+- DPI's validation surfaces are **team-season outcome series** (2023–2025
+  team OAA / BABIP / run prevention), which are public outcomes rather than
+  tiered pitch-level holdouts; **no DPI entries exist in the tiered holdout
+  ledger**. The repeated-contact risk for DPI is therefore threshold-setting,
+  not holdout burn — and this spec already admits the material instance: the
+  Gate 6 threshold (0.45) was set **after** the first 2025 measurement
+  (r = 0.6406) was observed (see the threshold-provenance note above; audit
+  finding DPI-4). At spec freeze (2026-04-18), the 2025 outcome had already
+  been contacted once and informed the gate it was then judged against.
+- Subsequent 2025-outcome contacts on record: the 2025 validation run
+  (2026-04-18/19) and the 2026-08-10 reliability recompute
+  (`docs/models/defensive_pressing_reliability_2026-08.md` — YoY 2024→25
+  r = 0.370, split-half SB 0.584, wild-cluster p = 0.707 at the retrofitted
+  0.45 line). Numbers stand as they landed.
+- Any future **pitch-level** DPI evaluation against 2026 data falls under the
+  sealed `lockbox_2026_full_season` tier: no contact before season end, one
+  pre-registered contact per spec version after (ledger header policy).

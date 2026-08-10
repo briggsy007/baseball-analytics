@@ -75,9 +75,9 @@ def render() -> None:
     st.title("Allostatic Batting Load (ABL)")
     st.warning(
         "RETIRED — NOT VALIDATED (1 of 4 gates passed). On its 30-day "
-        "pre-IL validation ABL scored AUC 0.581 (gate >= 0.60), false-"
-        "positive rate 77.5% at the ABL=75 operating threshold (gate "
-        "<= 30%), and +0.014 AUC over a games-played baseline (gate "
+        "pre-IL validation ABL scored AUC 0.581 (gate >= 0.60), false-"  # claim:allostatic_load_ews_fail
+        "positive rate 77.5% at the ABL=75 operating threshold (gate "  # claim:allostatic_load_ews_fail
+        "<= 30%), and +0.014 AUC over a games-played baseline (gate "  # claim:allostatic_load_ews_fail
         ">= +0.05). Per-season z-score normalization saturates nearly "
         "every healthy season to ABL 100, so threshold-based alerts are "
         "non-discriminative. The scores below are descriptive only — no "
@@ -99,7 +99,7 @@ def render() -> None:
 - **ABL 30-60** = moderate accumulated load
 - **ABL 60+** = high accumulated load
 - **5 channels tracked:** pitch processing load, decision conflict (borderline pitches), swing exertion, schedule density, travel stress
-- **Validation status:** ABL was tested as an injury/fatigue early-warning signal and failed 3 of 4 gates (AUC 0.581 vs 0.60 gate; FPR 77.5% vs 30% gate; +0.014 vs +0.05 delta-AUC gate). The model is retired; ABL values describe modeled load accumulation and carry no validated link to plate discipline, slumps, or IL risk.
+- **Validation status:** ABL was tested as an injury/fatigue early-warning signal and failed 3 of 4 gates (AUC 0.581 vs 0.60 gate; FPR 77.5% vs 30% gate; +0.014 vs +0.05 delta-AUC gate). The model is retired; ABL values describe modeled load accumulation and carry no validated link to plate discipline, slumps, or IL risk. *(claim:allostatic_load_ews_fail)*
 """)
 
     conn = get_db_connection()

@@ -1,0 +1,97 @@
+{
+  "defensive_pressing": {
+    "production": "v2026.08.10",
+    "frozen_validated": "v2026.04.18",
+    "history": [
+      {
+        "ts": "2026-08-10T14:39:06.497499+00:00",
+        "event": "register",
+        "version": "v2026.04.18",
+        "sha256": "e689bff6ab069474c57df6950ba3ed7d376de8b0a3a7a71861d2a96dc3d3bb39",
+        "hash_policy": "pinned"
+      },
+      {
+        "ts": "2026-08-10T14:39:06.529043+00:00",
+        "event": "register",
+        "version": "v2026.08.10",
+        "sha256": "52ffe956d8cf414e751b7cac34fee52fd4d5e3125e528368e15509e3d929aed6",
+        "hash_policy": "advisory"
+      },
+      {
+        "ts": "2026-08-10T14:39:06.558864+00:00",
+        "event": "alias",
+        "alias": "frozen_validated",
+        "from": null,
+        "to": "v2026.04.18"
+      },
+      {
+        "ts": "2026-08-10T14:39:06.576318+00:00",
+        "event": "alias",
+        "alias": "production",
+        "from": null,
+        "to": "v2026.08.10"
+      }
+    ]
+  },
+  "stuff_model": {
+    "production": "v2026.08.10-inseason",
+    "frozen_validated": "v2026.08.10",
+    "history": [
+      {
+        "ts": "2026-08-10T14:39:06.608727+00:00",
+        "event": "register",
+        "version": "v2026.08.10",
+        "sha256": "3d8672ec9a272a04e1794a06aa2f50fbabf6684c6ace92c29f71538b4da58592",
+        "hash_policy": "pinned"
+      },
+      {
+        "ts": "2026-08-10T14:39:06.639507+00:00",
+        "event": "register",
+        "version": "v2026.08.10-inseason",
+        "sha256": "f033b05d1e4b6b413b569ce402fe443201ffdb4003cfc087704b7383da2a3dbb",
+        "hash_policy": "advisory"
+      },
+      {
+        "ts": "2026-08-10T14:39:06.671106+00:00",
+        "event": "alias",
+        "alias": "frozen_validated",
+        "from": null,
+        "to": "v2026.08.10"
+      },
+      {
+        "ts": "2026-08-10T14:39:06.704776+00:00",
+        "event": "alias",
+        "alias": "production",
+        "from": null,
+        "to": "v2026.08.10-inseason"
+      }
+    ]
+  },
+  "pitchgpt": {
+    "production": "v2026.04.23",
+    "frozen_validated": "v2026.04.23",
+    "history": [
+      {
+        "ts": "2026-08-10T14:39:06.734099+00:00",
+        "event": "register",
+        "version": "v2026.04.23",
+        "sha256": "6f952054d14ac6f918f3eb9502b496b70bc0c87dfc65dc50d98ee7244a62883c",
+        "hash_policy": "pinned"
+      },
+      {
+        "ts": "2026-08-10T14:39:06.765723+00:00",
+        "event": "alias",
+        "alias": "frozen_validated",
+        "from": null,
+        "to": "v2026.04.23"
+      },
+      {
+        "ts": "2026-08-10T14:39:06.781623+00:00",
+        "event": "alias",
+        "alias": "production",
+        "from": null,
+        "to": "v2026.04.23"
+      }
+    ]
+  }
+}

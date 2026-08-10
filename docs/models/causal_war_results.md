@@ -17,6 +17,9 @@ results log and preserves priors for diff.
 > a validated edge and "marquee" framing below is historical. The defensible
 > results are the reliever-tag subset (78.1% vs 56.9% within-filter naive,
 > n=32) and two fully-OOS windows (−2.8pp / +10.8pp vs naive).
+> *(Appended 2026-08-10, WS2.2: the 0.895-vs-0.843 upper-bound inconsistency
+> is now fully reconciled — see "CI upper-bound reconciliation" at the end of
+> this file. Both numbers are real artifact outputs of the same estimator.)*
 
 Spec gates (from `docs/models/causal_war_validation_spec.md` Ticket #2):
 
@@ -292,3 +295,53 @@ The SQL in `_extract_pa_data` detects the presence of the
 runtime -- no flag is required to opt in.  To reproduce v1 numbers,
 check out the pre-retrain revision of `src/analytics/causal_war.py` or
 run against a DB without the umpire / weather tables.
+
+---
+
+## CI upper-bound reconciliation — 2026-08-10 (WS2.2, appended; history above unchanged)
+
+**Question.** The Buy-Low 68.4% (13/19) 95% CI is printed as **[0.474, 0.895]**
+in the v1 and v2 tables above, while the 2026-08-10 audit, the methodology
+paper, and the claims registry quote **[0.474, 0.843]**. Which number does each
+source actually produce?
+
+**Findings (each artifact re-verified by recomputation on 2026-08-10):**
+
+1. `results/causal_war_v2_umpweather/contrarian/hit_rates_reproduction.json`
+   (source CSV: the v2 comparison artifact; sha256
+   `ebc61c262451dc2f1019b177ed18dace8d425eefa3702c819790abcd1bfaf335`)
+   stores `ci_95_high = 0.8947` → rounds to **0.895**. The v2 table above is
+   therefore **consistent with its own artifact** — the audit's phrasing
+   ("inconsistency vs the JSON artifacts") is imprecise on this point.
+2. `results/causal_war/contrarian_stability/hit_rates_reproduction.json`
+   (script `scripts/causal_war_reproduce_68pct.py`; source CSV: the v1
+   revert-run `validate_causal_war_20260418T194415Z` artifact; sha256
+   `ca737d1d53a22611d4c6e4c41eb6dd6c60ea7b58a6770a59fe1085af7adb05b4`)
+   stores `ci_95_high = 0.8434` → rounds to **0.843**. This is the number the
+   paper, audit, and claims registry quote.
+3. The v1 table's `[0.474, 0.895]` (printed 2026-04-18) cannot be traced to a
+   surviving artifact: `results/validate_causal_war_20260418T194415Z/` contains
+   no contrarian JSON, and the surviving reproduction against that exact CSV
+   (item 2) yields 0.843.
+
+**Root cause.** Both artifacts are produced by byte-equivalent bootstrap code
+(percentile bootstrap, B=1000, `np.random.RandomState(42)`; verified identical
+in `causal_war_reproduce_68pct.py:32-43` and
+`causal_war_contrarian_stability.py:382-398`) on the same 13-of-19 hit total.
+The evaluated-pick ORDERING and composition differ between the v1 and v2
+boards (both 13/19, but e.g. v1 evaluates Randy Rodríguez/Gonsolin where v2
+evaluates Bummer/Stanton/Boyd, in different sort order), so the shared RNG
+stream indexes different hit sequences. At n=19, resample means are multiples
+of 1/19: the 97.5th percentile lands exactly on 17/19 = 0.8947 for the v2
+ordering and interpolates to 16.025/19 = 0.8434 for the v1 ordering. Both
+recompute exactly from the stored per-pick rows (v2: [0.4737, 0.8947]; v1
+reproduction: [0.4737, 0.8434]).
+
+**Resolution.** This is Monte-Carlo/ordering instability of a percentile
+bootstrap at n=19 with B=1000 — not a data disagreement. Seed-robust anchors:
+exact Clopper-Pearson 95% CI for 13/19 = **[0.434, 0.874]**; the
+decision-relevant LOWER bound is 0.4737 in both artifacts and includes chance
+under every computation, so no conclusion changes under either upper bound.
+The claims registry (`docs/claims/claims.yaml`, id `causal_war_buy_low_68_4`)
+records [0.474, 0.843] with this note referenced; quote that entry, and never
+quote an upper bound without the n=19 instability caveat.

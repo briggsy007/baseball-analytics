@@ -156,3 +156,34 @@ Tiered: Tier 1-2 blocking, Tier 3 validation, Tier 4 productization, Tier 5 bug 
 ---
 
 Status: Specified 2026-04-16. Phase 2 pending. First ticket: #2 (score_diff fix — cheapest unblocker).
+
+---
+
+## Foreknowledge (appended 2026-08-10, WS2.3 — holdout-contact accounting; append-only, no text above modified)
+
+Per `docs/holdout_ledger.jsonl` (created 2026-08-10; historical entries are
+backfilled-reconstructed from git log and docs):
+
+- **At spec freeze (2026-04-16): 0 recorded evaluation contacts** with the 2025
+  pitcher-disjoint cohort. The first contact (v1 1K LSTM-gate evaluation) came
+  2026-04-18 — after this spec, via a documented-but-unregistered protocol swap
+  from the pre-registered 2024 test to 2025.
+- **As of 2026-08-10: 12 recorded contacts** with `pitchgpt_2025_pitcher_disjoint`
+  (ledger contacts 1–12: v1/v2 x 1K/10K, sampling-fidelity, A1 head, initial
+  rollout sanity, D1 diagnostics, the pos-0 calibration FIT on the holdout
+  itself, clean-provenance sanity re-run, 0.6.1 A/B x2 — all rollout-family
+  contacts on the same seed-42 10K-PA subsample). The audit estimated ~13;
+  the enumeration of 12 is what is reconstructable and is conservative —
+  unlogged ad-hoc contacts would only raise it. Budget: 14 (the Phase 0.6.2
+  single evaluation + at most one attribution diagnostic remain).
+- **2024 is BURNED as a holdout** (dev tier): `scripts/pitchgpt_ablation.py:87`,
+  `scripts/pitchgpt_calibration_analysis.py:52`,
+  `scripts/train_pitchgpt_v2_ump.py:65-67` all used `TEST_RANGE=(2024,2024)`.
+- **2026 full season is the LOCKBOX**, sealed until the regular season ends;
+  one pre-registered contact per frozen spec version thereafter (kill
+  criterion K5).
+
+Any future evaluation contact with these datasets must be appended to the
+ledger via `src/holdout.py` (`@holdout_access` / `record_contact`); a CI guard
+(`tests/test_holdout_ledger.py::TestCIGuard`) fails eval code that touches the
+registered identifiers without it.

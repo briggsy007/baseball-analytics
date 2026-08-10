@@ -1,8 +1,9 @@
 """
 MechanixAE dashboard view -- Mechanical Drift Detection (descriptive profiling).
 
-DEMOTED 2026-04-18: MechanixAE scored ROC AUC 0.387 (below random) on its
-30-day pre-injury classification task. MDI is a descriptive mechanical-drift
+DEMOTED 2026-04-18: MechanixAE scored ROC AUC 0.387 (below random) on its  # claim:mechanix_ae_injury_prediction
+30-day pre-injury classification task (registry id above is retracted --
+this docstring bounds it). MDI is a descriptive mechanical-drift
 measure only; it carries no validated injury-prediction signal.
 
 Provides:
@@ -146,7 +147,7 @@ def render() -> None:
     st.warning(
         "DEMOTED 2026-04-18 — DESCRIPTIVE PROFILING ONLY. MechanixAE was "
         "built as an injury early-warning system, but on its 30-day "
-        "pre-injury classification task it scored ROC AUC 0.387 — below "
+        "pre-injury classification task it scored ROC AUC 0.387 — below "  # claim:mechanix_ae_injury_prediction
         "random (0.5). MDI values describe mechanical variation; they carry "
         "NO validated injury-prediction signal, and no MDI threshold should "
         "be read as an IL-stint predictor. See "
@@ -167,7 +168,7 @@ def render() -> None:
 - **MDI 70+** = significant mechanical change from the baseline window
 - **Drift Velocity** distinguishes steady variation from *accelerating* change
 - **Feature Attribution** shows *what* is changing (arm slot dropping? release point moving forward?) so you know where to look
-- **Validation status:** MechanixAE was tested as an injury early-warning signal (30-day pre-IL classification) and failed — ROC AUC 0.387, below random. It was demoted 2026-04-18 to descriptive profiling; nothing on this page predicts injuries.
+- **Validation status:** MechanixAE was tested as an injury early-warning signal (30-day pre-IL classification) and failed — ROC AUC 0.387, below random. It was demoted 2026-04-18 to descriptive profiling; nothing on this page predicts injuries. *(claim:mechanix_ae_injury_prediction — retracted; this banner bounds it)*
 """)
 
     if not _MECHANIX_AVAILABLE:
@@ -557,7 +558,7 @@ def _render_alert_system(conn) -> None:
     st.caption(
         "Pitchers whose current MDI exceeds the 80th percentile of all "
         "computed MDI values — i.e. the largest current mechanical "
-        "divergence from baseline. Descriptive only: MDI scored AUC 0.387 "
+        "divergence from baseline. Descriptive only: MDI scored AUC 0.387 "  # claim:mechanix_ae_injury_prediction
         "(below random) on injury prediction and must not be read as an "
         "injury-risk alert."
     )

@@ -114,3 +114,27 @@ agent never opens a writer and never runs the 2025 evaluation.
 - Fitting on 2024 or 2025 in any form. 2024 stays untouched as a potential future second holdout.
 - Iterating past 2 fixed-point rounds or adding per-count / per-pitcher calibration dimensions
   (unbounded knob space = the hack-tuning this plan exists to prevent).
+
+---
+
+## 9. Foreknowledge (appended 2026-08-10, WS2.3 — append-only; sections 1–8 unmodified)
+
+Holdout-contact accounting per `docs/holdout_ledger.jsonl` (created
+2026-08-10):
+
+- At this plan's authoring (2026-08-04) the 2025 pitcher-disjoint cohort had
+  **12 recorded evaluation contacts** (ledger contacts 1–12; contacts 8–12
+  landed on 2026-08-04 itself, including the pos-0 fit-on-holdout this plan
+  remediates). Every rollout-family contact used the same seed-42 10K-PA
+  subsample.
+- The section 5 evaluation run is **contact #13 of a budget of 14** and MUST
+  be appended to the ledger via `src/holdout.py` (`@holdout_access` or
+  `record_contact`) at run time, before the results doc is committed (see the
+  ledger header's `todo` field). The section 6 attribution diagnostic, if
+  triggered, is contact #14. The budget then closes: any further 2025 contact
+  requires a logged override plus a dated spec amendment.
+- 2024 remains the burned dev tier (see plan section 0 corrections in
+  `docs/plans/2026-08-10_platform_improvement_plan.md`: three committed
+  scripts used `TEST_RANGE=(2024,2024)`, so section 8's "potential future
+  second holdout" framing is superseded — the sealed holdout is 2026).
+- The 2026 full-season lockbox stays sealed; nothing in Phase 0.6.2 touches it.

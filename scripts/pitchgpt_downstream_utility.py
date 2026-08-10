@@ -126,7 +126,7 @@ logger = logging.getLogger("pitchgpt_downstream_utility")
 # ─────────────────────────────────────────────────────────────────────────────
 TRAIN_RANGE = (2015, 2022)
 VAL_RANGE = (2023, 2023)
-HOLDOUT_RANGE = (2025, 2025)
+HOLDOUT_RANGE = (2025, 2025)  # holdout-contact: historical contacts registered in docs/holdout_ledger.jsonl; any NEW run must append a new contact via src.holdout (@holdout_access / record_contact)
 
 DEFAULT_BATCH = 32
 DEFAULT_LR = 1e-3

@@ -236,8 +236,10 @@ def precompute_stuff_plus(conn, season: int) -> dict:
         INSEASON_MODEL_PATH,
     )
 
-    # Ensure a model artefact exists. First-run training writes the
-    # IN-SEASON artifact — never the frozen models/stuff_model.pkl (WS0.1).
+    # Ensure a model artefact exists. Scoring resolves via the registry's
+    # ``production`` alias (WS2.1; models/registry.json), falling back to the
+    # WS0.1 constants when the registry is absent. First-run training writes
+    # the IN-SEASON artifact — never the frozen models/stuff_model.pkl.
     scoring_path = resolve_scoring_model_path()
     if not scoring_path.exists():
         _info("Stuff+: training model (first run, in-season artifact)...")
@@ -364,8 +366,10 @@ def precompute_bullpen_matchups(conn, season: int) -> dict:
 def precompute_defensive_pressing(conn, season: int) -> dict:
     """Precompute the DPI leaderboard for all teams.
 
-    Loads the in-season xOut checkpoint (frozen-validated fallback) via
-    ``ensure_xout_model`` — it does NOT retrain. Prior to 2026-08-10 this
+    Loads the xOut checkpoint via ``ensure_xout_model`` ->
+    ``resolve_scoring_checkpoint`` (registry ``production`` alias first,
+    WS0.1 in-season/frozen constants as fallback) — it does NOT retrain.
+    Prior to 2026-08-10 this
     function retrained the in-memory xOut model on ALL seasons at every
     precompute (the audited in-sample-scoring pattern, WS0.1).
 

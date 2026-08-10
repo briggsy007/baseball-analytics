@@ -113,3 +113,26 @@
 ---
 
 Status: Specified 2026-04-16. Phase 2 pending. First ticket: #1 (temporal split).
+
+---
+
+## Foreknowledge (appended 2026-08-10, WS2.3 — holdout-contact accounting; append-only, no text above modified)
+
+Per `docs/holdout_ledger.jsonl` (created 2026-08-10):
+
+- CausalWAR's board evaluations consume **public end-of-season bWAR outcome
+  series** (2025 follow-ups for the 2023-24 boards), not tiered pitch-level
+  holdouts; **no CausalWAR entries exist in the tiered holdout ledger**. Per
+  the frozen 2026 resolution spec (§1.5), resolving boards against public
+  outcomes is not a lockbox contact.
+- The honest accounting for CausalWAR is therefore **criterion foreknowledge**,
+  not holdout burn: the buy-low hit criterion post-dates the outcomes it was
+  first scored on (audit finding CW-6), and 2025 follow-up outcomes were
+  consulted repeatedly across contrarian stability runs before any rule froze.
+  That is remediated forward, not backward: the 2026 boards' scoring rule is
+  frozen pre-resolution in `docs/models/contrarian_2026_resolution_spec.md`
+  (sha256-at-freeze `1a27cd0e2d9b7d08c69c5a8a5944602585931121d9396be922e1e519557c760e`,
+  commit 912ede6), and all 50 picks are registered in the append-only pick
+  ledger (`predictions/picks.jsonl`, WS1.2) with that hash as `rule_hash`.
+- Any future **pitch-level** CausalWAR evaluation against 2026 data falls
+  under the sealed `lockbox_2026_full_season` tier (ledger header policy).

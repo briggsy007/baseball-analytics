@@ -1,7 +1,7 @@
 # Baseball Analytics Platform
 
 ## Fresh-session protocol
-Rely on this file + `MEMORY.md` only. Do **not** auto-read `docs/NORTH_STAR.md` (~25KB) — fetch it on demand when the user asks about strategy, current phase, what's next, or invokes `/sitrep`.
+Rely on this file + `MEMORY.md` only. Do **not** auto-read `docs/NORTH_STAR.md` (~25KB) — on demand (strategy, current phase, what's next, `/sitrep`), fetch `docs/NORTH_STAR_CURRENT.md` first (current-state snapshot, claims-registry-governed); `docs/NORTH_STAR.md` is the full history.
 
 ## Flagships
 - Active (3): **DPI, CausalWAR, PitchGPT**. Stats/caveats in `project_flagships.md` memory.

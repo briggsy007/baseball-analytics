@@ -17,6 +17,15 @@
 > TAINTED pending Phase 0.6.2 (pos-0 calibration was fit on the eval
 > cohort).
 
+> **Current state lives elsewhere (2026-08-10).** This document is a layered
+> historical strategy record and is preserved unedited below this line. For
+> the current snapshot — active flagship claims with mandatory caveats (per
+> `docs/claims/claims.yaml`), the retired-model roster, the remediation
+> phase status, the frozen 2026 resolution-spec pointer + hash, and the
+> pick-ledger/track-record infrastructure — read
+> **`docs/NORTH_STAR_CURRENT.md`** first. Where the strata below disagree
+> with it, `NORTH_STAR_CURRENT.md` and the claims registry win.
+
 ## Mission
 
 Build a baseball analytics platform that sees what the best MLB front offices see — surfacing edges the public analytics (FanGraphs, Baseball Savant) miss — and validates each edge with world-class data-science rigor. The award is downstream: top-tier methodology + tweetable real findings is what wins it. This document is the authoritative record of the strategy, the current state of the platform, and the sequence of work required to cross the finish line. Future Claude sessions should treat it as the single source of truth and begin each session by reading it.

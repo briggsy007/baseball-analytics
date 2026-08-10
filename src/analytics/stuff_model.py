@@ -44,15 +44,42 @@ FROZEN_MODEL_PATH = DEFAULT_MODEL_PATH
 INSEASON_MODEL_PATH = DEFAULT_MODEL_DIR / "stuff_model_2026_inseason.pkl"
 
 
+#: Registry name for Stuff+ artifacts in ``models/registry.json`` (WS2.1).
+REGISTRY_MODEL_NAME = "stuff_model"
+
+
 def resolve_scoring_model_path() -> Path:
     """Artifact path production scoring should load.
 
-    Prefers the in-season retrained artifact (kept current by the nightly
-    chain; in-sample for the in-progress season) and falls back to the
-    frozen artifact when no in-season artifact exists.
+    Resolution order (WS2.1):
+      1. ``models/registry.json`` ``production`` alias for ``stuff_model``
+         (the in-season retrained artifact, kept current by the nightly
+         chain; in-sample for the in-progress season);
+      2. WS0.1 fallback when the registry (or its artifact) is absent:
+         the in-season constant path, then the frozen artifact.
     """
+    from src.analytics.registry import resolve_registry_artifact
+
+    registered = resolve_registry_artifact(REGISTRY_MODEL_NAME, "production")
+    if registered is not None:
+        return registered
     if INSEASON_MODEL_PATH.exists():
         return INSEASON_MODEL_PATH
+    return FROZEN_MODEL_PATH
+
+
+def resolve_frozen_model_path() -> Path:
+    """Artifact path validation/reproduction runs must load: the frozen one.
+
+    Resolves the ``frozen_validated`` registry alias first (WS2.1) and falls
+    back to the WS0.1 ``FROZEN_MODEL_PATH`` constant when the registry is
+    absent.  Never returns the in-season artifact.
+    """
+    from src.analytics.registry import resolve_registry_artifact
+
+    registered = resolve_registry_artifact(REGISTRY_MODEL_NAME, "frozen_validated")
+    if registered is not None:
+        return registered
     return FROZEN_MODEL_PATH
 
 # ── Feature columns ─────────────────────────────────────────────────────────
@@ -214,6 +241,18 @@ def train_stuff_model(
             f"{INSEASON_MODEL_PATH}. Pass allow_frozen_overwrite=True only "
             f"for a deliberate, documented re-freeze."
         )
+    # WS2.1 second layer: any path the registry marks frozen_validated (for
+    # ANY model) is refused, independent of the constant check above.
+    if not allow_frozen_overwrite:
+        from src.analytics.registry import artifact_is_frozen_validated
+
+        if artifact_is_frozen_validated(save_path):
+            raise RuntimeError(
+                f"Refusing to overwrite {save_path}: it is registered as a "
+                f"frozen_validated artifact in models/registry.json. "
+                f"Register a NEW version and repoint the alias for a "
+                f"deliberate re-freeze (allow_frozen_overwrite=True)."
+            )
     save_path.parent.mkdir(parents=True, exist_ok=True)
 
     # ── Prepare data ─────────────────────────────────────────────────────

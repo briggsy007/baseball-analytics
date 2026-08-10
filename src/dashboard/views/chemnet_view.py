@@ -15,7 +15,12 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
+from src.claims import get_claim
 from src.dashboard.db_helper import get_db_connection, has_data
+
+# Registry-backed claim (WS2.2): the demotion banner renders through the
+# registry so its numbers cannot drift from docs/claims/claims.yaml.
+_CLAIM_CHEMNET = get_claim("chemnet_v1_validation_fail")
 
 # ── Graceful imports ──────────────────────────────────────────────────────────
 
@@ -89,15 +94,10 @@ def _cached_teams() -> list[str]:
 def render() -> None:
     """Render the ChemNet Lineup Synergy page."""
     st.warning(
-        "EXPERIMENTAL — NOT VALIDATED. ChemNet v1 fails 4 of 5 hard validation "
-        "gates: validation against 9,836 game-sides shows Pearson r=0.09 and the "
-        "GNN does not beat its non-graph baseline, so the synergy scores, "
-        "protection coefficients, and optimizer suggestions below are "
-        "statistical noise and should not be used for analysis. "
-        "See `docs/models/chemnet_results.md` for the full report. "
-        "A v2 retrain (larger graph cohort, opposing-pitcher node, "
-        "residual-target reformulation) is the planned unblock; the UI is "
-        "retained for that future development."
+        "EXPERIMENTAL — NOT VALIDATED. ChemNet v1 validation on held-out "
+        f"2023-2024 game-sides: {_CLAIM_CHEMNET.value}. "  # claim:chemnet_v1_validation_fail
+        f"{_CLAIM_CHEMNET.caveat} "
+        "See `docs/models/chemnet_results.md` for the full report."
     )
 
     st.title("ChemNet: Lineup Synergy & Protection Effects")

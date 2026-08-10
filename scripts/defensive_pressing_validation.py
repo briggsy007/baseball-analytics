@@ -119,13 +119,16 @@ def _fit_xout_on_train_window(
     validation config's ``use_persisted_xout`` / ``persist_xout`` flags.
     """
     seasons = list(range(cfg.train_start, cfg.train_end + 1))
-    # v2 checkpoint when weather features are enabled; v1 otherwise.
+    # v2 checkpoint when weather features are enabled; otherwise the frozen
+    # validated artifact via the registry's ``frozen_validated`` alias
+    # (WS2.1; falls back to the constant path when registry.json is absent).
+    # Validation must never resolve the in-season/production artifact.
     if cfg.xout_checkpoint_path is not None:
         chk_path = Path(cfg.xout_checkpoint_path)
     elif cfg.use_weather:
         chk_path = dp.DEFAULT_XOUT_V2_CHECKPOINT
     else:
-        chk_path = dp.DEFAULT_XOUT_CHECKPOINT
+        chk_path = dp.resolve_validation_checkpoint()
 
     # Try to use a checkpoint with matching train_seasons and weather flag
     if cfg.use_persisted_xout and chk_path.exists():

@@ -1,0 +1,53 @@
+{
+  "frozen_utc": "2026-08-10T15:11:29.837942+00:00",
+  "spec": {
+    "path": "docs/models/contrarian_2026_resolution_spec.md",
+    "sha256_at_freeze": "1a27cd0e2d9b7d08c69c5a8a5944602585931121d9396be922e1e519557c760e",
+    "commit": "912ede6"
+  },
+  "p_f": 0.7531,
+  "p_f_derivation": "median 122 team games through 2026-08-09 / 162, 4 dp, spec s4.4 query (COUNT(DISTINCT game_pk) per team from pitches home/away)",
+  "baseline_asof": "2026-08-09",
+  "baseline_parquet": {
+    "path": "results/edges/contrarian_2026_midseason/frozen_2026_resolution_inputs/war_2026_staging_asof_2026-08-09.parquet",
+    "sha256": "0DF755CF2C3AC30BEE4C4EFD2FF1CA9ABEF47C755E4F36DD9986D8B839249EDD",
+    "note": "Spec artifact A3 reused as the s6.1 freeze fetch (no fresh network fetch under Batch-B read-only constraints; live data/staging parquet verified byte-identical at freeze). Deviations Log entry 2 records this."
+  },
+  "nuisance_checkpoint": {
+    "path": "models/causal_war/causal_war_trainsplit_2015_2022.pkl",
+    "sha256": "5D13242CC3C3D7F0F8A33D52AAAA6BF337B9F1F576C0722484BE11AAC0B97672",
+    "pitcher_pa_min": 50
+  },
+  "db_pitches_max_game_date_2026": "2026-08-08",
+  "board_csv": {
+    "dated": "results/edges/contrarian_2026_midseason/2026-08-10/reliever_board.csv",
+    "frozen_copy": "results/edges/contrarian_2026_midseason/frozen_2026_resolution_inputs/reliever_board_asof_2026-08-10.csv",
+    "sha256": "B4C4F51702FD308581CB6D141C1CCA3175709D9C2F3606A36444B3A7D545C556",
+    "n_rows": 50,
+    "n_buy_low": 25,
+    "n_over_valued": 25
+  },
+  "constants": {
+    "ip_lower": 15,
+    "ip_upper_full_precision": 45.186,
+    "pace_divisor": 0.7531,
+    "exit_floor_ros_ip": 7.407,
+    "naive_window": 0.22593,
+    "surrogate": "IP >= 30; buy_low HIT iff ERA <= 4.00 (s6.5)"
+  },
+  "pool": {
+    "n_parquet_pitchers": 788,
+    "n_ip_band_parquet": 244,
+    "n_ranked_pool": 244,
+    "n_rank_diff_pos": 124,
+    "n_rank_diff_neg": 117,
+    "n_rank_diff_zero": 3
+  },
+  "picks": {
+    "product": "contrarian_board_2026_midseason_reliever",
+    "pick_id_scheme": "contrarian2026-<board>-<side_rank>-<player_id>",
+    "n_emitted": 50,
+    "n_skipped_existing": 0,
+    "evidence_class": "prospective"
+  }
+}

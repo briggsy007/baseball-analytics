@@ -77,7 +77,7 @@ logger = logging.getLogger("pitchgpt_rollout_sanity_2025")
 # Constants
 # ─────────────────────────────────────────────────────────────────────────────
 TRAIN_RANGE = (2015, 2022)
-HOLDOUT_SEASON = 2025
+HOLDOUT_SEASON = 2025  # holdout-contact: historical contacts registered in docs/holdout_ledger.jsonl; any NEW run must append a new contact via src.holdout (@holdout_access / record_contact)
 N_PA_DEFAULT = 10_000
 N_SAMPLES = 100
 HORIZON = 6

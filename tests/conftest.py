@@ -541,26 +541,51 @@ def models_dir_write_guard():
 
 
 @pytest.fixture(scope="session", autouse=True)
-def _quarantine_dpi_frozen_checkpoint(tmp_path_factory: pytest.TempPathFactory):
-    """Point defensive_pressing's default xOut checkpoint at a tmp path.
+def _quarantine_model_artifact_paths(tmp_path_factory: pytest.TempPathFactory):
+    """Point every model-artifact resolution path at tmp for the session.
 
-    ``batch_calculate`` -> ``ensure_xout_model`` auto-refits AND persists to
-    ``DEFAULT_XOUT_CHECKPOINT`` (models/defensive_pressing/xout_v1.pkl — the
-    frozen validated artifact) whenever the loaded checkpoint's max train
-    season is more than one season behind the connected DB.  The synthetic
-    test DB contains 2026 pitches, so against the frozen 2015-2024 artifact
-    that policy would silently overwrite it from inside the test suite
-    (2026-08-10 audit, DPI finding 3).  Redirecting the module constant for
-    the whole session makes that write structurally impossible here.
+    Post-WS0.1/WS2.1 the load/persist chain is: loaders call
+    ``resolve_scoring_checkpoint`` / ``resolve_scoring_model_path``, which
+    consult ``models/registry.json`` first and fall back to the
+    ``FROZEN_*`` / ``INSEASON_*`` module constants; ``ensure_xout_model``
+    refits persist to ``INSEASON_XOUT_CHECKPOINT`` (never the frozen path).
+    The synthetic test DB contains 2026 pitches, so an un-quarantined
+    session could (a) load real repo artifacts through the registry and
+    (b) persist a refit to the real ``models/defensive_pressing/
+    xout_2026_inseason.pkl`` (2026-08-10 audit, failure class F-A).
+
+    Quarantine, session-wide:
+      * ``BASEBALL_MODEL_REGISTRY_DIR`` -> empty tmp dir (no registry.json,
+        so registry resolution returns None and the fallback constants —
+        patched below — apply);
+      * DPI's ``FROZEN_XOUT_CHECKPOINT`` / ``INSEASON_XOUT_CHECKPOINT``
+        (and the legacy ``DEFAULT_XOUT_CHECKPOINT`` alias, still read by
+        ``scripts/defensive_pressing_validation.py``) -> tmp paths;
+      * Stuff+ ``FROZEN_MODEL_PATH`` / ``INSEASON_MODEL_PATH`` -> tmp paths
+        (``train_stuff_model`` defaults its save path to the in-season
+        constant).
+
+    ``models_dir_write_guard`` above still backstops with a hard fail if
+    anything slips through and touches ``models/``.
     """
     import src.analytics.defensive_pressing as dp
+    import src.analytics.stuff_model as sm
 
     mp = pytest.MonkeyPatch()
-    mp.setattr(
-        dp,
-        "DEFAULT_XOUT_CHECKPOINT",
-        tmp_path_factory.mktemp("dpi_checkpoints") / "xout_vtest.pkl",
-    )
+
+    registry_tmp = tmp_path_factory.mktemp("model_registry")
+    mp.setenv("BASEBALL_MODEL_REGISTRY_DIR", str(registry_tmp))
+
+    dpi_dir = tmp_path_factory.mktemp("dpi_checkpoints")
+    mp.setattr(dp, "DEFAULT_XOUT_CHECKPOINT", dpi_dir / "xout_vtest.pkl")
+    mp.setattr(dp, "FROZEN_XOUT_CHECKPOINT", dpi_dir / "xout_vtest.pkl")
+    mp.setattr(dp, "INSEASON_XOUT_CHECKPOINT", dpi_dir / "xout_vtest_inseason.pkl")
+
+    stuff_dir = tmp_path_factory.mktemp("stuff_models")
+    mp.setattr(sm, "FROZEN_MODEL_PATH", stuff_dir / "stuff_vtest.pkl")
+    mp.setattr(sm, "DEFAULT_MODEL_PATH", stuff_dir / "stuff_vtest.pkl")
+    mp.setattr(sm, "INSEASON_MODEL_PATH", stuff_dir / "stuff_vtest_inseason.pkl")
+
     yield
     mp.undo()
 

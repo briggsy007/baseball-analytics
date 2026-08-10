@@ -235,7 +235,8 @@ def eval_batter(conn, b: dict, opp_sp_id: int, opp_throws: str, park_factor: flo
     ab_exp = pa * (1 - (sk["bb_pct"] or 0.08) - 0.02)
     p_game = 1 - (1 - p_hit) ** ab_exp
     return {
-        "name": b["name"], "slot": slot, "bats": b.get("bats"),
+        "name": b["name"], "player_id": b.get("player_id"),
+        "slot": slot, "bats": b.get("bats"),
         "projected": b.get("projected", False), "ab_season": sk["ab"],
         "skill": round(sk["skill"], 4), "xba": sk["xba"], "ba": round(sk["ba"], 3),
         "k_pct": sk["k_pct"], "opp_factor": round(opp, 3),
@@ -331,6 +332,44 @@ def main() -> None:
                                "combined_prob": combined,
                                "all_candidates": candidates[:60]}, indent=2, default=str))
     print(f"\nWrote {out}")
+
+    # ── WS1.2 pick-emission hook: freeze today's picks into the append-only
+    # ledger (predictions/picks.jsonl) so the track record is prospective.
+    # Best-effort: a ledger failure must not kill the parlay output, but it
+    # is reported loudly (duplicate pick_ids on a re-run are expected and
+    # reported per leg).
+    try:
+        from src.pick_ledger import (
+            LedgerError,
+            build_hit_parlay_leg_pick,
+            build_hit_parlay_parlay_pick,
+            emit_pick,
+        )
+
+        leg_ids, emitted = [], 0
+        for i, leg in enumerate(picks, 1):
+            pick = build_hit_parlay_leg_pick(day, i, leg)
+            leg_ids.append(pick["pick_id"])
+            try:
+                emit_pick(pick)
+                emitted += 1
+            except LedgerError as exc:
+                print(f"LEDGER: leg {i} not emitted: {exc}")
+        if leg_ids:
+            try:
+                emit_pick(
+                    build_hit_parlay_parlay_pick(day, leg_ids, combined)
+                )
+                emitted += 1
+            except LedgerError as exc:
+                print(f"LEDGER: parlay not emitted: {exc}")
+        print(f"LEDGER: emitted {emitted} pick(s) to predictions/picks.jsonl")
+    except Exception:
+        import traceback
+
+        print("LEDGER: pick emission FAILED (parlay output unaffected):")
+        traceback.print_exc()
+
     conn.close()
 
 

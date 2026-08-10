@@ -80,7 +80,7 @@ def render() -> None:
     st.warning(
         "RETIRED — NULL RESULT. DESCRIPTIVE VISUALIZATION ONLY. The "
         "predictability-tax hypothesis this model was built to test "
-        "returned a clean null (r = -0.013, p = 0.89): a pitcher's "
+        "returned a clean null (r = -0.013, p = 0.89): a pitcher's "  # claim:volatility_surface_null
         "outcome-entropy profile showed no relationship with the tested "
         "performance outcome. The surfaces below are descriptive entropy "
         "maps; no predictive or strategic edge has been validated, and "
@@ -100,7 +100,7 @@ def render() -> None:
 - **Low entropy (blue)** = concentrated, repetitive outcomes in that cell
 - **Vol Smile** shows whether entropy is higher at the zone edges or the middle
 - **Vol Term Structure** shows how entropy changes as counts deepen
-- **Validation status:** the hypothesis that low-entropy (predictable) cells impose a measurable performance tax was tested and returned a clean null (r = -0.013, p = 0.89). This model is retired; the page is kept as a descriptive visualization only.
+- **Validation status:** the hypothesis that low-entropy (predictable) cells impose a measurable performance tax was tested and returned a clean null (r = -0.013, p = 0.89). This model is retired; the page is kept as a descriptive visualization only. *(claim:volatility_surface_null)*
 """)
 
     if not _PIVS_AVAILABLE:

@@ -65,7 +65,7 @@ logger = logging.getLogger("pitchgpt_build_calibration_cdfs")
 
 
 TRAIN_RANGE = (2015, 2022)
-HOLDOUT_SEASON = 2025
+HOLDOUT_SEASON = 2025  # holdout-contact: historical contacts registered in docs/holdout_ledger.jsonl; any NEW run must append a new contact via src.holdout (@holdout_access / record_contact)
 
 DEFAULT_OUTPUT = _ROOT / "models" / "calibration_feature_cdfs.npz"
 

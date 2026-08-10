@@ -96,10 +96,10 @@ def render() -> None:
     st.title("Viscoelastic Workload Response (VWR)")
     st.warning(
         "RETRACTED 2026-04-18 — DESCRIPTIVE WORKLOAD TRACKER ONLY. VWR was "
-        "promoted to flagship on a 64-fit 2015-16 sample (residual AUC "
-        "0.768). Scale verification on n=563 injured fits (2017-2024) "
-        "collapsed the out-of-sample residual AUC to 0.438 — below chance — "
-        "and the 2025 holdout scored 0.493. The small-sample finding was a "
+        "promoted to flagship on a 64-fit 2015-16 sample (residual AUC "  # claim:vwr_flagship_promotion
+        "0.768). Scale verification on n=563 injured fits (2017-2024) "  # claim:vwr_flagship_promotion
+        "collapsed the out-of-sample residual AUC to 0.438 — below chance — "  # claim:vwr_flagship_promotion
+        "and the 2025 holdout scored 0.493. The small-sample finding was a "  # claim:vwr_flagship_promotion
         "label-calendar artifact; the injury-signal claim did not replicate "
         "and VWR is permanently off the flagship-candidate list. VWR values "
         "describe accumulated workload; they carry NO validated "
@@ -122,7 +122,7 @@ def render() -> None:
 - **VWR 90+** = the model's strain accumulator has not recovered between outings
 - **Key difference from pitch count:** Two pitchers at 90 pitches can have wildly different VWR based on rest days, pitch effort, and recovery time between outings
 - **Recovery predictor** shows how many rest days the model projects until VWR returns to a lower level
-- **Validation status:** VWR was tested as an injury early-warning signal and retracted 2026-04-18 — out-of-sample residual AUC 0.438 on n=563 injured fits (below chance), 2025 holdout 0.493. Nothing on this page predicts injuries or should drive rest decisions.
+- **Validation status:** VWR was tested as an injury early-warning signal and retracted 2026-04-18 — out-of-sample residual AUC 0.438 on n=563 injured fits (below chance), 2025 holdout 0.493. Nothing on this page predicts injuries or should drive rest decisions. *(claim:vwr_flagship_promotion — retracted; this banner bounds it)*
 """)
 
     if not _VWR_AVAILABLE:

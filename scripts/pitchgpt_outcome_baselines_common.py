@@ -44,7 +44,7 @@ logger = logging.getLogger("pitchgpt_outcome_baselines_common")
 
 TRAIN_SEASONS = list(range(2015, 2023))   # 2015..2022 inclusive
 VAL_SEASONS = [2023]
-TEST_SEASONS = [2025]
+TEST_SEASONS = [2025]  # holdout-contact: historical contacts registered in docs/holdout_ledger.jsonl; any NEW run must append a new contact via src.holdout (@holdout_access / record_contact)
 
 # Plan B cohort scale: 10K-game train.  Val + test sample sizes are
 # matched to phase 0.3 (val 2K games) and to the 2025 holdout cohort

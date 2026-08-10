@@ -1,0 +1,21 @@
+{
+  "artifact": "defensive_pressing/xout_v1.pkl",
+  "version": "v2026.04.18",
+  "sha256": "e689bff6ab069474c57df6950ba3ed7d376de8b0a3a7a71861d2a96dc3d3bb39",
+  "hash_policy": "pinned",
+  "created_utc": "2026-08-10T14:39:06.481774+00:00",
+  "git_sha": "925330315d4efea92e1238ffe80f8cd99e75095b",
+  "train_window": "2015-2022",
+  "data_snapshot": {
+    "tables": {
+      "pitches": {
+        "train_bip_rows": 837571
+      }
+    },
+    "note": "row count from the artifact's embedded metadata (n_samples); full table snapshot was not captured at training time"
+  },
+  "training_script": "scripts/defensive_pressing_validation.py",
+  "spec_version": "docs/models/defensive_pressing_validation_spec.md",
+  "validation_results_ref": "docs/models/defensive_pressing_results.md; docs/models/defensive_pressing_reliability_2026-08.md",
+  "notes": "Frozen validated xOut checkpoint (fitted 2026-04-18, holdout AUC 0.894). Byte-identical restore of the 32c7142 validation-era blob, committed at 912ede6 after the 2026-08-10 audit found the nightly chain had overwritten it (WS0.1)."
+}

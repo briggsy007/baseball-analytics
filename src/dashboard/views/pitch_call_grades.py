@@ -25,6 +25,7 @@ from __future__ import annotations
 
 import streamlit as st
 
+from src.claims import get_claim
 from src.dashboard.fixtures.pitch_call_grades_fixture import (
     OUTCOME_LABELS,
     SAMPLE_PAS,
@@ -32,6 +33,12 @@ from src.dashboard.fixtures.pitch_call_grades_fixture import (
     build_rollout_fixture,
     schema_preview,
 )
+
+# Registry-backed claims (WS2.2): retracted claims raise at import, so a
+# retracted number is structurally unable to render on this page.
+_CLAIM_ECE = get_claim("pitchgpt_per_pitch_ece")
+_CLAIM_IN_PLAY_HIT = get_claim("pitchgpt_outcome_head_in_play_hit")
+_CLAIM_PA_RATES = get_claim("pitchgpt_pa_rates_fail")
 
 # ---------------------------------------------------------------------------
 # Lazy import of pitchgpt_sim
@@ -61,15 +68,18 @@ def _try_import_pitchgpt_sim():
 
 _METHODOLOGY_FOOTNOTE = (
     "**Methodology.** Grade = rollout-percentile-of-actual-outcome, "
-    "**calibrated**. For each pitch, we freeze the PA prefix, sample "
-    "N=100 rollouts of the remaining at-bat under the calibrated "
+    "**calibrated** (scoped -- see below). For each pitch, we freeze the PA "
+    "prefix, sample N=100 rollouts of the remaining at-bat under the "
     "PitchGPT v2 backbone + PGConcatHead outcome predictor, score each "
     "rollout's terminal wOBA, and report where the actual pitch's "
     "outcome falls in that distribution. **High percentile = pitcher "
     "allowed less than expected (good call); low percentile = allowed "
-    "more (bad call).** Calibration is post-temperature ECE 0.0114 on "
+    "more (bad call).** Calibration is post-temperature ECE 0.0114 on "  # claim:pitchgpt_per_pitch_ece
     "2025 pitcher-disjoint holdout per "
-    "`results/pitchgpt_sim/outcome_baselines_2026_04_25/a1_concat/metrics.json`."
+    "`results/pitchgpt_sim/outcome_baselines_2026_04_25/a1_concat/metrics.json`. "
+    f"**Calibration scope (2026-08-10 audit):** {_CLAIM_ECE.caveat} "
+    f"PA-level absolute rates additionally FAIL their fidelity gates: "
+    f"{_CLAIM_PA_RATES.caveat}"
 )
 
 _HIT_CEILING_DISCLOSURE = (
@@ -78,8 +88,8 @@ _HIT_CEILING_DISCLOSURE = (
     "disambiguate balls in play that become hits vs outs without "
     "`launch_speed` / `launch_angle` (post-pitch). Grades that depend on "
     "this distinction are flagged. The Plan B winner (A1 PGConcatHead) "
-    "lands at `in_play_hit` log-loss 2.34 on 2025 holdout — clears "
-    "WEAKER PASS (<2.5) but misses full PASS (<2.0). Treat hit/out splits "
+    f"lands at `in_play_hit` log-loss {_CLAIM_IN_PLAY_HIT.value} on 2025 holdout — clears "  # claim:pitchgpt_outcome_head_in_play_hit
+    "WEAKER PASS (<2.5) but misses full PASS (<2.0). Treat hit/out splits "  # claim:pitchgpt_outcome_head_in_play_hit
     "with caution."
 )
 

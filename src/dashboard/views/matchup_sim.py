@@ -21,11 +21,18 @@ from __future__ import annotations
 
 import streamlit as st
 
+from src.claims import get_claim
 from src.dashboard.fixtures.matchup_sim_fixture import (
     build_matchup_fixture,
     list_matchup_options,
     schema_preview,
 )
+
+# Registry-backed claims (WS2.2): retracted claims raise at import, so a
+# retracted number is structurally unable to render on this page.
+_CLAIM_ECE = get_claim("pitchgpt_per_pitch_ece")
+_CLAIM_IN_PLAY_HIT = get_claim("pitchgpt_outcome_head_in_play_hit")
+_CLAIM_PA_RATES = get_claim("pitchgpt_pa_rates_fail")
 
 
 # ---------------------------------------------------------------------------
@@ -52,11 +59,17 @@ def _try_import_pitchgpt_sim():
 
 _METHODOLOGY_FOOTNOTE = (
     "**Methodology.** For the selected pair, sample 10,000 PA rollouts "
-    "from a 0-0 start under the **calibrated** PitchGPT v2 backbone + "
+    "from a 0-0 start under the **calibrated** (scoped -- see below) "
+    "PitchGPT v2 backbone + "
     "PGConcatHead outcome predictor (Plan B winner; see "
     "`docs/pitchgpt_sim_engine/SIM_ENGINE_API.md` §4.4). Per rollout, "
     "compute the PA-terminal wOBA via the empirical wOBA-by-outcome lookup. "
-    "Histogram with p05/p25/p50/p75/p95 bands."
+    "Histogram with p05/p25/p50/p75/p95 bands. "
+    f"**Calibration scope (2026-08-10 audit):** 'calibrated' means per-pitch "
+    f"post-temperature ECE {_CLAIM_ECE.value}. {_CLAIM_ECE.caveat} "  # claim:pitchgpt_per_pitch_ece
+    f"PA-level absolute rates from this same rollout engine FAIL their "
+    f"fidelity gates: {_CLAIM_PA_RATES.caveat} Treat the histogram as "
+    "relative shape, not as validated absolute outcome rates."
 )
 
 _SMALL_SAMPLE_DISCLOSURE = (
@@ -68,7 +81,7 @@ _SMALL_SAMPLE_DISCLOSURE = (
 
 _HIT_CEILING_DISCLOSURE = (
     ":warning: **Inherited in-play hit-vs-out ceiling.** The PGConcatHead "
-    "outcome predictor lands at `in_play_hit` log-loss 2.34 (WEAKER PASS) "
+    f"outcome predictor lands at `in_play_hit` log-loss {_CLAIM_IN_PLAY_HIT.value} (WEAKER PASS) "  # claim:pitchgpt_outcome_head_in_play_hit
     "on 2025 holdout. Hit-vs-out at pitch-time has a structural ceiling "
     "because launch_speed/launch_angle are post-pitch. Treat any wOBA "
     "splits dominated by hit/out outcomes (i.e., balls in play) with "
@@ -178,7 +191,9 @@ def render() -> None:
     st.title("Matchup Sim (Batter x Pitcher)")
     st.caption(
         "A3 dossier — `EXECUTION_PLAN.md` §6 A3. Simulated wOBA distribution "
-        "for any batter x pitcher pair under the calibrated rollout engine."
+        "for any batter x pitcher pair under the per-pitch-calibrated rollout "
+        "engine (calibration is scoped — see the methodology footnote: "
+        "production-path ECE unmeasured, PA-level absolute rates FAIL)."
     )
 
     sim_available = _try_import_pitchgpt_sim()

@@ -4,6 +4,8 @@
 **Prior milestone commits:** `fcb47ee` (ingestion) + `b1e374c` (flagship wiring)
 **Strategy anchor:** NORTH_STAR.md Path 2 — edge surfacing over gate completion
 
+> **Bounding note (2026-08-10, WS2.2).** Historical planning document — the flagship numbers below pre-date the 2026-08-10 audit and are superseded where they conflict: the Buy-Low "68.4% marquee claim preserved" is NOT a validated edge (post-hoc criterion, ITT 13/25 = 52%, CI includes chance — registry claim `causal_war_buy_low_68_4` in `docs/claims/claims.yaml`); the 13.8→11.8% LSTM deltas were retired 2026-04-24 (locked 2.57–3.13% at matched 10K, claim `pitchgpt_vs_lstm_10k`; `lstm_13_80` is retracted); and "calibration ECE -70% (best ever)" describes the pre-class-calibration stack with the production-path ECE unmeasured (claim `pitchgpt_per_pitch_ece`). Read `docs/audits/FLAGSHIP_AUDIT_2026-08-10.md` before quoting anything from this file.
+
 ---
 
 ## 1. Where we are

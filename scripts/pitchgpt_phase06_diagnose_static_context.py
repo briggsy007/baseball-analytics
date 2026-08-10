@@ -77,7 +77,7 @@ logger = logging.getLogger("phase06_diag_static_context")
 
 # ─── Configuration ──────────────────────────────────────────────────────
 TRAIN_RANGE = (2015, 2022)
-HOLDOUT_SEASON = 2025
+HOLDOUT_SEASON = 2025  # holdout-contact: historical contacts registered in docs/holdout_ledger.jsonl; any NEW run must append a new contact via src.holdout (@holdout_access / record_contact)
 N_PA = 2000   # scaled from 10K to fit ~30min budget
 N_SAMPLES = 100
 HORIZONS = (1, 2, 3, 6)

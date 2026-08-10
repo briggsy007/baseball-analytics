@@ -2,6 +2,9 @@
   "latest": "2026-08-10",
   "board_csv": "2026-08-10/board.csv",
   "summary_md": "2026-08-10/summary.md",
-  "written_utc": "2026-08-10T00:00:00+00:00",
-  "note": "Seeded 2026-08-10 (WS0.4): first dated copy preserves the pre-existing top-level board.csv (byte-identical); the dated summary.md was re-rendered 2026-08-10 from that same board.csv with WS0.3 detached-68.4% wording (tables/pool identical, banner+2 bullets reworded). Top-level board.csv/summary.md are frozen legacy artifacts (legacy summary bounded by an appended erratum)."
+  "written_utc": "2026-08-10T15:11:29.841617+00:00",
+  "note": "Seeded 2026-08-10 (WS0.4): first dated copy preserves the pre-existing top-level board.csv (byte-identical); the dated summary.md was re-rendered 2026-08-10 from that same board.csv with WS0.3 detached-68.4% wording (tables/pool identical, banner+2 bullets reworded). Top-level board.csv/summary.md are frozen legacy artifacts (legacy summary bounded by an appended erratum).",
+  "reliever_board_csv": "2026-08-10/reliever_board.csv",
+  "reliever_summary_md": "2026-08-10/reliever_summary.md",
+  "reliever_note": "Reliever board is a ONE-TIME freeze (2026-08-10, spec s6). Later batter-board runs may rewrite this pointer without these keys; the dashboard falls back to the fixed frozen path 2026-08-10/reliever_board.csv, which never changes."
 }

@@ -1,0 +1,51 @@
+board,side_rank,player_id,name,team,position,causal_war,trad_war,rank_causal,rank_trad,rank_diff,ip_total,bf_total,tag
+reliever_buy_low,1,685801,Hunter Bigge,TB,pitcher,0.11,-0.84,75,230,155,19.333333333333332,84,RELIEVER LEVERAGE GAP
+reliever_buy_low,2,671212,Joe Boyle,TB,pitcher,0.2,-0.2,60,176,116,15.666666666666666,65,RELIEVER LEVERAGE GAP
+reliever_buy_low,3,666808,Camilo Doval,NYY,pitcher,-0.1,-0.74,117,228,111,42.666666666666664,186,RELIEVER LEVERAGE GAP
+reliever_buy_low,4,676684,Will Vest,DET,pitcher,-0.18,-0.9,134,233,99,26.666666666666668,114,RELIEVER LEVERAGE GAP
+reliever_buy_low,5,686580,Justin Slaten,BOS,pitcher,-0.15,-0.64,128,224,96,30.333333333333332,130,RELIEVER LEVERAGE GAP
+reliever_buy_low,6,696062,Wilber Dotel,PIT,pitcher,0.21,-0.07,56,151,95,26.666666666666668,114,RELIEVER LEVERAGE GAP
+reliever_buy_low,7,695380,Alex Hoppe,SEA,pitcher,0.0,-0.22999999999999998,89,180,91,28.666666666666668,126,RELIEVER LEVERAGE GAP
+reliever_buy_low,8,668881,Hunter Greene,CIN,pitcher,-0.06,-0.36,104,191,87,27.666666666666668,120,RELIEVER LEVERAGE GAP
+reliever_buy_low,9,664126,Pete Fairbanks,MIA,pitcher,-0.27,-1.08,151,237,86,36.333333333333336,158,RELIEVER LEVERAGE GAP
+reliever_buy_low,10,683000,Riley Cornelio,WSH,pitcher,-0.1,-0.45,117,202,85,20.0,95,RELIEVER LEVERAGE GAP
+reliever_buy_low,11,543056,Danny Coulombe,BOS,pitcher,0.14,-0.07,70,151,81,22.0,96,RELIEVER LEVERAGE GAP
+reliever_buy_low,12,686560,Gavin Collyer,TEX,pitcher,0.07,-0.11,79,160,81,23.0,104,RELIEVER LEVERAGE GAP
+reliever_buy_low,13,689296,Anthony Nunez,BAL,pitcher,0.02,-0.14,85,164,79,45.0,191,RELIEVER LEVERAGE GAP
+reliever_buy_low,14,621074,Michael Rucker,SEA,pitcher,0.14,-0.05,70,148,78,23.666666666666668,100,RELIEVER LEVERAGE GAP
+reliever_buy_low,15,694361,Will Klein,LAD,pitcher,-0.06,-0.23,104,181,77,41.666666666666664,185,RELIEVER LEVERAGE GAP
+reliever_buy_low,16,677161,Zack Kelly,BOS,pitcher,0.2,0.0,60,136,76,16.333333333333332,69,RELIEVER LEVERAGE GAP
+reliever_buy_low,17,673929,Jordan Leasure,CWS,pitcher,-0.09,-0.36,116,191,75,18.666666666666668,77,RELIEVER LEVERAGE GAP
+reliever_buy_low,18,623149,Paul Sewald,AZ,pitcher,-0.3,-1.12,166,240,74,39.0,162,RELIEVER LEVERAGE GAP
+reliever_buy_low,19,689818,David Sandlin,CWS,pitcher,-0.1,-0.35,117,190,73,24.666666666666668,106,RELIEVER LEVERAGE GAP
+reliever_buy_low,20,601713,Nick Pivetta,SD,pitcher,0.38,0.14,39,110,71,16.0,66,RELIEVER LEVERAGE GAP
+reliever_buy_low,21,695239,Robby Ahlstrom,TEX,pitcher,0.28,0.05,53,124,71,24.666666666666668,101,RELIEVER LEVERAGE GAP
+reliever_buy_low,22,699823,Tyler Davis,CWS,pitcher,0.41,0.2,35,104,69,26.333333333333332,104,RELIEVER LEVERAGE GAP
+reliever_buy_low,23,691951,Sam Aldegheri,LAA,pitcher,-0.06,-0.18,104,173,69,33.666666666666664,151,RELIEVER LEVERAGE GAP
+reliever_buy_low,24,684974,Craig Yoho,MIL,pitcher,0.42,0.22000000000000003,32,98,66,23.0,89,RELIEVER LEVERAGE GAP
+reliever_buy_low,25,679358,Eric Orze,MIN,pitcher,-0.16,-0.37,129,193,64,41.333333333333336,184,RELIEVER LEVERAGE GAP
+reliever_over_valued,1,663992,Richard Lovelady,WSH,pitcher,-0.7,0.41000000000000003,225,67,-158,30.333333333333332,136,OTHER
+reliever_over_valued,2,500779,Jose Quintana,COL,pitcher,-0.67,0.3,220,79,-141,41.0,179,OTHER
+reliever_over_valued,3,680604,Blas Castano,COL,pitcher,-0.41,0.4,188,69,-119,20.666666666666668,84,OTHER
+reliever_over_valued,4,669456,Shane Bieber,TOR,pitcher,-0.54,0.23,208,94,-114,37.0,169,OTHER
+reliever_over_valued,5,669947,Jesse Scholtens,TB,pitcher,-0.34,0.3,178,79,-99,37.666666666666664,163,OTHER
+reliever_over_valued,6,573124,Taylor Rogers,MIN,pitcher,-0.5,0.14,205,110,-95,40.666666666666664,182,OTHER
+reliever_over_valued,7,678020,Seth Halvorsen,COL,pitcher,-0.47,0.19,200,106,-94,19.0,95,OTHER
+reliever_over_valued,8,663767,Chase Shugart,PHI,pitcher,-0.31,0.31,170,77,-93,38.333333333333336,163,OTHER
+reliever_over_valued,9,663776,Patrick Sandoval,BOS,pitcher,-0.37,0.24,184,91,-93,24.0,109,OTHER
+reliever_over_valued,10,670167,John Schreiber,KC,pitcher,-0.32,0.28,173,87,-86,42.666666666666664,174,OTHER
+reliever_over_valued,11,801403,Chase Dollander,COL,pitcher,-0.04,1.01,100,22,-78,44.0,188,OTHER
+reliever_over_valued,12,669212,Eli Morgan,KC,pitcher,-0.64,-0.02,218,140,-78,19.333333333333332,90,OTHER
+reliever_over_valued,13,665660,Elvis Alvarado,ATH,pitcher,-0.19,0.44,135,61,-74,35.333333333333336,145,OTHER
+reliever_over_valued,14,683352,Mitch Bratt,AZ,pitcher,-0.2,0.43,137,63,-74,27.666666666666668,120,OTHER
+reliever_over_valued,15,668941,JoJo Romero,STL,pitcher,-0.07,0.72,109,37,-72,43.0,181,OTHER
+reliever_over_valued,16,656222,Jalen Beeks,TEX,pitcher,-0.29,0.24,162,91,-71,26.0,110,OTHER
+reliever_over_valued,17,702474,Mike Paredes,MIN,pitcher,-0.31,0.21,170,102,-68,34.333333333333336,153,OTHER
+reliever_over_valued,18,666142,Cole Ragans,KC,pitcher,-0.41,0.07,188,122,-66,35.333333333333336,151,OTHER
+reliever_over_valued,19,700249,Cade Povich,BAL,pitcher,-0.1,0.54,117,52,-65,25.333333333333332,104,OTHER
+reliever_over_valued,20,669438,Mason Englert,TB,pitcher,-0.62,-0.07,216,151,-65,35.666666666666664,149,OTHER
+reliever_over_valued,21,622554,Seranthony Domínguez,CWS,pitcher,-0.26,0.29,148,85,-63,40.333333333333336,176,OTHER
+reliever_over_valued,22,669270,Joel Kuhnel,ATH,pitcher,-0.46,0.0,197,136,-61,35.333333333333336,154,OTHER
+reliever_over_valued,23,650556,Bryan Abreu,HOU,pitcher,-0.13,0.43,123,63,-60,42.0,179,OTHER
+reliever_over_valued,24,680767,Victor Vodnik,COL,pitcher,-0.64,-0.11,218,160,-58,39.0,177,OTHER
+reliever_over_valued,25,660604,Alan Rangel,PHI,pitcher,-0.28,0.22,157,99,-58,23.333333333333332,108,OTHER

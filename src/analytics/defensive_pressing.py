@@ -64,15 +64,42 @@ FROZEN_XOUT_CHECKPOINT = DEFAULT_XOUT_CHECKPOINT
 INSEASON_XOUT_CHECKPOINT = DEFAULT_MODEL_DIR / "xout_2026_inseason.pkl"
 
 
+#: Registry name for DPI's xOut artifacts in ``models/registry.json`` (WS2.1).
+REGISTRY_MODEL_NAME = "defensive_pressing"
+
+
 def resolve_scoring_checkpoint() -> Path:
     """Checkpoint production scoring should load.
 
-    Prefers the in-season retrained artifact (kept current by the nightly
-    chain; in-sample for the seasons it was trained through) and falls back
-    to the frozen validated checkpoint when no in-season artifact exists.
+    Resolution order (WS2.1):
+      1. ``models/registry.json`` ``production`` alias for
+         ``defensive_pressing`` (the in-season artifact, kept current by the
+         nightly chain; in-sample for the seasons it was trained through);
+      2. WS0.1 fallback when the registry (or its artifact) is absent:
+         the in-season constant path, then the frozen validated checkpoint.
     """
+    from src.analytics.registry import resolve_registry_artifact
+
+    registered = resolve_registry_artifact(REGISTRY_MODEL_NAME, "production")
+    if registered is not None:
+        return registered
     if INSEASON_XOUT_CHECKPOINT.exists():
         return INSEASON_XOUT_CHECKPOINT
+    return FROZEN_XOUT_CHECKPOINT
+
+
+def resolve_validation_checkpoint() -> Path:
+    """Checkpoint validation runs must load: the frozen validated artifact.
+
+    Resolves the ``frozen_validated`` registry alias first (WS2.1) and falls
+    back to the WS0.1 ``FROZEN_XOUT_CHECKPOINT`` constant when the registry
+    is absent.  Never returns the in-season artifact.
+    """
+    from src.analytics.registry import resolve_registry_artifact
+
+    registered = resolve_registry_artifact(REGISTRY_MODEL_NAME, "frozen_validated")
+    if registered is not None:
+        return registered
     return FROZEN_XOUT_CHECKPOINT
 
 # Events that count as a defensive out on a BIP
@@ -589,6 +616,18 @@ def fit_xout(
                 f"allow_frozen_overwrite=True only for a deliberate, "
                 f"documented re-freeze."
             )
+        # WS2.1 second layer: any path the registry marks frozen_validated
+        # (for ANY model) is refused, independent of the constant above.
+        if not allow_frozen_overwrite:
+            from src.analytics.registry import artifact_is_frozen_validated
+
+            if artifact_is_frozen_validated(persist_path):
+                raise RuntimeError(
+                    f"Refusing to overwrite {persist_path}: it is registered "
+                    f"as a frozen_validated artifact in models/registry.json. "
+                    f"Register a NEW version and repoint the alias for a "
+                    f"deliberate re-freeze (allow_frozen_overwrite=True)."
+                )
 
     metrics = train_expected_out_model(
         conn,

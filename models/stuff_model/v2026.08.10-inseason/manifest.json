@@ -1,0 +1,14 @@
+{
+  "artifact": "stuff_model_2026_inseason.pkl",
+  "version": "v2026.08.10-inseason",
+  "sha256": "f033b05d1e4b6b413b569ce402fe443201ffdb4003cfc087704b7383da2a3dbb",
+  "hash_policy": "advisory",
+  "created_utc": "2026-08-10T14:39:06.608727+00:00",
+  "git_sha": "925330315d4efea92e1238ffe80f8cd99e75095b",
+  "train_window": "2015-2026 (in-season, refreshed nightly)",
+  "data_snapshot": null,
+  "training_script": "scripts/daily_refresh.py::_step_retrain_model",
+  "spec_version": null,
+  "validation_results_ref": null,
+  "notes": "In-season production artifact: gitignored, retrained nightly by daily_refresh. Pickle predates the 2026-08-10 embedded-metadata format, so no training row counts are recorded (left null, not fabricated). hash_policy=advisory."
+}
