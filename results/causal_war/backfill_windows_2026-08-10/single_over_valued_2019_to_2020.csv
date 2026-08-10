@@ -1,0 +1,26 @@
+player_id,causal_war,point_estimate_per_pa,pa,trad_war,pa_total,position,ip_total,name,baseline_year,_rank_group,rank_trad,rank_model,rank_diff,hit,basis
+467100,-2.54,-0.0397,798,1.89,,pitcher,187.0,Iván Nova,2019,pitcher,94,538,-444,True,war_delta
+543699,-1.37,-0.0246,694,2.49,,pitcher,165.33333333333331,Tanner Roark,2019,pitcher,61,491,-430,True,war_delta
+592716,-3.15,-0.0705,559,1.19,,pitcher,125.33333333333333,Adrian Sampson,2019,pitcher,148,543,-395,,no_2026_record
+502190,-1.95,-0.0295,826,1.27,,pitcher,197.0,Mike Leake,2019,pitcher,138,522,-384,,no_2026_record
+605164,-1.04,-0.0186,697,2.13,,pitcher,161.66666666666666,Dylan Bundy,2019,pitcher,79,461,-382,True,war_delta
+596057,-0.69,-0.0143,605,3.09,,pitcher,144.33333333333334,Daniel Norris,2019,pitcher,38,393,-355,True,war_delta
+596001,-1.35,-0.0219,769,1.32,,pitcher,175.33333333333334,Jakob Junis,2019,pitcher,134,488,-354,True,war_delta
+452657,-2.37,-0.0392,756,0.8,,pitcher,171.66666666666666,Jon Lester,2019,pitcher,203,532,-329,True,war_delta
+605513,-0.67,-0.0127,654,2.51,,pitcher,148.33333333333334,Spencer Turnbull,2019,pitcher,59,387,-328,True,war_delta
+571927,-0.79,-0.0146,677,1.81,,pitcher,160.33333333333334,Steven Matz,2019,pitcher,97,421,-324,True,war_delta
+621107,-1.04,-0.0188,689,1.27,,pitcher,163.33333333333334,Zach Eflin,2019,pitcher,138,461,-323,False,war_delta
+595281,-1.31,-0.0329,499,2.33,480.0,batter,,Kevin Kiermaier,2019,batter,112,430,-318,True,war_delta
+572971,-0.67,-0.0163,513,2.25,,pitcher,112.66666666666667,Dallas Keuchel,2019,pitcher,70,387,-317,True,war_delta
+592351,-0.46,-0.0091,626,3.62,,pitcher,150.0,Jon Gray,2019,pitcher,25,333,-308,True,war_delta
+519144,-1.35,-0.0222,762,0.84,,pitcher,174.33333333333334,Rick Porcello,2019,pitcher,191,488,-297,True,war_delta
+570560,-1.43,-0.033,543,1.62,555.0,batter,,Yolmer Sánchez,2019,batter,154,438,-284,True,war_delta
+502481,-1.5,-0.0417,448,1.53,452.0,batter,,Jarrod Dyson,2019,batter,168,440,-272,True,war_delta
+571510,-0.31,-0.005,776,3.77,,pitcher,185.33333333333334,Matt Boyd,2019,pitcher,23,294,-271,True,war_delta
+641778,-0.69,-0.0135,641,1.36,,pitcher,149.66666666666666,Eric Lauer,2019,pitcher,127,393,-266,True,war_delta
+641712,-0.49,-0.0079,772,2.1,,pitcher,174.66666666666666,Dakota Hudson,2019,pitcher,83,340,-257,True,war_delta
+608331,-0.31,-0.0054,713,3.01,,pitcher,165.66666666666666,Max Fried,2019,pitcher,41,294,-253,True,war_delta
+453562,-1.14,-0.0244,586,0.69,,pitcher,135.66666666666666,Jake Arrieta,2019,pitcher,222,474,-252,False,war_delta
+500779,-0.96,-0.0169,712,0.81,,pitcher,171.0,Jose Quintana,2019,pitcher,197,446,-249,True,war_delta
+520471,-0.35,-0.0076,583,3.19,589.0,batter,,Freddy Galvis,2019,batter,75,320,-245,True,war_delta
+518875,-0.88,-0.0549,201,0.86,,pitcher,47.333333333333336,Shawn Kelley,2019,pitcher,188,432,-244,,no_2026_record

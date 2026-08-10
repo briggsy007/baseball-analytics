@@ -1,0 +1,26 @@
+player_id,position_type,war_agg,vol_agg,causal_war,point_estimate_per_pa,pa,war_f,name,_rank_group,rank_trad,rank_model,rank_diff,hit,basis
+592332,pitcher,5.85,366.3333333333333,-2.32,-0.0188,1543,3.05,Kevin Gausman,pitcher,58,709,-651,False,war_agg_half
+592332,pitcher,5.85,366.3333333333333,-2.32,-0.0188,1543,-0.01,Kevin Gausman,pitcher,58,709,-651,True,war_agg_half
+527048,pitcher,4.27,383.66666666666663,-3.83,-0.0292,1636,-0.04,Martín Pérez,pitcher,110,761,-651,True,war_agg_half
+527048,pitcher,4.27,383.66666666666663,-3.83,-0.0292,1636,-0.79,Martín Pérez,pitcher,110,761,-651,True,war_agg_half
+488768,pitcher,3.9299999999999997,298.66666666666663,-2.41,-0.0238,1269,0.36,Andrew Cashner,pitcher,130,716,-586,True,war_agg_half
+488768,pitcher,3.9299999999999997,298.66666666666663,-2.41,-0.0238,1269,-0.04,Andrew Cashner,pitcher,130,716,-586,True,war_agg_half
+467100,pitcher,3.84,349.0,-2.26,-0.0202,1396,-0.64,Iván Nova,pitcher,135,704,-569,True,war_agg_half
+467100,pitcher,3.84,349.0,-2.26,-0.0202,1396,0.96,Iván Nova,pitcher,135,704,-569,True,war_agg_half
+543022,pitcher,5.609999999999999,305.66666666666663,-1.36,-0.0134,1275,0.01,Tyler Chatwood,pitcher,63,593,-530,True,war_agg_half
+543022,pitcher,5.609999999999999,305.66666666666663,-1.36,-0.0134,1275,-0.36,Tyler Chatwood,pitcher,63,593,-530,True,war_agg_half
+285079,pitcher,2.55,359.66666666666663,-2.98,-0.0248,1503,,R. A. Dickey,pitcher,214,742,-528,,exit_no_followup_row
+445060,pitcher,2.3899999999999997,378.6666666666667,-3.16,-0.025,1582,,Ricky Nolasco,pitcher,235,749,-514,,exit_no_followup_row
+592314,pitcher,2.8200000000000003,277.3333333333333,-2.11,-0.0221,1192,4.25,Mike Foltynewicz,pitcher,195,693,-498,False,war_agg_half
+592314,pitcher,2.8200000000000003,277.3333333333333,-2.11,-0.0221,1192,-0.49,Mike Foltynewicz,pitcher,195,693,-498,True,war_agg_half
+605200,pitcher,5.02,354.6666666666667,-1.18,-0.0101,1458,-0.24,Zach Davies,pitcher,81,566,-485,True,war_agg_half
+595191,pitcher,4.23,325.33333333333337,-1.42,-0.013,1358,-0.01,Jerad Eickhoff,pitcher,118,603,-485,True,war_agg_half
+605200,pitcher,5.02,354.6666666666667,-1.18,-0.0101,1458,-0.15,Zach Davies,pitcher,81,566,-485,True,war_agg_half
+595191,pitcher,4.23,325.33333333333337,-1.42,-0.013,1358,-0.03,Jerad Eickhoff,pitcher,118,603,-485,True,war_agg_half
+571578,pitcher,1.9099999999999997,345.3333333333333,-4.6,-0.0385,1495,0.19,Patrick Corbin,pitcher,294,773,-479,True,war_agg_half
+571578,pitcher,1.9099999999999997,345.3333333333333,-4.6,-0.0385,1495,4.38,Patrick Corbin,pitcher,294,773,-479,False,war_agg_half
+545333,pitcher,5.0,366.33333333333337,-1.17,-0.009,1623,-0.03,Trevor Bauer,pitcher,83,560,-477,True,war_agg_half
+545333,pitcher,5.0,366.33333333333337,-1.17,-0.009,1623,6.03,Trevor Bauer,pitcher,83,560,-477,False,war_agg_half
+608665,pitcher,5.3,291.3333333333333,-1.15,-0.012,1198,-0.88,Kendall Graveman,pitcher,73,549,-476,True,war_agg_half
+607536,pitcher,3.39,156.0,-1.61,-0.0303,663,-0.21,Kyle Freeland,pitcher,159,628,-469,True,war_agg_half
+519076,pitcher,3.5300000000000002,354.6666666666667,-1.53,-0.0127,1512,,Jimmy Nelson,pitcher,153,622,-469,,exit_no_followup_row

@@ -33,9 +33,23 @@ paper over.
 
 Guardrails:
     * No model checkpoint touched.
-    * No mutation to ``src/analytics/pitchgpt_sim.py``.
     * DuckDB read_only=True throughout.
     * No commit -- PM commits after reviewing the report.
+
+Phase 0.6.2 amendments (2026-08-10, PHASE_0.6.2_PLAN.md §10):
+    * ``--season`` parameterizes the cohort (Ticket 1): 2025 = the budgeted
+      holdout (ledger-gated), 2023 = the W-fit regime sanity cohort.
+    * ``--rollout-perpos-calibration`` opts the PRIMARY predictor into the
+      rollout-regime per-position W table (replaces class_calibration +
+      pos-0 in rollout mode; teacher-forced paths untouched).
+    * ``--measure-production-ece`` measures teacher-forced per-pitch top-1
+      ECE through the shipped stacks (post-T / +class_cal / +tainted pos-0 /
+      rollout-regime T+W) on the locked A1 test-cohort recipe (§10.A2).
+    * Season-2025 runs are wrapped in a holdout-ledger contact via
+      ``src.holdout`` (budget enforced BEFORE the eval; entry appended at
+      completion — §10.A3).
+    * Output dirs are write-once: an existing metrics.json is never
+      overwritten (the committed 0.6.1 artifacts stay intact — §10.A8).
 """
 
 from __future__ import annotations
@@ -64,6 +78,7 @@ from src.analytics.pitchgpt_sim import (  # noqa: E402
     rollout,
 )
 from src.db.schema import get_connection  # noqa: E402
+from src.holdout import holdout_access  # noqa: E402
 
 logging.basicConfig(
     level=logging.INFO,
@@ -77,7 +92,9 @@ logger = logging.getLogger("pitchgpt_rollout_sanity_2025")
 # Constants
 # ─────────────────────────────────────────────────────────────────────────────
 TRAIN_RANGE = (2015, 2022)
-HOLDOUT_SEASON = 2025  # holdout-contact: historical contacts registered in docs/holdout_ledger.jsonl; any NEW run must append a new contact via src.holdout (@holdout_access / record_contact)
+DEFAULT_SEASON = 2025  # holdout-contact: 2025 runs are ledger-gated in main() via src.holdout (budget enforced pre-run, contact appended at completion); docs/holdout_ledger.jsonl
+HOLDOUT_LEDGER_DATASET = "pitchgpt_2025_pitcher_disjoint"
+HOLDOUT_LEDGER_BUDGET = 14
 N_PA_DEFAULT = 10_000
 N_SAMPLES = 100
 HORIZON = 6
@@ -133,13 +150,14 @@ def _fetch_train_pitcher_ids(conn) -> set[int]:
     return {int(p) for p in rows["pitcher_id"].tolist() if p is not None}
 
 
-def _fetch_2025_pitcher_disjoint_pa_starts(
+def _fetch_pitcher_disjoint_pa_starts(
     conn,
     train_pitchers: set[int],
+    season: int = DEFAULT_SEASON,
 ) -> pd.DataFrame:
-    """Return one row per 2025 PA (game_pk, at_bat_number, pitcher_id, batter_id)
-    representing the PA start (pitch_number=1).  The PA must be pitcher-disjoint
-    from the 2015-2022 train cohort.
+    """Return one row per PA of ``season`` (game_pk, at_bat_number, pitcher_id,
+    batter_id) representing the PA start (pitch_number=1).  The PA must be
+    pitcher-disjoint from the 2015-2022 train cohort.
 
     Columns include the PA-start context PLUS the terminal_event /
     terminal_woba so we can also compute the empirical baseline straight
@@ -174,7 +192,7 @@ def _fetch_2025_pitcher_disjoint_pa_starts(
                 woba_value,
                 description
             FROM pitches
-            WHERE EXTRACT(YEAR FROM game_date) = {HOLDOUT_SEASON}
+            WHERE EXTRACT(YEAR FROM game_date) = {season}
               AND pitch_type IS NOT NULL
               AND pitcher_id IS NOT NULL
               AND batter_id IS NOT NULL
@@ -239,29 +257,29 @@ def _fetch_2025_pitcher_disjoint_pa_starts(
     return df
 
 
-def _fetch_2025_league_median_ump_scalar(conn) -> float:
-    """Resolve the 2025 league-median ump scalar.
+def _fetch_league_median_ump_scalar(conn, season: int = DEFAULT_SEASON) -> float:
+    """Resolve the league-median ump scalar for ``season``.
 
     Per PHASE_0.5_PLAN §3.2 + the API §3.2 NULL/missing-resolution rule:
-    a missing ump_scalar resolves to season-league-median.  This is the
-    same recipe as ``_fetch_season_league_median(2025)`` -- the 2024 prior
-    season median (or 2025 same-season backstop).
+    a missing ump_scalar resolves to season-league-median.  Same recipe as
+    ``_fetch_season_league_median(season)`` -- the prior-season median (or
+    same-season backstop).
     """
     rows = conn.execute(
-        """
+        f"""
         SELECT season, MEDIAN(accuracy_above_x_wmean) AS med
         FROM umpire_tendencies
         WHERE accuracy_above_x_wmean IS NOT NULL
-          AND season IN (2024, 2025)
+          AND season IN ({season - 1}, {season})
         GROUP BY season
         """,
     ).fetchdf()
     by_season = {int(r["season"]): float(r["med"]) for _, r in rows.iterrows()}
-    # Prefer prior-season (2024); same-season backstop = 2025; else 0.0.
-    if 2024 in by_season:
-        return by_season[2024]
-    if 2025 in by_season:
-        return by_season[2025]
+    # Prefer prior-season; same-season backstop; else 0.0.
+    if season - 1 in by_season:
+        return by_season[season - 1]
+    if season in by_season:
+        return by_season[season]
     return 0.0
 
 
@@ -295,6 +313,7 @@ def _compute_empirical_baselines(df: pd.DataFrame) -> dict:
     is_k = df["terminal_event"].map(lambda e: _classify_pa_terminal(e)["is_k"]).to_numpy(dtype=bool)
     is_bb = df["terminal_event"].map(lambda e: _classify_pa_terminal(e)["is_bb"]).to_numpy(dtype=bool)
     is_hr = df["terminal_event"].map(lambda e: _classify_pa_terminal(e)["is_hr"]).to_numpy(dtype=bool)
+    is_hit = df["terminal_event"].map(lambda e: _classify_pa_terminal(e)["is_hit"]).to_numpy(dtype=bool)
 
     woba = df["terminal_woba"].astype(float).to_numpy()
     woba_valid = ~np.isnan(woba)
@@ -329,6 +348,7 @@ def _compute_empirical_baselines(df: pd.DataFrame) -> dict:
         "k_pct": _boot_mean(is_k),
         "bb_pct": _boot_mean(is_bb),
         "hr_pct": _boot_mean(is_hr),
+        "hit_pct": _boot_mean(is_hit),
         "mean_woba": _boot_mean(woba, mask=woba_valid),
         "mean_pa_length_pitches": _boot_mean(pa_len),
     }
@@ -487,6 +507,217 @@ def _gate_abs_metric(sampled: float, empirical: float, abs_tol: float) -> dict:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Production-path per-pitch ECE (Phase 0.6.2 §10.A2)
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+def _ece_from_top1(
+    top1_p: np.ndarray, correct: np.ndarray, n_bins: int = 10,
+) -> float:
+    """10-bin top-1 ECE from precomputed confidence/correctness arrays.
+
+    Mirrors ``scripts.pitchgpt_outcome_baselines_common.ece_10bin`` exactly
+    (same edges, same last-bin closure) but takes precomputed top-1 arrays so
+    the bootstrap loop is cheap.
+    """
+    n_total = top1_p.shape[0]
+    if n_total == 0:
+        return float("nan")
+    edges = np.linspace(0.0, 1.0, n_bins + 1)
+    ece = 0.0
+    for i in range(n_bins):
+        lo, hi = edges[i], edges[i + 1]
+        if i == n_bins - 1:
+            mask = (top1_p >= lo) & (top1_p <= hi)
+        else:
+            mask = (top1_p >= lo) & (top1_p < hi)
+        n = int(mask.sum())
+        if n == 0:
+            continue
+        ece += (n / n_total) * abs(
+            float(top1_p[mask].mean()) - float(correct[mask].mean())
+        )
+    return float(ece)
+
+
+def _ece_block(
+    probs: np.ndarray, targets: np.ndarray, seed: int, n_boot: int = 500,
+) -> dict:
+    """ECE point value + bootstrap 95% CI over pitches."""
+    n = probs.shape[0]
+    if n == 0:
+        return {"value": None, "ci_95_lo": None, "ci_95_hi": None, "n": 0}
+    top1_p = probs.max(axis=1)
+    correct = (probs.argmax(axis=1) == targets).astype(np.float64)
+    val = _ece_from_top1(top1_p, correct)
+    rng = np.random.default_rng(seed)
+    boots = np.empty(n_boot, dtype=np.float64)
+    for i in range(n_boot):
+        idx = rng.integers(0, n, size=n)
+        boots[i] = _ece_from_top1(top1_p[idx], correct[idx])
+    lo, hi = np.percentile(boots, [2.5, 97.5])
+    return {
+        "value": round(val, 6),
+        "ci_95_lo": round(float(lo), 6),
+        "ci_95_hi": round(float(hi), 6),
+        "n": int(n),
+        "n_boot": int(n_boot),
+    }
+
+
+def _measure_production_path_ece(args, predictor) -> dict:
+    """Teacher-forced per-pitch top-1 ECE through the shipped stacks.
+
+    Cohort = the LOCKED A1 test recipe (2025 pitcher-disjoint, 2,000 games,
+    seed DEFAULT_SEED+2=44, ``FixedGamesSequenceDataset``) — the same recipe
+    that produced the locked post-T ECE 0.0114, so stack (a) doubles as a
+    reproduction check.  Stacks (PHASE_0.6.2_PLAN.md §10.A2):
+
+        (a) post-T only
+        (b) post-T + class_calibration        (teacher-forced production)
+        (c) post-T + class_calibration + pos-0 (pre-0.6.2 rollout stack; the
+            pos-0 vector is the 2025 fit-on-holdout TAINT — record only)
+        (d) rollout-regime post-T + W[pos]     (0.6.2 replacement; only
+            pitches at within-PA positions 0..H-1 are in the rollout regime)
+
+    This measurement rides the same holdout-ledger contact as the rollout
+    evaluation (one run, one contact — §10.A3).
+    """
+    from scripts.pitchgpt_outcome_a1_concat import (  # heavy import, lazy
+        FixedGamesSequenceDataset,
+        collect_logits,
+    )
+    from scripts.pitchgpt_outcome_baselines_common import (
+        DEFAULT_SEED as A1_SEED,
+        DEFAULT_TEST_GAMES,
+        TEST_SEASONS as A1_TEST_SEASONS,
+        TRAIN_SEASONS as A1_TRAIN_SEASONS,
+        fetch_pitcher_ids,
+        sample_game_pks,
+    )
+    from src.analytics.pitchgpt_sim import _load_backbone
+
+    backbone, _bb_sha = _load_backbone("v2")
+    conn = get_connection(args.db_path, read_only=True)
+    try:
+        train_pitchers = fetch_pitcher_ids(conn, A1_TRAIN_SEASONS)
+        test_pks = sample_game_pks(
+            conn, A1_TEST_SEASONS, max_games=DEFAULT_TEST_GAMES,
+            exclude_pitcher_ids=train_pitchers, seed=A1_SEED + 2,
+        )
+        logger.info(
+            "[prod-ECE] A1 test recipe: %d games (seed %d), building dataset...",
+            len(test_pks), A1_SEED + 2,
+        )
+        ds = FixedGamesSequenceDataset(
+            conn, game_pks=test_pks, exclude_pitcher_ids=train_pitchers,
+            max_seq_len=256, context_dim=backbone.context_dim,
+        )
+    finally:
+        conn.close()
+
+    device = next(backbone.parameters()).device
+    dump = collect_logits(
+        backbone, predictor.head, ds, batch_size=32, device=device,
+    )
+    logits = dump["logits"].astype(np.float64)
+    targets = dump["targets"]
+    row_keys = dump["row_keys"]
+    n_pitches = int(logits.shape[0])
+    logger.info("[prod-ECE] %d teacher-forced pitches collected.", n_pitches)
+
+    T = float(predictor.temperature)
+    z = logits / max(T, 1e-8)
+    z = z - z.max(axis=1, keepdims=True)
+    probs_T = np.exp(z)
+    probs_T /= probs_T.sum(axis=1, keepdims=True)
+
+    def _renorm_vec(p: np.ndarray, w: np.ndarray) -> np.ndarray:
+        q = p * w[None, :]
+        return q / np.clip(q.sum(axis=1, keepdims=True), 1e-12, None)
+
+    out: dict = {
+        "cohort_desc": (
+            f"A1 locked test recipe: 2025 pitcher-disjoint, "
+            f"{DEFAULT_TEST_GAMES} games, seed {A1_SEED + 2}, "
+            "FixedGamesSequenceDataset (first pitch of each game-pitcher "
+            "sequence not scored, per the A1 next-pitch alignment)"
+        ),
+        "temperature": T,
+        "n_pitches": n_pitches,
+        "ece_post_T": _ece_block(probs_T, targets, seed=args.seed + 300),
+    }
+
+    # (b) + (c): class_calibration and the tainted pos-0 vector, read from
+    # their canonical on-disk artifacts (NOT from the predictor state, which
+    # may have them disabled/bypassed).
+    a1_json_path = _ROOT / "models" / "calibration_pitchgpt_v2_outcomehead_a1.json"
+    pos0_path = _ROOT / "models" / "calibration_class_marginal_pos0.npz"
+    try:
+        with a1_json_path.open(encoding="utf-8") as fh:
+            cc = np.asarray(
+                json.load(fh)["class_calibration"], dtype=np.float64,
+            )
+        probs_T_cc = _renorm_vec(probs_T, cc)
+        out["ece_post_T_class_cal"] = _ece_block(
+            probs_T_cc, targets, seed=args.seed + 301,
+        )
+    except (OSError, KeyError, json.JSONDecodeError) as exc:
+        logger.warning("[prod-ECE] class_calibration unavailable: %s", exc)
+        out["ece_post_T_class_cal"] = {"value": None, "error": str(exc)}
+        probs_T_cc = None
+    if probs_T_cc is not None and pos0_path.exists():
+        try:
+            pos0 = np.asarray(
+                np.load(pos0_path, allow_pickle=False)["class_calibration_pos0"],
+                dtype=np.float64,
+            )
+            probs_T_cc_pos0 = _renorm_vec(probs_T_cc, pos0)
+            out["ece_post_T_class_cal_pos0_tainted"] = _ece_block(
+                probs_T_cc_pos0, targets, seed=args.seed + 302,
+            )
+            out["pos0_taint_note"] = (
+                "pos-0 vector was FIT on the 2025 pitcher-disjoint cohort "
+                "(fit-on-holdout taint, PHASE_0.6.2_PLAN.md §2); stack (c) "
+                "is recorded for the audit record only."
+            )
+        except Exception as exc:  # corrupt npz
+            out["ece_post_T_class_cal_pos0_tainted"] = {
+                "value": None, "error": str(exc),
+            }
+    else:
+        out["ece_post_T_class_cal_pos0_tainted"] = {"value": None}
+
+    # (d) rollout-regime stack: T + W[pos], positions 0..H-1 only.
+    W_t = getattr(predictor, "_rollout_perpos_W", None)
+    if W_t is not None:
+        W = W_t.detach().cpu().numpy().astype(np.float64)
+        positions = row_keys[:, 3].astype(np.int64) - 1  # pitch_number 1-based
+        in_regime = (positions >= 0) & (positions < W.shape[0])
+        n_regime = int(in_regime.sum())
+        if n_regime > 0:
+            p_sub = probs_T[in_regime]
+            w_rows = W[positions[in_regime]]
+            q = p_sub * w_rows
+            q /= np.clip(q.sum(axis=1, keepdims=True), 1e-12, None)
+            out["ece_rollout_regime_T_W"] = _ece_block(
+                q, targets[in_regime], seed=args.seed + 303,
+            )
+            out["ece_rollout_regime_T_W"]["positions_scored"] = (
+                f"0..{W.shape[0] - 1} (within-PA); "
+                f"{n_regime}/{n_pitches} pitches in regime"
+            )
+        else:
+            out["ece_rollout_regime_T_W"] = {"value": None}
+    else:
+        out["ece_rollout_regime_T_W"] = {
+            "value": None,
+            "note": "rollout-perpos W not loaded (flag off)",
+        }
+    return out
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Main
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -508,37 +739,142 @@ def main() -> int:
     parser.add_argument("--seed", type=int, default=SEED_ROOT)
     parser.add_argument("--db-path", type=str, default=None)
     parser.add_argument(
+        "--season",
+        type=int,
+        default=DEFAULT_SEASON,
+        help="Cohort season (Phase 0.6.2 Ticket 1). 2025 = the budgeted "
+             "holdout (ledger-gated); 2023 = the W-fit regime sanity cohort.",
+    )
+    parser.add_argument(
         "--output-dir",
         type=Path,
-        default=_ROOT / "results" / "pitchgpt" / "rollout_sanity_2025",
+        default=None,
+        help="Defaults to results/pitchgpt/rollout_sanity_<season>_phase062. "
+             "The committed 0.6.1 dir rollout_sanity_2025/ is never the "
+             "default (PHASE_0.6.2_PLAN.md §10.A8).",
     )
     parser.add_argument(
         "--skip-secondary",
         action="store_true",
         help="Skip the None-predictor SECONDARY run (debug only).",
     )
+    parser.add_argument(
+        "--rollout-perpos-calibration",
+        action="store_true",
+        help="Opt the PRIMARY predictor into the Phase 0.6.2 rollout-regime "
+             "per-position W table (replaces class_calibration + pos-0 in "
+             "rollout mode; teacher-forced paths untouched).",
+    )
+    parser.add_argument(
+        "--measure-production-ece",
+        action="store_true",
+        help="Measure teacher-forced per-pitch top-1 ECE through the shipped "
+             "probability stacks on the locked A1 test-cohort recipe "
+             "(PHASE_0.6.2_PLAN.md §10.A2). 2025 only.",
+    )
+    parser.add_argument(
+        "--overwrite-output",
+        action="store_true",
+        help="Allow overwriting an existing metrics.json in the output dir "
+             "(dev reruns only; the 2025 evaluation must be write-once).",
+    )
     args = parser.parse_args()
+    season = int(args.season)
 
+    if args.output_dir is None:
+        args.output_dir = (
+            _ROOT / "results" / "pitchgpt" / f"rollout_sanity_{season}_phase062"
+        )
+    metrics_path = Path(args.output_dir) / "metrics.json"
+    if metrics_path.exists() and not args.overwrite_output:
+        raise RuntimeError(
+            f"Refusing to overwrite existing artifacts at {metrics_path} "
+            "(write-once output dirs, PHASE_0.6.2_PLAN.md §10.A8).  Pick a "
+            "new --output-dir or pass --overwrite-output for dev reruns."
+        )
+
+    result_holder: dict = {}
+
+    def _run() -> dict:
+        payload = _execute(args, season)
+        result_holder["payload"] = payload
+        g = payload["gates"]
+        revealed = {
+            "K_pct": g["k_pct"]["sampled"],
+            "BB_pct": g["bb_pct"]["sampled"],
+            "HR_pct": g["hr_pct"]["sampled"],
+            "wOBA": g["mean_woba"]["sampled"],
+            "PA_length": g["mean_pa_length_pitches"]["sampled"],
+            "calibration_valid_coverage": g["calibration_valid_coverage"]["sampled"],
+            "overall_pass": payload["overall_pass"],
+        }
+        ece = payload.get("production_path_ece")
+        if isinstance(ece, dict):
+            for key in (
+                "ece_post_T",
+                "ece_post_T_class_cal",
+                "ece_post_T_class_cal_pos0_tainted",
+                "ece_rollout_regime_T_W",
+            ):
+                if key in ece and isinstance(ece[key], dict):
+                    revealed[f"per_pitch_{key}"] = ece[key].get("value")
+        return revealed
+
+    if season == 2025:
+        # Phase 0.6.2 §10.A3: the evaluation itself is the ledger contact.
+        # Budget (14) is enforced BEFORE any rollout runs; the contact entry
+        # is appended at completion, before any results doc is written.
+        purpose = (
+            "Phase 0.6.2 single 2025 evaluation (pre-registered "
+            "PHASE_0.6.2_PLAN.md §5 + §10 amendments: "
+            f"n_pa={args.n_pa}, n_samples={args.n_samples}, "
+            f"seed={args.seed}, rollout_perpos_calibration="
+            f"{bool(args.rollout_perpos_calibration)}, production_path_ece="
+            f"{bool(args.measure_production_ece)})"
+        )
+        gated = holdout_access(
+            dataset=HOLDOUT_LEDGER_DATASET,
+            purpose=purpose,
+            budget=HOLDOUT_LEDGER_BUDGET,
+            metrics=["K%", "BB%", "HR%", "wOBA", "PA-length"],
+        )(_run)
+        gated()
+    else:
+        logger.info(
+            "Season %d is not a ledger-registered holdout tier "
+            "(2023 = W-fit regime / dev); no ledger contact recorded.",
+            season,
+        )
+        _run()
+
+    payload = result_holder["payload"]
+    return 0 if payload["overall_pass"] else 1
+
+
+def _execute(args, season: int) -> dict:
+    """Run the full sanity evaluation and return the metrics payload."""
     args.output_dir.mkdir(parents=True, exist_ok=True)
     logger.info(
-        "Phase 0.6 sanity start: n_pa=%d  n_samples=%d  horizon=%d  T=%.3f  seed=%d",
-        args.n_pa, args.n_samples, args.horizon, args.temperature, args.seed,
+        "Phase 0.6.2 sanity start: season=%d  n_pa=%d  n_samples=%d  "
+        "horizon=%d  T=%.3f  seed=%d  perpos_W=%s",
+        season, args.n_pa, args.n_samples, args.horizon, args.temperature,
+        args.seed, bool(args.rollout_perpos_calibration),
     )
 
-    # ── 1. Pull 2025 pitcher-disjoint PA-start cohort ───────────────────────
+    # ── 1. Pull pitcher-disjoint PA-start cohort ────────────────────────────
     conn = get_connection(args.db_path, read_only=True)
     try:
         train_pitchers = _fetch_train_pitcher_ids(conn)
         logger.info("Train (2015-2022) pitcher cohort: %d pitchers", len(train_pitchers))
-        df_pas = _fetch_2025_pitcher_disjoint_pa_starts(conn, train_pitchers)
-        league_median_ump = _fetch_2025_league_median_ump_scalar(conn)
+        df_pas = _fetch_pitcher_disjoint_pa_starts(conn, train_pitchers, season)
+        league_median_ump = _fetch_league_median_ump_scalar(conn, season)
     finally:
         conn.close()
 
     n_total_pas = len(df_pas)
     logger.info(
-        "2025 pitcher-disjoint PAs available: %d  (league-median ump scalar: %.5f)",
-        n_total_pas, league_median_ump,
+        "%d pitcher-disjoint PAs available: %d  (league-median ump scalar: %.5f)",
+        season, n_total_pas, league_median_ump,
     )
     if n_total_pas < args.n_pa:
         raise RuntimeError(
@@ -587,8 +923,14 @@ def main() -> int:
     logger.info("Sampled %d PA starts (seed=%d)", args.n_pa, args.seed)
 
     # ── 4. PRIMARY run -- PGConcatHeadPredictor ─────────────────────────────
-    logger.info("Loading PGConcatHeadPredictor (A1)...")
-    predictor = PGConcatHeadPredictor()
+    logger.info(
+        "Loading PGConcatHeadPredictor (A1)%s...",
+        " with rollout-regime per-position W"
+        if args.rollout_perpos_calibration else "",
+    )
+    predictor = PGConcatHeadPredictor(
+        use_rollout_perpos_calibration=bool(args.rollout_perpos_calibration),
+    )
     backbone_sha = None  # set by first rollout's sampling_metadata
     a1_checkpoint_sha = predictor.checkpoint_sha256
     a1_checkpoint_path = Path(_ROOT / "models" / "pitchgpt_v2_outcomehead_a1.pt")
@@ -646,7 +988,7 @@ def main() -> int:
     # ``results/pitchgpt/rollout_sanity_2025/empirical_baselines_2025.json``,
     # of which ~3.21% is HR -- so HR-given-hit ≈ 0.1447 league-wide.  We
     # surface this assumption explicitly in the report.
-    hits_pct_emp = _hits_pct_from_emp(empirical)
+    hits_pct_emp = _hits_pct_from_emp(empirical, season)
     hr_given_hit = (
         empirical["hr_pct"]["value"] / hits_pct_emp
     ) if hits_pct_emp > 1e-9 else 0.144
@@ -813,16 +1155,36 @@ def main() -> int:
         "a1_size_matches": (a1_checkpoint_path.stat().st_size == 151289),
     }
 
+    # ── 8b. Production-path per-pitch ECE (Phase 0.6.2 §10.A2) ──────────────
+    production_ece: dict | None = None
+    if args.measure_production_ece:
+        logger.info("Measuring production-path per-pitch ECE (teacher-forced)...")
+        t_ece0 = time.perf_counter()
+        production_ece = _measure_production_path_ece(args, predictor)
+        production_ece["wall_clock_seconds"] = round(
+            time.perf_counter() - t_ece0, 1
+        )
+        logger.info(
+            "Production-path ECE complete in %.1fs",
+            production_ece["wall_clock_seconds"],
+        )
+
     # ── 9. Emit metrics.json + report.md ────────────────────────────────────
     metrics_payload = {
         "timestamp_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-        "spec": "docs/pitchgpt_sim_engine/PHASE_0.5_PLAN.md §3 + §6.3 / §6.4 / §6.6",
+        "spec": (
+            "docs/pitchgpt_sim_engine/PHASE_0.5_PLAN.md §3 + §6.3 / §6.4 / "
+            "§6.6; PHASE_0.6.2_PLAN.md §5 + §10 amendments"
+        ),
         "args": {
             "n_pa": args.n_pa,
             "n_samples": args.n_samples,
             "horizon": args.horizon,
             "temperature": args.temperature,
             "seed": args.seed,
+            "season": season,
+            "rollout_perpos_calibration": bool(args.rollout_perpos_calibration),
+            "measure_production_ece": bool(args.measure_production_ece),
         },
         "device": "cuda" if cuda else "cpu",
         "wall_clock": {
@@ -834,13 +1196,17 @@ def main() -> int:
             "empirical_seconds": round(emp_dt, 1),
         },
         "cohort": {
-            "season": HOLDOUT_SEASON,
+            "season": season,
             "n_pas_total_eligible": int(n_total_pas),
             "n_pas_sampled": int(args.n_pa),
-            "league_median_ump_scalar_2025": round(float(league_median_ump), 6),
+            "league_median_ump_scalar": round(float(league_median_ump), 6),
             "pitcher_disjoint_from_train_seasons": "2015-2022",
             "n_train_pitchers_excluded": len(train_pitchers),
         },
+        "rollout_perpos_calibration": (
+            dict(predictor.rollout_perpos_meta)
+            if predictor.rollout_perpos_meta else None
+        ),
         "empirical": empirical,
         "primary": primary_metrics,
         "secondary": secondary_metrics,
@@ -848,6 +1214,7 @@ def main() -> int:
         "overall_pass": overall_pass,
         "woba_decomposition": woba_decomposition,
         "checkpoint_integrity": sha_check,
+        "production_path_ece": production_ece,
     }
 
     metrics_path = args.output_dir / "metrics.json"
@@ -861,7 +1228,7 @@ def main() -> int:
 
     # ── 10. Console summary ─────────────────────────────────────────────────
     print("\n" + "=" * 78)
-    print("Phase 0.6 Rollout Sanity 2025 -- Summary")
+    print(f"Phase 0.6.2 Rollout Sanity {season} -- Summary")
     print("=" * 78)
     print(f"PRIMARY wall clock: {t_primary_total:.1f}s  ({args.n_pa} PA x {args.n_samples} samples x H={args.horizon})")
     if not args.skip_secondary:
@@ -881,31 +1248,52 @@ def main() -> int:
         f"(>= {CAL_VALID_COVERAGE_GATE} -> "
         f"{'PASS' if gates['calibration_valid_coverage']['pass'] else 'FAIL'})",
     )
+    if production_ece is not None:
+        print("Production-path per-pitch top-1 ECE (teacher-forced, 10-bin):")
+        for key in (
+            "ece_post_T",
+            "ece_post_T_class_cal",
+            "ece_post_T_class_cal_pos0_tainted",
+            "ece_rollout_regime_T_W",
+        ):
+            blk = production_ece.get(key)
+            if isinstance(blk, dict) and blk.get("value") is not None:
+                print(
+                    f"  {key:<40} {blk['value']:.4f}  "
+                    f"[{blk['ci_95_lo']:.4f}, {blk['ci_95_hi']:.4f}]  "
+                    f"(n={blk['n']})"
+                )
     print(f"OVERALL: {'PASS' if overall_pass else 'FAIL'}")
     print("=" * 78)
-    return 0 if overall_pass else 1
+    return metrics_payload
 
 
-def _hits_pct_from_emp(empirical: dict) -> float:
-    """Hit% = 1B + 2B + 3B + HR fraction.  Sourced from
-    ``results/pitchgpt/rollout_sanity_2025/empirical_baselines_2025.json``
-    if present; else estimated from this run's empirical dict.
+def _hits_pct_from_emp(empirical: dict, season: int = DEFAULT_SEASON) -> float:
+    """Hit% = 1B + 2B + 3B + HR fraction.
 
-    Locked Phase 0.6 uses the empirical_baselines_2025.json value
-    (0.22177 = 22.18%) per the prep doc.  For robustness we read it back
-    from disk if present, falling back to the in-memory value.
+    Season 2025 keeps its LOCKED source
+    (``results/pitchgpt/rollout_sanity_2025/empirical_baselines_2025.json``,
+    hit% 0.22177 per the Phase 0.6 prep doc) so the pre-registered gate
+    mechanics are unchanged.  Any other season (e.g. the 2023 fit-regime
+    sanity, PHASE_0.6.2_PLAN.md §10.A8) computes hit% in-run from this
+    run's own empirical cohort -- that file is a 2025-only referent.
     """
-    p = _ROOT / "results" / "pitchgpt" / "rollout_sanity_2025" / "empirical_baselines_2025.json"
-    if p.exists():
-        try:
-            with p.open(encoding="utf-8") as fh:
-                eb = json.load(fh)
-            return float(eb["league_rates"]["hit_pct"]["value"])
-        except (OSError, KeyError, json.JSONDecodeError):
-            pass
-    # Fallback: same empirical pass we computed.  hit_pct is not in our
-    # quick empirical dict (we kept it minimal) -- estimate via HR / 0.144.
-    return 0.222
+    if season == 2025:
+        p = _ROOT / "results" / "pitchgpt" / "rollout_sanity_2025" / "empirical_baselines_2025.json"
+        if p.exists():
+            try:
+                with p.open(encoding="utf-8") as fh:
+                    eb = json.load(fh)
+                return float(eb["league_rates"]["hit_pct"]["value"])
+            except (OSError, KeyError, json.JSONDecodeError):
+                pass
+        # Historical fallback (pre-0.6.2 behavior preserved for 2025).
+        return 0.222
+    # Non-2025 seasons: in-run empirical hit%.
+    try:
+        return float(empirical["hit_pct"]["value"])
+    except (KeyError, TypeError):
+        return 0.222
 
 
 def _write_report(path: Path, payload: dict) -> None:
@@ -920,17 +1308,30 @@ def _write_report(path: Path, payload: dict) -> None:
     woba_decomp = payload["woba_decomposition"]
     overall_pass = payload["overall_pass"]
 
+    season = cohort.get("season", DEFAULT_SEASON)
     lines: list[str] = []
-    lines.append("# PitchGPT Phase 0.6 Rollout Sanity 2025 -- Report\n")
+    lines.append(f"# PitchGPT Phase 0.6.2 Rollout Sanity {season} -- Report\n")
     lines.append(f"Generated: {payload['timestamp_utc']}\n")
     lines.append(f"Spec: `{payload['spec']}`\n")
     lines.append("")
     lines.append("## Configuration\n")
     lines.append(f"- n_pa = **{args['n_pa']}**, n_samples = **{args['n_samples']}**, horizon = **{args['horizon']}**, T = **{args['temperature']:.3f}**, seed = **{args['seed']}**")
-    lines.append(f"- Cohort: 2025 pitcher-disjoint from train (2015-2022 excluded {cohort['n_train_pitchers_excluded']} pitchers)")
+    lines.append(f"- Cohort: {season} pitcher-disjoint from train (2015-2022 excluded {cohort['n_train_pitchers_excluded']} pitchers)")
     lines.append(f"- Total eligible PAs in cohort: {cohort['n_pas_total_eligible']}; sampled: {cohort['n_pas_sampled']}")
-    lines.append(f"- League-median ump scalar (2024 prior season): {cohort['league_median_ump_scalar_2025']}")
+    lines.append(f"- League-median ump scalar (prior-season median): {cohort['league_median_ump_scalar']}")
     lines.append(f"- Device: {payload['device']}")
+    w_meta = payload.get("rollout_perpos_calibration")
+    if w_meta:
+        lines.append(
+            f"- Rollout-regime per-position W: `{w_meta['path']}` "
+            f"(sha256 `{w_meta['sha256'][:16]}...`, fit_cohort_season="
+            f"{w_meta['fit_cohort_season']}, iterations="
+            f"{w_meta['n_iterations']}, converged={w_meta['converged']}) — "
+            "REPLACES class_calibration + pos-0 in rollout mode "
+            "(PHASE_0.6.2_PLAN.md §3)."
+        )
+    else:
+        lines.append("- Rollout-regime per-position W: OFF (legacy stack)")
     lines.append("")
     lines.append("## Wall clock\n")
     lines.append(f"- PRIMARY (PGConcatHeadPredictor, 10K x 100 samples x H=6): **{wc['primary_seconds']:.1f}s**")
@@ -1095,6 +1496,35 @@ def _write_report(path: Path, payload: dict) -> None:
     lines.append(f"Backbone recomputed SHA: `{sha['backbone_sha256_recomputed']}`")
     lines.append(f"A1 runtime SHA: `{sha['a1_sha256_runtime']}`")
     lines.append("")
+    ece = payload.get("production_path_ece")
+    if isinstance(ece, dict):
+        lines.append("## Production-path per-pitch top-1 ECE (Phase 0.6.2 §10.A2)\n")
+        lines.append(
+            "Teacher-forced, 10-bin top-1 ECE on the locked A1 test-cohort "
+            f"recipe ({ece.get('cohort_desc', 'A1 test recipe')}; "
+            f"n = {ece.get('n_pitches', '?')} pitches).  The locked per-pitch "
+            "claim (0.0114) was measured post-T only; the stacks below are "
+            "the probabilities actually shipped."
+        )
+        lines.append("")
+        lines.append("| Stack | ECE | 95% CI | n |")
+        lines.append("|---|---|---|---|")
+        for key, label in [
+            ("ece_post_T", "post-T only (locked-claim reference)"),
+            ("ece_post_T_class_cal", "post-T + class_calibration (teacher-forced production)"),
+            ("ece_post_T_class_cal_pos0_tainted", "post-T + class_cal + pos-0 (pre-0.6.2 rollout stack; pos-0 TAINTED: fit on 2025)"),
+            ("ece_rollout_regime_T_W", "rollout-regime post-T + W[pos] (0.6.2 replacement; positions 0-5)"),
+        ]:
+            blk = ece.get(key)
+            if isinstance(blk, dict) and blk.get("value") is not None:
+                lines.append(
+                    f"| {label} | {blk['value']:.4f} | "
+                    f"[{blk['ci_95_lo']:.4f}, {blk['ci_95_hi']:.4f}] | "
+                    f"{blk['n']} |"
+                )
+            else:
+                lines.append(f"| {label} | n/a | -- | -- |")
+        lines.append("")
     lines.append("## Cross-references\n")
     lines.append("- API spec: `docs/pitchgpt_sim_engine/SIM_ENGINE_API.md` §3, §4, §5, §6, §9.")
     lines.append("- Phase plan: `docs/pitchgpt_sim_engine/PHASE_0.5_PLAN.md` §3, §6.3 / §6.4 / §6.6 / §6.8 / §6.9.")

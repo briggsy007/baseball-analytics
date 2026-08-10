@@ -46,14 +46,23 @@ VIEWS_DIR = REPO_ROOT / "src" / "dashboard" / "views"
 # The bare "%" trigger is implemented as the decimal-percent / ratio number
 # rules below so that Streamlit format specs (":.1%", "%.3f") and UI prose
 # ("0-100%") do not false-positive.
+# 2026-08-10 (WS5.0 carry-over from the Batch B critic): Brier / wOBA /
+# perplexity added — pick-ledger Brier scores, PitchGPT wOBA gate numbers and
+# perplexity deltas are exactly the marquee-number shapes the guard exists
+# for.  ``wOBA`` matches the DISPLAY form only (case-sensitive via the scoped
+# (?-i:) group): the lowercase ``woba`` identifier appears throughout view
+# code next to harmless defaults/thresholds (bullpen.py, phillies.py) and
+# would be pure false positives.
 _KEYWORD = re.compile(
     r"(\bECE\b|\bAUC\b|hit[ -]rate|\br\s*=\s*[-+0-9.]|\brho\s*=\s*[-+0-9.]"
-    r"|correlat|calibrat|log[-_ ]loss|\bCI\s*\[)",
+    r"|correlat|calibrat|log[-_ ]loss|\bCI\s*\[|\bBrier\b|(?-i:\bwOBA\b)"
+    r"|perplexit)",
     re.IGNORECASE,
 )
 # Hardcoded decimal literal (0.6406, 2.34, ...). Excludes %-suffixed matches
-# (handled by _PCT_DECIMAL) and the trivial 0.0 / 1.0 defaults.
-_DECIMAL = re.compile(r"(?<![\w.])\d+\.\d+(?![\d%])")
+# (handled by _PCT_DECIMAL), the trivial 0.0 / 1.0 defaults, and f-suffixed
+# printf/format specs ("%+0.2f" — 2026-08-10, wOBA-keyword extension).
+_DECIMAL = re.compile(r"(?<![\w.])\d+\.\d+(?![\d%f])")
 _TRIVIAL_DECIMALS = {"0.0", "1.0"}
 # Decimal percent literal (68.4%, 77.5%). The lookbehind rejects format
 # specs like ":.1%" and attribute-ish contexts.
@@ -254,10 +263,24 @@ def test_drift_guard_scanner_still_has_teeth():
     assert _line_is_flagged('"post-temperature ECE 0.0114 on holdout"')
     assert _line_is_flagged('"intention-to-treat is 13/25 = 52%"')
     assert _line_is_flagged('"DPI vs OAA r = 0.6406 in 2025"')
+    # 2026-08-10 keyword extension: Brier / wOBA / perplexity literals.
+    assert _line_is_flagged('"rolling Brier score 0.187 across the ledger"')
+    assert _line_is_flagged('"mean wOBA 0.3188 vs empirical 0.312"')
+    assert _line_is_flagged('"perplexity delta 2.57 vs the 10K LSTM"')
     # ...and does not flag routine formatting / UI code.
     assert not _line_is_flagged('f"{row.get(\'sb_attempt_rate\', 0):.1%}"')
     assert not _line_is_flagged('"Fatigue Score (0-100%) accounts for rest"')
     assert not _line_is_flagged("marker=dict(size=4, opacity=0.6),")
+    # keyword without a non-trivial decimal stays clean (no false positive).
+    assert not _line_is_flagged('"Brier score of the pick ledger"')
+    assert not _line_is_flagged('st.metric("mean wOBA", woba_str)')
+    assert not _line_is_flagged('"perplexity vs baselines (see results doc)"')
+    # lowercase `woba` identifiers next to code defaults are NOT display-form
+    # wOBA claims (case-sensitive keyword) — zero new false positives.
+    assert not _line_is_flagged('woba = result.get("woba", 0.320)')
+    assert not _line_is_flagged("if woba >= 0.370:")
+    # printf/format specs next to a wOBA label are not claim literals.
+    assert not _line_is_flagged('"wOBA delta / pitch (x1000)", format="%+0.2f"')
 
 
 # ---------------------------------------------------------------------------
@@ -308,3 +331,27 @@ def test_bounded_retracted_numbers_only_on_annotated_lines(marker):
 def test_registry_file_lives_at_expected_path():
     assert REGISTRY_PATH == REPO_ROOT / "docs" / "claims" / "claims.yaml"
     assert REGISTRY_PATH.exists()
+
+
+# ---------------------------------------------------------------------------
+# NORTH_STAR_CURRENT citations (WS5.0 carry-over from the Batch B critic)
+# ---------------------------------------------------------------------------
+
+_NS_CURRENT = REPO_ROOT / "docs" / "NORTH_STAR_CURRENT.md"
+_NS_CITATION = re.compile(r"\[claim:([A-Za-z0-9_]+)\]")
+
+
+def test_north_star_current_claim_citations_resolve():
+    """Every [claim:<id>] citation in docs/NORTH_STAR_CURRENT.md must resolve
+    against claims.yaml — the current-state strategy doc may not cite numbers
+    the registry does not carry."""
+    assert _NS_CURRENT.exists(), "docs/NORTH_STAR_CURRENT.md missing"
+    text = _NS_CURRENT.read_text(encoding="utf-8", errors="replace")
+    cited = _NS_CITATION.findall(text)
+    assert cited, "NORTH_STAR_CURRENT.md carries no [claim:<id>] citations"
+    known_ids = set(claim_ids())
+    unknown = sorted({c for c in cited if c not in known_ids})
+    assert not unknown, (
+        "NORTH_STAR_CURRENT.md cites claim ids missing from claims.yaml: "
+        + ", ".join(unknown)
+    )

@@ -1,0 +1,26 @@
+player_id,causal_war,point_estimate_per_pa,pa,trad_war,pa_total,position,ip_total,name,baseline_year,_rank_group,rank_trad,rank_model,rank_diff,hit,basis
+630111,1.71,0.0384,555,-0.85,563.0,batter,,Yasmany Tomás,2016,batter,415,64,351,True,war_delta
+573046,0.38,0.0217,221,-0.36,,pitcher,55.666666666666664,Mike Morin,2016,pitcher,423,127,296,True,war_delta
+592273,1.54,0.0397,486,-0.09,499.0,batter,,Brandon Drury,2016,batter,345,75,270,True,war_delta
+572888,0.23,0.0116,248,-0.41,,pitcher,60.333333333333336,Shane Greene,2016,pitcher,433,164,269,True,war_delta
+457705,1.11,0.0214,649,-0.36,675.0,batter,,Andrew McCutchen,2016,batter,374,111,263,True,war_delta
+593140,0.45,0.0208,269,-0.13,,pitcher,65.0,Michael Feliz,2016,pitcher,380,120,260,True,war_delta
+435221,0.51,0.039,164,-0.03,,pitcher,40.0,Brandon McCarthy,2016,pitcher,357,104,253,True,war_delta
+605218,1.01,0.0811,156,0.29,,pitcher,36.0,Carl Edwards,2016,pitcher,296,58,238,False,war_delta
+605177,-0.01,-0.0007,94,-0.44,,pitcher,22.666666666666668,Andrew Chafin,2016,pitcher,443,214,229,True,war_delta
+605137,0.4,0.0364,137,-0.79,152.0,batter,,Josh Bell,2016,batter,409,181,228,True,war_delta
+570267,0.87,0.0389,278,-0.19,281.0,batter,,Domingo Santana,2016,batter,355,129,226,True,war_delta
+543257,1.63,0.0528,386,0.28,389.0,batter,,Robbie Grossman,2016,batter,295,71,224,True,war_delta
+543506,0.2,0.0086,294,-0.17,,pitcher,69.66666666666667,Brandon Maurer,2016,pitcher,390,168,222,False,war_delta
+476589,-0.06,-0.003,265,-0.43,,pitcher,65.33333333333333,Adam Warren,2016,pitcher,439,221,218,True,war_delta
+430001,0.58,0.0369,197,-0.2,205.0,batter,,Rickie Weeks,2016,batter,357,151,206,True,war_delta
+605400,0.27,0.0073,469,-0.03,,pitcher,111.0,Aaron Nola,2016,pitcher,357,155,202,False,war_delta
+518715,0.17,0.0109,192,-0.1,,pitcher,48.333333333333336,Cory Gearrin,2016,pitcher,374,176,198,True,war_delta
+519293,0.39,0.0289,168,0.16999999999999998,,pitcher,40.33333333333333,Will Smith,2016,pitcher,321,126,195,,no_2026_record
+502381,0.91,0.0509,223,0.46,,pitcher,57.666666666666664,Luke Gregerson,2016,pitcher,262,67,195,False,war_delta
+553878,0.42,0.0166,317,0.19,,pitcher,77.0,Felipe Vázquez,2016,pitcher,315,122,193,True,war_delta
+527055,-0.19,-0.0136,175,-0.55,,pitcher,38.666666666666664,Arodys Vizcaíno,2016,pitcher,457,265,192,True,war_delta
+455009,0.3,0.015,248,0.11,,pitcher,60.666666666666664,Jonathan Broxton,2016,pitcher,333,142,191,False,war_delta
+544836,-0.22,-0.0135,203,-0.54,,pitcher,45.666666666666664,Enny Romero,2016,pitcher,455,271,184,True,war_delta
+608349,-0.06,-0.0052,141,-0.24,,pitcher,32.666666666666664,Corey Knebel,2016,pitcher,405,221,184,True,war_delta
+543056,0.55,0.0368,188,0.4,,pitcher,47.666666666666664,Danny Coulombe,2016,pitcher,279,99,180,True,war_delta

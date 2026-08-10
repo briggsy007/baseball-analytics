@@ -1,6 +1,9 @@
 # Phase 0.6.2 — Rollout-regime per-position class-marginal calibration
 
-**Status:** PLANNED (next session). Written 2026-08-04 after the Phase 0.6.1 A/B verdict.
+**Status:** EXECUTED 2026-08-10 — **KILLED at the §4 fit stage** (§6 first disjunct: 2023 fit
+did not converge within 2 fixed-point iterations). See §11 execution record and
+`docs/models/pitchgpt_phase062_results.md`. Originally written 2026-08-04 after the
+Phase 0.6.1 A/B verdict.
 **Owner:** 1 implementation agent + orchestrator for GPU/DB runs.
 **Prereq reading:** `COORDINATION.md` (2026-08-04 entries), `results/pitchgpt/rollout_sanity_2025{,_nocc}/report.md`, `scripts/pitchgpt_build_pos0_calibration.py`, `PGConcatHeadPredictor` in `src/analytics/pitchgpt_sim.py`.
 
@@ -138,3 +141,116 @@ Holdout-contact accounting per `docs/holdout_ledger.jsonl` (created
   scripts used `TEST_RANGE=(2024,2024)`, so section 8's "potential future
   second holdout" framing is superseded — the sealed holdout is 2026).
 - The 2026 full-season lockbox stays sealed; nothing in Phase 0.6.2 touches it.
+
+---
+
+## 10. Amendments — 2026-08-10 (WS5.0, pre-execution; append-only deviations log)
+
+Recorded BEFORE any Phase 0.6.2 fit or evaluation run, per
+`docs/plans/2026-08-10_platform_improvement_plan.md` §5.0. Sections 1–8 remain
+verbatim; where an amendment touches a section-5 parameter it says so
+explicitly. The section-6 kill criterion is NOT amended — it stands as written.
+
+**A1 — Full-cohort evaluation (amends §5 sample size only).** The single 2025
+evaluation runs on the FULL 2025 pitcher-disjoint PA-start cohort
+(**64,460 PAs**, all eligible), not the seed-42 10K subsample — every one of
+the 12 historical rollout-family contacts reused that same subsample (audit
+F-C), so the verdict number must come from the full cohort. All other §5
+parameters unchanged: 100 samples/PA, horizon 6, T=1.0, seed 42, secondary
+None-predictor bias run included. Gate bands unchanged (empirical baseline was
+always full-cohort). Measured cost basis: 10K PA = 404 s primary + 202 s
+secondary on the RTX 3050 ⇒ ~65 min expected.
+
+**A2 — Production-path ECE measured in the same run.** The shipped-probability
+per-pitch top-1 ECE has never been measured post-stack (audit §3 finding 3).
+The evaluation run additionally computes teacher-forced 10-bin top-1 ECE on
+the locked A1 test-cohort recipe (2025 pitcher-disjoint, 2,000 games, seed
+44 = DEFAULT_SEED+2, `FixedGamesSequenceDataset` + `collect_logits`) under
+four stacks: (a) post-T only — must reproduce the locked 0.0114 within noise;
+(b) post-T + `class_calibration` (teacher-forced production stack);
+(c) post-T + `class_calibration` + tainted pos-0 vector (the stack actually
+shipped in rollout mode pre-0.6.2 — recorded for the audit record only);
+(d) rollout-regime stack post-T + W[pos] on within-PA positions 0–5 (the
+0.6.2 replacement as shipped in rollout mode). Reported with bootstrap CIs;
+no new gate is created by this amendment — the numbers publish either way.
+
+**A3 — Holdout-ledger registration is part of the run.** The §5 evaluation is
+**contact #13** for `pitchgpt_2025_pitcher_disjoint` and is appended via
+`src.holdout` wired into the harness itself: budget enforced BEFORE the eval
+executes, contact entry appended at completion, before any results doc is
+written. The A2 ECE measurement rides the SAME contact (one run, one contact)
+with its metrics listed in `metrics_revealed`. The §6 attribution diagnostic,
+if triggered, is contact #14. No other 2025 contact is authorized.
+
+**A4 — Test remediation + provenance guard (K5 enforcement).** The test
+enshrining the tainted pos-0 npz as a required production artifact
+(`tests/test_pitchgpt_sim.py::test_disable_class_calibration_flag_drops_class_cal_keeps_pos0`)
+is replaced. New provenance-guard tests enforce: calibration artifacts must
+declare their fit cohort (sidecar schema extension: the W npz carries
+`fit_cohort_season`, `fit_seed`, `fit_n_pas`, `n_iterations`, `converged`,
+`produced_by`), and `PGConcatHeadPredictor` structurally REFUSES to load a
+rollout-regime W artifact whose declared `fit_cohort_season` is 2025 or 2026
+(the budgeted/lockbox eval tiers). The tainted
+`calibration_class_marginal_pos0.npz` (declares `cohort_season=2025`) stays on
+disk for replay per §3 but is bypassed by construction in the rollout-regime W
+path.
+
+**A5 — Legacy landmine removal.** `train_pitchgpt` default
+`val_seasons=[2025, 2026]` (`src/analytics/pitchgpt.py`) changes to the
+dev-safe `[2024]`; passing 2025 or 2026 now requires an explicit
+`allow_holdout_val=True` opt-in (and remains subject to the ledger). This is a
+default-safety change only; no training runs in Phase 0.6.2.
+
+**A6 — Registry registration.** The PitchGPT calibration artifacts are
+registered as write-once registry versions (pointer form, no alias changes):
+`models/pitchgpt_v2_calibration.json` (backbone T),
+`models/calibration_pitchgpt_v2_outcomehead_a1.json` (A1 head T +
+class_calibration, fit 2023 val), and the new
+`models/calibration_rollout_perpos.npz` once produced.
+
+**A7 — §4 fixed-point measurement semantics (operationalization, not a
+change).** "Iteration" counts W updates: iteration 1 = the initial ratio fit
+from the raw-T roll; iteration 2 = the single feedback update. Convergence of
+a W is adjudicated on a measurement re-roll WITH that W applied. GPU passes
+are therefore: roll-0 (raw T) → W₁; roll-1 (W₁) → if every 2023 per-position
+class marginal is within 1pp of empirical, converged at iteration 1; else
+W₂ = W₁·(empirical/roll-1), roll-2 (W₂) → within 1pp ⇒ converged at iteration
+2, otherwise the §6 kill trigger fires. No third update, no third re-roll.
+Ratio guard order per §4: <500-observation guard (W=1.0), then floor/cap
+[0.2, 5.0], then per-row geometric-mean normalization (cosmetic — the
+renormalize-after-multiply application is scale-invariant); the iteration-2
+update factor is capped the same way and the combined W re-capped.
+
+**A8 — Output isolation.** The committed 0.6.1 artifacts under
+`results/pitchgpt/rollout_sanity_2025/` are never overwritten. Phase 0.6.2
+writes: fit audit → `results/pitchgpt/rollout_calibration_fit_2023/`;
+2023 fit-regime sanity → `results/pitchgpt/rollout_sanity_2023_phase062/`;
+the single 2025 evaluation → `results/pitchgpt/rollout_sanity_2025_phase062/`.
+The harness gains a `--season` argument (Ticket 1); for season 2025 the
+HR-given-hit constant keeps its locked source
+(`rollout_sanity_2025/empirical_baselines_2025.json`, hit% 0.22177); for the
+2023 fit-regime sanity the analogous hit% is computed in-run from the 2023
+cohort (that file is a 2025-only referent).
+
+---
+
+## 11. Execution record — 2026-08-10 (append-only; §§1–8 remain verbatim)
+
+Executed per §4 + §10.A7 by `scripts/pitchgpt_fit_rollout_calibration.py` (2023
+pitcher-disjoint cohort, 19,625 eligible PAs, 10K sampled seed 42, 100 samples/PA,
+horizon 6, raw-T roll-0 → W₁ → roll-1 → W₂ → roll-2).
+
+**Outcome: KILL (§6, first disjunct).** Convergence required every 2023 per-position
+class marginal within 1.0pp of empirical within 2 iterations; measured max |delta|:
+roll-0 (raw T) 16.37pp → iteration 1 (W₁) 4.418pp → iteration 2 (W₂) 2.625pp. Phase 0.6
+closes as FAIL. No artifact shipped to `models/`; the non-converged W is quarantined at
+`results/pitchgpt/rollout_calibration_fit_2023/W_FAILED_FIT_quarantine.npz`
+(sha256 `395e6fcd16b188f58a9fc124c5ac33fded15fb8946e137a95310c5e931b27d12`).
+
+Consequences applied exactly as pre-registered: the §5 single 2025 evaluation never ran;
+holdout contact #13 was not spent (ledger note, 2026-08-10; 2025 budget stands 12/14);
+the §10.A2 production-path ECE is therefore unmeasured; the §6 attribution diagnostic
+(#14) was not triggered; §10.A6 W registration is n/a. Checkpoint SHAs byte-identical
+pre/post; DuckDB read-only throughout. Full audit:
+`results/pitchgpt/rollout_calibration_fit_2023/fit_audit.json`; verdict doc:
+`docs/models/pitchgpt_phase062_results.md`.

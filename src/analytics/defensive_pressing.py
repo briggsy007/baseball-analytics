@@ -1596,3 +1596,106 @@ def get_team_game_dpi_timeline(
             })
 
     return pd.DataFrame(rows) if rows else pd.DataFrame()
+
+
+# ---------------------------------------------------------------------------
+# WS3.3 (2026-08-10): sprint-speed feature on topped/weak contact -- DPI v2
+# experimental feature helpers.  NEW code only; nothing above this section
+# was modified.  Consumed by scripts/dpi_v2_speed_xout.py (and later the
+# C1b park/alignment work).  These helpers are pure functions: no DB access,
+# no module-state mutation, no interaction with the frozen xOut load path.
+# ---------------------------------------------------------------------------
+
+#: Statcast "weakly hit" exit-velocity ceiling (mph).  Savant's own xBA
+#: sprint-speed adjustment applies to topped/weakly-hit balls; with the
+#: features available here we approximate that cohort as
+#: ``bb_type == 'ground_ball' OR launch_speed < 59``.
+SPRINT_SPEED_WEAK_EV_MAX: float = 59.0
+
+
+def sprint_speed_applicable_mask(
+    bb_type: pd.Series,
+    launch_speed: pd.Series,
+    *,
+    weak_ev_max: float = SPRINT_SPEED_WEAK_EV_MAX,
+) -> pd.Series:
+    """Boolean mask: rows where batter sprint speed may influence the out.
+
+    Applies ONLY on grounders and weak contact (Savant xBA recipe: sprint
+    speed matters on topped/weakly-hit balls, not on flies/liners at
+    ordinary exit velocities).  ``launch_speed`` NaN rows are treated as
+    not-weak (the bb_type grounder branch can still switch them on).
+
+    Args:
+        bb_type: Statcast batted-ball type strings.
+        launch_speed: Exit velocity in mph (NaN-safe).
+        weak_ev_max: EV ceiling for the "weak contact" branch.
+
+    Returns:
+        Boolean Series indexed like the inputs.
+    """
+    ls = pd.to_numeric(launch_speed, errors="coerce")
+    is_gb = bb_type.astype(str).eq("ground_ball")
+    is_weak = ls < float(weak_ev_max)  # NaN comparisons are False
+    return (is_gb | is_weak).rename("sprint_speed_applicable")
+
+
+def build_sprint_speed_feature(
+    batter_id: pd.Series,
+    season: pd.Series,
+    bb_type: pd.Series,
+    launch_speed: pd.Series,
+    speed_map: dict[tuple[int, int], float],
+    league_mean: float,
+    *,
+    weak_ev_max: float = SPRINT_SPEED_WEAK_EV_MAX,
+) -> pd.Series:
+    """Per-BIP sprint-speed feature, active only on grounders/weak contact.
+
+    Feature semantics (WS3.3):
+      * applicable rows (see :func:`sprint_speed_applicable_mask`) get the
+        batter's same-season sprint speed from ``speed_map``, imputed with
+        the measured ``league_mean`` when the batter is absent from the
+        Savant leaderboard;
+      * non-applicable rows get the constant ``league_mean`` (neutral value
+        -- the tree learns nothing from them and, deliberately, no
+        season-level information is encoded because ONE global mean is used
+        everywhere).
+
+    Downstream models must pair this feature with a monotonic-decreasing
+    constraint (``monotonic_cst=-1``) so a faster runner can never RAISE
+    the predicted out probability.
+
+    Args:
+        batter_id: MLB batter ids (int-castable).
+        season: Season years (int-castable), aligned with ``batter_id``.
+        bb_type: Statcast batted-ball type strings.
+        launch_speed: Exit velocity mph.
+        speed_map: ``{(season, player_id): sprint_speed_ft_per_s}``.
+        league_mean: Measured league-mean sprint speed (ft/s) used for both
+            imputation and the neutral fill.  Measure it; never assume.
+        weak_ev_max: EV ceiling for the weak-contact branch.
+
+    Returns:
+        Float Series named ``sprint_speed_gbweak`` indexed like the inputs.
+    """
+    idx = batter_id.index
+    mask = sprint_speed_applicable_mask(
+        bb_type, launch_speed, weak_ev_max=weak_ev_max
+    )
+    seasons_int = pd.to_numeric(season, errors="coerce").astype("Int64")
+    batters_int = pd.to_numeric(batter_id, errors="coerce").astype("Int64")
+    speeds = pd.Series(
+        [
+            speed_map.get((int(s), int(b)), np.nan)
+            if s is not pd.NA and b is not pd.NA
+            else np.nan
+            for s, b in zip(seasons_int, batters_int)
+        ],
+        index=idx,
+        dtype=float,
+    )
+    speeds = speeds.fillna(float(league_mean))
+    out = pd.Series(float(league_mean), index=idx, dtype=float)
+    out[mask] = speeds[mask]
+    return out.rename("sprint_speed_gbweak")

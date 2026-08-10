@@ -151,9 +151,13 @@ class TestRepoLedgerIntegrity:
         assert box["unsealed"] is False
 
     def test_backfilled_2025_contacts_present(self):
+        """12 reconstructed historical contacts, then (at most) the two
+        pre-registered Phase 0.6.2 contacts (#13 evaluation, #14 attribution
+        diagnostic).  Nothing else, ever, without a logged override."""
         n = contact_count("pitchgpt_2025_pitcher_disjoint")
-        assert n == 12, (
-            f"expected the 12 reconstructed historical contacts, found {n}"
+        assert 12 <= n <= 14, (
+            f"expected 12 backfilled contacts plus at most the two "
+            f"pre-registered 0.6.2 contacts, found {n}"
         )
         entries = [
             json.loads(ln)
@@ -163,10 +167,21 @@ class TestRepoLedgerIntegrity:
         contacts = [e for e in entries if e.get("entry_type") == "contact"
                     and e.get("dataset") == "pitchgpt_2025_pitcher_disjoint"]
         nums = [c["contact_number"] for c in contacts]
-        assert nums == list(range(1, 13)), "contact numbering must be 1..12"
-        assert all(c.get("backfilled_reconstructed") for c in contacts)
+        assert nums == list(range(1, n + 1)), f"contact numbering must be 1..{n}"
+        assert all(
+            c.get("backfilled_reconstructed") for c in contacts[:12]
+        ), "the first 12 contacts are the reconstructed history"
         # the pos-0 fit-on-holdout taint is registered as a FIT contact
-        assert any("FIT" in c["purpose"] for c in contacts)
+        assert any("FIT" in c["purpose"] for c in contacts[:12])
+        # contacts 13/14 must be the live, pre-registered Phase 0.6.2 runs
+        for c in contacts[12:]:
+            assert not c.get("backfilled_reconstructed"), (
+                "contacts past #12 must be live entries, not backfills"
+            )
+            assert "0.6.2" in c.get("purpose", ""), (
+                f"contact #{c['contact_number']} is not one of the two "
+                f"pre-registered Phase 0.6.2 contacts: {c.get('purpose')!r}"
+            )
 
     def test_lockbox_contact_refused_against_repo_ledger(self):
         """The real 2026 lockbox refuses contacts today."""
@@ -179,20 +194,22 @@ class TestRepoLedgerIntegrity:
             evaluate()
 
     def test_budgeted_2025_within_budget_but_finite(self):
-        """12 spent of 14: the next pre-registered contact is allowed, the
-        15th would be refused. Verified against a COPY so the real ledger
-        gains no entries from the test suite."""
+        """The budget is 14 (12 backfills + 0.6.2 eval + attribution
+        diagnostic).  Fill a COPY of the real ledger up to 14 and verify the
+        15th contact is refused — the real ledger gains no entries from the
+        test suite."""
         import shutil
         import tempfile
 
         with tempfile.TemporaryDirectory() as td:
             led = Path(td) / "ledger.jsonl"
             shutil.copy(LEDGER_PATH, led)
-            # contacts 13 and 14 (0.6.2 eval + attribution diagnostic) fit
-            record_contact("pitchgpt_2025_pitcher_disjoint",
-                           "simulated 0.6.2 eval", ledger_path=led)
-            record_contact("pitchgpt_2025_pitcher_disjoint",
-                           "simulated attribution diagnostic", ledger_path=led)
+            # top up to the full budget of 14 (works whether the live 0.6.2
+            # contacts have landed yet or not)
+            while contact_count("pitchgpt_2025_pitcher_disjoint", led) < 14:
+                record_contact("pitchgpt_2025_pitcher_disjoint",
+                               "simulated budget filler (test copy only)",
+                               ledger_path=led)
 
             @holdout_access("pitchgpt_2025_pitcher_disjoint",
                             "15th contact", budget=14, ledger_path=led)
@@ -213,8 +230,10 @@ class TestCIGuard:
         burned/dev tier (unbudgeted).
       * VWR's ``HOLDOUT_YEAR = 2025`` is NOT flagged — retracted model,
         different dataset, not registered in the ledger.
-      * ``val_seasons=[2025, 2026]`` legacy default in
-        src/analytics/pitchgpt.py is WS5.0's remediation, tracked there.
+      * The ``val_seasons=[2025, 2026]`` legacy default in
+        src/analytics/pitchgpt.py was remediated by WS5.0 (2026-08-10):
+        default is now [2024] and holdout seasons require an explicit
+        ``allow_holdout_val=True`` opt-in.
     """
 
     PATTERNS = [

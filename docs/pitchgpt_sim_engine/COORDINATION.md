@@ -158,3 +158,32 @@ rank/differential products usable with disclosure, absolute-rate products blocke
 
 Plan for the refit: `PHASE_0.6.2_PLAN.md` (2026-08-04) — includes remediation of the pos-0
 npz 2025 fit-on-holdout taint discovered during planning.
+
+### 2026-08-10 — Phase 0.6.2 executed: KILL at the §4 fit stage (Phase 0.6 closes as FAIL)
+
+- Ran `scripts/pitchgpt_fit_rollout_calibration.py` (2023-only W fit, seed 42, 10K PAs x 100
+  samples, horizon 6). The pre-registered §6 kill criterion fired on its FIRST disjunct: the
+  fit did not converge within 2 fixed-point iterations — max per-position class-marginal
+  |delta| vs empirical: raw-T 16.37pp → iteration 1 (W1) **4.418pp** → iteration 2 (W2)
+  **2.625pp**, threshold 1.0pp. Persistent residual: ball-marginal deficit at positions 0–4
+  (reweighting is partially undone by the count-trajectory feedback loop — the exposure-bias
+  signature; the WS5 research verdict called this in advance).
+- **NO artifact shipped**: `models/calibration_rollout_perpos.npz` does not exist. The
+  non-converged W is quarantined at
+  `results/pitchgpt/rollout_calibration_fit_2023/W_FAILED_FIT_quarantine.npz` (sha256
+  395e6fcd...) with full provenance sidecar. §10.A6 registration: n/a.
+- **The §5 single 2025 evaluation NEVER RAN** (§6: "stop permanently"); holdout contact #13
+  was NOT spent — 2025 budget stands at 12/14, documented in a `docs/holdout_ledger.jsonl`
+  note entry. The §10.A2 production-path ECE rode that contact and is therefore UNMEASURED
+  (needs a new dated amendment + ledger authorization if wanted). Attribution diagnostic
+  (#14) not triggered.
+- Integrity: v2.pt + a1.pt SHA256 byte-identical pre/post (v2 = registry-pinned 6f952054...);
+  DuckDB read-only throughout; `tests/test_pitchgpt_sim.py` + `tests/test_holdout_ledger.py`
+  72 passed / 1 skipped (the skip = shipped-W provenance test, correctly absent);
+  `scripts/verify_artifacts.py` ok=19 fail=0.
+- Verdict doc: `docs/models/pitchgpt_phase062_results.md`. Per §6 the flagship claim stays
+  permanently narrowed to "per-pitch calibrated rollout engine" (post-T ECE 0.0114 claim
+  untouched by construction); PA-level absolute-rate products drop from Tier-A scope; the
+  0.6.1 wOBA/PA-length TAINTED PASSes are now permanently unresolved for v2-era PitchGPT.
+  Claims-registry/product-scope execution + any WS5.2 retrain go/no-go = Batch D
+  (orchestrator + user), per the 2026-08-10 plan §8 K5.

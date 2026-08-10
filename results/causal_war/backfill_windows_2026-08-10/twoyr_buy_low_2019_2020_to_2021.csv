@@ -1,0 +1,26 @@
+player_id,position_type,war_agg,vol_agg,causal_war,point_estimate_per_pa,pa,war_f,name,_rank_group,rank_trad,rank_model,rank_diff,hit,basis
+641627,pitcher,-0.49000000000000005,64.33333333333333,0.33,0.0152,269,,Trevor Gott,pitcher,633,228,405,,exit_no_followup_row
+453192,pitcher,-0.35,67.66666666666666,0.34,0.0139,308,-0.11,Andrew Miller,pitcher,609,226,383,True,war_agg_half
+622259,pitcher,-0.38,51.0,0.31,0.018,217,,Trey Wingenter,pitcher,613,234,379,,exit_no_followup_row
+621363,pitcher,0.01,51.666666666666664,0.76,0.0433,220,,Colin Poche,pitcher,534,158,376,,exit_no_followup_row
+520980,pitcher,0.53,86.66666666666667,1.45,0.0488,372,0.08,Pedro Báez,pitcher,425,76,349,False,war_agg_half
+571670,pitcher,0.13,71.0,0.56,0.0227,307,1.48,Dylan Floro,pitcher,508,186,322,True,war_agg_half
+664208,pitcher,-0.72,58.33333333333333,-0.15,-0.0069,268,-0.01,Phil Maton,pitcher,652,340,312,True,war_agg_half
+664208,pitcher,-0.72,58.33333333333333,-0.15,-0.0069,268,-0.020000000000000018,Phil Maton,pitcher,652,340,312,True,war_agg_half
+445276,pitcher,0.48,87.33333333333333,0.88,0.0282,389,2.46,Kenley Jansen,pitcher,432,139,293,True,war_agg_half
+445276,pitcher,0.48,87.33333333333333,0.88,0.0282,389,-0.01,Kenley Jansen,pitcher,432,139,293,False,war_agg_half
+622772,pitcher,0.18000000000000005,64.0,0.4,0.0178,279,,Jimmy Cordero,pitcher,503,213,290,,exit_no_followup_row
+650893,pitcher,-0.33,42.666666666666664,-0.12,-0.0073,207,0.23,Génesis Cabrera,pitcher,601,325,276,True,war_agg_half
+573046,pitcher,0.13,54.66666666666667,0.28,0.0165,216,,Mike Morin,pitcher,508,240,268,,exit_no_followup_row
+664854,pitcher,0.23000000000000004,48.666666666666664,0.34,0.0187,225,-0.21,Ryan Helsley,pitcher,489,226,263,False,war_agg_half
+467008,pitcher,-0.24000000000000002,44.0,-0.07,-0.0049,188,0.1,Pedro Strop,pitcher,580,317,263,True,war_agg_half
+465657,pitcher,0.95,91.33333333333333,1.44,0.0473,380,0.010000000000000009,Joakim Soria,pitcher,338,77,261,False,war_agg_half
+435622,batter,-1.5,482.0,0.68,0.0176,479,,Ian Desmond,batter,437,178,259,,exit_no_followup_row
+656322,pitcher,-0.24999999999999994,42.333333333333336,-0.12,-0.0084,183,0.42,Sam Coonrod,pitcher,581,325,256,True,war_agg_half
+656322,pitcher,-0.24999999999999994,42.333333333333336,-0.12,-0.0084,183,-0.01,Sam Coonrod,pitcher,581,325,256,True,war_agg_half
+607231,pitcher,0.77,81.33333333333333,1.02,0.0394,324,0.6199999999999999,John Gant,pitcher,371,116,255,True,war_agg_half
+607231,pitcher,0.77,81.33333333333333,1.02,0.0394,324,-0.2,John Gant,pitcher,371,116,255,False,war_agg_half
+641771,pitcher,-0.06,46.333333333333336,0.02,0.0012,196,-0.12,Chad Kuhl,pitcher,550,298,252,False,war_agg_half
+641771,pitcher,-0.06,46.333333333333336,0.02,0.0012,196,0.17,Chad Kuhl,pitcher,550,298,252,True,war_agg_half
+523260,pitcher,-0.3400000000000001,61.333333333333336,-0.2,-0.0085,295,0.78,Joe Kelly,pitcher,607,355,252,True,war_agg_half
+523260,pitcher,-0.3400000000000001,61.333333333333336,-0.2,-0.0085,295,-0.04,Joe Kelly,pitcher,607,355,252,True,war_agg_half

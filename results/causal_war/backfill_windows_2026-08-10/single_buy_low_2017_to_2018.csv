@@ -1,0 +1,26 @@
+player_id,causal_war,point_estimate_per_pa,pa,trad_war,pa_total,position,ip_total,name,baseline_year,_rank_group,rank_trad,rank_model,rank_diff,hit,basis
+461314,0.81,0.0222,456,-1.33,467.0,batter,,Matt Kemp,2017,batter,433,135,298,True,war_delta
+595032,0.64,0.034,235,0.09,,pitcher,57.333333333333336,Chase Whitley,2017,pitcher,346,95,251,False,war_delta
+606424,0.16,0.0092,223,-0.27,,pitcher,53.333333333333336,Jarlín García,2017,pitcher,428,179,249,True,war_delta
+407845,0.96,0.0538,224,0.27,,pitcher,55.333333333333336,Fernando Rodney,2017,pitcher,307,62,245,True,war_delta
+592206,1.74,0.0328,664,0.09,665.0,batter,,Nick Castellanos,2017,batter,312,69,243,True,war_delta
+623430,-0.07,-0.0053,173,-0.71,,pitcher,42.0,Ryan Dull,2017,pitcher,480,238,242,True,war_delta
+519151,0.33,0.0169,245,-0.04,,pitcher,61.333333333333336,Ryan Pressly,2017,pitcher,388,151,237,True,war_delta
+452655,0.32,0.0074,534,-1.29,542.0,batter,,Denard Span,2017,batter,431,198,233,True,war_delta
+279571,0.56,0.0287,242,0.13,,pitcher,60.333333333333336,Matt Belisle,2017,pitcher,340,110,230,False,war_delta
+608648,0.04,0.0016,300,-0.28,,pitcher,71.0,Tyler Duffey,2017,pitcher,434,213,221,False,war_delta
+571521,-0.05,-0.0066,102,-0.43,,pitcher,23.666666666666668,Rex Brothers,2017,pitcher,455,234,221,,insufficient_followup_pitcher
+434670,0.54,0.0122,558,-0.38,553.0,batter,,Hanley Ramírez,2017,batter,371,164,207,True,war_delta
+592135,-0.07,-0.0045,188,-0.32,,pitcher,44.666666666666664,Cam Bedrosian,2017,pitcher,441,238,203,True,war_delta
+547749,-0.23,-0.0125,232,-0.74,,pitcher,55.333333333333336,Junichi Tazawa,2017,pitcher,483,282,201,False,war_delta
+642564,-0.32,-0.0164,245,-0.93,,pitcher,54.333333333333336,Francis Martes,2017,pitcher,499,300,199,,no_2026_record
+628317,1.04,0.0222,582,0.56,,pitcher,134.33333333333334,Kenta Maeda,2017,pitcher,250,51,199,False,war_delta
+594795,0.05,0.0068,99,-0.13,,pitcher,23.666666666666668,Grant Dayton,2017,pitcher,406,207,199,,no_2026_record
+446899,-0.26,-0.0163,201,-0.81,,pitcher,47.0,Brad Ziegler,2017,pitcher,489,291,198,True,war_delta
+571431,0.8,0.0278,360,-0.06,367.0,batter,,Matt Adams,2017,batter,330,136,194,True,war_delta
+630111,0.4,0.0283,177,-0.44,180.0,batter,,Yasmany Tomás,2017,batter,378,184,194,,no_2026_record
+471865,0.5,0.0117,536,-0.26,534.0,batter,,Carlos González,2017,batter,361,169,192,True,war_delta
+544727,0.09,0.0105,106,-0.04,,pitcher,24.666666666666668,Jeurys Familia,2017,pitcher,388,197,191,True,war_delta
+623149,0.27,0.0124,269,0.07,,pitcher,65.33333333333333,Paul Sewald,2017,pitcher,350,161,189,False,war_delta
+544150,0.16,0.0156,132,0.0,,pitcher,31.666666666666668,Albert Suárez,2017,pitcher,368,179,189,,no_2026_record
+592779,0.16,0.0142,142,0.0,,pitcher,34.333333333333336,Brock Stewart,2017,pitcher,368,179,189,False,war_delta

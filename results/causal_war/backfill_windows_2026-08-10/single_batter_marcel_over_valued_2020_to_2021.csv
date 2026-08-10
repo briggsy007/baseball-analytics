@@ -1,0 +1,26 @@
+player_id,causal_war,point_estimate_per_pa,pa,trad_war,pa_total,position,ip_total,name,baseline_year,_rank_group,proj_woba,rank_trad,rank_model,rank_diff,hit,basis
+595281,-0.23,-0.0134,215,1.86,159.0,batter,,Kevin Kiermaier,2020,batter,0.3052610868923581,37,301,-264,False,war_delta
+643396,0.1,0.0056,228,2.09,228.0,batter,,Isiah Kiner-Falefa,2020,batter,0.32126248736244173,25,256,-231,False,war_delta
+543063,0.17,0.011,190,1.32,193.0,batter,,Brandon Crawford,2020,batter,0.31068072083787446,77,292,-215,False,war_delta
+500743,0.58,0.046,158,1.58,143.0,batter,,Miguel Rojas,2020,batter,0.32106701106284197,57,258,-201,False,war_delta
+545358,0.35,0.0423,104,1.03,105.0,batter,,Max Stassi,2020,batter,0.3059783746263019,108,300,-192,False,war_delta
+621563,-0.38,-0.0196,244,1.38,184.0,batter,,Joey Wendle,2020,batter,0.32026989754574625,74,261,-187,False,war_delta
+641487,-0.23,-0.0127,230,1.58,232.0,batter,,J. P. Crawford,2020,batter,0.3240731993129343,57,243,-186,False,war_delta
+600869,0.66,0.0405,205,2.1,206.0,batter,,Jeimer Candelario,2020,batter,0.33133214010556056,24,199,-175,False,war_delta
+455117,-0.12,-0.0072,203,0.82,165.0,batter,,Martín Maldonado,2020,batter,0.3044779358657765,133,303,-170,True,war_delta
+605113,0.07,0.0041,215,1.61,217.0,batter,,Nick Ahmed,2020,batter,0.32831796167484895,52,215,-163,True,war_delta
+572122,0.31,0.0158,245,1.17,248.0,batter,,Kyle Seager,2020,batter,0.32244603428817253,93,250,-157,False,war_delta
+607732,-0.08,-0.0067,140,1.02,143.0,batter,,Jacob Stallings,2020,batter,0.319639547871062,110,264,-154,False,war_delta
+598265,0.59,0.0347,213,2.0,217.0,batter,,Jackie Bradley,2020,batter,0.33413881550749563,29,182,-153,True,war_delta
+622534,0.37,0.0206,222,1.12,159.0,batter,,Manuel Margot,2020,batter,0.3223486469381555,100,251,-151,False,war_delta
+621020,1.06,0.0422,313,2.82,264.0,batter,,Dansby Swanson,2020,batter,0.3385734223034426,7,157,-150,True,war_delta
+543510,0.46,0.0484,118,1.31,111.0,batter,,James McCann,2020,batter,0.32664239337031836,78,227,-149,True,war_delta
+514917,0.22,0.0101,269,1.72,261.0,batter,,César Hernández,2020,batter,0.3322897482565993,45,194,-149,True,war_delta
+543333,0.26,0.0182,182,1.13,156.0,batter,,Eric Hosmer,2020,batter,0.3240930262026728,97,242,-145,False,war_delta
+605131,0.06,0.0055,130,0.68,104.0,batter,,Austin Barnes,2020,batter,0.30513917826638987,158,302,-144,True,war_delta
+571466,-0.44,-0.0477,115,0.79,110.0,batter,,Tucker Barnhart,2020,batter,0.3147403529397476,137,281,-144,True,war_delta
+570731,0.54,0.0387,176,1.28,177.0,batter,,Jonathan Schoop,2020,batter,0.32688693684984427,81,223,-142,False,war_delta
+621439,0.36,0.0325,138,2.05,135.0,batter,,Byron Buxton,2020,batter,0.3360994517952071,28,169,-141,False,war_delta
+642180,-0.38,-0.0457,105,0.7,105.0,batter,,Tyler Wade,2020,batter,0.30909147810901705,155,296,-141,True,war_delta
+543401,0.05,0.0046,139,0.83,135.0,batter,,Jason Kipnis,2020,batter,0.317977698722041,131,268,-137,,no_2026_record
+594777,0.81,0.0449,225,1.42,228.0,batter,,Kole Calhoun,2020,batter,0.33067376093162276,70,205,-135,True,war_delta

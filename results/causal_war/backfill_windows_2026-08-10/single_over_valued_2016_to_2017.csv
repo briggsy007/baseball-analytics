@@ -1,0 +1,26 @@
+player_id,causal_war,point_estimate_per_pa,pa,trad_war,pa_total,position,ip_total,name,baseline_year,_rank_group,rank_trad,rank_model,rank_diff,hit,basis
+527048,-1.44,-0.0216,836,1.98,,pitcher,198.66666666666666,Martín Pérez,2016,pitcher,92,459,-367,True,war_delta
+607680,-1.22,-0.0253,603,3.52,584.0,batter,,Kevin Pillar,2016,batter,56,411,-355,True,war_delta
+570649,-1.31,-0.0203,810,1.97,,pitcher,186.0,Yordano Ventura,2016,pitcher,94,449,-355,,no_2026_record
+547874,-0.86,-0.0132,814,2.43,,pitcher,199.0,Hisashi Iwakuma,2016,pitcher,66,403,-337,True,war_delta
+571740,-1.0,-0.029,431,3.07,460.0,batter,,Billy Hamilton,2016,batter,71,402,-331,True,war_delta
+605151,-1.56,-0.0317,614,1.26,,pitcher,141.66666666666666,Archie Bradley,2016,pitcher,141,471,-330,True,war_delta
+607074,-1.15,-0.021,685,1.74,,pitcher,165.0,Carlos Rodón,2016,pitcher,107,436,-329,True,war_delta
+518452,-1.19,-0.0187,793,1.68,,pitcher,186.0,Chad Bettis,2016,pitcher,110,439,-329,True,war_delta
+425794,-1.38,-0.0209,825,1.28,,pitcher,198.66666666666666,Adam Wainwright,2016,pitcher,137,455,-318,True,war_delta
+502043,-2.26,-0.0439,643,0.91,,pitcher,147.33333333333334,Kyle Gibson,2016,pitcher,181,498,-317,True,war_delta
+458675,-1.25,-0.0384,407,2.56,417.0,batter,,Colby Rasmus,2016,batter,98,415,-317,True,war_delta
+502624,-2.01,-0.0397,634,0.85,,pitcher,151.66666666666666,Chase Anderson,2016,pitcher,195,491,-296,True,war_delta
+448802,-1.7,-0.0293,723,0.89,,pitcher,171.66666666666666,Jaime García,2016,pitcher,186,480,-294,True,war_delta
+467100,-0.81,-0.0154,654,1.8599999999999999,,pitcher,162.0,Iván Nova,2016,pitcher,101,391,-290,True,war_delta
+456167,-1.44,-0.0363,497,1.01,,pitcher,119.0,A. J. Griffin,2016,pitcher,170,459,-289,True,war_delta
+578428,-0.93,-0.0234,496,2.33,513.0,batter,,Jose Iglesias,2016,batter,110,397,-287,True,war_delta
+501381,-1.27,-0.0211,754,1.11,,pitcher,175.66666666666666,Michael Pineda,2016,pitcher,158,445,-287,True,war_delta
+457787,-1.53,-0.0334,573,1.7,601.0,batter,,Danny Espinosa,2016,batter,150,428,-278,True,war_delta
+608665,-0.33,-0.0055,760,3.48,,pitcher,186.0,Kendall Graveman,2016,pitcher,35,306,-271,True,war_delta
+607374,-0.91,-0.0418,273,1.23,,pitcher,68.33333333333333,Nick Tropeano,2016,pitcher,143,412,-269,,no_2026_record
+592662,-1.26,-0.0209,754,0.95,,pitcher,174.33333333333334,Robbie Ray,2016,pitcher,177,444,-267,True,war_delta
+502327,-0.99,-0.0159,775,1.1099999999999999,,pitcher,182.0,Héctor Santiago,2016,pitcher,161,423,-262,True,war_delta
+543135,-0.85,-0.0204,517,1.27,,pitcher,124.66666666666667,Nathan Eovaldi,2016,pitcher,140,398,-258,,no_2026_record
+545350,-0.96,-0.04,301,1.71,311.0,batter,,Jake Marisnick,2016,batter,147,399,-252,False,war_delta
+543037,-0.71,-0.018,492,1.48,,pitcher,116.0,Gerrit Cole,2016,pitcher,120,371,-251,True,war_delta

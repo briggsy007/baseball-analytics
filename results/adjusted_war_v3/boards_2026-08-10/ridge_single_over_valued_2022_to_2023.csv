@@ -1,0 +1,26 @@
+player_id,causal_war,point_estimate_per_pa,pa,trad_war,pa_total,position,ip_total,name,baseline_year,_rank_group,adjusted_war_v3,rank_trad,rank_model,rank_diff,hit,basis
+425844,-0.06,-0.0013,584,2.51,,pitcher,137.0,Zack Greinke,2022,pitcher,-0.3664804320486939,64,468,-404,True,war_delta
+656605,0.15,0.0028,681,1.81,,pitcher,159.0,Mitch Keller,2022,pitcher,-0.4978434482315091,99,495,-396,False,war_delta
+622761,-1.53,-0.0362,529,3.72,533.0,batter,,Jorge Mateo,2022,batter,-0.7427289020474099,60,443,-383,True,war_delta
+664702,-3.19,-0.0644,619,2.71,596.0,batter,,Myles Straw,2022,batter,-1.5151477278235328,93,469,-376,True,war_delta
+471911,0.06,0.0011,638,1.25,,pitcher,152.0,Carlos Carrasco,2022,pitcher,-0.7673728802800585,145,520,-375,True,war_delta
+663647,-1.05,-0.0235,556,4.48,560.0,batter,,Ke'Bryan Hayes,2022,batter,-0.5269250321168294,34,409,-375,True,war_delta
+641540,-0.98,-0.0183,671,1.14,,pitcher,153.33333333333334,Dane Dunning,2022,pitcher,-1.0373470642443974,159,532,-373,False,war_delta
+621112,-0.1,-0.0028,462,1.32,,pitcher,111.33333333333333,Paul Blackburn,2022,pitcher,-0.5846607719009728,138,508,-370,False,war_delta
+670764,-2.9,-0.0773,468,2.53,466.0,batter,,Taylor Walls,2022,batter,-1.1757301731162184,97,466,-369,True,war_delta
+450203,0.29,0.0049,736,1.66,,pitcher,172.0,Charlie Morton,2022,pitcher,-0.37911514043831473,106,472,-366,False,war_delta
+608566,-1.06,-0.0172,776,1.37,,pitcher,181.66666666666666,Germán Márquez,2022,pitcher,-0.4878251610041665,132,493,-361,True,war_delta
+500743,-1.65,-0.0409,504,2.45,507.0,batter,,Miguel Rojas,2022,batter,-0.88692770064162,105,456,-351,True,war_delta
+669467,0.11,0.0032,452,1.65,,pitcher,108.0,Andre Pallante,2022,pitcher,-0.3123157375871329,107,453,-346,True,war_delta
+624522,0.03,0.0008,480,1.41,,pitcher,115.0,Keegan Thompson,2022,pitcher,-0.361246730346435,124,464,-340,True,war_delta
+621076,0.3,0.0066,575,1.09,,pitcher,134.0,James Kaprielian,2022,pitcher,-0.5053901383907224,162,496,-334,True,war_delta
+643396,-1.19,-0.0273,545,2.9,531.0,batter,,Isiah Kiner-Falefa,2022,batter,-0.577463584933865,85,419,-334,True,war_delta
+543135,-0.25,-0.0069,456,1.58,,pitcher,109.33333333333333,Nathan Eovaldi,2022,pitcher,-0.28808346731197504,111,441,-330,False,war_delta
+663898,0.17,0.0037,578,4.33,581.0,batter,,Brendan Rodgers,2022,batter,-0.37897327286702226,38,361,-323,True,war_delta
+663757,-1.76,-0.0392,560,2.68,524.0,batter,,Trent Grisham,2022,batter,-0.5278054313090783,94,410,-316,True,war_delta
+623167,0.67,0.0144,584,1.23,,pitcher,137.66666666666666,Chris Flexen,2022,pitcher,-0.34754563750214096,147,460,-313,True,war_delta
+543475,-0.9,-0.0146,774,0.75,,pitcher,179.0,Jordan Lyles,2022,pitcher,-1.2291671894771035,229,539,-310,True,war_delta
+645302,-1.59,-0.0502,396,1.78,407.0,batter,,Víctor Robles,2022,batter,-0.7301998971860788,144,442,-298,True,war_delta
+592662,0.69,0.011,790,2.05,,pitcher,189.0,Robbie Ray,2022,pitcher,-0.19037869128172943,85,382,-297,True,war_delta
+593423,0.45,0.0094,604,0.9700000000000001,,pitcher,144.33333333333334,Frankie Montas,2022,pitcher,-0.374941139096839,181,471,-290,True,war_delta
+608723,-0.11,-0.0031,441,0.8999999999999999,,pitcher,101.66666666666667,Austin Voth,2022,pitcher,-0.4719309453387871,202,489,-287,True,war_delta

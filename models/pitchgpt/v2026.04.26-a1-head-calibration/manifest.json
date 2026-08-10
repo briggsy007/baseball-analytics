@@ -1,0 +1,14 @@
+{
+  "artifact": "calibration_pitchgpt_v2_outcomehead_a1.json",
+  "version": "v2026.04.26-a1-head-calibration",
+  "sha256": "d7ef4944b9148c1ea8ec21536cddc4f9ec402dcb3e738af4c6b4d96c224de4f0",
+  "hash_policy": "pinned",
+  "created_utc": "2026-08-10T16:13:40.184709+00:00",
+  "git_sha": "d3dbe23ff5642dd77cac5916de3096bd936638f0",
+  "train_window": "T + class_calibration fit on 2023 val (class_calibration_val_season=2023, n=75384); ECE measured on 2025 pitcher-disjoint",
+  "data_snapshot": null,
+  "training_script": "scripts/pitchgpt_fit_class_calibration.py",
+  "spec_version": "PHASE_0.5_PLAN.md \u00a70.5.5; PHASE_0.6 class-marginal fix",
+  "validation_results_ref": "results/pitchgpt_sim/outcome_baselines_2026_04_25/a1_concat/metrics.json",
+  "notes": "WS5.0 \u00a710.A6: A1 head calibration sidecar (T=0.8003, ECE_post=0.0114, class_calibration fit 2023 val) registered write-once; no alias changes."
+}

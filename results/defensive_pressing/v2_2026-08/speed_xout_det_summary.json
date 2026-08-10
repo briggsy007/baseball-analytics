@@ -1,0 +1,103 @@
+{
+ "task": "WS3.3 sprint-speed xOut variant, deterministic rerun -- C1a",
+ "ran_at": "2026-08-10T22:11:34.343304+00:00",
+ "why_rerun": "first attempt's pull had no ORDER BY; DuckDB scan order is connection-dependent, so its 80/20 split is not reproducible. This run is the canonical WS3.3 measurement; the first attempt is reported alongside as attempt #1 (internally valid, not reproducible).",
+ "frozen_checkpoint": {
+  "path": "C:\\Users\\hunte\\projects\\baseball\\models\\defensive_pressing\\xout_v1.pkl",
+  "sha256": "e689bff6ab069474c57df6950ba3ed7d376de8b0a3a7a71861d2a96dc3d3bb39",
+  "recorded_holdout_auc": 0.8936
+ },
+ "environment": {
+  "python": "3.12.0",
+  "sklearn": "1.6.1",
+  "omp_num_threads": "6"
+ },
+ "cohort": {
+  "train_window": "2015-2022",
+  "row_order": "ORDER BY game_pk, at_bat_number (unique, asserted)",
+  "n_samples": 918292,
+  "n_train": 734633,
+  "n_test": 183659,
+  "split": "stratified 80/20, random_state 42 (frozen recipe)",
+  "note": "918,292 feature-complete rows today vs 837,571 at the 2026-04-18 freeze (interim backfills); frozen model's recorded 0.8936 AUC belongs to the April snapshot"
+ },
+ "league_mean_sprint_speed": 27.1015,
+ "holdout_auc": {
+  "frozen_as_loaded": 0.89539,
+  "control_4feat": 0.89526,
+  "variant_5feat_speed": 0.89509
+ },
+ "auc_deltas": {
+  "overall_variant_minus_control": {
+   "n": 183659,
+   "delta": -0.00018,
+   "ci95": [
+    -0.00033,
+    -1e-05
+   ]
+  },
+  "overall_variant_minus_frozen": {
+   "n": 183659,
+   "delta": -0.00031,
+   "ci95": [
+    -0.00051,
+    -0.0001
+   ]
+  },
+  "applicable_variant_minus_control": {
+   "n": 83042,
+   "delta": 0.00256,
+   "ci95": [
+    0.00199,
+    0.00315
+   ]
+  },
+  "not_applicable_variant_minus_control": {
+   "n": 100617,
+   "delta": -0.00103,
+   "ci95": [
+    -0.00116,
+    -0.00091
+   ]
+  }
+ },
+ "subset_auc": {
+  "applicable_gb_weak": {
+   "n": 83042,
+   "out_rate": 0.7385,
+   "auc_frozen": 0.80407,
+   "auc_control": 0.80304,
+   "auc_variant": 0.80559
+  },
+  "not_applicable": {
+   "n": 100617,
+   "out_rate": 0.5996,
+   "auc_frozen": 0.93386,
+   "auc_control": 0.93399,
+   "auc_variant": 0.93296
+  }
+ },
+ "monotonicity_check": {
+  "n_rows_checked": 2000,
+  "speed_grid": [
+   23.0,
+   24.5,
+   26.0,
+   27.5,
+   29.0,
+   30.5
+  ],
+  "pass": true
+ },
+ "test_predictions": "C:\\Users\\hunte\\projects\\baseball\\results\\defensive_pressing\\v2_2026-08\\speed_xout_det_test_predictions.parquet",
+ "new_artifact": {
+  "path": "C:\\Users\\hunte\\projects\\baseball\\models\\defensive_pressing\\xout_v2_speed_det_2026_08_10.pkl",
+  "sha256": "31af3e3ea5b1dc2ee24da301f17d05ebd8f01ab22306a06c6b6423c2364153e1",
+  "registry": {
+   "registered": true,
+   "version": "v2026.08.10-speed.det",
+   "sha256": "31af3e3ea5b1dc2ee24da301f17d05ebd8f01ab22306a06c6b6423c2364153e1"
+  }
+ },
+ "in_sample_oos_status": "holdout within the 2015-2022 train window (frozen recipe convention), not future-season OOS; frozen-as-loaded row may overlap its own April train split (reference only)"
+}

@@ -1,0 +1,26 @@
+player_id,causal_war,point_estimate_per_pa,pa,trad_war,pa_total,position,ip_total,name,baseline_year,_rank_group,rank_trad,rank_model,rank_diff,hit,basis
+607536,-0.94,-0.023,511,2.01,,pitcher,120.66666666666667,Kyle Freeland,2021,pitcher,90,506,-416,False,war_delta
+661269,-0.86,-0.0218,491,1.76,,pitcher,114.0,Vladimir Gutiérrez,2021,pitcher,105,501,-396,True,war_delta
+669242,-1.14,-0.0206,691,3.77,691.0,batter,,Tommy Edman,2021,batter,54,415,-361,False,war_delta
+621107,-0.46,-0.0131,438,2.0,,pitcher,105.66666666666667,Zach Eflin,2021,pitcher,92,425,-333,True,war_delta
+543294,-1.7,-0.0273,776,0.76,,pitcher,181.0,Kyle Hendricks,2021,pitcher,231,552,-321,True,war_delta
+622491,-0.09,-0.0014,789,4.18,,pitcher,187.66666666666666,Luis Castillo,2021,pitcher,20,339,-319,True,war_delta
+572191,-1.09,-0.026,526,2.95,528.0,batter,,Michael Taylor,2021,batter,99,408,-309,False,war_delta
+643396,-0.73,-0.0136,673,3.85,677.0,batter,,Isiah Kiner-Falefa,2021,batter,50,354,-304,True,war_delta
+642545,-0.83,-0.0414,250,0.9,,pitcher,56.666666666666664,Jaime Barría,2021,pitcher,207,498,-291,False,war_delta
+664058,-2.09,-0.04,653,1.6,665.0,batter,,David Fletcher,2021,batter,167,457,-290,True,war_delta
+592767,-1.15,-0.0252,570,0.7,,pitcher,126.66666666666667,Drew Smyly,2021,pitcher,241,527,-286,False,war_delta
+656546,-0.7,-0.0264,332,0.91,,pitcher,73.0,Jeff Hoffman,2021,pitcher,201,479,-278,True,war_delta
+503449,-0.19,-0.0059,397,2.05,,pitcher,93.66666666666667,Wily Peralta,2021,pitcher,85,362,-277,True,war_delta
+663460,-0.49,-0.011,556,1.26,,pitcher,130.0,Kris Bubic,2021,pitcher,152,428,-276,True,war_delta
+592743,-2.52,-0.0703,448,1.29,451.0,batter,,Andrelton Simmons,2021,batter,188,460,-272,True,war_delta
+456501,-0.74,-0.0192,478,0.86,,pitcher,114.66666666666667,Johnny Cueto,2021,pitcher,213,483,-270,False,war_delta
+673490,-1.08,-0.046,295,2.06,298.0,batter,,Ha-Seong Kim,2021,batter,139,407,-268,False,war_delta
+527048,-1.66,-0.0398,521,0.44,,pitcher,114.0,Martín Pérez,2021,pitcher,281,549,-268,False,war_delta
+593160,-0.54,-0.0093,719,3.83,720.0,batter,,Whit Merrifield,2021,batter,51,317,-266,True,war_delta
+669373,-0.22,-0.0043,633,1.75,,pitcher,149.33333333333334,Tarik Skubal,2021,pitcher,108,368,-260,True,war_delta
+642203,-0.66,-0.0262,313,0.84,,pitcher,70.33333333333333,Taylor Widener,2021,pitcher,218,476,-258,True,war_delta
+548389,-0.54,-0.0158,426,0.96,,pitcher,101.33333333333333,Ross Stripling,2021,pitcher,192,448,-256,False,war_delta
+622608,-0.12,-0.0023,664,1.87,,pitcher,156.66666666666666,Antonio Senzatela,2021,pitcher,99,349,-250,True,war_delta
+656305,-0.52,-0.0105,621,3.36,622.0,batter,,Matt Chapman,2021,batter,74,311,-237,False,war_delta
+501381,-0.15,-0.0041,454,1.55,,pitcher,109.33333333333333,Michael Pineda,2021,pitcher,121,355,-234,True,war_delta

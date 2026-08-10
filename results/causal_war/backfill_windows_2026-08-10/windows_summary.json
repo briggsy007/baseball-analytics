@@ -1,0 +1,3649 @@
+{
+  "run_utc": "2026-08-10T22:14:38.596051+00:00",
+  "protocol": "pre-registered in scripts/causal_war_backfill_windows.py docstring (written before any window was computed)",
+  "single_season_windows": [
+    {
+      "baseline_year": 2016,
+      "followup_year": 2017,
+      "nuisance_train": [
+        2015,
+        2015
+      ],
+      "oos_status": "fully-OOS (train strictly before baseline)",
+      "covid_touched": false,
+      "n_qualified_pool": 950,
+      "buy_low": {
+        "model": {
+          "side": "buy_low",
+          "n_leaderboard": 25,
+          "hits": 19,
+          "resolved_misses": 5,
+          "exits_unresolved": 1,
+          "itt": {
+            "rate": 0.76,
+            "numerator": 19,
+            "denominator": 25,
+            "voids_excluded": 0,
+            "ci95_bootstrap": [
+              0.56,
+              0.92
+            ],
+            "convention": "exit=MISS (denominator 25)"
+          },
+          "worst_case_rate": 0.76,
+          "per_protocol": {
+            "rate": 0.7917,
+            "numerator": 19,
+            "denominator": 24
+          }
+        },
+        "matched_naive_itt": {
+          "rate_itt": 0.5094818837948799,
+          "n_contributing_picks": 25,
+          "window": 0.3,
+          "convention": "spec 5.3 ITT (buy_low); >= 3 neighbors"
+        },
+        "lift_itt_pp": 25.05,
+        "matched_naive_war_only_historical_convention": {
+          "side": "buy_low",
+          "model_rate_war_only": 0.8,
+          "matched_naive_rate": 0.660775108003121,
+          "lift_pp": 13.922489199687904,
+          "n_model_picks_with_followup_war": 30,
+          "n_neighbour_comparisons": 30,
+          "war_window": 0.3
+        }
+      },
+      "over_valued": {
+        "model": {
+          "side": "over_valued",
+          "n_leaderboard": 25,
+          "hits": 21,
+          "resolved_misses": 1,
+          "exits_unresolved": 3,
+          "itt": {
+            "rate": 0.9545,
+            "numerator": 21,
+            "denominator": 22,
+            "voids_excluded": 3,
+            "ci95_bootstrap": [
+              0.8636,
+              1.0
+            ],
+            "convention": "exit=VOID (excluded, disclosed)"
+          },
+          "worst_case_rate": 0.84,
+          "per_protocol": {
+            "rate": 0.9545,
+            "numerator": 21,
+            "denominator": 22
+          }
+        },
+        "matched_naive_itt": {
+          "rate_itt": 0.800293803457928,
+          "n_contributing_picks": 25,
+          "window": 0.3,
+          "convention": "spec 5.3 ITT (over_valued); >= 3 neighbors"
+        },
+        "lift_itt_pp": 15.42,
+        "matched_naive_war_only_historical_convention": {
+          "side": "over_valued",
+          "model_rate_war_only": 0.7714285714285715,
+          "matched_naive_rate": 0.8030079914045092,
+          "lift_pp": -3.1579419975937717,
+          "n_model_picks_with_followup_war": 35,
+          "n_neighbour_comparisons": 35,
+          "war_window": 0.3
+        }
+      },
+      "batter_channel": {
+        "marcel_history": "TRUNCATED history: lags [2015, 2016] only (no pitch-level wOBA before 2015)",
+        "n_batter_pool": 438,
+        "note": "model and Marcel boards drawn from the IDENTICAL batter pool (qualified, causal-scored, Marcel-projectable); pitcher Marcel deferred to the marcelR pin (frozen spec 6.7)",
+        "buy_low": {
+          "model_batter_board": {
+            "side": "buy_low",
+            "n_leaderboard": 25,
+            "hits": 15,
+            "resolved_misses": 7,
+            "exits_unresolved": 3,
+            "itt": {
+              "rate": 0.6,
+              "numerator": 15,
+              "denominator": 25,
+              "voids_excluded": 0,
+              "ci95_bootstrap": [
+                0.4,
+                0.8
+              ],
+              "convention": "exit=MISS (denominator 25)"
+            },
+            "worst_case_rate": 0.6,
+            "per_protocol": {
+              "rate": 0.6818,
+              "numerator": 15,
+              "denominator": 22
+            }
+          },
+          "marcel_board": {
+            "side": "buy_low",
+            "n_leaderboard": 25,
+            "hits": 16,
+            "resolved_misses": 4,
+            "exits_unresolved": 5,
+            "itt": {
+              "rate": 0.64,
+              "numerator": 16,
+              "denominator": 25,
+              "voids_excluded": 0,
+              "ci95_bootstrap": [
+                0.44,
+                0.8
+              ],
+              "convention": "exit=MISS (denominator 25)"
+            },
+            "worst_case_rate": 0.64,
+            "per_protocol": {
+              "rate": 0.8,
+              "numerator": 16,
+              "denominator": 20
+            }
+          },
+          "marcel_lift_pp": -4.0,
+          "batter_matched_naive_itt": {
+            "rate_itt": 0.4575551275703933,
+            "n_contributing_picks": 25,
+            "window": 0.3,
+            "convention": "spec 5.3 ITT (buy_low); >= 3 neighbors"
+          }
+        },
+        "over_valued": {
+          "model_batter_board": {
+            "side": "over_valued",
+            "n_leaderboard": 25,
+            "hits": 16,
+            "resolved_misses": 8,
+            "exits_unresolved": 1,
+            "itt": {
+              "rate": 0.6667,
+              "numerator": 16,
+              "denominator": 24,
+              "voids_excluded": 1,
+              "ci95_bootstrap": [
+                0.4583,
+                0.8333
+              ],
+              "convention": "exit=VOID (excluded, disclosed)"
+            },
+            "worst_case_rate": 0.64,
+            "per_protocol": {
+              "rate": 0.6667,
+              "numerator": 16,
+              "denominator": 24
+            }
+          },
+          "marcel_board": {
+            "side": "over_valued",
+            "n_leaderboard": 25,
+            "hits": 18,
+            "resolved_misses": 5,
+            "exits_unresolved": 2,
+            "itt": {
+              "rate": 0.7826,
+              "numerator": 18,
+              "denominator": 23,
+              "voids_excluded": 2,
+              "ci95_bootstrap": [
+                0.6087,
+                0.913
+              ],
+              "convention": "exit=VOID (excluded, disclosed)"
+            },
+            "worst_case_rate": 0.72,
+            "per_protocol": {
+              "rate": 0.7826,
+              "numerator": 18,
+              "denominator": 23
+            }
+          },
+          "marcel_lift_pp": -11.59,
+          "batter_matched_naive_itt": {
+            "rate_itt": 0.6952021744537237,
+            "n_contributing_picks": 25,
+            "window": 0.3,
+            "convention": "spec 5.3 ITT (over_valued); >= 3 neighbors"
+          }
+        }
+      }
+    },
+    {
+      "baseline_year": 2017,
+      "followup_year": 2018,
+      "nuisance_train": [
+        2015,
+        2016
+      ],
+      "oos_status": "fully-OOS (train strictly before baseline)",
+      "covid_touched": false,
+      "n_qualified_pool": 962,
+      "buy_low": {
+        "model": {
+          "side": "buy_low",
+          "n_leaderboard": 25,
+          "hits": 13,
+          "resolved_misses": 7,
+          "exits_unresolved": 5,
+          "itt": {
+            "rate": 0.52,
+            "numerator": 13,
+            "denominator": 25,
+            "voids_excluded": 0,
+            "ci95_bootstrap": [
+              0.32,
+              0.72
+            ],
+            "convention": "exit=MISS (denominator 25)"
+          },
+          "worst_case_rate": 0.52,
+          "per_protocol": {
+            "rate": 0.65,
+            "numerator": 13,
+            "denominator": 20
+          }
+        },
+        "matched_naive_itt": {
+          "rate_itt": 0.540925493478253,
+          "n_contributing_picks": 25,
+          "window": 0.3,
+          "convention": "spec 5.3 ITT (buy_low); >= 3 neighbors"
+        },
+        "lift_itt_pp": -2.09,
+        "matched_naive_war_only_historical_convention": {
+          "side": "buy_low",
+          "model_rate_war_only": 0.625,
+          "matched_naive_rate": 0.6648110110193418,
+          "lift_pp": -3.9811011019341813,
+          "n_model_picks_with_followup_war": 24,
+          "n_neighbour_comparisons": 24,
+          "war_window": 0.3
+        }
+      },
+      "over_valued": {
+        "model": {
+          "side": "over_valued",
+          "n_leaderboard": 25,
+          "hits": 23,
+          "resolved_misses": 0,
+          "exits_unresolved": 2,
+          "itt": {
+            "rate": 1.0,
+            "numerator": 23,
+            "denominator": 23,
+            "voids_excluded": 2,
+            "ci95_bootstrap": [
+              1.0,
+              1.0
+            ],
+            "convention": "exit=VOID (excluded, disclosed)"
+          },
+          "worst_case_rate": 0.92,
+          "per_protocol": {
+            "rate": 1.0,
+            "numerator": 23,
+            "denominator": 23
+          }
+        },
+        "matched_naive_itt": {
+          "rate_itt": 0.8363158185493531,
+          "n_contributing_picks": 25,
+          "window": 0.3,
+          "convention": "spec 5.3 ITT (over_valued); >= 3 neighbors"
+        },
+        "lift_itt_pp": 16.37,
+        "matched_naive_war_only_historical_convention": {
+          "side": "over_valued",
+          "model_rate_war_only": 0.7380952380952381,
+          "matched_naive_rate": 0.8422597447075558,
+          "lift_pp": -10.416450661231769,
+          "n_model_picks_with_followup_war": 42,
+          "n_neighbour_comparisons": 42,
+          "war_window": 0.3
+        }
+      },
+      "batter_channel": {
+        "marcel_history": "full 3-season history [2015, 2016, 2017]",
+        "n_batter_pool": 435,
+        "note": "model and Marcel boards drawn from the IDENTICAL batter pool (qualified, causal-scored, Marcel-projectable); pitcher Marcel deferred to the marcelR pin (frozen spec 6.7)",
+        "buy_low": {
+          "model_batter_board": {
+            "side": "buy_low",
+            "n_leaderboard": 25,
+            "hits": 17,
+            "resolved_misses": 5,
+            "exits_unresolved": 3,
+            "itt": {
+              "rate": 0.68,
+              "numerator": 17,
+              "denominator": 25,
+              "voids_excluded": 0,
+              "ci95_bootstrap": [
+                0.48,
+                0.84
+              ],
+              "convention": "exit=MISS (denominator 25)"
+            },
+            "worst_case_rate": 0.68,
+            "per_protocol": {
+              "rate": 0.7727,
+              "numerator": 17,
+              "denominator": 22
+            }
+          },
+          "marcel_board": {
+            "side": "buy_low",
+            "n_leaderboard": 25,
+            "hits": 16,
+            "resolved_misses": 5,
+            "exits_unresolved": 4,
+            "itt": {
+              "rate": 0.64,
+              "numerator": 16,
+              "denominator": 25,
+              "voids_excluded": 0,
+              "ci95_bootstrap": [
+                0.48,
+                0.84
+              ],
+              "convention": "exit=MISS (denominator 25)"
+            },
+            "worst_case_rate": 0.64,
+            "per_protocol": {
+              "rate": 0.7619,
+              "numerator": 16,
+              "denominator": 21
+            }
+          },
+          "marcel_lift_pp": 4.0,
+          "batter_matched_naive_itt": {
+            "rate_itt": 0.5222798805473289,
+            "n_contributing_picks": 25,
+            "window": 0.3,
+            "convention": "spec 5.3 ITT (buy_low); >= 3 neighbors"
+          }
+        },
+        "over_valued": {
+          "model_batter_board": {
+            "side": "over_valued",
+            "n_leaderboard": 25,
+            "hits": 21,
+            "resolved_misses": 4,
+            "exits_unresolved": 0,
+            "itt": {
+              "rate": 0.84,
+              "numerator": 21,
+              "denominator": 25,
+              "voids_excluded": 0,
+              "ci95_bootstrap": [
+                0.68,
+                0.96
+              ],
+              "convention": "exit=VOID (excluded, disclosed)"
+            },
+            "worst_case_rate": 0.84,
+            "per_protocol": {
+              "rate": 0.84,
+              "numerator": 21,
+              "denominator": 25
+            }
+          },
+          "marcel_board": {
+            "side": "over_valued",
+            "n_leaderboard": 25,
+            "hits": 21,
+            "resolved_misses": 4,
+            "exits_unresolved": 0,
+            "itt": {
+              "rate": 0.84,
+              "numerator": 21,
+              "denominator": 25,
+              "voids_excluded": 0,
+              "ci95_bootstrap": [
+                0.68,
+                0.96
+              ],
+              "convention": "exit=VOID (excluded, disclosed)"
+            },
+            "worst_case_rate": 0.84,
+            "per_protocol": {
+              "rate": 0.84,
+              "numerator": 21,
+              "denominator": 25
+            }
+          },
+          "marcel_lift_pp": 0.0,
+          "batter_matched_naive_itt": {
+            "rate_itt": 0.7249417614781438,
+            "n_contributing_picks": 25,
+            "window": 0.3,
+            "convention": "spec 5.3 ITT (over_valued); >= 3 neighbors"
+          }
+        }
+      }
+    },
+    {
+      "baseline_year": 2018,
+      "followup_year": 2019,
+      "nuisance_train": [
+        2015,
+        2017
+      ],
+      "oos_status": "fully-OOS (train strictly before baseline)",
+      "covid_touched": false,
+      "n_qualified_pool": 978,
+      "buy_low": {
+        "model": {
+          "side": "buy_low",
+          "n_leaderboard": 25,
+          "hits": 15,
+          "resolved_misses": 7,
+          "exits_unresolved": 3,
+          "itt": {
+            "rate": 0.6,
+            "numerator": 15,
+            "denominator": 25,
+            "voids_excluded": 0,
+            "ci95_bootstrap": [
+              0.44,
+              0.76
+            ],
+            "convention": "exit=MISS (denominator 25)"
+          },
+          "worst_case_rate": 0.6,
+          "per_protocol": {
+            "rate": 0.6818,
+            "numerator": 15,
+            "denominator": 22
+          }
+        },
+        "matched_naive_itt": {
+          "rate_itt": 0.5066690480439724,
+          "n_contributing_picks": 25,
+          "window": 0.3,
+          "convention": "spec 5.3 ITT (buy_low); >= 3 neighbors"
+        },
+        "lift_itt_pp": 9.33,
+        "matched_naive_war_only_historical_convention": {
+          "side": "buy_low",
+          "model_rate_war_only": 0.65625,
+          "matched_naive_rate": 0.6158671978902992,
+          "lift_pp": 4.03828021097008,
+          "n_model_picks_with_followup_war": 32,
+          "n_neighbour_comparisons": 32,
+          "war_window": 0.3
+        }
+      },
+      "over_valued": {
+        "model": {
+          "side": "over_valued",
+          "n_leaderboard": 25,
+          "hits": 16,
+          "resolved_misses": 7,
+          "exits_unresolved": 2,
+          "itt": {
+            "rate": 0.6957,
+            "numerator": 16,
+            "denominator": 23,
+            "voids_excluded": 2,
+            "ci95_bootstrap": [
+              0.5217,
+              0.8696
+            ],
+            "convention": "exit=VOID (excluded, disclosed)"
+          },
+          "worst_case_rate": 0.64,
+          "per_protocol": {
+            "rate": 0.6957,
+            "numerator": 16,
+            "denominator": 23
+          }
+        },
+        "matched_naive_itt": {
+          "rate_itt": 0.7484406456805235,
+          "n_contributing_picks": 25,
+          "window": 0.3,
+          "convention": "spec 5.3 ITT (over_valued); >= 3 neighbors"
+        },
+        "lift_itt_pp": -5.27,
+        "matched_naive_war_only_historical_convention": {
+          "side": "over_valued",
+          "model_rate_war_only": 0.7096774193548387,
+          "matched_naive_rate": 0.760338484610423,
+          "lift_pp": -5.066106525558423,
+          "n_model_picks_with_followup_war": 31,
+          "n_neighbour_comparisons": 31,
+          "war_window": 0.3
+        }
+      },
+      "batter_channel": {
+        "marcel_history": "full 3-season history [2016, 2017, 2018]",
+        "n_batter_pool": 448,
+        "note": "model and Marcel boards drawn from the IDENTICAL batter pool (qualified, causal-scored, Marcel-projectable); pitcher Marcel deferred to the marcelR pin (frozen spec 6.7)",
+        "buy_low": {
+          "model_batter_board": {
+            "side": "buy_low",
+            "n_leaderboard": 25,
+            "hits": 17,
+            "resolved_misses": 8,
+            "exits_unresolved": 0,
+            "itt": {
+              "rate": 0.68,
+              "numerator": 17,
+              "denominator": 25,
+              "voids_excluded": 0,
+              "ci95_bootstrap": [
+                0.48,
+                0.84
+              ],
+              "convention": "exit=MISS (denominator 25)"
+            },
+            "worst_case_rate": 0.68,
+            "per_protocol": {
+              "rate": 0.68,
+              "numerator": 17,
+              "denominator": 25
+            }
+          },
+          "marcel_board": {
+            "side": "buy_low",
+            "n_leaderboard": 25,
+            "hits": 16,
+            "resolved_misses": 8,
+            "exits_unresolved": 1,
+            "itt": {
+              "rate": 0.64,
+              "numerator": 16,
+              "denominator": 25,
+              "voids_excluded": 0,
+              "ci95_bootstrap": [
+                0.44,
+                0.84
+              ],
+              "convention": "exit=MISS (denominator 25)"
+            },
+            "worst_case_rate": 0.64,
+            "per_protocol": {
+              "rate": 0.6667,
+              "numerator": 16,
+              "denominator": 24
+            }
+          },
+          "marcel_lift_pp": 4.0,
+          "batter_matched_naive_itt": {
+            "rate_itt": 0.43763720533159983,
+            "n_contributing_picks": 25,
+            "window": 0.3,
+            "convention": "spec 5.3 ITT (buy_low); >= 3 neighbors"
+          }
+        },
+        "over_valued": {
+          "model_batter_board": {
+            "side": "over_valued",
+            "n_leaderboard": 25,
+            "hits": 14,
+            "resolved_misses": 11,
+            "exits_unresolved": 0,
+            "itt": {
+              "rate": 0.56,
+              "numerator": 14,
+              "denominator": 25,
+              "voids_excluded": 0,
+              "ci95_bootstrap": [
+                0.36,
+                0.76
+              ],
+              "convention": "exit=VOID (excluded, disclosed)"
+            },
+            "worst_case_rate": 0.56,
+            "per_protocol": {
+              "rate": 0.56,
+              "numerator": 14,
+              "denominator": 25
+            }
+          },
+          "marcel_board": {
+            "side": "over_valued",
+            "n_leaderboard": 25,
+            "hits": 17,
+            "resolved_misses": 7,
+            "exits_unresolved": 1,
+            "itt": {
+              "rate": 0.7083,
+              "numerator": 17,
+              "denominator": 24,
+              "voids_excluded": 1,
+              "ci95_bootstrap": [
+                0.5417,
+                0.875
+              ],
+              "convention": "exit=VOID (excluded, disclosed)"
+            },
+            "worst_case_rate": 0.68,
+            "per_protocol": {
+              "rate": 0.7083,
+              "numerator": 17,
+              "denominator": 24
+            }
+          },
+          "marcel_lift_pp": -14.83,
+          "batter_matched_naive_itt": {
+            "rate_itt": 0.6860290564778879,
+            "n_contributing_picks": 25,
+            "window": 0.3,
+            "convention": "spec 5.3 ITT (over_valued); >= 3 neighbors"
+          }
+        }
+      }
+    },
+    {
+      "baseline_year": 2019,
+      "followup_year": 2020,
+      "nuisance_train": [
+        2015,
+        2018
+      ],
+      "oos_status": "fully-OOS (train strictly before baseline)",
+      "covid_touched": true,
+      "n_qualified_pool": 996,
+      "buy_low": {
+        "model": {
+          "side": "buy_low",
+          "n_leaderboard": 25,
+          "hits": 13,
+          "resolved_misses": 5,
+          "exits_unresolved": 7,
+          "itt": {
+            "rate": 0.52,
+            "numerator": 13,
+            "denominator": 25,
+            "voids_excluded": 0,
+            "ci95_bootstrap": [
+              0.32,
+              0.68
+            ],
+            "convention": "exit=MISS (denominator 25)"
+          },
+          "worst_case_rate": 0.52,
+          "per_protocol": {
+            "rate": 0.7222,
+            "numerator": 13,
+            "denominator": 18
+          }
+        },
+        "matched_naive_itt": {
+          "rate_itt": 0.43938439276891317,
+          "n_contributing_picks": 25,
+          "window": 0.3,
+          "convention": "spec 5.3 ITT (buy_low); >= 3 neighbors"
+        },
+        "lift_itt_pp": 8.06,
+        "matched_naive_war_only_historical_convention": {
+          "side": "buy_low",
+          "model_rate_war_only": 0.7222222222222222,
+          "matched_naive_rate": 0.6187976428585079,
+          "lift_pp": 10.34245793637143,
+          "n_model_picks_with_followup_war": 18,
+          "n_neighbour_comparisons": 18,
+          "war_window": 0.3
+        }
+      },
+      "over_valued": {
+        "model": {
+          "side": "over_valued",
+          "n_leaderboard": 25,
+          "hits": 20,
+          "resolved_misses": 2,
+          "exits_unresolved": 3,
+          "itt": {
+            "rate": 0.9091,
+            "numerator": 20,
+            "denominator": 22,
+            "voids_excluded": 3,
+            "ci95_bootstrap": [
+              0.7727,
+              1.0
+            ],
+            "convention": "exit=VOID (excluded, disclosed)"
+          },
+          "worst_case_rate": 0.8,
+          "per_protocol": {
+            "rate": 0.9091,
+            "numerator": 20,
+            "denominator": 22
+          }
+        },
+        "matched_naive_itt": {
+          "rate_itt": 0.937006778048241,
+          "n_contributing_picks": 25,
+          "window": 0.3,
+          "convention": "spec 5.3 ITT (over_valued); >= 3 neighbors"
+        },
+        "lift_itt_pp": -2.79,
+        "matched_naive_war_only_historical_convention": {
+          "side": "over_valued",
+          "model_rate_war_only": 0.9130434782608695,
+          "matched_naive_rate": 0.9404375948949238,
+          "lift_pp": -2.7394116634054333,
+          "n_model_picks_with_followup_war": 23,
+          "n_neighbour_comparisons": 23,
+          "war_window": 0.3
+        }
+      },
+      "batter_channel": {
+        "marcel_history": "full 3-season history [2017, 2018, 2019]",
+        "n_batter_pool": 451,
+        "note": "model and Marcel boards drawn from the IDENTICAL batter pool (qualified, causal-scored, Marcel-projectable); pitcher Marcel deferred to the marcelR pin (frozen spec 6.7)",
+        "buy_low": {
+          "model_batter_board": {
+            "side": "buy_low",
+            "n_leaderboard": 25,
+            "hits": 10,
+            "resolved_misses": 12,
+            "exits_unresolved": 3,
+            "itt": {
+              "rate": 0.4,
+              "numerator": 10,
+              "denominator": 25,
+              "voids_excluded": 0,
+              "ci95_bootstrap": [
+                0.2,
+                0.6
+              ],
+              "convention": "exit=MISS (denominator 25)"
+            },
+            "worst_case_rate": 0.4,
+            "per_protocol": {
+              "rate": 0.4545,
+              "numerator": 10,
+              "denominator": 22
+            }
+          },
+          "marcel_board": {
+            "side": "buy_low",
+            "n_leaderboard": 25,
+            "hits": 12,
+            "resolved_misses": 7,
+            "exits_unresolved": 6,
+            "itt": {
+              "rate": 0.48,
+              "numerator": 12,
+              "denominator": 25,
+              "voids_excluded": 0,
+              "ci95_bootstrap": [
+                0.28,
+                0.68
+              ],
+              "convention": "exit=MISS (denominator 25)"
+            },
+            "worst_case_rate": 0.48,
+            "per_protocol": {
+              "rate": 0.6316,
+              "numerator": 12,
+              "denominator": 19
+            }
+          },
+          "marcel_lift_pp": -8.0,
+          "batter_matched_naive_itt": {
+            "rate_itt": 0.39909364768500843,
+            "n_contributing_picks": 25,
+            "window": 0.3,
+            "convention": "spec 5.3 ITT (buy_low); >= 3 neighbors"
+          }
+        },
+        "over_valued": {
+          "model_batter_board": {
+            "side": "over_valued",
+            "n_leaderboard": 25,
+            "hits": 23,
+            "resolved_misses": 2,
+            "exits_unresolved": 0,
+            "itt": {
+              "rate": 0.92,
+              "numerator": 23,
+              "denominator": 25,
+              "voids_excluded": 0,
+              "ci95_bootstrap": [
+                0.8,
+                1.0
+              ],
+              "convention": "exit=VOID (excluded, disclosed)"
+            },
+            "worst_case_rate": 0.92,
+            "per_protocol": {
+              "rate": 0.92,
+              "numerator": 23,
+              "denominator": 25
+            }
+          },
+          "marcel_board": {
+            "side": "over_valued",
+            "n_leaderboard": 25,
+            "hits": 25,
+            "resolved_misses": 0,
+            "exits_unresolved": 0,
+            "itt": {
+              "rate": 1.0,
+              "numerator": 25,
+              "denominator": 25,
+              "voids_excluded": 0,
+              "ci95_bootstrap": [
+                1.0,
+                1.0
+              ],
+              "convention": "exit=VOID (excluded, disclosed)"
+            },
+            "worst_case_rate": 1.0,
+            "per_protocol": {
+              "rate": 1.0,
+              "numerator": 25,
+              "denominator": 25
+            }
+          },
+          "marcel_lift_pp": -8.0,
+          "batter_matched_naive_itt": {
+            "rate_itt": 0.9120864726695327,
+            "n_contributing_picks": 25,
+            "window": 0.3,
+            "convention": "spec 5.3 ITT (over_valued); >= 3 neighbors"
+          }
+        }
+      }
+    },
+    {
+      "baseline_year": 2020,
+      "followup_year": 2021,
+      "nuisance_train": [
+        2015,
+        2019
+      ],
+      "oos_status": "fully-OOS (train strictly before baseline)",
+      "covid_touched": true,
+      "n_qualified_pool": 633,
+      "buy_low": {
+        "model": {
+          "side": "buy_low",
+          "n_leaderboard": 25,
+          "hits": 16,
+          "resolved_misses": 8,
+          "exits_unresolved": 1,
+          "itt": {
+            "rate": 0.64,
+            "numerator": 16,
+            "denominator": 25,
+            "voids_excluded": 0,
+            "ci95_bootstrap": [
+              0.44,
+              0.801
+            ],
+            "convention": "exit=MISS (denominator 25)"
+          },
+          "worst_case_rate": 0.64,
+          "per_protocol": {
+            "rate": 0.6667,
+            "numerator": 16,
+            "denominator": 24
+          }
+        },
+        "matched_naive_itt": {
+          "rate_itt": 0.5436926786513977,
+          "n_contributing_picks": 25,
+          "window": 0.3,
+          "convention": "spec 5.3 ITT (buy_low); >= 3 neighbors"
+        },
+        "lift_itt_pp": 9.63,
+        "matched_naive_war_only_historical_convention": {
+          "side": "buy_low",
+          "model_rate_war_only": 0.696969696969697,
+          "matched_naive_rate": 0.5799230602548946,
+          "lift_pp": 11.704663671480242,
+          "n_model_picks_with_followup_war": 33,
+          "n_neighbour_comparisons": 33,
+          "war_window": 0.3
+        }
+      },
+      "over_valued": {
+        "model": {
+          "side": "over_valued",
+          "n_leaderboard": 25,
+          "hits": 15,
+          "resolved_misses": 9,
+          "exits_unresolved": 1,
+          "itt": {
+            "rate": 0.625,
+            "numerator": 15,
+            "denominator": 24,
+            "voids_excluded": 1,
+            "ci95_bootstrap": [
+              0.4167,
+              0.7917
+            ],
+            "convention": "exit=VOID (excluded, disclosed)"
+          },
+          "worst_case_rate": 0.6,
+          "per_protocol": {
+            "rate": 0.625,
+            "numerator": 15,
+            "denominator": 24
+          }
+        },
+        "matched_naive_itt": {
+          "rate_itt": 0.6095309762686452,
+          "n_contributing_picks": 25,
+          "window": 0.3,
+          "convention": "spec 5.3 ITT (over_valued); >= 3 neighbors"
+        },
+        "lift_itt_pp": 1.55,
+        "matched_naive_war_only_historical_convention": {
+          "side": "over_valued",
+          "model_rate_war_only": 0.6111111111111112,
+          "matched_naive_rate": 0.6496848831762841,
+          "lift_pp": -3.8573772065172984,
+          "n_model_picks_with_followup_war": 36,
+          "n_neighbour_comparisons": 36,
+          "war_window": 0.3
+        }
+      },
+      "batter_channel": {
+        "marcel_history": "full 3-season history [2018, 2019, 2020]",
+        "n_batter_pool": 310,
+        "note": "model and Marcel boards drawn from the IDENTICAL batter pool (qualified, causal-scored, Marcel-projectable); pitcher Marcel deferred to the marcelR pin (frozen spec 6.7)",
+        "buy_low": {
+          "model_batter_board": {
+            "side": "buy_low",
+            "n_leaderboard": 25,
+            "hits": 17,
+            "resolved_misses": 8,
+            "exits_unresolved": 0,
+            "itt": {
+              "rate": 0.68,
+              "numerator": 17,
+              "denominator": 25,
+              "voids_excluded": 0,
+              "ci95_bootstrap": [
+                0.52,
+                0.84
+              ],
+              "convention": "exit=MISS (denominator 25)"
+            },
+            "worst_case_rate": 0.68,
+            "per_protocol": {
+              "rate": 0.68,
+              "numerator": 17,
+              "denominator": 25
+            }
+          },
+          "marcel_board": {
+            "side": "buy_low",
+            "n_leaderboard": 25,
+            "hits": 20,
+            "resolved_misses": 3,
+            "exits_unresolved": 2,
+            "itt": {
+              "rate": 0.8,
+              "numerator": 20,
+              "denominator": 25,
+              "voids_excluded": 0,
+              "ci95_bootstrap": [
+                0.64,
+                0.92
+              ],
+              "convention": "exit=MISS (denominator 25)"
+            },
+            "worst_case_rate": 0.8,
+            "per_protocol": {
+              "rate": 0.8696,
+              "numerator": 20,
+              "denominator": 23
+            }
+          },
+          "marcel_lift_pp": -12.0,
+          "batter_matched_naive_itt": {
+            "rate_itt": 0.5375726930296048,
+            "n_contributing_picks": 25,
+            "window": 0.3,
+            "convention": "spec 5.3 ITT (buy_low); >= 3 neighbors"
+          }
+        },
+        "over_valued": {
+          "model_batter_board": {
+            "side": "over_valued",
+            "n_leaderboard": 25,
+            "hits": 6,
+            "resolved_misses": 19,
+            "exits_unresolved": 0,
+            "itt": {
+              "rate": 0.24,
+              "numerator": 6,
+              "denominator": 25,
+              "voids_excluded": 0,
+              "ci95_bootstrap": [
+                0.08,
+                0.4
+              ],
+              "convention": "exit=VOID (excluded, disclosed)"
+            },
+            "worst_case_rate": 0.24,
+            "per_protocol": {
+              "rate": 0.24,
+              "numerator": 6,
+              "denominator": 25
+            }
+          },
+          "marcel_board": {
+            "side": "over_valued",
+            "n_leaderboard": 25,
+            "hits": 10,
+            "resolved_misses": 14,
+            "exits_unresolved": 1,
+            "itt": {
+              "rate": 0.4167,
+              "numerator": 10,
+              "denominator": 24,
+              "voids_excluded": 1,
+              "ci95_bootstrap": [
+                0.25,
+                0.625
+              ],
+              "convention": "exit=VOID (excluded, disclosed)"
+            },
+            "worst_case_rate": 0.4,
+            "per_protocol": {
+              "rate": 0.4167,
+              "numerator": 10,
+              "denominator": 24
+            }
+          },
+          "marcel_lift_pp": -17.67,
+          "batter_matched_naive_itt": {
+            "rate_itt": 0.42509774488948415,
+            "n_contributing_picks": 25,
+            "window": 0.3,
+            "convention": "spec 5.3 ITT (over_valued); >= 3 neighbors"
+          }
+        }
+      }
+    },
+    {
+      "baseline_year": 2021,
+      "followup_year": 2022,
+      "nuisance_train": [
+        2015,
+        2020
+      ],
+      "oos_status": "fully-OOS (train strictly before baseline)",
+      "covid_touched": false,
+      "n_qualified_pool": 1030,
+      "buy_low": {
+        "model": {
+          "side": "buy_low",
+          "n_leaderboard": 25,
+          "hits": 14,
+          "resolved_misses": 8,
+          "exits_unresolved": 3,
+          "itt": {
+            "rate": 0.56,
+            "numerator": 14,
+            "denominator": 25,
+            "voids_excluded": 0,
+            "ci95_bootstrap": [
+              0.36,
+              0.76
+            ],
+            "convention": "exit=MISS (denominator 25)"
+          },
+          "worst_case_rate": 0.56,
+          "per_protocol": {
+            "rate": 0.6364,
+            "numerator": 14,
+            "denominator": 22
+          }
+        },
+        "matched_naive_itt": {
+          "rate_itt": 0.5098737744044266,
+          "n_contributing_picks": 25,
+          "window": 0.3,
+          "convention": "spec 5.3 ITT (buy_low); >= 3 neighbors"
+        },
+        "lift_itt_pp": 5.01,
+        "matched_naive_war_only_historical_convention": {
+          "side": "buy_low",
+          "model_rate_war_only": 0.6363636363636364,
+          "matched_naive_rate": 0.6768369052489462,
+          "lift_pp": -4.047326888530989,
+          "n_model_picks_with_followup_war": 22,
+          "n_neighbour_comparisons": 22,
+          "war_window": 0.3
+        }
+      },
+      "over_valued": {
+        "model": {
+          "side": "over_valued",
+          "n_leaderboard": 25,
+          "hits": 15,
+          "resolved_misses": 10,
+          "exits_unresolved": 0,
+          "itt": {
+            "rate": 0.6,
+            "numerator": 15,
+            "denominator": 25,
+            "voids_excluded": 0,
+            "ci95_bootstrap": [
+              0.4,
+              0.76
+            ],
+            "convention": "exit=VOID (excluded, disclosed)"
+          },
+          "worst_case_rate": 0.6,
+          "per_protocol": {
+            "rate": 0.6,
+            "numerator": 15,
+            "denominator": 25
+          }
+        },
+        "matched_naive_itt": {
+          "rate_itt": 0.75595035105943,
+          "n_contributing_picks": 25,
+          "window": 0.3,
+          "convention": "spec 5.3 ITT (over_valued); >= 3 neighbors"
+        },
+        "lift_itt_pp": -15.6,
+        "matched_naive_war_only_historical_convention": {
+          "side": "over_valued",
+          "model_rate_war_only": 0.6428571428571429,
+          "matched_naive_rate": 0.7582214606381799,
+          "lift_pp": -11.536431778103696,
+          "n_model_picks_with_followup_war": 28,
+          "n_neighbour_comparisons": 28,
+          "war_window": 0.3
+        }
+      },
+      "batter_channel": {
+        "marcel_history": "full 3-season history [2019, 2020, 2021]",
+        "n_batter_pool": 463,
+        "note": "model and Marcel boards drawn from the IDENTICAL batter pool (qualified, causal-scored, Marcel-projectable); pitcher Marcel deferred to the marcelR pin (frozen spec 6.7)",
+        "buy_low": {
+          "model_batter_board": {
+            "side": "buy_low",
+            "n_leaderboard": 25,
+            "hits": 12,
+            "resolved_misses": 11,
+            "exits_unresolved": 2,
+            "itt": {
+              "rate": 0.48,
+              "numerator": 12,
+              "denominator": 25,
+              "voids_excluded": 0,
+              "ci95_bootstrap": [
+                0.28,
+                0.68
+              ],
+              "convention": "exit=MISS (denominator 25)"
+            },
+            "worst_case_rate": 0.48,
+            "per_protocol": {
+              "rate": 0.5217,
+              "numerator": 12,
+              "denominator": 23
+            }
+          },
+          "marcel_board": {
+            "side": "buy_low",
+            "n_leaderboard": 25,
+            "hits": 17,
+            "resolved_misses": 5,
+            "exits_unresolved": 3,
+            "itt": {
+              "rate": 0.68,
+              "numerator": 17,
+              "denominator": 25,
+              "voids_excluded": 0,
+              "ci95_bootstrap": [
+                0.48,
+                0.88
+              ],
+              "convention": "exit=MISS (denominator 25)"
+            },
+            "worst_case_rate": 0.68,
+            "per_protocol": {
+              "rate": 0.7727,
+              "numerator": 17,
+              "denominator": 22
+            }
+          },
+          "marcel_lift_pp": -20.0,
+          "batter_matched_naive_itt": {
+            "rate_itt": 0.5047106414765969,
+            "n_contributing_picks": 25,
+            "window": 0.3,
+            "convention": "spec 5.3 ITT (buy_low); >= 3 neighbors"
+          }
+        },
+        "over_valued": {
+          "model_batter_board": {
+            "side": "over_valued",
+            "n_leaderboard": 25,
+            "hits": 12,
+            "resolved_misses": 12,
+            "exits_unresolved": 1,
+            "itt": {
+              "rate": 0.5,
+              "numerator": 12,
+              "denominator": 24,
+              "voids_excluded": 1,
+              "ci95_bootstrap": [
+                0.2917,
+                0.7083
+              ],
+              "convention": "exit=VOID (excluded, disclosed)"
+            },
+            "worst_case_rate": 0.48,
+            "per_protocol": {
+              "rate": 0.5,
+              "numerator": 12,
+              "denominator": 24
+            }
+          },
+          "marcel_board": {
+            "side": "over_valued",
+            "n_leaderboard": 25,
+            "hits": 21,
+            "resolved_misses": 4,
+            "exits_unresolved": 0,
+            "itt": {
+              "rate": 0.84,
+              "numerator": 21,
+              "denominator": 25,
+              "voids_excluded": 0,
+              "ci95_bootstrap": [
+                0.68,
+                0.96
+              ],
+              "convention": "exit=VOID (excluded, disclosed)"
+            },
+            "worst_case_rate": 0.84,
+            "per_protocol": {
+              "rate": 0.84,
+              "numerator": 21,
+              "denominator": 25
+            }
+          },
+          "marcel_lift_pp": -34.0,
+          "batter_matched_naive_itt": {
+            "rate_itt": 0.7283338406811132,
+            "n_contributing_picks": 25,
+            "window": 0.3,
+            "convention": "spec 5.3 ITT (over_valued); >= 3 neighbors"
+          }
+        }
+      }
+    },
+    {
+      "baseline_year": 2022,
+      "followup_year": 2023,
+      "nuisance_train": [
+        2015,
+        2021
+      ],
+      "oos_status": "fully-OOS (train strictly before baseline)",
+      "covid_touched": false,
+      "n_qualified_pool": 1015,
+      "buy_low": {
+        "model": {
+          "side": "buy_low",
+          "n_leaderboard": 25,
+          "hits": 19,
+          "resolved_misses": 5,
+          "exits_unresolved": 1,
+          "itt": {
+            "rate": 0.76,
+            "numerator": 19,
+            "denominator": 25,
+            "voids_excluded": 0,
+            "ci95_bootstrap": [
+              0.56,
+              0.92
+            ],
+            "convention": "exit=MISS (denominator 25)"
+          },
+          "worst_case_rate": 0.76,
+          "per_protocol": {
+            "rate": 0.7917,
+            "numerator": 19,
+            "denominator": 24
+          }
+        },
+        "matched_naive_itt": {
+          "rate_itt": 0.5647038400031466,
+          "n_contributing_picks": 25,
+          "window": 0.3,
+          "convention": "spec 5.3 ITT (buy_low); >= 3 neighbors"
+        },
+        "lift_itt_pp": 19.53,
+        "matched_naive_war_only_historical_convention": {
+          "side": "buy_low",
+          "model_rate_war_only": 0.7692307692307693,
+          "matched_naive_rate": 0.7282578304325349,
+          "lift_pp": 4.097293879823438,
+          "n_model_picks_with_followup_war": 26,
+          "n_neighbour_comparisons": 26,
+          "war_window": 0.3
+        }
+      },
+      "over_valued": {
+        "model": {
+          "side": "over_valued",
+          "n_leaderboard": 25,
+          "hits": 20,
+          "resolved_misses": 5,
+          "exits_unresolved": 0,
+          "itt": {
+            "rate": 0.8,
+            "numerator": 20,
+            "denominator": 25,
+            "voids_excluded": 0,
+            "ci95_bootstrap": [
+              0.64,
+              0.96
+            ],
+            "convention": "exit=VOID (excluded, disclosed)"
+          },
+          "worst_case_rate": 0.8,
+          "per_protocol": {
+            "rate": 0.8,
+            "numerator": 20,
+            "denominator": 25
+          }
+        },
+        "matched_naive_itt": {
+          "rate_itt": 0.7186939190692968,
+          "n_contributing_picks": 25,
+          "window": 0.3,
+          "convention": "spec 5.3 ITT (over_valued); >= 3 neighbors"
+        },
+        "lift_itt_pp": 8.13,
+        "matched_naive_war_only_historical_convention": {
+          "side": "over_valued",
+          "model_rate_war_only": 0.8148148148148148,
+          "matched_naive_rate": 0.7260231395213745,
+          "lift_pp": 8.879167529344024,
+          "n_model_picks_with_followup_war": 27,
+          "n_neighbour_comparisons": 27,
+          "war_window": 0.3
+        }
+      },
+      "batter_channel": {
+        "marcel_history": "full 3-season history [2020, 2021, 2022]",
+        "n_batter_pool": 469,
+        "note": "model and Marcel boards drawn from the IDENTICAL batter pool (qualified, causal-scored, Marcel-projectable); pitcher Marcel deferred to the marcelR pin (frozen spec 6.7)",
+        "buy_low": {
+          "model_batter_board": {
+            "side": "buy_low",
+            "n_leaderboard": 25,
+            "hits": 14,
+            "resolved_misses": 9,
+            "exits_unresolved": 2,
+            "itt": {
+              "rate": 0.56,
+              "numerator": 14,
+              "denominator": 25,
+              "voids_excluded": 0,
+              "ci95_bootstrap": [
+                0.36,
+                0.76
+              ],
+              "convention": "exit=MISS (denominator 25)"
+            },
+            "worst_case_rate": 0.56,
+            "per_protocol": {
+              "rate": 0.6087,
+              "numerator": 14,
+              "denominator": 23
+            }
+          },
+          "marcel_board": {
+            "side": "buy_low",
+            "n_leaderboard": 25,
+            "hits": 17,
+            "resolved_misses": 6,
+            "exits_unresolved": 2,
+            "itt": {
+              "rate": 0.68,
+              "numerator": 17,
+              "denominator": 25,
+              "voids_excluded": 0,
+              "ci95_bootstrap": [
+                0.48,
+                0.88
+              ],
+              "convention": "exit=MISS (denominator 25)"
+            },
+            "worst_case_rate": 0.68,
+            "per_protocol": {
+              "rate": 0.7391,
+              "numerator": 17,
+              "denominator": 23
+            }
+          },
+          "marcel_lift_pp": -12.0,
+          "batter_matched_naive_itt": {
+            "rate_itt": 0.5146865096213368,
+            "n_contributing_picks": 25,
+            "window": 0.3,
+            "convention": "spec 5.3 ITT (buy_low); >= 3 neighbors"
+          }
+        },
+        "over_valued": {
+          "model_batter_board": {
+            "side": "over_valued",
+            "n_leaderboard": 25,
+            "hits": 18,
+            "resolved_misses": 7,
+            "exits_unresolved": 0,
+            "itt": {
+              "rate": 0.72,
+              "numerator": 18,
+              "denominator": 25,
+              "voids_excluded": 0,
+              "ci95_bootstrap": [
+                0.52,
+                0.88
+              ],
+              "convention": "exit=VOID (excluded, disclosed)"
+            },
+            "worst_case_rate": 0.72,
+            "per_protocol": {
+              "rate": 0.72,
+              "numerator": 18,
+              "denominator": 25
+            }
+          },
+          "marcel_board": {
+            "side": "over_valued",
+            "n_leaderboard": 25,
+            "hits": 18,
+            "resolved_misses": 5,
+            "exits_unresolved": 2,
+            "itt": {
+              "rate": 0.7826,
+              "numerator": 18,
+              "denominator": 23,
+              "voids_excluded": 2,
+              "ci95_bootstrap": [
+                0.6087,
+                0.9565
+              ],
+              "convention": "exit=VOID (excluded, disclosed)"
+            },
+            "worst_case_rate": 0.72,
+            "per_protocol": {
+              "rate": 0.7826,
+              "numerator": 18,
+              "denominator": 23
+            }
+          },
+          "marcel_lift_pp": -6.26,
+          "batter_matched_naive_itt": {
+            "rate_itt": 0.7526562359027164,
+            "n_contributing_picks": 25,
+            "window": 0.3,
+            "convention": "spec 5.3 ITT (over_valued); >= 3 neighbors"
+          }
+        }
+      }
+    },
+    {
+      "baseline_year": 2023,
+      "followup_year": 2024,
+      "nuisance_train": [
+        2015,
+        2022
+      ],
+      "oos_status": "fully-OOS (train strictly before baseline)",
+      "covid_touched": false,
+      "n_qualified_pool": 1011,
+      "buy_low": {
+        "model": {
+          "side": "buy_low",
+          "n_leaderboard": 25,
+          "hits": 14,
+          "resolved_misses": 8,
+          "exits_unresolved": 3,
+          "itt": {
+            "rate": 0.56,
+            "numerator": 14,
+            "denominator": 25,
+            "voids_excluded": 0,
+            "ci95_bootstrap": [
+              0.36,
+              0.76
+            ],
+            "convention": "exit=MISS (denominator 25)"
+          },
+          "worst_case_rate": 0.56,
+          "per_protocol": {
+            "rate": 0.6364,
+            "numerator": 14,
+            "denominator": 22
+          }
+        },
+        "matched_naive_itt": {
+          "rate_itt": 0.495113627242774,
+          "n_contributing_picks": 25,
+          "window": 0.3,
+          "convention": "spec 5.3 ITT (buy_low); >= 3 neighbors"
+        },
+        "lift_itt_pp": 6.49,
+        "matched_naive_war_only_historical_convention": {
+          "side": "buy_low",
+          "model_rate_war_only": 0.6363636363636364,
+          "matched_naive_rate": 0.6647178411318926,
+          "lift_pp": -2.835420476825623,
+          "n_model_picks_with_followup_war": 22,
+          "n_neighbour_comparisons": 22,
+          "war_window": 0.3
+        }
+      },
+      "over_valued": {
+        "model": {
+          "side": "over_valued",
+          "n_leaderboard": 25,
+          "hits": 14,
+          "resolved_misses": 9,
+          "exits_unresolved": 2,
+          "itt": {
+            "rate": 0.6087,
+            "numerator": 14,
+            "denominator": 23,
+            "voids_excluded": 2,
+            "ci95_bootstrap": [
+              0.3913,
+              0.7826
+            ],
+            "convention": "exit=VOID (excluded, disclosed)"
+          },
+          "worst_case_rate": 0.56,
+          "per_protocol": {
+            "rate": 0.6087,
+            "numerator": 14,
+            "denominator": 23
+          }
+        },
+        "matched_naive_itt": {
+          "rate_itt": 0.6983497415195831,
+          "n_contributing_picks": 25,
+          "window": 0.3,
+          "convention": "spec 5.3 ITT (over_valued); >= 3 neighbors"
+        },
+        "lift_itt_pp": -8.96,
+        "matched_naive_war_only_historical_convention": {
+          "side": "over_valued",
+          "model_rate_war_only": 0.6086956521739131,
+          "matched_naive_rate": 0.6951074974863356,
+          "lift_pp": -8.641184531242253,
+          "n_model_picks_with_followup_war": 23,
+          "n_neighbour_comparisons": 23,
+          "war_window": 0.3
+        }
+      },
+      "batter_channel": {
+        "marcel_history": "full 3-season history [2021, 2022, 2023]",
+        "n_batter_pool": 461,
+        "note": "model and Marcel boards drawn from the IDENTICAL batter pool (qualified, causal-scored, Marcel-projectable); pitcher Marcel deferred to the marcelR pin (frozen spec 6.7)",
+        "buy_low": {
+          "model_batter_board": {
+            "side": "buy_low",
+            "n_leaderboard": 25,
+            "hits": 9,
+            "resolved_misses": 10,
+            "exits_unresolved": 6,
+            "itt": {
+              "rate": 0.36,
+              "numerator": 9,
+              "denominator": 25,
+              "voids_excluded": 0,
+              "ci95_bootstrap": [
+                0.16,
+                0.56
+              ],
+              "convention": "exit=MISS (denominator 25)"
+            },
+            "worst_case_rate": 0.36,
+            "per_protocol": {
+              "rate": 0.4737,
+              "numerator": 9,
+              "denominator": 19
+            }
+          },
+          "marcel_board": {
+            "side": "buy_low",
+            "n_leaderboard": 25,
+            "hits": 13,
+            "resolved_misses": 8,
+            "exits_unresolved": 4,
+            "itt": {
+              "rate": 0.52,
+              "numerator": 13,
+              "denominator": 25,
+              "voids_excluded": 0,
+              "ci95_bootstrap": [
+                0.32,
+                0.681
+              ],
+              "convention": "exit=MISS (denominator 25)"
+            },
+            "worst_case_rate": 0.52,
+            "per_protocol": {
+              "rate": 0.619,
+              "numerator": 13,
+              "denominator": 21
+            }
+          },
+          "marcel_lift_pp": -16.0,
+          "batter_matched_naive_itt": {
+            "rate_itt": 0.5110723682923637,
+            "n_contributing_picks": 25,
+            "window": 0.3,
+            "convention": "spec 5.3 ITT (buy_low); >= 3 neighbors"
+          }
+        },
+        "over_valued": {
+          "model_batter_board": {
+            "side": "over_valued",
+            "n_leaderboard": 25,
+            "hits": 16,
+            "resolved_misses": 9,
+            "exits_unresolved": 0,
+            "itt": {
+              "rate": 0.64,
+              "numerator": 16,
+              "denominator": 25,
+              "voids_excluded": 0,
+              "ci95_bootstrap": [
+                0.44,
+                0.8
+              ],
+              "convention": "exit=VOID (excluded, disclosed)"
+            },
+            "worst_case_rate": 0.64,
+            "per_protocol": {
+              "rate": 0.64,
+              "numerator": 16,
+              "denominator": 25
+            }
+          },
+          "marcel_board": {
+            "side": "over_valued",
+            "n_leaderboard": 25,
+            "hits": 20,
+            "resolved_misses": 5,
+            "exits_unresolved": 0,
+            "itt": {
+              "rate": 0.8,
+              "numerator": 20,
+              "denominator": 25,
+              "voids_excluded": 0,
+              "ci95_bootstrap": [
+                0.639,
+                0.96
+              ],
+              "convention": "exit=VOID (excluded, disclosed)"
+            },
+            "worst_case_rate": 0.8,
+            "per_protocol": {
+              "rate": 0.8,
+              "numerator": 20,
+              "denominator": 25
+            }
+          },
+          "marcel_lift_pp": -16.0,
+          "batter_matched_naive_itt": {
+            "rate_itt": 0.685838571692502,
+            "n_contributing_picks": 25,
+            "window": 0.3,
+            "convention": "spec 5.3 ITT (over_valued); >= 3 neighbors"
+          }
+        }
+      }
+    },
+    {
+      "baseline_year": 2024,
+      "followup_year": 2025,
+      "nuisance_train": [
+        2015,
+        2022
+      ],
+      "oos_status": "fully-OOS (train strictly before baseline)",
+      "covid_touched": false,
+      "n_qualified_pool": 996,
+      "buy_low": {
+        "model": {
+          "side": "buy_low",
+          "n_leaderboard": 25,
+          "hits": 18,
+          "resolved_misses": 4,
+          "exits_unresolved": 3,
+          "itt": {
+            "rate": 0.72,
+            "numerator": 18,
+            "denominator": 25,
+            "voids_excluded": 0,
+            "ci95_bootstrap": [
+              0.52,
+              0.88
+            ],
+            "convention": "exit=MISS (denominator 25)"
+          },
+          "worst_case_rate": 0.72,
+          "per_protocol": {
+            "rate": 0.8182,
+            "numerator": 18,
+            "denominator": 22
+          }
+        },
+        "matched_naive_itt": {
+          "rate_itt": 0.5358984443781746,
+          "n_contributing_picks": 25,
+          "window": 0.3,
+          "convention": "spec 5.3 ITT (buy_low); >= 3 neighbors"
+        },
+        "lift_itt_pp": 18.41,
+        "matched_naive_war_only_historical_convention": {
+          "side": "buy_low",
+          "model_rate_war_only": 0.8181818181818182,
+          "matched_naive_rate": 0.7101862559352825,
+          "lift_pp": 10.799556224653573,
+          "n_model_picks_with_followup_war": 22,
+          "n_neighbour_comparisons": 22,
+          "war_window": 0.3
+        }
+      },
+      "over_valued": {
+        "model": {
+          "side": "over_valued",
+          "n_leaderboard": 25,
+          "hits": 19,
+          "resolved_misses": 6,
+          "exits_unresolved": 0,
+          "itt": {
+            "rate": 0.76,
+            "numerator": 19,
+            "denominator": 25,
+            "voids_excluded": 0,
+            "ci95_bootstrap": [
+              0.56,
+              0.92
+            ],
+            "convention": "exit=VOID (excluded, disclosed)"
+          },
+          "worst_case_rate": 0.76,
+          "per_protocol": {
+            "rate": 0.76,
+            "numerator": 19,
+            "denominator": 25
+          }
+        },
+        "matched_naive_itt": {
+          "rate_itt": 0.6843735833788765,
+          "n_contributing_picks": 25,
+          "window": 0.3,
+          "convention": "spec 5.3 ITT (over_valued); >= 3 neighbors"
+        },
+        "lift_itt_pp": 7.56,
+        "matched_naive_war_only_historical_convention": {
+          "side": "over_valued",
+          "model_rate_war_only": 0.76,
+          "matched_naive_rate": 0.6848394031005947,
+          "lift_pp": 7.516059689940535,
+          "n_model_picks_with_followup_war": 25,
+          "n_neighbour_comparisons": 25,
+          "war_window": 0.3
+        }
+      },
+      "batter_channel": {
+        "marcel_history": "full 3-season history [2022, 2023, 2024]",
+        "n_batter_pool": 455,
+        "note": "model and Marcel boards drawn from the IDENTICAL batter pool (qualified, causal-scored, Marcel-projectable); pitcher Marcel deferred to the marcelR pin (frozen spec 6.7)",
+        "buy_low": {
+          "model_batter_board": {
+            "side": "buy_low",
+            "n_leaderboard": 25,
+            "hits": 10,
+            "resolved_misses": 10,
+            "exits_unresolved": 5,
+            "itt": {
+              "rate": 0.4,
+              "numerator": 10,
+              "denominator": 25,
+              "voids_excluded": 0,
+              "ci95_bootstrap": [
+                0.2,
+                0.6
+              ],
+              "convention": "exit=MISS (denominator 25)"
+            },
+            "worst_case_rate": 0.4,
+            "per_protocol": {
+              "rate": 0.5,
+              "numerator": 10,
+              "denominator": 20
+            }
+          },
+          "marcel_board": {
+            "side": "buy_low",
+            "n_leaderboard": 25,
+            "hits": 12,
+            "resolved_misses": 9,
+            "exits_unresolved": 4,
+            "itt": {
+              "rate": 0.48,
+              "numerator": 12,
+              "denominator": 25,
+              "voids_excluded": 0,
+              "ci95_bootstrap": [
+                0.32,
+                0.68
+              ],
+              "convention": "exit=MISS (denominator 25)"
+            },
+            "worst_case_rate": 0.48,
+            "per_protocol": {
+              "rate": 0.5714,
+              "numerator": 12,
+              "denominator": 21
+            }
+          },
+          "marcel_lift_pp": -8.0,
+          "batter_matched_naive_itt": {
+            "rate_itt": 0.5398427808034888,
+            "n_contributing_picks": 25,
+            "window": 0.3,
+            "convention": "spec 5.3 ITT (buy_low); >= 3 neighbors"
+          }
+        },
+        "over_valued": {
+          "model_batter_board": {
+            "side": "over_valued",
+            "n_leaderboard": 25,
+            "hits": 14,
+            "resolved_misses": 11,
+            "exits_unresolved": 0,
+            "itt": {
+              "rate": 0.56,
+              "numerator": 14,
+              "denominator": 25,
+              "voids_excluded": 0,
+              "ci95_bootstrap": [
+                0.36,
+                0.76
+              ],
+              "convention": "exit=VOID (excluded, disclosed)"
+            },
+            "worst_case_rate": 0.56,
+            "per_protocol": {
+              "rate": 0.56,
+              "numerator": 14,
+              "denominator": 25
+            }
+          },
+          "marcel_board": {
+            "side": "over_valued",
+            "n_leaderboard": 25,
+            "hits": 17,
+            "resolved_misses": 8,
+            "exits_unresolved": 0,
+            "itt": {
+              "rate": 0.68,
+              "numerator": 17,
+              "denominator": 25,
+              "voids_excluded": 0,
+              "ci95_bootstrap": [
+                0.52,
+                0.84
+              ],
+              "convention": "exit=VOID (excluded, disclosed)"
+            },
+            "worst_case_rate": 0.68,
+            "per_protocol": {
+              "rate": 0.68,
+              "numerator": 17,
+              "denominator": 25
+            }
+          },
+          "marcel_lift_pp": -12.0,
+          "batter_matched_naive_itt": {
+            "rate_itt": 0.6205221240795407,
+            "n_contributing_picks": 25,
+            "window": 0.3,
+            "convention": "spec 5.3 ITT (over_valued); >= 3 neighbors"
+          }
+        }
+      }
+    }
+  ],
+  "two_year_windows": [
+    {
+      "baseline_years": [
+        2016,
+        2017
+      ],
+      "followup_year": 2018,
+      "nuisance_train": [
+        2015,
+        2015
+      ],
+      "oos_status": "fully-OOS (train strictly before both baseline years)",
+      "covid_touched": false,
+      "n_qualified_pool": 1297,
+      "rule": "spec 5.5.3: hit iff war_f >= war_agg/2 (BL) / < (OV); absent follow-up row = exit",
+      "buy_low": {
+        "model": {
+          "side": "buy_low",
+          "n_leaderboard": 25,
+          "hits": 10,
+          "resolved_misses": 11,
+          "exits_unresolved": 4,
+          "itt": {
+            "rate": 0.4,
+            "numerator": 10,
+            "denominator": 25,
+            "voids_excluded": 0,
+            "ci95_bootstrap": [
+              0.2,
+              0.6
+            ],
+            "convention": "exit=MISS (denominator 25)"
+          },
+          "worst_case_rate": 0.4,
+          "per_protocol": {
+            "rate": 0.4762,
+            "numerator": 10,
+            "denominator": 21
+          }
+        },
+        "matched_naive_itt": {
+          "rate_itt": 0.3777975906114285,
+          "n_contributing_picks": 25,
+          "window": 0.6,
+          "convention": "spec 5.5.3 + 5.3 ITT (buy_low); >= 3 neighbors"
+        },
+        "lift_itt_pp": 2.22
+      },
+      "over_valued": {
+        "model": {
+          "side": "over_valued",
+          "n_leaderboard": 25,
+          "hits": 18,
+          "resolved_misses": 4,
+          "exits_unresolved": 3,
+          "itt": {
+            "rate": 0.8182,
+            "numerator": 18,
+            "denominator": 22,
+            "voids_excluded": 3,
+            "ci95_bootstrap": [
+              0.6818,
+              0.9545
+            ],
+            "convention": "exit=VOID (excluded, disclosed)"
+          },
+          "worst_case_rate": 0.72,
+          "per_protocol": {
+            "rate": 0.8182,
+            "numerator": 18,
+            "denominator": 22
+          }
+        },
+        "matched_naive_itt": {
+          "rate_itt": 0.830450674416501,
+          "n_contributing_picks": 25,
+          "window": 0.6,
+          "convention": "spec 5.5.3 + 5.3 ITT (over_valued); >= 3 neighbors"
+        },
+        "lift_itt_pp": -1.23
+      },
+      "batter_channel": {
+        "marcel_history": "full 3-season history [2015, 2016, 2017]",
+        "n_batter_pool": 510,
+        "buy_low": {
+          "model_batter_board": {
+            "side": "buy_low",
+            "n_leaderboard": 25,
+            "hits": 12,
+            "resolved_misses": 6,
+            "exits_unresolved": 7,
+            "itt": {
+              "rate": 0.48,
+              "numerator": 12,
+              "denominator": 25,
+              "voids_excluded": 0,
+              "ci95_bootstrap": [
+                0.319,
+                0.68
+              ],
+              "convention": "exit=MISS (denominator 25)"
+            },
+            "worst_case_rate": 0.48,
+            "per_protocol": {
+              "rate": 0.6667,
+              "numerator": 12,
+              "denominator": 18
+            }
+          },
+          "marcel_board": {
+            "side": "buy_low",
+            "n_leaderboard": 25,
+            "hits": 15,
+            "resolved_misses": 7,
+            "exits_unresolved": 3,
+            "itt": {
+              "rate": 0.6,
+              "numerator": 15,
+              "denominator": 25,
+              "voids_excluded": 0,
+              "ci95_bootstrap": [
+                0.4,
+                0.76
+              ],
+              "convention": "exit=MISS (denominator 25)"
+            },
+            "worst_case_rate": 0.6,
+            "per_protocol": {
+              "rate": 0.6818,
+              "numerator": 15,
+              "denominator": 22
+            }
+          },
+          "marcel_lift_pp": -12.0,
+          "batter_matched_naive_itt": {
+            "rate_itt": 0.3728138105649873,
+            "n_contributing_picks": 25,
+            "window": 0.6,
+            "convention": "spec 5.5.3 + 5.3 ITT (buy_low); >= 3 neighbors"
+          }
+        },
+        "over_valued": {
+          "model_batter_board": {
+            "side": "over_valued",
+            "n_leaderboard": 25,
+            "hits": 18,
+            "resolved_misses": 6,
+            "exits_unresolved": 1,
+            "itt": {
+              "rate": 0.75,
+              "numerator": 18,
+              "denominator": 24,
+              "voids_excluded": 1,
+              "ci95_bootstrap": [
+                0.5833,
+                0.9167
+              ],
+              "convention": "exit=VOID (excluded, disclosed)"
+            },
+            "worst_case_rate": 0.72,
+            "per_protocol": {
+              "rate": 0.75,
+              "numerator": 18,
+              "denominator": 24
+            }
+          },
+          "marcel_board": {
+            "side": "over_valued",
+            "n_leaderboard": 25,
+            "hits": 18,
+            "resolved_misses": 3,
+            "exits_unresolved": 4,
+            "itt": {
+              "rate": 0.8571,
+              "numerator": 18,
+              "denominator": 21,
+              "voids_excluded": 4,
+              "ci95_bootstrap": [
+                0.7143,
+                1.0
+              ],
+              "convention": "exit=VOID (excluded, disclosed)"
+            },
+            "worst_case_rate": 0.72,
+            "per_protocol": {
+              "rate": 0.8571,
+              "numerator": 18,
+              "denominator": 21
+            }
+          },
+          "marcel_lift_pp": -10.71,
+          "batter_matched_naive_itt": {
+            "rate_itt": 0.5653326172110975,
+            "n_contributing_picks": 25,
+            "window": 0.6,
+            "convention": "spec 5.5.3 + 5.3 ITT (over_valued); >= 3 neighbors"
+          }
+        }
+      }
+    },
+    {
+      "baseline_years": [
+        2017,
+        2018
+      ],
+      "followup_year": 2019,
+      "nuisance_train": [
+        2015,
+        2016
+      ],
+      "oos_status": "fully-OOS (train strictly before both baseline years)",
+      "covid_touched": false,
+      "n_qualified_pool": 1304,
+      "rule": "spec 5.5.3: hit iff war_f >= war_agg/2 (BL) / < (OV); absent follow-up row = exit",
+      "buy_low": {
+        "model": {
+          "side": "buy_low",
+          "n_leaderboard": 25,
+          "hits": 9,
+          "resolved_misses": 8,
+          "exits_unresolved": 8,
+          "itt": {
+            "rate": 0.36,
+            "numerator": 9,
+            "denominator": 25,
+            "voids_excluded": 0,
+            "ci95_bootstrap": [
+              0.199,
+              0.56
+            ],
+            "convention": "exit=MISS (denominator 25)"
+          },
+          "worst_case_rate": 0.36,
+          "per_protocol": {
+            "rate": 0.5294,
+            "numerator": 9,
+            "denominator": 17
+          }
+        },
+        "matched_naive_itt": {
+          "rate_itt": 0.42243318559642995,
+          "n_contributing_picks": 25,
+          "window": 0.6,
+          "convention": "spec 5.5.3 + 5.3 ITT (buy_low); >= 3 neighbors"
+        },
+        "lift_itt_pp": -6.24
+      },
+      "over_valued": {
+        "model": {
+          "side": "over_valued",
+          "n_leaderboard": 25,
+          "hits": 21,
+          "resolved_misses": 4,
+          "exits_unresolved": 0,
+          "itt": {
+            "rate": 0.84,
+            "numerator": 21,
+            "denominator": 25,
+            "voids_excluded": 0,
+            "ci95_bootstrap": [
+              0.68,
+              0.96
+            ],
+            "convention": "exit=VOID (excluded, disclosed)"
+          },
+          "worst_case_rate": 0.84,
+          "per_protocol": {
+            "rate": 0.84,
+            "numerator": 21,
+            "denominator": 25
+          }
+        },
+        "matched_naive_itt": {
+          "rate_itt": 0.804627919913255,
+          "n_contributing_picks": 25,
+          "window": 0.6,
+          "convention": "spec 5.5.3 + 5.3 ITT (over_valued); >= 3 neighbors"
+        },
+        "lift_itt_pp": 3.54
+      },
+      "batter_channel": {
+        "marcel_history": "full 3-season history [2016, 2017, 2018]",
+        "n_batter_pool": 496,
+        "buy_low": {
+          "model_batter_board": {
+            "side": "buy_low",
+            "n_leaderboard": 25,
+            "hits": 9,
+            "resolved_misses": 11,
+            "exits_unresolved": 5,
+            "itt": {
+              "rate": 0.36,
+              "numerator": 9,
+              "denominator": 25,
+              "voids_excluded": 0,
+              "ci95_bootstrap": [
+                0.2,
+                0.56
+              ],
+              "convention": "exit=MISS (denominator 25)"
+            },
+            "worst_case_rate": 0.36,
+            "per_protocol": {
+              "rate": 0.45,
+              "numerator": 9,
+              "denominator": 20
+            }
+          },
+          "marcel_board": {
+            "side": "buy_low",
+            "n_leaderboard": 25,
+            "hits": 10,
+            "resolved_misses": 11,
+            "exits_unresolved": 4,
+            "itt": {
+              "rate": 0.4,
+              "numerator": 10,
+              "denominator": 25,
+              "voids_excluded": 0,
+              "ci95_bootstrap": [
+                0.2,
+                0.6
+              ],
+              "convention": "exit=MISS (denominator 25)"
+            },
+            "worst_case_rate": 0.4,
+            "per_protocol": {
+              "rate": 0.4762,
+              "numerator": 10,
+              "denominator": 21
+            }
+          },
+          "marcel_lift_pp": -4.0,
+          "batter_matched_naive_itt": {
+            "rate_itt": 0.3472574297282772,
+            "n_contributing_picks": 25,
+            "window": 0.6,
+            "convention": "spec 5.5.3 + 5.3 ITT (buy_low); >= 3 neighbors"
+          }
+        },
+        "over_valued": {
+          "model_batter_board": {
+            "side": "over_valued",
+            "n_leaderboard": 25,
+            "hits": 15,
+            "resolved_misses": 10,
+            "exits_unresolved": 0,
+            "itt": {
+              "rate": 0.6,
+              "numerator": 15,
+              "denominator": 25,
+              "voids_excluded": 0,
+              "ci95_bootstrap": [
+                0.4,
+                0.8
+              ],
+              "convention": "exit=VOID (excluded, disclosed)"
+            },
+            "worst_case_rate": 0.6,
+            "per_protocol": {
+              "rate": 0.6,
+              "numerator": 15,
+              "denominator": 25
+            }
+          },
+          "marcel_board": {
+            "side": "over_valued",
+            "n_leaderboard": 25,
+            "hits": 16,
+            "resolved_misses": 9,
+            "exits_unresolved": 0,
+            "itt": {
+              "rate": 0.64,
+              "numerator": 16,
+              "denominator": 25,
+              "voids_excluded": 0,
+              "ci95_bootstrap": [
+                0.48,
+                0.84
+              ],
+              "convention": "exit=VOID (excluded, disclosed)"
+            },
+            "worst_case_rate": 0.64,
+            "per_protocol": {
+              "rate": 0.64,
+              "numerator": 16,
+              "denominator": 25
+            }
+          },
+          "marcel_lift_pp": -4.0,
+          "batter_matched_naive_itt": {
+            "rate_itt": 0.6746460836521116,
+            "n_contributing_picks": 25,
+            "window": 0.6,
+            "convention": "spec 5.5.3 + 5.3 ITT (over_valued); >= 3 neighbors"
+          }
+        }
+      }
+    },
+    {
+      "baseline_years": [
+        2018,
+        2019
+      ],
+      "followup_year": 2020,
+      "nuisance_train": [
+        2015,
+        2017
+      ],
+      "oos_status": "fully-OOS (train strictly before both baseline years)",
+      "covid_touched": true,
+      "n_qualified_pool": 1065,
+      "rule": "spec 5.5.3: hit iff war_f >= war_agg/2 (BL) / < (OV); absent follow-up row = exit",
+      "buy_low": {
+        "model": {
+          "side": "buy_low",
+          "n_leaderboard": 25,
+          "hits": 9,
+          "resolved_misses": 7,
+          "exits_unresolved": 9,
+          "itt": {
+            "rate": 0.36,
+            "numerator": 9,
+            "denominator": 25,
+            "voids_excluded": 0,
+            "ci95_bootstrap": [
+              0.16,
+              0.56
+            ],
+            "convention": "exit=MISS (denominator 25)"
+          },
+          "worst_case_rate": 0.36,
+          "per_protocol": {
+            "rate": 0.5625,
+            "numerator": 9,
+            "denominator": 16
+          }
+        },
+        "matched_naive_itt": {
+          "rate_itt": 0.34477467628411324,
+          "n_contributing_picks": 25,
+          "window": 0.6,
+          "convention": "spec 5.5.3 + 5.3 ITT (buy_low); >= 3 neighbors"
+        },
+        "lift_itt_pp": 1.52
+      },
+      "over_valued": {
+        "model": {
+          "side": "over_valued",
+          "n_leaderboard": 25,
+          "hits": 19,
+          "resolved_misses": 2,
+          "exits_unresolved": 4,
+          "itt": {
+            "rate": 0.9048,
+            "numerator": 19,
+            "denominator": 21,
+            "voids_excluded": 4,
+            "ci95_bootstrap": [
+              0.7619,
+              1.0
+            ],
+            "convention": "exit=VOID (excluded, disclosed)"
+          },
+          "worst_case_rate": 0.76,
+          "per_protocol": {
+            "rate": 0.9048,
+            "numerator": 19,
+            "denominator": 21
+          }
+        },
+        "matched_naive_itt": {
+          "rate_itt": 0.8770662148427966,
+          "n_contributing_picks": 25,
+          "window": 0.6,
+          "convention": "spec 5.5.3 + 5.3 ITT (over_valued); >= 3 neighbors"
+        },
+        "lift_itt_pp": 2.77
+      },
+      "batter_channel": {
+        "marcel_history": "full 3-season history [2017, 2018, 2019]",
+        "n_batter_pool": 500,
+        "buy_low": {
+          "model_batter_board": {
+            "side": "buy_low",
+            "n_leaderboard": 25,
+            "hits": 7,
+            "resolved_misses": 12,
+            "exits_unresolved": 6,
+            "itt": {
+              "rate": 0.28,
+              "numerator": 7,
+              "denominator": 25,
+              "voids_excluded": 0,
+              "ci95_bootstrap": [
+                0.12,
+                0.44
+              ],
+              "convention": "exit=MISS (denominator 25)"
+            },
+            "worst_case_rate": 0.28,
+            "per_protocol": {
+              "rate": 0.3684,
+              "numerator": 7,
+              "denominator": 19
+            }
+          },
+          "marcel_board": {
+            "side": "buy_low",
+            "n_leaderboard": 25,
+            "hits": 7,
+            "resolved_misses": 13,
+            "exits_unresolved": 5,
+            "itt": {
+              "rate": 0.28,
+              "numerator": 7,
+              "denominator": 25,
+              "voids_excluded": 0,
+              "ci95_bootstrap": [
+                0.12,
+                0.48
+              ],
+              "convention": "exit=MISS (denominator 25)"
+            },
+            "worst_case_rate": 0.28,
+            "per_protocol": {
+              "rate": 0.35,
+              "numerator": 7,
+              "denominator": 20
+            }
+          },
+          "marcel_lift_pp": 0.0,
+          "batter_matched_naive_itt": {
+            "rate_itt": 0.2805331684389839,
+            "n_contributing_picks": 25,
+            "window": 0.6,
+            "convention": "spec 5.5.3 + 5.3 ITT (buy_low); >= 3 neighbors"
+          }
+        },
+        "over_valued": {
+          "model_batter_board": {
+            "side": "over_valued",
+            "n_leaderboard": 25,
+            "hits": 22,
+            "resolved_misses": 2,
+            "exits_unresolved": 1,
+            "itt": {
+              "rate": 0.9167,
+              "numerator": 22,
+              "denominator": 24,
+              "voids_excluded": 1,
+              "ci95_bootstrap": [
+                0.7917,
+                1.0
+              ],
+              "convention": "exit=VOID (excluded, disclosed)"
+            },
+            "worst_case_rate": 0.88,
+            "per_protocol": {
+              "rate": 0.9167,
+              "numerator": 22,
+              "denominator": 24
+            }
+          },
+          "marcel_board": {
+            "side": "over_valued",
+            "n_leaderboard": 25,
+            "hits": 23,
+            "resolved_misses": 1,
+            "exits_unresolved": 1,
+            "itt": {
+              "rate": 0.9583,
+              "numerator": 23,
+              "denominator": 24,
+              "voids_excluded": 1,
+              "ci95_bootstrap": [
+                0.875,
+                1.0
+              ],
+              "convention": "exit=VOID (excluded, disclosed)"
+            },
+            "worst_case_rate": 0.92,
+            "per_protocol": {
+              "rate": 0.9583,
+              "numerator": 23,
+              "denominator": 24
+            }
+          },
+          "marcel_lift_pp": -4.16,
+          "batter_matched_naive_itt": {
+            "rate_itt": 0.8287577122250965,
+            "n_contributing_picks": 25,
+            "window": 0.6,
+            "convention": "spec 5.5.3 + 5.3 ITT (over_valued); >= 3 neighbors"
+          }
+        }
+      }
+    },
+    {
+      "baseline_years": [
+        2019,
+        2020
+      ],
+      "followup_year": 2021,
+      "nuisance_train": [
+        2015,
+        2018
+      ],
+      "oos_status": "fully-OOS (train strictly before both baseline years)",
+      "covid_touched": true,
+      "n_qualified_pool": 1140,
+      "rule": "spec 5.5.3: hit iff war_f >= war_agg/2 (BL) / < (OV); absent follow-up row = exit",
+      "buy_low": {
+        "model": {
+          "side": "buy_low",
+          "n_leaderboard": 25,
+          "hits": 13,
+          "resolved_misses": 6,
+          "exits_unresolved": 6,
+          "itt": {
+            "rate": 0.52,
+            "numerator": 13,
+            "denominator": 25,
+            "voids_excluded": 0,
+            "ci95_bootstrap": [
+              0.32,
+              0.72
+            ],
+            "convention": "exit=MISS (denominator 25)"
+          },
+          "worst_case_rate": 0.52,
+          "per_protocol": {
+            "rate": 0.6842,
+            "numerator": 13,
+            "denominator": 19
+          }
+        },
+        "matched_naive_itt": {
+          "rate_itt": 0.4283867167600828,
+          "n_contributing_picks": 25,
+          "window": 0.6,
+          "convention": "spec 5.5.3 + 5.3 ITT (buy_low); >= 3 neighbors"
+        },
+        "lift_itt_pp": 9.16
+      },
+      "over_valued": {
+        "model": {
+          "side": "over_valued",
+          "n_leaderboard": 25,
+          "hits": 18,
+          "resolved_misses": 5,
+          "exits_unresolved": 2,
+          "itt": {
+            "rate": 0.7826,
+            "numerator": 18,
+            "denominator": 23,
+            "voids_excluded": 2,
+            "ci95_bootstrap": [
+              0.6087,
+              0.913
+            ],
+            "convention": "exit=VOID (excluded, disclosed)"
+          },
+          "worst_case_rate": 0.72,
+          "per_protocol": {
+            "rate": 0.7826,
+            "numerator": 18,
+            "denominator": 23
+          }
+        },
+        "matched_naive_itt": {
+          "rate_itt": 0.7682502922444533,
+          "n_contributing_picks": 25,
+          "window": 0.6,
+          "convention": "spec 5.5.3 + 5.3 ITT (over_valued); >= 3 neighbors"
+        },
+        "lift_itt_pp": 1.43
+      },
+      "batter_channel": {
+        "marcel_history": "full 3-season history [2018, 2019, 2020]",
+        "n_batter_pool": 445,
+        "buy_low": {
+          "model_batter_board": {
+            "side": "buy_low",
+            "n_leaderboard": 25,
+            "hits": 7,
+            "resolved_misses": 9,
+            "exits_unresolved": 9,
+            "itt": {
+              "rate": 0.28,
+              "numerator": 7,
+              "denominator": 25,
+              "voids_excluded": 0,
+              "ci95_bootstrap": [
+                0.12,
+                0.44
+              ],
+              "convention": "exit=MISS (denominator 25)"
+            },
+            "worst_case_rate": 0.28,
+            "per_protocol": {
+              "rate": 0.4375,
+              "numerator": 7,
+              "denominator": 16
+            }
+          },
+          "marcel_board": {
+            "side": "buy_low",
+            "n_leaderboard": 25,
+            "hits": 11,
+            "resolved_misses": 10,
+            "exits_unresolved": 4,
+            "itt": {
+              "rate": 0.44,
+              "numerator": 11,
+              "denominator": 25,
+              "voids_excluded": 0,
+              "ci95_bootstrap": [
+                0.24,
+                0.64
+              ],
+              "convention": "exit=MISS (denominator 25)"
+            },
+            "worst_case_rate": 0.44,
+            "per_protocol": {
+              "rate": 0.5238,
+              "numerator": 11,
+              "denominator": 21
+            }
+          },
+          "marcel_lift_pp": -16.0,
+          "batter_matched_naive_itt": {
+            "rate_itt": 0.35907466718426373,
+            "n_contributing_picks": 25,
+            "window": 0.6,
+            "convention": "spec 5.5.3 + 5.3 ITT (buy_low); >= 3 neighbors"
+          }
+        },
+        "over_valued": {
+          "model_batter_board": {
+            "side": "over_valued",
+            "n_leaderboard": 25,
+            "hits": 13,
+            "resolved_misses": 11,
+            "exits_unresolved": 1,
+            "itt": {
+              "rate": 0.5417,
+              "numerator": 13,
+              "denominator": 24,
+              "voids_excluded": 1,
+              "ci95_bootstrap": [
+                0.3333,
+                0.75
+              ],
+              "convention": "exit=VOID (excluded, disclosed)"
+            },
+            "worst_case_rate": 0.52,
+            "per_protocol": {
+              "rate": 0.5417,
+              "numerator": 13,
+              "denominator": 24
+            }
+          },
+          "marcel_board": {
+            "side": "over_valued",
+            "n_leaderboard": 25,
+            "hits": 18,
+            "resolved_misses": 6,
+            "exits_unresolved": 1,
+            "itt": {
+              "rate": 0.75,
+              "numerator": 18,
+              "denominator": 24,
+              "voids_excluded": 1,
+              "ci95_bootstrap": [
+                0.5833,
+                0.9167
+              ],
+              "convention": "exit=VOID (excluded, disclosed)"
+            },
+            "worst_case_rate": 0.72,
+            "per_protocol": {
+              "rate": 0.75,
+              "numerator": 18,
+              "denominator": 24
+            }
+          },
+          "marcel_lift_pp": -20.83,
+          "batter_matched_naive_itt": {
+            "rate_itt": 0.5268683548197276,
+            "n_contributing_picks": 25,
+            "window": 0.6,
+            "convention": "spec 5.5.3 + 5.3 ITT (over_valued); >= 3 neighbors"
+          }
+        }
+      }
+    },
+    {
+      "baseline_years": [
+        2020,
+        2021
+      ],
+      "followup_year": 2022,
+      "nuisance_train": [
+        2015,
+        2019
+      ],
+      "oos_status": "fully-OOS (train strictly before both baseline years)",
+      "covid_touched": true,
+      "n_qualified_pool": 941,
+      "rule": "spec 5.5.3: hit iff war_f >= war_agg/2 (BL) / < (OV); absent follow-up row = exit",
+      "buy_low": {
+        "model": {
+          "side": "buy_low",
+          "n_leaderboard": 25,
+          "hits": 14,
+          "resolved_misses": 10,
+          "exits_unresolved": 1,
+          "itt": {
+            "rate": 0.56,
+            "numerator": 14,
+            "denominator": 25,
+            "voids_excluded": 0,
+            "ci95_bootstrap": [
+              0.36,
+              0.76
+            ],
+            "convention": "exit=MISS (denominator 25)"
+          },
+          "worst_case_rate": 0.56,
+          "per_protocol": {
+            "rate": 0.5833,
+            "numerator": 14,
+            "denominator": 24
+          }
+        },
+        "matched_naive_itt": {
+          "rate_itt": 0.42515632066652925,
+          "n_contributing_picks": 25,
+          "window": 0.6,
+          "convention": "spec 5.5.3 + 5.3 ITT (buy_low); >= 3 neighbors"
+        },
+        "lift_itt_pp": 13.48
+      },
+      "over_valued": {
+        "model": {
+          "side": "over_valued",
+          "n_leaderboard": 25,
+          "hits": 18,
+          "resolved_misses": 6,
+          "exits_unresolved": 1,
+          "itt": {
+            "rate": 0.75,
+            "numerator": 18,
+            "denominator": 24,
+            "voids_excluded": 1,
+            "ci95_bootstrap": [
+              0.5833,
+              0.9167
+            ],
+            "convention": "exit=VOID (excluded, disclosed)"
+          },
+          "worst_case_rate": 0.72,
+          "per_protocol": {
+            "rate": 0.75,
+            "numerator": 18,
+            "denominator": 24
+          }
+        },
+        "matched_naive_itt": {
+          "rate_itt": 0.5534069728538552,
+          "n_contributing_picks": 25,
+          "window": 0.6,
+          "convention": "spec 5.5.3 + 5.3 ITT (over_valued); >= 3 neighbors"
+        },
+        "lift_itt_pp": 19.66
+      },
+      "batter_channel": {
+        "marcel_history": "full 3-season history [2019, 2020, 2021]",
+        "n_batter_pool": 458,
+        "buy_low": {
+          "model_batter_board": {
+            "side": "buy_low",
+            "n_leaderboard": 25,
+            "hits": 15,
+            "resolved_misses": 9,
+            "exits_unresolved": 1,
+            "itt": {
+              "rate": 0.6,
+              "numerator": 15,
+              "denominator": 25,
+              "voids_excluded": 0,
+              "ci95_bootstrap": [
+                0.4,
+                0.8
+              ],
+              "convention": "exit=MISS (denominator 25)"
+            },
+            "worst_case_rate": 0.6,
+            "per_protocol": {
+              "rate": 0.625,
+              "numerator": 15,
+              "denominator": 24
+            }
+          },
+          "marcel_board": {
+            "side": "buy_low",
+            "n_leaderboard": 25,
+            "hits": 15,
+            "resolved_misses": 9,
+            "exits_unresolved": 1,
+            "itt": {
+              "rate": 0.6,
+              "numerator": 15,
+              "denominator": 25,
+              "voids_excluded": 0,
+              "ci95_bootstrap": [
+                0.4,
+                0.8
+              ],
+              "convention": "exit=MISS (denominator 25)"
+            },
+            "worst_case_rate": 0.6,
+            "per_protocol": {
+              "rate": 0.625,
+              "numerator": 15,
+              "denominator": 24
+            }
+          },
+          "marcel_lift_pp": 0.0,
+          "batter_matched_naive_itt": {
+            "rate_itt": 0.41536953310027264,
+            "n_contributing_picks": 25,
+            "window": 0.6,
+            "convention": "spec 5.5.3 + 5.3 ITT (buy_low); >= 3 neighbors"
+          }
+        },
+        "over_valued": {
+          "model_batter_board": {
+            "side": "over_valued",
+            "n_leaderboard": 25,
+            "hits": 17,
+            "resolved_misses": 8,
+            "exits_unresolved": 0,
+            "itt": {
+              "rate": 0.68,
+              "numerator": 17,
+              "denominator": 25,
+              "voids_excluded": 0,
+              "ci95_bootstrap": [
+                0.48,
+                0.84
+              ],
+              "convention": "exit=VOID (excluded, disclosed)"
+            },
+            "worst_case_rate": 0.68,
+            "per_protocol": {
+              "rate": 0.68,
+              "numerator": 17,
+              "denominator": 25
+            }
+          },
+          "marcel_board": {
+            "side": "over_valued",
+            "n_leaderboard": 25,
+            "hits": 20,
+            "resolved_misses": 5,
+            "exits_unresolved": 0,
+            "itt": {
+              "rate": 0.8,
+              "numerator": 20,
+              "denominator": 25,
+              "voids_excluded": 0,
+              "ci95_bootstrap": [
+                0.64,
+                0.96
+              ],
+              "convention": "exit=VOID (excluded, disclosed)"
+            },
+            "worst_case_rate": 0.8,
+            "per_protocol": {
+              "rate": 0.8,
+              "numerator": 20,
+              "denominator": 25
+            }
+          },
+          "marcel_lift_pp": -12.0,
+          "batter_matched_naive_itt": {
+            "rate_itt": 0.5440689693263516,
+            "n_contributing_picks": 25,
+            "window": 0.6,
+            "convention": "spec 5.5.3 + 5.3 ITT (over_valued); >= 3 neighbors"
+          }
+        }
+      }
+    },
+    {
+      "baseline_years": [
+        2021,
+        2022
+      ],
+      "followup_year": 2023,
+      "nuisance_train": [
+        2015,
+        2020
+      ],
+      "oos_status": "fully-OOS (train strictly before both baseline years)",
+      "covid_touched": false,
+      "n_qualified_pool": 1134,
+      "rule": "spec 5.5.3: hit iff war_f >= war_agg/2 (BL) / < (OV); absent follow-up row = exit",
+      "buy_low": {
+        "model": {
+          "side": "buy_low",
+          "n_leaderboard": 25,
+          "hits": 16,
+          "resolved_misses": 4,
+          "exits_unresolved": 5,
+          "itt": {
+            "rate": 0.64,
+            "numerator": 16,
+            "denominator": 25,
+            "voids_excluded": 0,
+            "ci95_bootstrap": [
+              0.44,
+              0.8
+            ],
+            "convention": "exit=MISS (denominator 25)"
+          },
+          "worst_case_rate": 0.64,
+          "per_protocol": {
+            "rate": 0.8,
+            "numerator": 16,
+            "denominator": 20
+          }
+        },
+        "matched_naive_itt": {
+          "rate_itt": 0.44869795952223035,
+          "n_contributing_picks": 25,
+          "window": 0.6,
+          "convention": "spec 5.5.3 + 5.3 ITT (buy_low); >= 3 neighbors"
+        },
+        "lift_itt_pp": 19.13
+      },
+      "over_valued": {
+        "model": {
+          "side": "over_valued",
+          "n_leaderboard": 25,
+          "hits": 18,
+          "resolved_misses": 6,
+          "exits_unresolved": 1,
+          "itt": {
+            "rate": 0.75,
+            "numerator": 18,
+            "denominator": 24,
+            "voids_excluded": 1,
+            "ci95_bootstrap": [
+              0.5833,
+              0.9167
+            ],
+            "convention": "exit=VOID (excluded, disclosed)"
+          },
+          "worst_case_rate": 0.72,
+          "per_protocol": {
+            "rate": 0.75,
+            "numerator": 18,
+            "denominator": 24
+          }
+        },
+        "matched_naive_itt": {
+          "rate_itt": 0.6786283551874038,
+          "n_contributing_picks": 25,
+          "window": 0.6,
+          "convention": "spec 5.5.3 + 5.3 ITT (over_valued); >= 3 neighbors"
+        },
+        "lift_itt_pp": 7.14
+      },
+      "batter_channel": {
+        "marcel_history": "full 3-season history [2020, 2021, 2022]",
+        "n_batter_pool": 534,
+        "buy_low": {
+          "model_batter_board": {
+            "side": "buy_low",
+            "n_leaderboard": 25,
+            "hits": 15,
+            "resolved_misses": 4,
+            "exits_unresolved": 6,
+            "itt": {
+              "rate": 0.6,
+              "numerator": 15,
+              "denominator": 25,
+              "voids_excluded": 0,
+              "ci95_bootstrap": [
+                0.4,
+                0.76
+              ],
+              "convention": "exit=MISS (denominator 25)"
+            },
+            "worst_case_rate": 0.6,
+            "per_protocol": {
+              "rate": 0.7895,
+              "numerator": 15,
+              "denominator": 19
+            }
+          },
+          "marcel_board": {
+            "side": "buy_low",
+            "n_leaderboard": 25,
+            "hits": 12,
+            "resolved_misses": 9,
+            "exits_unresolved": 4,
+            "itt": {
+              "rate": 0.48,
+              "numerator": 12,
+              "denominator": 25,
+              "voids_excluded": 0,
+              "ci95_bootstrap": [
+                0.28,
+                0.68
+              ],
+              "convention": "exit=MISS (denominator 25)"
+            },
+            "worst_case_rate": 0.48,
+            "per_protocol": {
+              "rate": 0.5714,
+              "numerator": 12,
+              "denominator": 21
+            }
+          },
+          "marcel_lift_pp": 12.0,
+          "batter_matched_naive_itt": {
+            "rate_itt": 0.44473772764786346,
+            "n_contributing_picks": 25,
+            "window": 0.6,
+            "convention": "spec 5.5.3 + 5.3 ITT (buy_low); >= 3 neighbors"
+          }
+        },
+        "over_valued": {
+          "model_batter_board": {
+            "side": "over_valued",
+            "n_leaderboard": 25,
+            "hits": 21,
+            "resolved_misses": 3,
+            "exits_unresolved": 1,
+            "itt": {
+              "rate": 0.875,
+              "numerator": 21,
+              "denominator": 24,
+              "voids_excluded": 1,
+              "ci95_bootstrap": [
+                0.75,
+                1.0
+              ],
+              "convention": "exit=VOID (excluded, disclosed)"
+            },
+            "worst_case_rate": 0.84,
+            "per_protocol": {
+              "rate": 0.875,
+              "numerator": 21,
+              "denominator": 24
+            }
+          },
+          "marcel_board": {
+            "side": "over_valued",
+            "n_leaderboard": 25,
+            "hits": 21,
+            "resolved_misses": 2,
+            "exits_unresolved": 2,
+            "itt": {
+              "rate": 0.913,
+              "numerator": 21,
+              "denominator": 23,
+              "voids_excluded": 2,
+              "ci95_bootstrap": [
+                0.7826,
+                1.0
+              ],
+              "convention": "exit=VOID (excluded, disclosed)"
+            },
+            "worst_case_rate": 0.84,
+            "per_protocol": {
+              "rate": 0.913,
+              "numerator": 21,
+              "denominator": 23
+            }
+          },
+          "marcel_lift_pp": -3.8,
+          "batter_matched_naive_itt": {
+            "rate_itt": 0.6807995565313655,
+            "n_contributing_picks": 25,
+            "window": 0.6,
+            "convention": "spec 5.5.3 + 5.3 ITT (over_valued); >= 3 neighbors"
+          }
+        }
+      }
+    },
+    {
+      "baseline_years": [
+        2022,
+        2023
+      ],
+      "followup_year": 2024,
+      "nuisance_train": [
+        2015,
+        2021
+      ],
+      "oos_status": "fully-OOS (train strictly before both baseline years)",
+      "covid_touched": false,
+      "n_qualified_pool": 1128,
+      "rule": "spec 5.5.3: hit iff war_f >= war_agg/2 (BL) / < (OV); absent follow-up row = exit",
+      "buy_low": {
+        "model": {
+          "side": "buy_low",
+          "n_leaderboard": 25,
+          "hits": 13,
+          "resolved_misses": 8,
+          "exits_unresolved": 4,
+          "itt": {
+            "rate": 0.52,
+            "numerator": 13,
+            "denominator": 25,
+            "voids_excluded": 0,
+            "ci95_bootstrap": [
+              0.32,
+              0.72
+            ],
+            "convention": "exit=MISS (denominator 25)"
+          },
+          "worst_case_rate": 0.52,
+          "per_protocol": {
+            "rate": 0.619,
+            "numerator": 13,
+            "denominator": 21
+          }
+        },
+        "matched_naive_itt": {
+          "rate_itt": 0.43489838415972476,
+          "n_contributing_picks": 25,
+          "window": 0.6,
+          "convention": "spec 5.5.3 + 5.3 ITT (buy_low); >= 3 neighbors"
+        },
+        "lift_itt_pp": 8.51
+      },
+      "over_valued": {
+        "model": {
+          "side": "over_valued",
+          "n_leaderboard": 25,
+          "hits": 17,
+          "resolved_misses": 6,
+          "exits_unresolved": 2,
+          "itt": {
+            "rate": 0.7391,
+            "numerator": 17,
+            "denominator": 23,
+            "voids_excluded": 2,
+            "ci95_bootstrap": [
+              0.5652,
+              0.913
+            ],
+            "convention": "exit=VOID (excluded, disclosed)"
+          },
+          "worst_case_rate": 0.68,
+          "per_protocol": {
+            "rate": 0.7391,
+            "numerator": 17,
+            "denominator": 23
+          }
+        },
+        "matched_naive_itt": {
+          "rate_itt": 0.7061644537580324,
+          "n_contributing_picks": 25,
+          "window": 0.6,
+          "convention": "spec 5.5.3 + 5.3 ITT (over_valued); >= 3 neighbors"
+        },
+        "lift_itt_pp": 3.29
+      },
+      "batter_channel": {
+        "marcel_history": "full 3-season history [2021, 2022, 2023]",
+        "n_batter_pool": 532,
+        "buy_low": {
+          "model_batter_board": {
+            "side": "buy_low",
+            "n_leaderboard": 25,
+            "hits": 9,
+            "resolved_misses": 11,
+            "exits_unresolved": 5,
+            "itt": {
+              "rate": 0.36,
+              "numerator": 9,
+              "denominator": 25,
+              "voids_excluded": 0,
+              "ci95_bootstrap": [
+                0.2,
+                0.56
+              ],
+              "convention": "exit=MISS (denominator 25)"
+            },
+            "worst_case_rate": 0.36,
+            "per_protocol": {
+              "rate": 0.45,
+              "numerator": 9,
+              "denominator": 20
+            }
+          },
+          "marcel_board": {
+            "side": "buy_low",
+            "n_leaderboard": 25,
+            "hits": 11,
+            "resolved_misses": 10,
+            "exits_unresolved": 4,
+            "itt": {
+              "rate": 0.44,
+              "numerator": 11,
+              "denominator": 25,
+              "voids_excluded": 0,
+              "ci95_bootstrap": [
+                0.24,
+                0.64
+              ],
+              "convention": "exit=MISS (denominator 25)"
+            },
+            "worst_case_rate": 0.44,
+            "per_protocol": {
+              "rate": 0.5238,
+              "numerator": 11,
+              "denominator": 21
+            }
+          },
+          "marcel_lift_pp": -8.0,
+          "batter_matched_naive_itt": {
+            "rate_itt": 0.39469310737515984,
+            "n_contributing_picks": 25,
+            "window": 0.6,
+            "convention": "spec 5.5.3 + 5.3 ITT (buy_low); >= 3 neighbors"
+          }
+        },
+        "over_valued": {
+          "model_batter_board": {
+            "side": "over_valued",
+            "n_leaderboard": 25,
+            "hits": 18,
+            "resolved_misses": 7,
+            "exits_unresolved": 0,
+            "itt": {
+              "rate": 0.72,
+              "numerator": 18,
+              "denominator": 25,
+              "voids_excluded": 0,
+              "ci95_bootstrap": [
+                0.56,
+                0.88
+              ],
+              "convention": "exit=VOID (excluded, disclosed)"
+            },
+            "worst_case_rate": 0.72,
+            "per_protocol": {
+              "rate": 0.72,
+              "numerator": 18,
+              "denominator": 25
+            }
+          },
+          "marcel_board": {
+            "side": "over_valued",
+            "n_leaderboard": 25,
+            "hits": 19,
+            "resolved_misses": 5,
+            "exits_unresolved": 1,
+            "itt": {
+              "rate": 0.7917,
+              "numerator": 19,
+              "denominator": 24,
+              "voids_excluded": 1,
+              "ci95_bootstrap": [
+                0.625,
+                0.9583
+              ],
+              "convention": "exit=VOID (excluded, disclosed)"
+            },
+            "worst_case_rate": 0.76,
+            "per_protocol": {
+              "rate": 0.7917,
+              "numerator": 19,
+              "denominator": 24
+            }
+          },
+          "marcel_lift_pp": -7.17,
+          "batter_matched_naive_itt": {
+            "rate_itt": 0.7051482124980797,
+            "n_contributing_picks": 25,
+            "window": 0.6,
+            "convention": "spec 5.5.3 + 5.3 ITT (over_valued); >= 3 neighbors"
+          }
+        }
+      }
+    },
+    {
+      "baseline_years": [
+        2023,
+        2024
+      ],
+      "followup_year": 2025,
+      "nuisance_train": [
+        2015,
+        2022
+      ],
+      "oos_status": "fully-OOS (train strictly before both baseline years)",
+      "covid_touched": false,
+      "n_qualified_pool": 1125,
+      "rule": "spec 5.5.3: hit iff war_f >= war_agg/2 (BL) / < (OV); absent follow-up row = exit",
+      "buy_low": {
+        "model": {
+          "side": "buy_low",
+          "n_leaderboard": 25,
+          "hits": 15,
+          "resolved_misses": 3,
+          "exits_unresolved": 7,
+          "itt": {
+            "rate": 0.6,
+            "numerator": 15,
+            "denominator": 25,
+            "voids_excluded": 0,
+            "ci95_bootstrap": [
+              0.4,
+              0.76
+            ],
+            "convention": "exit=MISS (denominator 25)"
+          },
+          "worst_case_rate": 0.6,
+          "per_protocol": {
+            "rate": 0.8333,
+            "numerator": 15,
+            "denominator": 18
+          }
+        },
+        "matched_naive_itt": {
+          "rate_itt": 0.4204628956318819,
+          "n_contributing_picks": 25,
+          "window": 0.6,
+          "convention": "spec 5.5.3 + 5.3 ITT (buy_low); >= 3 neighbors"
+        },
+        "lift_itt_pp": 17.95
+      },
+      "over_valued": {
+        "model": {
+          "side": "over_valued",
+          "n_leaderboard": 25,
+          "hits": 16,
+          "resolved_misses": 8,
+          "exits_unresolved": 1,
+          "itt": {
+            "rate": 0.6667,
+            "numerator": 16,
+            "denominator": 24,
+            "voids_excluded": 1,
+            "ci95_bootstrap": [
+              0.4583,
+              0.8333
+            ],
+            "convention": "exit=VOID (excluded, disclosed)"
+          },
+          "worst_case_rate": 0.64,
+          "per_protocol": {
+            "rate": 0.6667,
+            "numerator": 16,
+            "denominator": 24
+          }
+        },
+        "matched_naive_itt": {
+          "rate_itt": 0.6549443138306582,
+          "n_contributing_picks": 25,
+          "window": 0.6,
+          "convention": "spec 5.5.3 + 5.3 ITT (over_valued); >= 3 neighbors"
+        },
+        "lift_itt_pp": 1.18
+      },
+      "batter_channel": {
+        "marcel_history": "full 3-season history [2022, 2023, 2024]",
+        "n_batter_pool": 526,
+        "buy_low": {
+          "model_batter_board": {
+            "side": "buy_low",
+            "n_leaderboard": 25,
+            "hits": 10,
+            "resolved_misses": 6,
+            "exits_unresolved": 9,
+            "itt": {
+              "rate": 0.4,
+              "numerator": 10,
+              "denominator": 25,
+              "voids_excluded": 0,
+              "ci95_bootstrap": [
+                0.2,
+                0.6
+              ],
+              "convention": "exit=MISS (denominator 25)"
+            },
+            "worst_case_rate": 0.4,
+            "per_protocol": {
+              "rate": 0.625,
+              "numerator": 10,
+              "denominator": 16
+            }
+          },
+          "marcel_board": {
+            "side": "buy_low",
+            "n_leaderboard": 25,
+            "hits": 13,
+            "resolved_misses": 4,
+            "exits_unresolved": 8,
+            "itt": {
+              "rate": 0.52,
+              "numerator": 13,
+              "denominator": 25,
+              "voids_excluded": 0,
+              "ci95_bootstrap": [
+                0.32,
+                0.72
+              ],
+              "convention": "exit=MISS (denominator 25)"
+            },
+            "worst_case_rate": 0.52,
+            "per_protocol": {
+              "rate": 0.7647,
+              "numerator": 13,
+              "denominator": 17
+            }
+          },
+          "marcel_lift_pp": -12.0,
+          "batter_matched_naive_itt": {
+            "rate_itt": 0.4746810741402736,
+            "n_contributing_picks": 25,
+            "window": 0.6,
+            "convention": "spec 5.5.3 + 5.3 ITT (buy_low); >= 3 neighbors"
+          }
+        },
+        "over_valued": {
+          "model_batter_board": {
+            "side": "over_valued",
+            "n_leaderboard": 25,
+            "hits": 18,
+            "resolved_misses": 6,
+            "exits_unresolved": 1,
+            "itt": {
+              "rate": 0.75,
+              "numerator": 18,
+              "denominator": 24,
+              "voids_excluded": 1,
+              "ci95_bootstrap": [
+                0.5833,
+                0.9167
+              ],
+              "convention": "exit=VOID (excluded, disclosed)"
+            },
+            "worst_case_rate": 0.72,
+            "per_protocol": {
+              "rate": 0.75,
+              "numerator": 18,
+              "denominator": 24
+            }
+          },
+          "marcel_board": {
+            "side": "over_valued",
+            "n_leaderboard": 25,
+            "hits": 18,
+            "resolved_misses": 6,
+            "exits_unresolved": 1,
+            "itt": {
+              "rate": 0.75,
+              "numerator": 18,
+              "denominator": 24,
+              "voids_excluded": 1,
+              "ci95_bootstrap": [
+                0.5833,
+                0.9167
+              ],
+              "convention": "exit=VOID (excluded, disclosed)"
+            },
+            "worst_case_rate": 0.72,
+            "per_protocol": {
+              "rate": 0.75,
+              "numerator": 18,
+              "denominator": 24
+            }
+          },
+          "marcel_lift_pp": 0.0,
+          "batter_matched_naive_itt": {
+            "rate_itt": 0.6868393093517042,
+            "n_contributing_picks": 25,
+            "window": 0.6,
+            "convention": "spec 5.5.3 + 5.3 ITT (over_valued); >= 3 neighbors"
+          }
+        }
+      }
+    }
+  ],
+  "k3_interim_aggregates": {
+    "note": "K3 interim inputs: every window fully-OOS; primary mean includes COVID-touched windows exactly as they land (pre-declared); covid_excluded is the pre-declared labeled sensitivity, never the headline. Marcel lifts are batter-channel (pitcher Marcel deferred per frozen spec 6.7).",
+    "single_season": {
+      "buy_low": {
+        "mean_fully_oos_lift_vs_matched_naive_pp": 11.05,
+        "per_window_naive_lifts_pp": [
+          25.05,
+          -2.09,
+          9.33,
+          8.06,
+          9.63,
+          5.01,
+          19.53,
+          6.49,
+          18.41
+        ],
+        "mean_fully_oos_marcel_lift_pp_batter_channel": -8.0,
+        "per_window_marcel_lifts_pp": [
+          -4.0,
+          4.0,
+          4.0,
+          -8.0,
+          -12.0,
+          -20.0,
+          -12.0,
+          -16.0,
+          -8.0
+        ],
+        "covid_excluded_sensitivity": {
+          "mean_naive_lift_pp": 11.68,
+          "mean_marcel_lift_pp": -7.43
+        }
+      },
+      "over_valued": {
+        "mean_fully_oos_lift_vs_matched_naive_pp": 1.82,
+        "per_window_naive_lifts_pp": [
+          15.42,
+          16.37,
+          -5.27,
+          -2.79,
+          1.55,
+          -15.6,
+          8.13,
+          -8.96,
+          7.56
+        ],
+        "mean_fully_oos_marcel_lift_pp_batter_channel": -13.37,
+        "per_window_marcel_lifts_pp": [
+          -11.59,
+          0.0,
+          -14.83,
+          -8.0,
+          -17.67,
+          -34.0,
+          -6.26,
+          -16.0,
+          -12.0
+        ],
+        "covid_excluded_sensitivity": {
+          "mean_naive_lift_pp": 2.52,
+          "mean_marcel_lift_pp": -13.53
+        }
+      }
+    },
+    "two_year_aggregate": {
+      "buy_low": {
+        "mean_fully_oos_lift_vs_matched_naive_pp": 8.22,
+        "per_window_naive_lifts_pp": [
+          2.22,
+          -6.24,
+          1.52,
+          9.16,
+          13.48,
+          19.13,
+          8.51,
+          17.95
+        ],
+        "mean_fully_oos_marcel_lift_pp_batter_channel": -5.0,
+        "per_window_marcel_lifts_pp": [
+          -12.0,
+          -4.0,
+          0.0,
+          -16.0,
+          0.0,
+          12.0,
+          -8.0,
+          -12.0
+        ],
+        "covid_excluded_sensitivity": {
+          "mean_naive_lift_pp": 8.31,
+          "mean_marcel_lift_pp": -4.8
+        }
+      },
+      "over_valued": {
+        "mean_fully_oos_lift_vs_matched_naive_pp": 4.72,
+        "per_window_naive_lifts_pp": [
+          -1.23,
+          3.54,
+          2.77,
+          1.43,
+          19.66,
+          7.14,
+          3.29,
+          1.18
+        ],
+        "mean_fully_oos_marcel_lift_pp_batter_channel": -7.83,
+        "per_window_marcel_lifts_pp": [
+          -10.71,
+          -4.0,
+          -4.16,
+          -20.83,
+          -12.0,
+          -3.8,
+          -7.17,
+          0.0
+        ],
+        "covid_excluded_sensitivity": {
+          "mean_naive_lift_pp": 2.78,
+          "mean_marcel_lift_pp": -5.14
+        }
+      }
+    }
+  }
+}

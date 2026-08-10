@@ -1,0 +1,26 @@
+player_id,position_type,war_agg,vol_agg,causal_war,point_estimate_per_pa,pa,war_f,name,_rank_group,rank_trad,rank_model,rank_diff,hit,basis
+595032,pitcher,0.16999999999999998,71.66666666666667,0.7,0.0294,296,-0.12,Chase Whitley,pitcher,565,164,401,False,war_agg_half
+630111,batter,-1.29,743.0,2.19,0.0373,732,,Yasmany Tomás,batter,495,108,387,,exit_no_followup_row
+592169,pitcher,-0.45,46.666666666666664,0.05,0.0034,187,-0.44,Austin Brice,pitcher,680,295,385,False,war_agg_half
+592169,pitcher,-0.45,46.666666666666664,0.05,0.0034,187,-0.01,Austin Brice,pitcher,680,295,385,True,war_agg_half
+606424,pitcher,-0.27,53.333333333333336,0.11,0.0063,223,-0.07,Jarlín García,pitcher,647,283,364,True,war_agg_half
+606424,pitcher,-0.27,53.333333333333336,0.11,0.0063,223,-0.09,Jarlín García,pitcher,647,283,364,True,war_agg_half
+573046,pitcher,-0.6799999999999999,75.66666666666666,-0.18,-0.0071,310,-0.04,Mike Morin,pitcher,711,349,362,True,war_agg_half
+476589,pitcher,0.95,122.66666666666666,1.72,0.043,500,0.9299999999999999,Adam Warren,pitcher,428,69,359,True,war_agg_half
+519293,pitcher,0.16999999999999998,40.33333333333333,0.39,0.0289,168,1.09,Will Smith,pitcher,565,213,352,True,war_agg_half
+461314,batter,-0.99,1139.0,1.84,0.0206,1118,1.22,Matt Kemp,batter,481,132,349,True,war_agg_half
+642564,pitcher,-0.93,54.333333333333336,-0.38,-0.0195,245,,Francis Martes,pitcher,735,400,335,,exit_no_followup_row
+451775,pitcher,0.42,40.666666666666664,0.5,0.0385,161,,Fernando Rodriguez,pitcher,522,191,331,,exit_no_followup_row
+435221,pitcher,0.72,132.66666666666669,0.97,0.0221,546,-0.11,Brandon McCarthy,pitcher,462,135,327,False,war_agg_half
+435221,pitcher,0.72,132.66666666666669,0.97,0.0221,546,-0.01,Brandon McCarthy,pitcher,462,135,327,False,war_agg_half
+554234,pitcher,-0.53,53.666666666666664,-0.27,-0.0148,224,,Williams Pérez,pitcher,690,365,325,,exit_no_followup_row
+518748,pitcher,-0.24,108.0,-0.09,-0.0024,470,-1.2400000000000002,Justin Grimm,pitcher,644,325,319,False,war_agg_half
+547749,pitcher,-0.45999999999999996,105.0,-0.28,-0.008,438,-0.77,Junichi Tazawa,pitcher,683,367,316,False,war_agg_half
+502381,pitcher,0.49,118.66666666666666,0.48,0.0122,494,-0.31,Luke Gregerson,pitcher,511,195,316,False,war_agg_half
+457429,pitcher,0.6,67.33333333333334,0.61,0.0283,269,-0.16,Boone Logan,pitcher,485,176,309,False,war_agg_half
+623149,pitcher,0.07,65.33333333333333,0.16,0.0076,269,-0.07,Paul Sewald,pitcher,580,273,307,False,war_agg_half
+623149,pitcher,0.07,65.33333333333333,0.16,0.0076,269,-1.02,Paul Sewald,pitcher,580,273,307,False,war_agg_half
+605309,pitcher,0.85,72.66666666666666,0.84,0.0354,298,1.48,Keone Kela,pitcher,446,149,297,True,war_agg_half
+641941,pitcher,0.69,50.333333333333336,0.64,0.041,195,0.37,Emilio Pagán,pitcher,469,174,295,True,war_agg_half
+489446,pitcher,0.24,98.0,0.26,0.008,407,2.14,Kirby Yates,pitcher,550,255,295,True,war_agg_half
+489446,pitcher,0.24,98.0,0.26,0.008,407,-0.02,Kirby Yates,pitcher,550,255,295,False,war_agg_half

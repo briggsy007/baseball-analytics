@@ -1,0 +1,26 @@
+player_id,causal_war,point_estimate_per_pa,pa,trad_war,pa_total,position,ip_total,name,baseline_year,_rank_group,adjusted_war_v3,rank_trad,rank_model,rank_diff,hit,basis
+456501,-1.41,-0.0279,632,1.93,,pitcher,147.33333333333334,Johnny Cueto,2017,pitcher,-0.9966700404772126,89,507,-418,True,war_delta
+285079,-1.14,-0.0182,780,2.15,,pitcher,190.0,R. A. Dickey,2017,pitcher,-0.5042912801200145,80,470,-390,,no_2026_record
+592332,-1.81,-0.028,809,1.96,,pitcher,186.66666666666666,Kevin Gausman,2017,pitcher,-0.4872074281541375,85,467,-382,True,war_delta
+621439,-0.42,-0.0106,492,4.97,511.0,batter,,Byron Buxton,2017,batter,-0.752293833004981,26,401,-375,True,war_delta
+467100,-1.11,-0.0187,742,1.98,,pitcher,187.0,Iván Nova,2017,pitcher,-0.434825990682336,83,457,-374,True,war_delta
+641771,-1.22,-0.0231,662,1.47,,pitcher,157.33333333333334,Chad Kuhl,2017,pitcher,-0.7336749613676916,128,491,-363,True,war_delta
+592314,-1.41,-0.0262,675,1.36,,pitcher,154.0,Mike Foltynewicz,2017,pitcher,-0.6250247683098535,143,484,-341,True,war_delta
+543829,-0.42,-0.008,658,3.71,695.0,batter,,Dee Strange-Gordon,2017,batter,-0.6580283612690053,54,388,-334,True,war_delta
+605200,-0.48,-0.0076,798,2.96,,pitcher,191.33333333333334,Zach Davies,2017,pitcher,-0.17439160790259312,45,364,-319,True,war_delta
+456068,-1.24,-0.0229,676,1.5699999999999998,,pitcher,156.0,Miguel González,2017,pitcher,-0.3415957786529142,115,429,-314,True,war_delta
+571466,-0.23,-0.007,405,3.62,423.0,batter,,Tucker Barnhart,2017,batter,-0.5415984144087398,58,372,-314,True,war_delta
+592791,-0.66,-0.0145,573,1.22,,pitcher,133.66666666666666,Jameson Taillon,2017,pitcher,-0.4680462337087151,156,464,-308,True,war_delta
+527048,-2.08,-0.0325,800,2.29,,pitcher,185.0,Martín Pérez,2017,pitcher,-0.21166601126555068,73,380,-307,True,war_delta
+570560,-0.07,-0.0016,521,3.52,534.0,batter,,Yolmer Sánchez,2017,batter,-0.4935302470576367,61,368,-307,True,war_delta
+527054,-0.8,-0.0126,795,1.61,,pitcher,188.33333333333334,Julio Teherán,2017,pitcher,-0.30469350860015854,111,416,-305,True,war_delta
+547943,-1.04,-0.0247,527,1.37,,pitcher,126.66666666666667,Hyun Jin Ryu,2017,pitcher,-0.39534196401174193,141,444,-303,True,war_delta
+607680,-0.08,-0.0016,621,2.81,632.0,batter,,Kevin Pillar,2017,batter,-0.6611254596772177,88,389,-301,True,war_delta
+519455,-2.82,-0.0503,702,0.75,,pitcher,160.0,Jordan Zimmermann,2017,pitcher,-1.1912238769405359,214,514,-300,True,war_delta
+453385,-2.95,-0.044,838,0.67,,pitcher,197.33333333333334,Clayton Richard,2017,pitcher,-1.686113217581357,226,525,-299,True,war_delta
+462136,-0.75,-0.0117,802,1.73,,pitcher,186.0,Marco Estrada,2017,pitcher,-0.2275488033514686,102,392,-290,True,war_delta
+520471,-0.88,-0.0168,652,1.99,663.0,batter,,Freddy Galvis,2017,batter,-1.2456960176312917,139,428,-289,True,war_delta
+545333,-0.56,-0.009,779,2.9,,pitcher,176.33333333333334,Trevor Bauer,2017,pitcher,-0.13648492364015047,47,333,-286,True,war_delta
+502481,-0.65,-0.0216,374,2.69,390.0,batter,,Jarrod Dyson,2017,batter,-0.6310646975401019,100,385,-285,True,war_delta
+500724,-0.6,-0.0122,612,1.51,,pitcher,147.33333333333334,J. C. Ramírez,2017,pitcher,-0.2297326180285253,123,393,-270,True,war_delta
+435079,-0.23,-0.0048,609,1.86,613.0,batter,,Ian Kinsler,2017,batter,-0.9115759005659207,147,413,-266,False,war_delta

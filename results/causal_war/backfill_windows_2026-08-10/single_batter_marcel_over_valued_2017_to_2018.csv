@@ -1,0 +1,26 @@
+player_id,causal_war,point_estimate_per_pa,pa,trad_war,pa_total,position,ip_total,name,baseline_year,_rank_group,proj_woba,rank_trad,rank_model,rank_diff,hit,basis
+502481,-0.65,-0.0216,374,2.69,390.0,batter,,Jarrod Dyson,2017,batter,0.3097161215194647,100,374,-274,True,war_delta
+621439,-0.42,-0.0106,492,4.97,511.0,batter,,Byron Buxton,2017,batter,0.322460831423958,26,299,-273,True,war_delta
+592743,0.77,0.0151,639,7.98,647.0,batter,,Andrelton Simmons,2017,batter,0.3257299261816922,4,274,-270,True,war_delta
+570560,-0.07,-0.0016,521,3.52,534.0,batter,,Yolmer Sánchez,2017,batter,0.31765908633522943,61,328,-267,True,war_delta
+488771,-0.21,-0.0065,406,2.45,407.0,batter,,Jason Castro,2017,batter,0.30862221265245654,115,378,-263,True,war_delta
+607680,-0.08,-0.0016,621,2.81,632.0,batter,,Kevin Pillar,2017,batter,0.314438263038474,88,346,-258,True,war_delta
+501571,-0.73,-0.034,267,2.07,272.0,batter,,Juan Lagares,2017,batter,0.30235721077422023,136,394,-258,True,war_delta
+455117,-1.13,-0.031,457,1.67,471.0,batter,,Martín Maldonado,2017,batter,0.2939673311882877,162,418,-256,True,war_delta
+543829,-0.42,-0.008,658,3.71,695.0,batter,,Dee Strange-Gordon,2017,batter,0.32100651238932737,54,309,-255,True,war_delta
+520471,-0.88,-0.0168,652,1.99,663.0,batter,,Freddy Galvis,2017,batter,0.30519335211214615,139,386,-247,True,war_delta
+543376,-0.27,-0.0128,263,1.52,266.0,batter,,Caleb Joseph,2017,batter,0.2986712355156528,170,405,-235,True,war_delta
+435559,1.25,0.0521,300,2.68,309.0,batter,,Kurt Suzuki,2017,batter,0.31747590446646745,102,333,-231,True,war_delta
+571740,-2.03,-0.0415,613,1.27,633.0,batter,,Billy Hamilton,2017,batter,0.29469244994134547,187,414,-227,True,war_delta
+543305,0.83,0.0255,407,3.85,361.0,batter,,Aaron Hicks,2017,batter,0.3254655656745061,51,277,-226,False,war_delta
+543228,-0.07,-0.0023,387,1.29,383.0,batter,,Yan Gomes,2017,batter,0.2969683454521609,185,407,-222,False,war_delta
+571466,-0.23,-0.007,405,3.62,423.0,batter,,Tucker Barnhart,2017,batter,0.32517689271736283,58,279,-221,True,war_delta
+572365,-1.48,-0.0417,443,1.05,459.0,batter,,Ryan Goins,2017,batter,0.2928397937658176,209,419,-210,True,war_delta
+543281,0.92,0.0217,531,3.47,542.0,batter,,Josh Harrison,2017,batter,0.3265774686147651,63,264,-201,True,war_delta
+458731,1.33,0.0228,730,4.93,682.0,batter,,Brett Gardner,2017,batter,0.3316378968809714,27,222,-195,True,war_delta
+545350,0.43,0.0215,252,1.95,259.0,batter,,Jake Marisnick,2017,batter,0.31684156632958604,142,335,-193,True,war_delta
+519299,0.34,0.0147,292,1.85,299.0,batter,,Eric Sogard,2017,batter,0.3165576307958723,148,338,-190,True,war_delta
+595978,-1.47,-0.0458,402,0.7,417.0,batter,,Austin Hedges,2017,batter,0.2865752010138954,240,428,-188,False,war_delta
+572287,1.31,0.0377,434,3.38,435.0,batter,,Mike Zunino,2017,batter,0.3288719343416523,66,248,-182,True,war_delta
+518792,0.0,0.0001,495,2.2,481.0,batter,,Jason Heyward,2017,batter,0.3213000569662896,123,304,-181,True,war_delta
+476704,1.43,0.0279,640,3.4,645.0,batter,,Jed Lowrie,2017,batter,0.3296893563881731,65,239,-174,False,war_delta

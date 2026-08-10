@@ -1,0 +1,165 @@
+{
+ "task": "WS3.5 positioning thesis (xOut-A vs xOut-B) -- C1b",
+ "ran_at": "2026-08-10T22:35:49.824470+00:00",
+ "era_split_date": "2023-03-30",
+ "db_era_check": "earliest 2023 game in DB is 2023-04-01; pre_ban = 2015-2022, post_ban = 2023-2025; 2026 excluded (in-season lockbox)",
+ "n_rows_topbot_invalid": 0,
+ "feature_sets": {
+  "A": [
+   "launch_speed",
+   "launch_angle",
+   "spray_angle",
+   "bb_type_encoded"
+  ],
+  "B": [
+   "launch_speed",
+   "launch_angle",
+   "spray_angle",
+   "bb_type_encoded",
+   "stand_R",
+   "if_shift",
+   "if_shade",
+   "if_strategic",
+   "of_strategic",
+   "of_other",
+   "pull_spray",
+   "if_shift_x_pull",
+   "if_shade_x_pull",
+   "if_strategic_x_pull",
+   "of_strategic_x_pull"
+  ]
+ },
+ "environment": {
+  "python": "3.12.0",
+  "sklearn": "1.6.1",
+  "omp_num_threads": "6"
+ },
+ "seed": 42,
+ "k1_auc_deltas": {
+  "pre_ban": {
+   "delta_B_minus_A": 0.01189,
+   "ci95": [
+    0.01133,
+    0.01247
+   ],
+   "auc_A": 0.89526,
+   "auc_B": 0.90716,
+   "n_test": 183659
+  },
+  "post_ban": {
+   "delta_B_minus_A": 0.01348,
+   "ci95": [
+    0.01259,
+    0.01442
+   ],
+   "auc_A": 0.89434,
+   "auc_B": 0.90782,
+   "n_test": 76437
+  }
+ },
+ "k1_split_half_alpha": {
+  "pre_ban": {
+   "alpha_fisher_mean_spearman_brown": 0.4958,
+   "per_season_spearman_brown": [
+    0.6205,
+    0.6398,
+    0.4458,
+    0.5337,
+    0.5325,
+    0.3226,
+    0.4207,
+    0.3924
+   ],
+   "n_seasons": 8,
+   "pooled_season_centered_split_half_r": 0.3001,
+   "pooled_season_centered_spearman_brown": 0.4617,
+   "n_team_seasons_pooled": 240
+  },
+  "post_ban": {
+   "alpha_fisher_mean_spearman_brown": 0.3088,
+   "per_season_spearman_brown": [
+    0.4644,
+    -0.167,
+    0.5534
+   ],
+   "n_seasons": 3,
+   "pooled_season_centered_split_half_r": 0.2163,
+   "pooled_season_centered_spearman_brown": 0.3557,
+   "n_team_seasons_pooled": 90
+  }
+ },
+ "positioning_value_scale_per_bip": {
+  "post_ban": {
+   "mean": 9e-05,
+   "std": 0.00163,
+   "min": -0.00419,
+   "max": 0.0045
+  },
+  "pre_ban": {
+   "mean": 0.00034,
+   "std": 0.00324,
+   "min": -0.00773,
+   "max": 0.0106
+  }
+ },
+ "era_results": {
+  "pre_ban": {
+   "n_rows": 918292,
+   "n_train": 734633,
+   "n_test": 183659,
+   "seasons": [
+    2015,
+    2016,
+    2017,
+    2018,
+    2019,
+    2020,
+    2021,
+    2022
+   ],
+   "pct_if_alignment_missing": 0.805,
+   "holdout_auc_A": 0.89526,
+   "holdout_auc_B": 0.90716,
+   "delta_B_minus_A": 0.01189,
+   "delta_ci95": [
+    0.01133,
+    0.01247
+   ],
+   "n_boot": 1000,
+   "test_predictions": "C:\\Users\\hunte\\projects\\baseball\\results\\defensive_pressing\\v2_2026-08\\alignment_ab_test_predictions_pre_ban.parquet"
+  },
+  "post_ban": {
+   "n_rows": 382184,
+   "n_train": 305747,
+   "n_test": 76437,
+   "seasons": [
+    2023,
+    2024,
+    2025
+   ],
+   "pct_if_alignment_missing": 0.369,
+   "holdout_auc_A": 0.89434,
+   "holdout_auc_B": 0.90782,
+   "delta_B_minus_A": 0.01348,
+   "delta_ci95": [
+    0.01259,
+    0.01442
+   ],
+   "n_boot": 1000,
+   "test_predictions": "C:\\Users\\hunte\\projects\\baseball\\results\\defensive_pressing\\v2_2026-08\\alignment_ab_test_predictions_post_ban.parquet"
+  }
+ },
+ "in_sample_oos_status": {
+  "auc": "per-era internal 20% holdout (frozen recipe convention), not future-season OOS",
+  "positioning_value": "descriptive: ALL era rows scored with era models (train rows included -- partially in-sample); split-half operates on these descriptive values"
+ },
+ "new_artifact": {
+  "path": "C:\\Users\\hunte\\projects\\baseball\\models\\defensive_pressing\\xout_v2_alignment_ab_2026_08_10.pkl",
+  "sha256": "d6fab7444f191f5d81648460f81d854eceb2cada6cf848793e02b69b60d7170e",
+  "registry": {
+   "registered": true,
+   "version": "v2026.08.10-alignment-ab",
+   "sha256": "d6fab7444f191f5d81648460f81d854eceb2cada6cf848793e02b69b60d7170e"
+  }
+ }
+}

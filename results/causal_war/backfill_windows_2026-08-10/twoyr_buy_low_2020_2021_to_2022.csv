@@ -1,0 +1,26 @@
+player_id,position_type,war_agg,vol_agg,causal_war,point_estimate_per_pa,pa,war_f,name,_rank_group,rank_trad,rank_model,rank_diff,hit,basis
+669952,pitcher,-0.13,49.666666666666664,0.68,0.0412,205,-0.84,Mitch White,pitcher,394,165,229,False,war_agg_half
+664854,pitcher,-0.53,59.333333333333336,0.35,0.0166,260,2.79,Ryan Helsley,pitcher,437,210,227,True,war_agg_half
+548384,pitcher,-0.25,69.0,0.56,0.0205,341,0.97,Brooks Raley,pitcher,408,181,227,True,war_agg_half
+660813,pitcher,0.36000000000000004,56.66666666666667,1.26,0.0534,294,0.5,Brusdar Graterol,pitcher,318,93,225,True,war_agg_half
+656427,pitcher,0.43,118.66666666666666,1.35,0.0328,514,-0.08,Jack Flaherty,pitcher,307,83,224,False,war_agg_half
+624585,batter,0.32999999999999985,776.0,1.06,0.0163,809,0.39,Jorge Soler,batter,324,101,223,True,war_agg_half
+500610,pitcher,-0.16000000000000003,73.0,0.52,0.0215,304,,Deolis Guerra,pitcher,398,183,215,,exit_no_followup_row
+592773,pitcher,0.39999999999999997,78.33333333333333,1.12,0.0372,377,2.13,Ryne Stanek,pitcher,313,104,209,True,war_agg_half
+640449,batter,0.28,378.0,0.57,0.0186,385,-0.02,Clint Frazier,batter,326,131,195,False,war_agg_half
+592626,batter,-0.36,619.0,0.09,0.0016,695,1.27,Joc Pederson,batter,394,199,195,True,war_agg_half
+607461,batter,-0.38,288.0,0.03,0.0013,302,-0.79,Matt Beaty,batter,396,202,194,False,war_agg_half
+605204,batter,0.81,440.0,1.19,0.0339,437,0.74,J. D. Davis,batter,289,96,193,True,war_agg_half
+650893,pitcher,0.36,92.33333333333333,0.97,0.0308,392,-0.21,Génesis Cabrera,pitcher,319,127,192,False,war_agg_half
+664761,batter,-0.51,597.0,-0.08,-0.0016,595,0.91,Alec Bohm,batter,406,223,183,True,war_agg_half
+472610,pitcher,0.08999999999999997,41.66666666666667,0.51,0.0344,184,0.3,Luis García,pitcher,368,186,182,True,war_agg_half
+667670,batter,-0.66,234.0,-0.17,-0.0093,234,-0.42,Brent Rooker,batter,415,237,178,False,war_agg_half
+642133,batter,0.22999999999999998,452.0,0.4,0.0111,452,0.78,Rowdy Tellez,batter,328,151,177,True,war_agg_half
+664208,pitcher,-0.32,88.33333333333334,0.23,0.0064,445,-0.28,Phil Maton,pitcher,415,238,177,False,war_agg_half
+571980,batter,0.15999999999999998,595.0,0.33,0.007,599,0.0,Tyler Naquin,batter,338,164,174,False,war_agg_half
+571945,pitcher,-0.03,44.666666666666664,0.37,0.0248,184,2.61,Miles Mikolas,pitcher,380,207,173,True,war_agg_half
+592325,batter,-0.51,527.0,-0.15,-0.0036,524,0.01,Ben Gamel,batter,406,234,172,True,war_agg_half
+543272,pitcher,0.30000000000000004,86.66666666666666,0.69,0.0239,363,0.81,Brad Hand,pitcher,330,163,167,True,war_agg_half
+606213,batter,0.42000000000000004,263.0,0.43,0.0207,262,-0.1,Yermín Mercedes,batter,314,149,165,False,war_agg_half
+606160,pitcher,-1.46,67.0,-0.23,-0.0098,294,1.21,Rafael Montero,pitcher,479,314,165,True,war_agg_half
+572125,pitcher,0.07999999999999999,44.33333333333333,0.38,0.025,190,-0.03,Sam Selman,pitcher,370,206,164,False,war_agg_half

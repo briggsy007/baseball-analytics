@@ -1,0 +1,26 @@
+player_id,position_type,war_agg,vol_agg,causal_war,point_estimate_per_pa,pa,war_f,name,_rank_group,adjusted_war_v3,rank_trad,rank_model,rank_diff,hit,basis
+664702,batter,5.99,1234.0,-3.17,-0.0316,1252,0.93,Myles Straw,batter,-2.3278632087290196,75,527,-452,True,war_agg_half
+456501,pitcher,4.32,273.0,0.13,0.0015,1124,0.04,Johnny Cueto,pitcher,-0.6251072787576556,64,501,-437,True,war_agg_half
+623167,pitcher,4.63,317.3333333333333,1.47,0.0139,1323,-1.1400000000000001,Chris Flexen,pitcher,-0.5745065508362753,59,494,-435,True,war_agg_half
+643396,batter,6.75,1208.0,-1.92,-0.0198,1218,-0.04,Isiah Kiner-Falefa,batter,-1.318961714758851,57,491,-434,True,war_agg_half
+643396,batter,6.75,1208.0,-1.92,-0.0198,1218,0.09,Isiah Kiner-Falefa,batter,-1.318961714758851,57,491,-434,True,war_agg_half
+572191,batter,6.300000000000001,984.0,-1.82,-0.0233,979,1.85,Michael Taylor,batter,-1.47867968799935,68,499,-431,True,war_agg_half
+622608,pitcher,2.2800000000000002,249.0,-2.05,-0.024,1069,0.06,Antonio Senzatela,pitcher,-1.1211259734344903,147,560,-413,True,war_agg_half
+608379,pitcher,2.7300000000000004,252.0,-0.2,-0.0023,1051,2.72,Michael Wacha,pitcher,-0.7826923114322836,114,527,-413,False,war_agg_half
+641540,pitcher,1.8599999999999999,271.0,-1.58,-0.0167,1180,2.66,Dane Dunning,pitcher,-2.160743525724995,184,591,-407,False,war_agg_half
+663647,batter,6.78,956.0,-1.47,-0.0194,950,3.89,Ke'Bryan Hayes,batter,-1.0242876578575055,54,460,-406,False,war_agg_half
+621244,pitcher,2.71,364.0,0.72,0.0059,1530,2.49,José Berríos,pitcher,-0.6936173907239553,117,515,-398,False,war_agg_half
+425844,pitcher,3.6499999999999995,308.0,0.51,0.0048,1308,1.08,Zack Greinke,pitcher,-0.5151531818418128,79,474,-395,True,war_agg_half
+621076,pitcher,2.52,253.33333333333331,0.68,0.0079,1073,-0.13,James Kaprielian,pitcher,-0.8084260535284752,135,530,-395,True,war_agg_half
+663903,pitcher,4.45,281.6666666666667,0.43,0.0045,1199,0.33,Brady Singer,pitcher,-0.453155631943969,60,452,-392,True,war_agg_half
+669242,batter,9.92,1321.0,-1.87,-0.0177,1322,2.07,Tommy Edman,batter,-0.7489716213887794,18,409,-391,True,war_agg_half
+594835,pitcher,2.0,326.33333333333337,-0.32,-0.0029,1358,-0.46,Marco Gonzales,pitcher,-1.165201340519602,173,562,-389,True,war_agg_half
+670764,batter,3.9699999999999998,642.0,-3.6,-0.07,642,1.97,Taylor Walls,batter,-1.9801582997700762,136,518,-382,True,war_agg_half
+656605,pitcher,1.49,259.6666666666667,-1.77,-0.0193,1147,2.97,Mitch Keller,pitcher,-2.0836745964121177,210,589,-379,False,war_agg_half
+503449,pitcher,2.78,132.0,-0.0,-0.0,563,,Wily Peralta,pitcher,-0.5657021393947163,112,490,-378,,exit_no_followup_row
+622761,batter,4.23,742.0,-2.02,-0.0343,737,0.8,Jorge Mateo,batter,-1.4759826372758815,126,498,-372,True,war_agg_half
+624522,pitcher,2.19,168.33333333333334,-0.36,-0.0063,720,0.08,Keegan Thompson,pitcher,-0.7611549899077313,154,523,-369,True,war_agg_half
+592866,pitcher,1.65,180.66666666666669,-0.8,-0.013,771,-0.18,Trevor Williams,pitcher,-1.2286460314271204,200,565,-365,True,war_agg_half
+500743,batter,5.04,1046.0,-1.93,-0.0232,1041,1.36,Miguel Rojas,batter,-1.0924615427893447,104,467,-363,True,war_agg_half
+500743,batter,5.04,1046.0,-1.93,-0.0232,1041,-0.02,Miguel Rojas,batter,-1.0924615427893447,104,467,-363,True,war_agg_half
+593160,batter,3.65,1270.0,-1.95,-0.0192,1274,0.7,Whit Merrifield,batter,-1.7986363757735635,151,513,-362,True,war_agg_half

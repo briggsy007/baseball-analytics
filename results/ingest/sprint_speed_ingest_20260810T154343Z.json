@@ -1,0 +1,188 @@
+{
+  "fetched_at": "2026-08-10T15:43:43.983951+00:00",
+  "source": "Baseball Savant sprint-speed leaderboard via pybaseball.statcast_sprint_speed(year, min_opp=10). Sprint speed = ft/s in the player's fastest one-second window (mean of roughly the top two-thirds of competitive runs).",
+  "min_opp": 10,
+  "seasons_requested": [
+    2015,
+    2016,
+    2017,
+    2018,
+    2019,
+    2020,
+    2021,
+    2022,
+    2023,
+    2024,
+    2025,
+    2026
+  ],
+  "seasons_written": [
+    2015,
+    2016,
+    2017,
+    2018,
+    2019,
+    2020,
+    2021,
+    2022,
+    2023,
+    2024,
+    2025,
+    2026
+  ],
+  "seasons_failed": [],
+  "semantics": "replace-by-season (DELETE season then INSERT, one transaction)",
+  "table": "sprint_speed(season, player_id, sprint_speed, competitive_runs, hp_to_1b, fetched_utc)",
+  "per_season": {
+    "2015": {
+      "status": "ok",
+      "rows": 550,
+      "duplicates_dropped": 0,
+      "fetched_utc": "2026-08-10T15:43:39.227342+00:00"
+    },
+    "2016": {
+      "status": "ok",
+      "rows": 551,
+      "duplicates_dropped": 0,
+      "fetched_utc": "2026-08-10T15:43:39.982683+00:00"
+    },
+    "2017": {
+      "status": "ok",
+      "rows": 548,
+      "duplicates_dropped": 0,
+      "fetched_utc": "2026-08-10T15:43:40.338196+00:00"
+    },
+    "2018": {
+      "status": "ok",
+      "rows": 550,
+      "duplicates_dropped": 0,
+      "fetched_utc": "2026-08-10T15:43:40.847195+00:00"
+    },
+    "2019": {
+      "status": "ok",
+      "rows": 570,
+      "duplicates_dropped": 0,
+      "fetched_utc": "2026-08-10T15:43:41.195654+00:00"
+    },
+    "2020": {
+      "status": "ok",
+      "rows": 461,
+      "duplicates_dropped": 0,
+      "fetched_utc": "2026-08-10T15:43:41.590208+00:00"
+    },
+    "2021": {
+      "status": "ok",
+      "rows": 560,
+      "duplicates_dropped": 0,
+      "fetched_utc": "2026-08-10T15:43:41.970618+00:00"
+    },
+    "2022": {
+      "status": "ok",
+      "rows": 586,
+      "duplicates_dropped": 0,
+      "fetched_utc": "2026-08-10T15:43:42.334873+00:00"
+    },
+    "2023": {
+      "status": "ok",
+      "rows": 583,
+      "duplicates_dropped": 0,
+      "fetched_utc": "2026-08-10T15:43:42.699448+00:00"
+    },
+    "2024": {
+      "status": "ok",
+      "rows": 566,
+      "duplicates_dropped": 0,
+      "fetched_utc": "2026-08-10T15:43:43.080133+00:00"
+    },
+    "2025": {
+      "status": "ok",
+      "rows": 579,
+      "duplicates_dropped": 0,
+      "fetched_utc": "2026-08-10T15:43:43.379994+00:00"
+    },
+    "2026": {
+      "status": "ok",
+      "rows": 520,
+      "duplicates_dropped": 0,
+      "fetched_utc": "2026-08-10T15:43:43.746070+00:00"
+    }
+  },
+  "join_coverage_vs_pitches_bip": {
+    "definition": "share of pitches rows with type='X' (ball in play) whose batter_id has a same-season sprint_speed row",
+    "per_season": [
+      {
+        "season": 2015,
+        "n_bip": 132233,
+        "n_matched": 128342,
+        "pct_matched": 97.06
+      },
+      {
+        "season": 2016,
+        "n_bip": 130475,
+        "n_matched": 126649,
+        "pct_matched": 97.07
+      },
+      {
+        "season": 2017,
+        "n_bip": 129336,
+        "n_matched": 125587,
+        "pct_matched": 97.1
+      },
+      {
+        "season": 2018,
+        "n_bip": 127935,
+        "n_matched": 124510,
+        "pct_matched": 97.32
+      },
+      {
+        "season": 2019,
+        "n_bip": 132525,
+        "n_matched": 127839,
+        "pct_matched": 96.46
+      },
+      {
+        "season": 2020,
+        "n_bip": 46517,
+        "n_matched": 45474,
+        "pct_matched": 97.76
+      },
+      {
+        "season": 2021,
+        "n_bip": 130585,
+        "n_matched": 125752,
+        "pct_matched": 96.3
+      },
+      {
+        "season": 2022,
+        "n_bip": 137849,
+        "n_matched": 133825,
+        "pct_matched": 97.08
+      },
+      {
+        "season": 2023,
+        "n_bip": 125259,
+        "n_matched": 124677,
+        "pct_matched": 99.54
+      },
+      {
+        "season": 2024,
+        "n_bip": 130631,
+        "n_matched": 128836,
+        "pct_matched": 98.63
+      },
+      {
+        "season": 2025,
+        "n_bip": 131098,
+        "n_matched": 129230,
+        "pct_matched": 98.58
+      },
+      {
+        "season": 2026,
+        "n_bip": 93506,
+        "n_matched": 91568,
+        "pct_matched": 97.93
+      }
+    ]
+  },
+  "no_fabrication_note": "Players below min_opp or absent from the leaderboard are absent from the table; hp_to_1b NaN stays NULL. Imputation (league mean ~27 ft/s) is a feature-time decision, not a DB write."
+}

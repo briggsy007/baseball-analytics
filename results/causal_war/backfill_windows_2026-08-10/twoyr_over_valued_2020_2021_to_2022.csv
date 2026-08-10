@@ -1,0 +1,26 @@
+player_id,position_type,war_agg,vol_agg,causal_war,point_estimate_per_pa,pa,war_f,name,_rank_group,rank_trad,rank_model,rank_diff,hit,basis
+607536,pitcher,3.8899999999999997,191.33333333333334,-1.4,-0.0215,814,2.34,Kyle Freeland,pitcher,41,450,-409,False,war_agg_half
+669242,batter,4.91,918.0,-1.86,-0.025,931,6.15,Tommy Edman,batter,58,433,-375,False,war_agg_half
+527048,pitcher,1.6199999999999999,176.0,-1.88,-0.0301,779,5.11,Martín Pérez,pitcher,143,471,-328,False,war_agg_half
+621107,pitcher,3.6799999999999997,164.66666666666669,-0.46,-0.0085,681,0.9,Zach Eflin,pitcher,47,353,-306,True,war_agg_half
+664058,batter,3.48,895.0,-1.57,-0.0222,882,1.09,David Fletcher,batter,111,416,-305,True,war_agg_half
+643396,batter,5.9399999999999995,905.0,-0.7,-0.0097,901,2.9,Isiah Kiner-Falefa,batter,31,319,-288,True,war_agg_half
+661269,pitcher,1.76,114.0,-0.85,-0.0217,491,-0.59,Vladimir Gutiérrez,pitcher,132,405,-273,True,war_agg_half
+572070,pitcher,1.1500000000000001,188.0,-1.67,-0.0248,839,-0.4,Garrett Richards,pitcher,200,462,-262,True,war_agg_half
+605113,batter,2.3600000000000003,690.0,-1.62,-0.0297,683,-0.06,Nick Ahmed,batter,158,420,-262,True,war_agg_half
+543294,pitcher,2.74,262.3333333333333,-0.39,-0.0044,1114,0.58,Kyle Hendricks,pitcher,80,340,-260,True,war_agg_half
+670032,batter,4.59,757.0,-0.77,-0.0129,741,-0.25,Nicky Lopez,batter,67,327,-260,True,war_agg_half
+670032,batter,4.59,757.0,-0.77,-0.0129,741,-0.06,Nicky Lopez,batter,67,327,-260,True,war_agg_half
+571927,pitcher,1.28,181.33333333333331,-1.24,-0.0197,787,-0.25,Steven Matz,pitcher,183,441,-258,True,war_agg_half
+572191,batter,2.54,627.0,-1.44,-0.0287,625,3.35,Michael Taylor,batter,150,407,-257,False,war_agg_half
+572191,batter,2.54,627.0,-1.44,-0.0287,625,-0.03,Michael Taylor,batter,150,407,-257,True,war_agg_half
+572971,pitcher,2.11,225.33333333333334,-0.51,-0.0065,989,-2.54,Dallas Keuchel,pitcher,106,360,-254,True,war_agg_half
+592743,batter,1.85,578.0,-2.46,-0.0535,575,-0.1,Andrelton Simmons,batter,202,448,-246,True,war_agg_half
+592743,batter,1.85,578.0,-2.46,-0.0535,575,-0.15,Andrelton Simmons,batter,202,448,-246,True,war_agg_half
+489119,pitcher,5.2,177.33333333333334,0.08,0.0013,748,0.11,Wade Miley,pitcher,20,264,-244,True,war_agg_half
+663460,pitcher,1.62,180.0,-0.69,-0.0111,777,-0.34,Kris Bubic,pitcher,142,385,-243,True,war_agg_half
+641487,batter,5.23,919.0,-0.53,-0.0073,913,2.68,J. P. Crawford,batter,42,284,-242,False,war_agg_half
+656288,pitcher,1.1300000000000001,119.0,-1.21,-0.0296,510,,Griffin Canning,pitcher,205,440,-235,,exit_no_followup_row
+596019,batter,4.33,790.0,-0.63,-0.01,785,5.44,Francisco Lindor,batter,79,312,-233,False,war_agg_half
+595281,batter,5.2700000000000005,549.0,-0.4,-0.008,617,1.08,Kevin Kiermaier,batter,41,266,-225,True,war_agg_half
+621563,batter,5.15,685.0,-0.4,-0.0067,743,2.38,Joey Wendle,batter,46,266,-220,True,war_agg_half

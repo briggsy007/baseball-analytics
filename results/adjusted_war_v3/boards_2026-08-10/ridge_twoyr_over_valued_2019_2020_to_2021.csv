@@ -1,0 +1,26 @@
+player_id,position_type,war_agg,vol_agg,causal_war,point_estimate_per_pa,pa,war_f,name,_rank_group,adjusted_war_v3,rank_trad,rank_model,rank_diff,hit,basis
+543699,pitcher,2.1500000000000004,212.99999999999997,-3.03,-0.0415,913,-0.26,Tanner Roark,pitcher,-1.828941051091793,164,689,-525,True,war_agg_half
+467100,pitcher,1.4,206.0,-2.83,-0.04,885,,Iván Nova,pitcher,-1.9359780929646473,258,692,-434,,exit_no_followup_row
+502190,pitcher,1.27,197.0,-1.95,-0.0295,826,,Mike Leake,pitcher,-1.2995610106348219,276,675,-399,,exit_no_followup_row
+592716,pitcher,1.19,125.33333333333333,-3.15,-0.0705,559,-0.14,Adrian Sampson,pitcher,-1.4946085565201486,287,678,-391,True,war_agg_half
+592716,pitcher,1.19,125.33333333333333,-3.15,-0.0705,559,0.76,Adrian Sampson,pitcher,-1.4946085565201486,287,678,-391,False,war_agg_half
+502624,pitcher,1.51,172.66666666666666,-1.29,-0.0226,714,-0.16,Chase Anderson,pitcher,-0.7127387303365402,232,619,-387,True,war_agg_half
+502624,pitcher,1.51,172.66666666666666,-1.29,-0.0226,714,-0.33,Chase Anderson,pitcher,-0.7127387303365402,232,619,-387,True,war_agg_half
+607200,pitcher,2.36,128.33333333333334,-1.21,-0.028,541,-0.39,Erick Fedde,pitcher,-0.4214568195054774,145,528,-383,True,war_agg_half
+607200,pitcher,2.36,128.33333333333334,-1.21,-0.028,541,-1.05,Erick Fedde,pitcher,-0.4214568195054774,145,528,-383,True,war_agg_half
+670950,pitcher,1.47,167.33333333333334,-0.85,-0.0149,713,0.91,Trevor Richards,pitcher,-0.6780691025017296,240,609,-369,False,war_agg_half
+670950,pitcher,1.47,167.33333333333334,-0.85,-0.0149,713,0.05,Trevor Richards,pitcher,-0.6780691025017296,240,609,-369,True,war_agg_half
+622608,pitcher,1.7200000000000002,198.0,-2.63,-0.0376,874,-0.47,Antonio Senzatela,pitcher,-0.5049291784453968,204,566,-362,True,war_agg_half
+622608,pitcher,1.7200000000000002,198.0,-2.63,-0.0376,874,1.87,Antonio Senzatela,pitcher,-0.5049291784453968,204,566,-362,False,war_agg_half
+453562,pitcher,1.46,180.0,-1.63,-0.0264,773,0.16,Jake Arrieta,pitcher,-0.6383235381209944,244,598,-354,True,war_agg_half
+453562,pitcher,1.46,180.0,-1.63,-0.0264,773,-2.75,Jake Arrieta,pitcher,-0.6383235381209944,244,598,-354,True,war_agg_half
+595281,batter,4.19,639.0,-1.52,-0.0266,714,3.41,Kevin Kiermaier,batter,-1.1545390108928093,75,421,-346,False,war_agg_half
+596001,pitcher,1.1300000000000001,200.66666666666669,-1.95,-0.0277,881,0.06,Jakob Junis,pitcher,-0.9932892672496433,300,646,-346,True,war_agg_half
+596001,pitcher,1.1300000000000001,200.66666666666669,-1.95,-0.0277,881,-0.02,Jakob Junis,pitcher,-0.9932892672496433,300,646,-346,True,war_agg_half
+542340,batter,4.11,921.0,0.22,0.003,910,1.77,Jonathan Villar,batter,-1.088028830158065,77,417,-340,True,war_agg_half
+543135,pitcher,1.18,116.0,-1.65,-0.0415,498,4.28,Nathan Eovaldi,pitcher,-0.7735522665398962,291,626,-335,False,war_agg_half
+543135,pitcher,1.18,116.0,-1.65,-0.0415,498,0.04,Nathan Eovaldi,pitcher,-0.7735522665398962,291,626,-335,True,war_agg_half
+471911,pitcher,1.56,148.0,-0.54,-0.0106,630,-0.12,Carlos Carrasco,pitcher,-0.4523314189631735,222,546,-324,True,war_agg_half
+471911,pitcher,1.56,148.0,-0.54,-0.0106,630,-0.76,Carlos Carrasco,pitcher,-0.4523314189631735,222,546,-324,True,war_agg_half
+527048,pitcher,1.5999999999999999,227.33333333333334,-1.5,-0.019,989,-0.04,Martín Pérez,pitcher,-0.42593091010294293,219,532,-313,True,war_agg_half
+520471,batter,3.39,748.0,-0.5,-0.0085,745,1.28,Freddy Galvis,batter,-1.030763943013218,97,410,-313,True,war_agg_half

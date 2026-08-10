@@ -1,0 +1,26 @@
+player_id,causal_war,point_estimate_per_pa,pa,trad_war,pa_total,position,ip_total,name,baseline_year,_rank_group,rank_trad,rank_model,rank_diff,hit,basis
+543339,0.47,0.031,188,-0.38,,pitcher,46.0,Daniel Hudson,2018,pitcher,447,171,276,True,war_delta
+608385,1.11,0.0426,327,0.01,334.0,batter,,Jesse Winker,2018,batter,341,76,265,True,war_delta
+607968,0.26,0.0221,149,-0.39,,pitcher,35.333333333333336,Drew Rucinski,2018,pitcher,450,209,241,,no_2026_record
+640457,0.32,0.0214,189,-0.32,191.0,batter,,Austin Meadows,2018,batter,381,148,233,True,war_delta
+435622,0.31,0.0061,633,-0.25,619.0,batter,,Ian Desmond,2018,batter,375,152,223,False,war_delta
+518618,0.27,0.0062,547,-0.34,551.0,batter,,Derek Dietrich,2018,batter,384,163,221,True,war_delta
+643327,-0.04,-0.0007,774,-0.92,,pitcher,178.33333333333334,Zack Godley,2018,pitcher,502,281,221,True,war_delta
+624585,1.04,0.0506,256,0.31,257.0,batter,,Jorge Soler,2018,batter,300,82,218,True,war_delta
+448602,0.37,0.0196,234,-0.13,235.0,batter,,Mark Reynolds,2018,batter,354,140,214,False,war_delta
+643493,0.23,0.0101,288,-0.31,,pitcher,69.66666666666667,Austin Pruitt,2018,pitcher,432,220,212,True,war_delta
+642547,1.3,0.0499,327,0.48,,pitcher,78.33333333333333,Freddy Peralta,2018,pitcher,271,61,210,False,war_delta
+605240,0.66,0.0388,211,0.15,,pitcher,51.333333333333336,Jace Fry,2018,pitcher,345,136,209,False,war_delta
+572362,0.62,0.0181,426,0.12,,pitcher,109.0,Robbie Erlin,2018,pitcher,350,144,206,False,war_delta
+571561,0.28,0.0424,82,-0.17,,pitcher,22.666666666666668,Tony Cingrani,2018,pitcher,410,204,206,,no_2026_record
+605540,0.88,0.0506,218,0.3,,pitcher,42.333333333333336,Brandon Woodruff,2018,pitcher,308,107,201,True,war_delta
+621289,0.21,0.0212,125,-0.28,,pitcher,30.333333333333332,Jaime Schultz,2018,pitcher,424,225,199,True,war_delta
+621112,-0.04,-0.0041,118,-0.61,,pitcher,27.666666666666668,Paul Blackburn,2018,pitcher,476,281,195,True,war_delta
+608349,0.83,0.0408,255,0.33,,pitcher,55.333333333333336,Corey Knebel,2018,pitcher,303,110,193,,no_2026_record
+502202,-0.1,-0.0053,228,-0.78,,pitcher,53.333333333333336,Brad Boxberger,2018,pitcher,490,298,192,True,war_delta
+608384,-0.07,-0.002,445,-0.55,448.0,batter,,Nick Williams,2018,batter,401,212,189,False,war_delta
+607229,0.04,0.0015,333,-0.4,,pitcher,80.0,Robert Gsellman,2018,pitcher,451,265,186,True,war_delta
+502517,0.31,0.0112,352,0.030000000000000027,351.0,batter,,Daniel Murphy,2018,batter,337,152,185,True,war_delta
+543045,0.34,0.0214,200,-0.04,,pitcher,50.666666666666664,Adam Conley,2018,pitcher,382,197,185,True,war_delta
+453568,2.5,0.0442,706,0.97,696.0,batter,,Charlie Blackmon,2018,batter,213,29,184,True,war_delta
+523260,0.58,0.022,328,0.21,,pitcher,65.66666666666667,Joe Kelly,2018,pitcher,330,152,178,False,war_delta

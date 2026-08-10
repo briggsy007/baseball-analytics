@@ -1,0 +1,26 @@
+player_id,causal_war,point_estimate_per_pa,pa,trad_war,pa_total,position,ip_total,name,baseline_year,_rank_group,adjusted_war_v3,rank_trad,rank_model,rank_diff,hit,basis
+467100,-2.54,-0.0397,798,1.89,,pitcher,187.0,Iván Nova,2019,pitcher,-1.5246719972880267,94,543,-449,True,war_delta
+543699,-1.37,-0.0246,694,2.49,,pitcher,165.33333333333331,Tanner Roark,2019,pitcher,-0.625367636828132,61,501,-440,True,war_delta
+502190,-1.95,-0.0295,826,1.27,,pitcher,197.0,Mike Leake,2019,pitcher,-1.191098956026787,138,539,-401,,no_2026_record
+592716,-3.15,-0.0705,559,1.19,,pitcher,125.33333333333333,Adrian Sampson,2019,pitcher,-1.3175585807330594,148,540,-392,,no_2026_record
+641712,-0.49,-0.0079,772,2.1,,pitcher,174.66666666666666,Dakota Hudson,2019,pitcher,-0.4034746181728194,83,472,-389,True,war_delta
+520471,-0.35,-0.0076,583,3.19,589.0,batter,,Freddy Galvis,2019,batter,-0.8480618664060051,75,427,-352,True,war_delta
+596001,-1.35,-0.0219,769,1.32,,pitcher,175.33333333333334,Jakob Junis,2019,pitcher,-0.46763571039038165,134,481,-347,True,war_delta
+452657,-2.37,-0.0392,756,0.8,,pitcher,171.66666666666666,Jon Lester,2019,pitcher,-1.144736518544647,203,537,-334,True,war_delta
+425794,-0.35,-0.0057,771,1.67,,pitcher,171.66666666666666,Adam Wainwright,2019,pitcher,-0.29878050006497314,105,437,-332,True,war_delta
+571927,-0.79,-0.0146,677,1.81,,pitcher,160.33333333333334,Steven Matz,2019,pitcher,-0.26574297189199736,97,426,-329,True,war_delta
+595281,-1.31,-0.0329,499,2.33,480.0,batter,,Kevin Kiermaier,2019,batter,-0.8948194724345573,112,430,-318,True,war_delta
+542340,0.93,0.0165,707,4.36,714.0,batter,,Jonathan Villar,2019,batter,-0.4728641528718346,38,355,-317,True,war_delta
+514917,-0.19,-0.0035,660,1.9,667.0,batter,,César Hernández,2019,batter,-0.8928360037409121,133,429,-296,True,war_delta
+570560,-1.43,-0.033,543,1.62,555.0,batter,,Yolmer Sánchez,2019,batter,-1.1834542136477446,154,448,-294,True,war_delta
+641778,-0.69,-0.0135,641,1.36,,pitcher,149.66666666666666,Eric Lauer,2019,pitcher,-0.24007633987810104,127,415,-288,True,war_delta
+503556,-0.42,-0.0111,470,1.96,463.0,batter,,Marwin González,2019,batter,-0.752092691949075,131,419,-288,True,war_delta
+621107,-1.04,-0.0188,689,1.27,,pitcher,163.33333333333334,Zach Eflin,2019,pitcher,-0.2505649836025886,138,422,-284,False,war_delta
+609275,-0.63,-0.018,437,2.03,443.0,batter,,Adalberto Mondesí,2019,batter,-0.7131749553747347,129,412,-283,True,war_delta
+502481,-1.5,-0.0417,448,1.53,452.0,batter,,Jarrod Dyson,2019,batter,-1.134236014285571,168,445,-277,True,war_delta
+519141,-0.71,-0.0196,453,0.83,,pitcher,104.0,Drew Pomeranz,2019,pitcher,-0.393478527869789,195,469,-274,False,war_delta
+670950,-0.04,-0.0008,565,1.95,,pitcher,135.33333333333334,Trevor Richards,2019,pitcher,-0.17718637438897594,91,359,-268,True,war_delta
+624428,0.64,0.0135,592,2.39,608.0,batter,,Adam Frazier,2019,batter,-0.5076412947780362,108,373,-265,True,war_delta
+453562,-1.14,-0.0244,586,0.69,,pitcher,135.66666666666666,Jake Arrieta,2019,pitcher,-0.49269305243436545,222,483,-261,False,war_delta
+593643,0.9,0.021,536,3.35,550.0,batter,,Hanser Alberto,2019,batter,-0.38994245364956964,73,332,-259,True,war_delta
+598265,0.22,0.0049,561,2.1,567.0,batter,,Jackie Bradley,2019,batter,-0.5388209522295,125,383,-258,True,war_delta

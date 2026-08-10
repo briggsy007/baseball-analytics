@@ -30,6 +30,34 @@
         "alias": "production",
         "from": null,
         "to": "v2026.08.10"
+      },
+      {
+        "ts": "2026-08-10T16:01:27.034068+00:00",
+        "event": "register",
+        "version": "v2026.08.10-speed",
+        "sha256": "f6a523e7f70d1d313bfac898ab282a61204fb4928ddb99749351b54b9438efe7",
+        "hash_policy": "pinned"
+      },
+      {
+        "ts": "2026-08-10T22:11:34.343304+00:00",
+        "event": "register",
+        "version": "v2026.08.10-speed.det",
+        "sha256": "31af3e3ea5b1dc2ee24da301f17d05ebd8f01ab22306a06c6b6423c2364153e1",
+        "hash_policy": "pinned"
+      },
+      {
+        "ts": "2026-08-10T22:35:49.824470+00:00",
+        "event": "register",
+        "version": "v2026.08.10-alignment-ab",
+        "sha256": "d6fab7444f191f5d81648460f81d854eceb2cada6cf848793e02b69b60d7170e",
+        "hash_policy": "pinned"
+      },
+      {
+        "ts": "2026-08-10T22:37:30.096036+00:00",
+        "event": "register",
+        "version": "v2026.04.23-weather",
+        "sha256": "76bdb28dd44b54ad5211b2bec5d2f4a649d1a5517e3390c82f25100840e8acdc",
+        "hash_policy": "pinned"
       }
     ]
   },
@@ -91,6 +119,46 @@
         "alias": "production",
         "from": null,
         "to": "v2026.04.23"
+      },
+      {
+        "ts": "2026-08-10T16:13:40.184709+00:00",
+        "event": "register",
+        "version": "v2026.04.23-backbone-calibration",
+        "sha256": "063339841a88fd538a3d1df2090a99c1c4ba78248ec7dbbb9ddbcc27964913c6",
+        "hash_policy": "pinned"
+      },
+      {
+        "ts": "2026-08-10T16:13:40.232003+00:00",
+        "event": "register",
+        "version": "v2026.04.26-a1-head-calibration",
+        "sha256": "d7ef4944b9148c1ea8ec21536cddc4f9ec402dcb3e738af4c6b4d96c224de4f0",
+        "hash_policy": "pinned"
+      }
+    ]
+  },
+  "adjusted_war_v3": {
+    "production": null,
+    "frozen_validated": null,
+    "history": [
+      {
+        "ts": "2026-08-10T22:26:31.962528+00:00",
+        "event": "register",
+        "version": "v2026.08.10",
+        "sha256": "60a62686ebcaf4121b8b0339b0870374d52808ffea057980c990e720132cb026",
+        "hash_policy": "pinned"
+      }
+    ]
+  },
+  "causal_war": {
+    "production": null,
+    "frozen_validated": null,
+    "history": [
+      {
+        "ts": "2026-08-10T23:33:43.998161+00:00",
+        "event": "register",
+        "version": "v2026.08.10-v3-oppq-park",
+        "sha256": "205bfa94cc9e9a227d7c86d17a4f683b67e3feb19150c387bda748bdffb5ba1b",
+        "hash_policy": "pinned"
       }
     ]
   }

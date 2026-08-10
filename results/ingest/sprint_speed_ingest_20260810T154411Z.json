@@ -1,0 +1,34 @@
+{
+  "fetched_at": "2026-08-10T15:44:11.708712+00:00",
+  "source": "Baseball Savant sprint-speed leaderboard via pybaseball.statcast_sprint_speed(year, min_opp=10). Sprint speed = ft/s in the player's fastest one-second window (mean of roughly the top two-thirds of competitive runs).",
+  "min_opp": 10,
+  "seasons_requested": [
+    2026
+  ],
+  "seasons_written": [
+    2026
+  ],
+  "seasons_failed": [],
+  "semantics": "replace-by-season (DELETE season then INSERT, one transaction)",
+  "table": "sprint_speed(season, player_id, sprint_speed, competitive_runs, hp_to_1b, fetched_utc)",
+  "per_season": {
+    "2026": {
+      "status": "ok",
+      "rows": 520,
+      "duplicates_dropped": 0,
+      "fetched_utc": "2026-08-10T15:44:10.915930+00:00"
+    }
+  },
+  "join_coverage_vs_pitches_bip": {
+    "definition": "share of pitches rows with type='X' (ball in play) whose batter_id has a same-season sprint_speed row",
+    "per_season": [
+      {
+        "season": 2026,
+        "n_bip": 93506,
+        "n_matched": 91568,
+        "pct_matched": 97.93
+      }
+    ]
+  },
+  "no_fabrication_note": "Players below min_opp or absent from the leaderboard are absent from the table; hp_to_1b NaN stays NULL. Imputation (league mean ~27 ft/s) is a feature-time decision, not a DB write."
+}

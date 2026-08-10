@@ -1,0 +1,26 @@
+player_id,causal_war,point_estimate_per_pa,pa,trad_war,pa_total,position,ip_total,name,baseline_year,_rank_group,proj_woba,rank_trad,rank_model,rank_diff,hit,basis
+666134,-0.61,-0.0259,294,-0.8,297.0,batter,,Nolan Jones,2024,batter,0.3490605139402304,428,53,375,False,war_delta
+656248,-0.2,-0.0233,107,-0.59,108.0,batter,,Sean Bouchard,2024,batter,0.3422452846828459,413,73,340,False,war_delta
+660670,0.29,0.0164,221,0.02,222.0,batter,,Ronald Acuña,2024,batter,0.3836285008871568,337,5,332,True,war_delta
+691023,-0.77,-0.0539,178,-0.83,178.0,batter,,Jordan Walker,2024,batter,0.3362013201715773,431,103,328,False,war_delta
+666182,-1.46,-0.0551,331,-0.34,336.0,batter,,Bo Bichette,2024,batter,0.336603376227366,382,101,281,True,war_delta
+676801,-1.08,-0.0504,269,-0.66,267.0,batter,,Chas McCormick,2024,batter,0.3302385638259635,417,144,273,False,war_delta
+669261,-1.15,-0.0526,273,-1.71,277.0,batter,,Jack Suwinski,2024,batter,0.324989458982362,452,187,265,True,war_delta
+605137,0.0,0.0,599,-0.30000000000000004,603.0,batter,,Josh Bell,2024,batter,0.33473611050635826,378,119,259,True,war_delta
+666397,-1.05,-0.0437,300,-0.17,301.0,batter,,Edouard Julien,2024,batter,0.3357415211615599,357,111,246,False,war_delta
+666181,-1.27,-0.0411,387,-1.34,388.0,batter,,Will Benson,2024,batter,0.32426845152018136,443,197,246,True,war_delta
+650391,-1.12,-0.0403,347,-0.8,349.0,batter,,Eloy Jiménez,2024,batter,0.32562169316270906,428,184,244,,no_2026_record
+671213,0.46,0.0241,238,0.66,243.0,batter,,Triston Casas,2024,batter,0.36175529199891165,259,24,235,False,war_delta
+681546,-0.98,-0.0787,156,-0.48,156.0,batter,,James Outman,2024,batter,0.32641638635897147,397,177,220,False,war_delta
+658668,-0.59,-0.0374,196,-0.67,196.0,batter,,Edward Olivares,2024,batter,0.3240064371385535,419,201,218,,no_2026_record
+676116,-0.79,-0.0901,109,-0.56,111.0,batter,,Ryan Noda,2024,batter,0.32442851929516,407,194,213,True,war_delta
+666624,-1.7,-0.0351,607,-0.58,611.0,batter,,Christopher Morel,2024,batter,0.3240157469019059,411,200,211,True,war_delta
+621466,-0.44,-0.0287,193,-0.78,194.0,batter,,DJ Stewart,2024,batter,0.3223225395221158,424,214,210,,no_2026_record
+668904,-0.18,-0.0068,322,0.66,325.0,batter,,Royce Lewis,2024,batter,0.35015838258876075,259,49,210,False,war_delta
+527038,-0.96,-0.05,240,-0.58,242.0,batter,,Wilmer Flores,2024,batter,0.3238459534469446,411,202,209,True,war_delta
+669720,-0.36,-0.0177,256,-0.18999999999999997,255.0,batter,,Austin Hays,2024,batter,0.3283340150939952,363,158,205,True,war_delta
+676369,-0.74,-0.0403,230,-0.45,230.0,batter,,Nelson Velázquez,2024,batter,0.3244695973709585,396,193,203,,no_2026_record
+669134,-0.69,-0.0289,297,-0.67,299.0,batter,,Luis Campusano,2024,batter,0.32207871664704557,419,216,203,True,war_delta
+600869,-0.91,-0.0248,461,-0.69,463.0,batter,,Jeimer Candelario,2024,batter,0.3212861123921312,421,220,201,False,war_delta
+545361,0.54,0.0537,125,1.03,126.0,batter,,Mike Trout,2024,batter,0.37284919999315513,208,11,197,True,war_delta
+687952,-0.91,-0.0935,122,-1.04,123.0,batter,,Christian Encarnacion-Strand,2024,batter,0.31925827632972015,438,242,196,True,war_delta

@@ -14,7 +14,7 @@ Per product:
   watermark covers the pick date.
 * ``hit_parlay`` parlay picks — resolved from their legs' recorded
   resolutions (never from the DB directly).
-* ``contrarian_board_2026_midseason`` — NOT resolvable before its
+* ``contrarian_board_2026_midseason`` / ``..._reliever`` — NOT resolvable before its
   ``resolve_by`` (last 2026 regular-season game + 7 days, spec §7.1). The
   resolver only reports the external source it will use
   (Baseball-Reference bWAR via ``scripts/backfill_2026_war.py`` per the
@@ -191,7 +191,8 @@ def main() -> int:
                 appended += 1
                 print(f"  resolved {pid}: {outcome.upper()} {fields}")
 
-        elif product == "contrarian_board_2026_midseason":
+        elif product in ("contrarian_board_2026_midseason",
+                         "contrarian_board_2026_midseason_reliever"):
             rb = pick.get("resolve_by")
             if rb and date.fromisoformat(rb) > as_of:
                 skipped.append(

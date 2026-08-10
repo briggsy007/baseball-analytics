@@ -1,0 +1,390 @@
+{
+ "task": "WS3.4 park (MixedLM, jointly estimated) + final K2 -- C1b",
+ "ran_at": "2026-08-10T22:39:24.817582+00:00",
+ "inputs": {
+  "stage1_csv": "C:\\Users\\hunte\\projects\\baseball\\results\\defensive_pressing\\v2_2026-08\\game_dpi_v2_stage1_2015_2025.csv",
+  "stage1_csv_sha256": "d6490b4406ef24470a601e7cfb5db8403b0f1bad0d857825e5adee9839fc7159",
+  "speed_variant": {
+   "path": "C:\\Users\\hunte\\projects\\baseball\\models\\defensive_pressing\\xout_v2_speed_det_2026_08_10.pkl",
+   "sha256": "31af3e3ea5b1dc2ee24da301f17d05ebd8f01ab22306a06c6b6423c2364153e1",
+   "version": "v2026.08.10-speed.det"
+  },
+  "rankings_csv": "C:\\Users\\hunte\\projects\\baseball\\results\\defensive_pressing\\2025_validation\\team_rankings_all_years.csv",
+  "rankings_csv_sha256": "498ee4b24d92f1b7f61748563f17bdc31c2e2e3a8adc796d620a29d4d680f989"
+ },
+ "primary_pre_commitment": "PRIMARY K2 number = v2_final_strip_park_speed pooled_2023_2025 (full-window 2015-2025 MixedLM fit), declared in the script docstring before any fit was run. 2023-25-only refit is sensitivity.",
+ "p2_speed_rescore": {
+  "n_team_games": 52498,
+  "n_matched_staff": 52498,
+  "n_dropped_no_staff": 0,
+  "r_game_dpi_speed_vs_frozen": 0.99705,
+  "stage1_r2_by_season": [
+   {
+    "season": 2015,
+    "n_games": 4928,
+    "r2_game_level": 0.03188
+   },
+   {
+    "season": 2016,
+    "n_games": 4924,
+    "r2_game_level": 0.03544
+   },
+   {
+    "season": 2017,
+    "n_games": 4934,
+    "r2_game_level": 0.03672
+   },
+   {
+    "season": 2018,
+    "n_games": 4928,
+    "r2_game_level": 0.03508
+   },
+   {
+    "season": 2019,
+    "n_games": 5128,
+    "r2_game_level": 0.02444
+   },
+   {
+    "season": 2020,
+    "n_games": 1902,
+    "r2_game_level": 0.02629
+   },
+   {
+    "season": 2021,
+    "n_games": 5224,
+    "r2_game_level": 0.02931
+   },
+   {
+    "season": 2022,
+    "n_games": 5404,
+    "r2_game_level": 0.03555
+   },
+   {
+    "season": 2023,
+    "n_games": 4900,
+    "r2_game_level": 0.02891
+   },
+   {
+    "season": 2024,
+    "n_games": 5120,
+    "r2_game_level": 0.02526
+   },
+   {
+    "season": 2025,
+    "n_games": 5106,
+    "r2_game_level": 0.03309
+   }
+  ]
+ },
+ "mixedlm_fits": {
+  "P1_strip_park_frozen": {
+   "label": "P1_strip_park_frozen",
+   "n_games": 52498,
+   "converged": true,
+   "warnings": [],
+   "variance_components": {
+    "park": 0.041012,
+    "team_season": 0.025949
+   },
+   "residual_variance": 3.503141,
+   "variance_share_game_level": {
+    "park": 0.011488,
+    "team_season": 0.007268,
+    "residual": 0.981244
+   },
+   "intercept": -0.001055
+  },
+  "P2_final_strip_park_speed": {
+   "label": "P2_final_strip_park_speed",
+   "n_games": 52498,
+   "converged": true,
+   "warnings": [],
+   "variance_components": {
+    "park": 0.039949,
+    "team_season": 0.025632
+   },
+   "residual_variance": 3.484229,
+   "variance_share_game_level": {
+    "park": 0.011254,
+    "team_season": 0.007221,
+    "residual": 0.981526
+   },
+   "intercept": -0.001062
+  },
+  "P2_sensitivity_2023_25_fit": {
+   "label": "P2_sensitivity_2023_25_fit",
+   "n_games": 15126,
+   "converged": true,
+   "warnings": [
+    "The MLE may be on the boundary of the parameter space."
+   ],
+   "variance_components": {
+    "park": 0.042085,
+    "team_season": 0.009321
+   },
+   "residual_variance": 3.240635,
+   "variance_share_game_level": {
+    "park": 0.012784,
+    "team_season": 0.002831,
+    "residual": 0.984385
+   },
+   "intercept": -0.001238
+  }
+ },
+ "park_blups": {
+  "P1": {
+   "ATH": 0.11947506460303454,
+   "ATL": 0.1544587768242203,
+   "AZ": -0.044034273027555096,
+   "BAL": -0.0059062504175287295,
+   "BOS": -0.4664733301126216,
+   "CHC": 0.15629361587560048,
+   "CIN": -0.21311198423286468,
+   "CLE": -0.029492789685007275,
+   "COL": -0.6873860986410255,
+   "CWS": 0.00928783032573208,
+   "DET": 0.0941099450826633,
+   "HOU": -0.16208954097531464,
+   "KC": 0.06317038611952762,
+   "LAA": 0.21377606693910292,
+   "LAD": 0.12454139877890981,
+   "MIA": 0.07892257906961318,
+   "MIL": -0.045267976249647145,
+   "MIN": -0.06362176570006853,
+   "NYM": 0.09696745745550654,
+   "NYY": 0.03229252336385431,
+   "PHI": -0.12554001273268214,
+   "PIT": 0.1169491070345704,
+   "SD": 0.13127248285762871,
+   "SEA": 0.1879171839038554,
+   "SF": 0.10993282932035352,
+   "STL": 0.2741742282079566,
+   "TB": -0.10538063117922808,
+   "TEX": -0.11807814342042026,
+   "TOR": 0.019933629124022863,
+   "WSH": 0.08290769148782862
+  },
+  "P2": {
+   "ATH": 0.10368998574271009,
+   "ATL": 0.14728565693238058,
+   "AZ": -0.024097945318709717,
+   "BAL": -0.012894906463187807,
+   "BOS": -0.47286964641362433,
+   "CHC": 0.17073376503891768,
+   "CIN": -0.2077839438539923,
+   "CLE": -0.014755723791381504,
+   "COL": -0.6886479931685688,
+   "CWS": 0.006440372353952086,
+   "DET": 0.10075785398670042,
+   "HOU": -0.16112038834066372,
+   "KC": 0.07688410563757475,
+   "LAA": 0.19387486891099875,
+   "LAD": 0.12315386657196581,
+   "MIA": 0.10409718611055611,
+   "MIL": -0.04133647252303458,
+   "MIN": -0.07874400350208817,
+   "NYM": 0.07216801185487512,
+   "NYY": 0.011306680414955413,
+   "PHI": -0.08566975931415616,
+   "PIT": 0.13624858662796435,
+   "SD": 0.1333079163680059,
+   "SEA": 0.15692468452959918,
+   "SF": 0.08859149204842434,
+   "STL": 0.2666237230795788,
+   "TB": -0.07645082993355869,
+   "TEX": -0.11281809645108717,
+   "TOR": 4.423124753073215e-05,
+   "WSH": 0.0850567216173632
+  },
+  "P2_2023_25": {
+   "ATH": -0.15698615840620717,
+   "ATL": -0.02773978172055755,
+   "AZ": -0.06518373518779891,
+   "BAL": 0.08530824316433039,
+   "BOS": -0.43244270064649387,
+   "CHC": 0.17283844625579278,
+   "CIN": -0.12460847138715311,
+   "CLE": 0.07794929150843347,
+   "COL": -0.5642399858463838,
+   "CWS": 0.06719081849779028,
+   "DET": 0.1322913031343928,
+   "HOU": -0.17903566859865302,
+   "KC": 0.1493021779373265,
+   "LAA": -0.12326345534024456,
+   "LAD": 0.2021022329788643,
+   "MIA": 0.03596504561600224,
+   "MIL": 0.032444660148944156,
+   "MIN": -0.2925707244590639,
+   "NYM": 0.15427644468943782,
+   "NYY": 0.2067506164053841,
+   "PHI": -0.13736452400550553,
+   "PIT": 0.13860724652368436,
+   "SD": 0.10901091434997022,
+   "SEA": 0.25248798746777734,
+   "SF": -0.01488003153663278,
+   "STL": 0.12298920632405771,
+   "TB": -0.06578942668591709,
+   "TEX": 0.17454153222867178,
+   "TOR": 0.034554307472240225,
+   "WSH": 0.03549418911751649
+  }
+ },
+ "k2_final_partial_r": [
+  {
+   "metric": "v2_strip_park_frozen",
+   "window": "2023",
+   "r": 0.4112,
+   "n": 30,
+   "p": 0.026706283973533907,
+   "fisher_ci": [
+    0.0526,
+    0.6758
+   ],
+   "cluster_boot_ci": null
+  },
+  {
+   "metric": "v2_strip_park_frozen",
+   "window": "2024",
+   "r": 0.5362,
+   "n": 30,
+   "p": 0.0027171618601341935,
+   "fisher_ci": [
+    0.2112,
+    0.7544
+   ],
+   "cluster_boot_ci": null
+  },
+  {
+   "metric": "v2_strip_park_frozen",
+   "window": "2025",
+   "r": 0.4346,
+   "n": 30,
+   "p": 0.01849095607854868,
+   "fisher_ci": [
+    0.0809,
+    0.691
+   ],
+   "cluster_boot_ci": null
+  },
+  {
+   "metric": "v2_strip_park_frozen",
+   "window": "pooled_2023_2025",
+   "r": 0.4805,
+   "n": 90,
+   "p": 1.8787236945619827e-06,
+   "fisher_ci": [
+    0.3026,
+    0.6261
+   ],
+   "cluster_boot_ci": [
+    0.3004,
+    0.607
+   ]
+  },
+  {
+   "metric": "v2_final_strip_park_speed",
+   "window": "2023",
+   "r": 0.3959,
+   "n": 30,
+   "p": 0.0335081196391837,
+   "fisher_ci": [
+    0.0344,
+    0.6658
+   ],
+   "cluster_boot_ci": null
+  },
+  {
+   "metric": "v2_final_strip_park_speed",
+   "window": "2024",
+   "r": 0.5309,
+   "n": 30,
+   "p": 0.003043933813837854,
+   "fisher_ci": [
+    0.2041,
+    0.7512
+   ],
+   "cluster_boot_ci": null
+  },
+  {
+   "metric": "v2_final_strip_park_speed",
+   "window": "2025",
+   "r": 0.4213,
+   "n": 30,
+   "p": 0.02285268454116845,
+   "fisher_ci": [
+    0.0648,
+    0.6824
+   ],
+   "cluster_boot_ci": null
+  },
+  {
+   "metric": "v2_final_strip_park_speed",
+   "window": "pooled_2023_2025",
+   "r": 0.4698,
+   "n": 90,
+   "p": 3.397553264213577e-06,
+   "fisher_ci": [
+    0.29,
+    0.6177
+   ],
+   "cluster_boot_ci": [
+    0.2847,
+    0.5998
+   ]
+  },
+  {
+   "metric": "v2_final_sensitivity_2023_25_fit",
+   "window": "2023",
+   "r": 0.3457,
+   "n": 30,
+   "p": 0.06624551922615715,
+   "fisher_ci": [
+    -0.0238,
+    0.6321
+   ],
+   "cluster_boot_ci": null
+  },
+  {
+   "metric": "v2_final_sensitivity_2023_25_fit",
+   "window": "2024",
+   "r": 0.4266,
+   "n": 30,
+   "p": 0.021013721344962568,
+   "fisher_ci": [
+    0.0712,
+    0.6859
+   ],
+   "cluster_boot_ci": null
+  },
+  {
+   "metric": "v2_final_sensitivity_2023_25_fit",
+   "window": "2025",
+   "r": 0.4441,
+   "n": 30,
+   "p": 0.015803737961219887,
+   "fisher_ci": [
+    0.0927,
+    0.6971
+   ],
+   "cluster_boot_ci": null
+  },
+  {
+   "metric": "v2_final_sensitivity_2023_25_fit",
+   "window": "pooled_2023_2025",
+   "r": 0.4299,
+   "n": 90,
+   "p": 2.6142196992445144e-05,
+   "fisher_ci": [
+    0.2435,
+    0.5857
+   ],
+   "cluster_boot_ci": [
+    0.278,
+    0.542
+   ]
+  }
+ ],
+ "in_sample_oos_status": "DPI game scores 2023-25 are OOS w.r.t. both expectation models' 2015-2022 train windows (speed variant additionally holds out 20% of 2015-2022); 2015-2022 game scores overlap the models' own train rows (in-sample; they inform the park RE and their own seasons' BLUPs only). Stage-1 OLS and the MixedLM are within-window descriptive decompositions, not forecasts.",
+ "seed": 42,
+ "n_boot": 5000
+}

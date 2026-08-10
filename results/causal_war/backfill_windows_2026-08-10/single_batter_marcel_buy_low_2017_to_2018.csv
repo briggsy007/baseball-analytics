@@ -1,0 +1,26 @@
+player_id,causal_war,point_estimate_per_pa,pa,trad_war,pa_total,position,ip_total,name,baseline_year,_rank_group,proj_woba,rank_trad,rank_model,rank_diff,hit,basis
+408234,0.08,0.0018,519,-0.87,529.0,batter,,Miguel Cabrera,2017,batter,0.3648454898494047,412,41,371,True,war_delta
+592626,0.28,0.0103,342,-0.42,323.0,batter,,Joc Pederson,2017,batter,0.34996508908159507,376,92,284,True,war_delta
+471865,0.5,0.0117,536,-0.26,534.0,batter,,Carlos González,2017,batter,0.34844269449366483,361,104,257,True,war_delta
+608384,1.04,0.0378,343,0.2,343.0,batter,,Nick Williams,2017,batter,0.36110171110215544,301,55,246,False,war_delta
+595885,0.49,0.0278,220,0.01,170.0,batter,,Greg Bird,2017,batter,0.353663578123501,320,74,246,True,war_delta
+608577,0.29,0.006,609,-0.35,616.0,batter,,Nomar Mazara,2017,batter,0.3448799595210287,368,123,245,True,war_delta
+630111,0.4,0.0283,177,-0.44,180.0,batter,,Yasmany Tomás,2017,batter,0.3429076654352973,378,134,244,,no_2026_record
+448801,-0.47,-0.0114,514,-0.44,524.0,batter,,Chris Davis,2017,batter,0.3425197998602025,378,138,240,False,war_delta
+608385,0.74,0.0678,136,0.34,137.0,batter,,Jesse Winker,2017,batter,0.36534657052816233,279,40,239,False,war_delta
+656941,0.43,0.0107,501,-0.02,486.0,batter,,Kyle Schwarber,2017,batter,0.35156970025315104,325,86,239,True,war_delta
+649557,-0.43,-0.0182,295,-0.18,301.0,batter,,Aledmys Díaz,2017,batter,0.34712809951159534,347,109,238,True,war_delta
+571830,-0.03,-0.0006,529,-0.92,533.0,batter,,Tommy Joseph,2017,batter,0.33592370990225084,418,193,225,,no_2026_record
+434670,0.54,0.0122,558,-0.38,553.0,batter,,Hanley Ramírez,2017,batter,0.3412965873178443,371,151,220,True,war_delta
+606132,0.16,0.0116,167,-0.6,171.0,batter,,Raimel Tapia,2017,batter,0.33836788691759484,391,171,220,True,war_delta
+592206,1.74,0.0328,664,0.09,665.0,batter,,Nick Castellanos,2017,batter,0.34865353232695023,312,100,212,True,war_delta
+600869,0.38,0.0334,142,0.19,142.0,batter,,Jeimer Candelario,2017,batter,0.3497883927033391,304,94,210,True,war_delta
+461314,0.81,0.0222,456,-1.33,467.0,batter,,Matt Kemp,2017,batter,0.3315970724129003,433,223,210,True,war_delta
+646240,0.94,0.0471,250,0.7,240.0,batter,,Rafael Devers,2017,batter,0.3697384932033679,240,31,209,False,war_delta
+430832,-0.92,-0.017,676,-0.95,686.0,batter,,José Bautista,2017,batter,0.3323789742011411,421,217,204,True,war_delta
+594809,0.69,0.0851,102,0.3,107.0,batter,,Adam Eaton,2017,batter,0.35214580244102706,285,83,202,True,war_delta
+624585,-0.8,-0.0919,109,-1.24,110.0,batter,,Jorge Soler,2017,batter,0.33002789662525184,430,235,195,True,war_delta
+444379,0.04,0.0016,300,-0.36,302.0,batter,,John Jaso,2017,batter,0.3372163333434512,370,181,189,,no_2026_record
+595144,0.01,0.0007,156,-0.4,162.0,batter,,Jaycob Brugman,2017,batter,0.3360781185936728,375,191,184,,no_2026_record
+452655,0.32,0.0074,534,-1.29,542.0,batter,,Denard Span,2017,batter,0.32881395575559513,431,249,182,True,war_delta
+592808,0.23,0.0294,99,0.52,102.0,batter,,Andrew Toles,2017,batter,0.3529209101798473,258,76,182,False,war_delta

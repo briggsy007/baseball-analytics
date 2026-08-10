@@ -1,0 +1,26 @@
+player_id,causal_war,point_estimate_per_pa,pa,trad_war,pa_total,position,ip_total,name,baseline_year,_rank_group,proj_woba,rank_trad,rank_model,rank_diff,hit,basis
+608385,1.11,0.0426,327,0.01,334.0,batter,,Jesse Winker,2018,batter,0.36706164705434136,341,35,306,True,war_delta
+502517,0.31,0.0112,352,0.030000000000000027,351.0,batter,,Daniel Murphy,2018,batter,0.36904095455685226,337,33,304,True,war_delta
+608384,-0.07,-0.002,445,-0.55,448.0,batter,,Nick Williams,2018,batter,0.34503889954023326,401,116,285,False,war_delta
+593934,-0.65,-0.0282,288,-0.36,299.0,batter,,Miguel Sanó,2018,batter,0.34432103278597287,385,122,263,True,war_delta
+448602,0.37,0.0196,234,-0.13,235.0,batter,,Mark Reynolds,2018,batter,0.3494781767018671,354,94,260,False,war_delta
+640457,0.32,0.0214,189,-0.32,191.0,batter,,Austin Meadows,2018,batter,0.34311418863974863,381,131,250,True,war_delta
+451594,-1.74,-0.0652,334,-1.4,334.0,batter,,Dexter Fowler,2018,batter,0.33349573119347253,440,196,244,True,war_delta
+457803,-0.76,-0.0266,356,-0.77,361.0,batter,,Jay Bruce,2018,batter,0.33501707133182024,417,180,237,True,war_delta
+608369,0.13,0.0149,112,0.51,115.0,batter,,Corey Seager,2018,batter,0.3700205961074379,266,31,235,True,war_delta
+518618,0.27,0.0062,547,-0.34,551.0,batter,,Derek Dietrich,2018,batter,0.33908549429311047,384,158,226,True,war_delta
+446359,-0.4,-0.0201,251,-0.14,253.0,batter,,Zack Cozart,2018,batter,0.3422582468776621,355,137,218,False,war_delta
+571506,0.02,0.0004,493,0.12,501.0,batter,,Justin Bour,2018,batter,0.3458242809994176,326,112,214,False,war_delta
+408234,0.47,0.0386,153,0.33,157.0,batter,,Miguel Cabrera,2018,batter,0.3508410681633746,298,87,211,False,war_delta
+519346,0.1,0.0045,273,0.37,278.0,batter,,Eric Thames,2018,batter,0.3507861446519528,292,88,204,True,war_delta
+571875,-0.28,-0.0147,237,0.39,238.0,batter,,Jake Lamb,2018,batter,0.35025583614065475,290,90,200,False,war_delta
+453568,2.5,0.0442,706,0.97,696.0,batter,,Charlie Blackmon,2018,batter,0.3857629205100982,213,15,198,True,war_delta
+592387,-0.87,-0.0207,522,-0.53,524.0,batter,,Ryon Healy,2018,batter,0.33299823162264514,397,200,197,True,war_delta
+519306,-0.49,-0.0227,272,-0.52,272.0,batter,,Steven Souza,2018,batter,0.33298437017791843,396,201,195,,no_2026_record
+518626,0.25,0.0135,228,1.02,219.0,batter,,Josh Donaldson,2018,batter,0.3769769990131899,212,20,192,True,war_delta
+547170,-0.84,-0.0332,317,-0.8,318.0,batter,,Nick Delmonico,2018,batter,0.32954563064057935,420,229,191,True,war_delta
+571437,-0.9,-0.0399,283,-0.91,285.0,batter,,Aaron Altherr,2018,batter,0.32845827073732914,424,235,189,True,war_delta
+434670,0.13,0.0081,195,0.08,195.0,batter,,Hanley Ramírez,2018,batter,0.34098791715274623,329,141,188,False,war_delta
+456488,-0.67,-0.0159,528,-0.81,502.0,batter,,Eduardo Núñez,2018,batter,0.32882898764558083,421,233,188,False,war_delta
+459964,-0.47,-0.024,243,-0.22,246.0,batter,,Matt Joyce,2018,batter,0.3349205100800078,367,183,184,True,war_delta
+646240,-0.26,-0.0062,520,0.41,490.0,batter,,Rafael Devers,2018,batter,0.34714739168427466,283,104,179,True,war_delta

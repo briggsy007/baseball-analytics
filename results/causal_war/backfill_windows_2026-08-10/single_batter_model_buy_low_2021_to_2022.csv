@@ -1,0 +1,26 @@
+player_id,causal_war,point_estimate_per_pa,pa,trad_war,pa_total,position,ip_total,name,baseline_year,_rank_group,proj_woba,rank_trad,rank_model,rank_diff,hit,basis
+670370,0.02,0.0019,104,-0.74,104.0,batter,,Andrew Young,2021,batter,0.33220747919187654,432,194,238,,no_2026_record
+624585,0.79,0.0155,635,0.08999999999999986,602.0,batter,,Jorge Soler,2021,batter,0.3561157565876386,318,101,217,True,war_delta
+657757,0.49,0.032,191,0.06,179.0,batter,,Gavin Sheets,2021,batter,0.35078682333682704,322,126,196,False,war_delta
+501659,-0.21,-0.0149,174,-0.66,175.0,batter,,Abraham Almonte,2021,batter,0.32409190802390186,421,243,178,True,war_delta
+596129,0.11,0.0053,259,-0.1,258.0,batter,,Dan Vogelbach,2021,batter,0.3353701314970268,348,177,171,True,war_delta
+607461,0.21,0.0107,245,0.04,234.0,batter,,Matt Beaty,2021,batter,0.33661249778621494,326,160,166,False,war_delta
+621011,0.27,0.0252,133,0.1,134.0,batter,,Max Schrock,2021,batter,0.3372129320801167,311,149,162,False,war_delta
+656716,-0.33,-0.0245,170,-0.7,172.0,batter,,Zach McKinstry,2021,batter,0.32040592976460525,425,265,160,True,war_delta
+457708,-0.34,-0.0119,357,-0.73,362.0,batter,,Justin Upton,2021,batter,0.31656446386510045,429,270,159,True,war_delta
+571980,0.9,0.0249,451,0.57,454.0,batter,,Tyler Naquin,2021,batter,0.3393123357294525,255,96,159,False,war_delta
+667670,-0.33,-0.0193,213,-0.67,213.0,batter,,Brent Rooker,2021,batter,0.3250866453349889,423,265,158,True,war_delta
+670351,-0.37,-0.0253,184,-0.73,184.0,batter,,José Rojas,2021,batter,0.31648358102219076,429,274,155,False,war_delta
+657061,-0.38,-0.0365,131,-0.72,131.0,batter,,Cole Tucker,2021,batter,0.30694832037149233,427,276,151,False,war_delta
+592325,0.01,0.0002,396,-0.1,400.0,batter,,Ben Gamel,2021,batter,0.3273599728593983,348,198,150,True,war_delta
+669222,-0.25,-0.0255,124,-0.48,124.0,batter,,Nick Senzel,2021,batter,0.32885255910779115,399,252,147,False,war_delta
+660294,-0.48,-0.0231,261,-0.85,262.0,batter,,Yoshi Tsutsugo,2021,batter,0.3112214670982846,442,297,145,False,war_delta
+628450,0.18,0.0077,288,0.1,289.0,batter,,Yadiel Hernández,2021,batter,0.32573238133138094,311,167,144,True,war_delta
+642133,-0.21,-0.008,329,-0.37,325.0,batter,,Rowdy Tellez,2021,batter,0.3361446944195997,385,243,142,True,war_delta
+606213,0.49,0.0235,261,0.46,262.0,batter,,Yermín Mercedes,2021,batter,0.33759367182583355,266,126,140,False,war_delta
+592626,-0.01,-0.0003,522,-0.05,481.0,batter,,Joc Pederson,2021,batter,0.34169277939335685,341,203,138,True,war_delta
+572228,0.24,0.0126,236,0.29,241.0,batter,,Luke Voit,2021,batter,0.3601279153664048,292,155,137,True,war_delta
+467827,-0.33,-0.0391,106,-0.46,107.0,batter,,Gerardo Parra,2021,batter,0.31004805502034466,397,265,132,,no_2026_record
+605204,0.74,0.0442,210,0.77,211.0,batter,,J. D. Davis,2021,batter,0.3645406043813893,236,106,130,False,war_delta
+592567,-0.2,-0.0069,358,-0.26,359.0,batter,,Colin Moran,2021,batter,0.33134886889614157,371,242,129,False,war_delta
+640449,-0.61,-0.035,218,-1.49,218.0,batter,,Clint Frazier,2021,batter,0.34100264418788834,457,329,128,True,war_delta

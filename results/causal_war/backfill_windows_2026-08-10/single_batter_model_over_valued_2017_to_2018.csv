@@ -1,0 +1,26 @@
+player_id,causal_war,point_estimate_per_pa,pa,trad_war,pa_total,position,ip_total,name,baseline_year,_rank_group,proj_woba,rank_trad,rank_model,rank_diff,hit,basis
+621439,-0.42,-0.0106,492,4.97,511.0,batter,,Byron Buxton,2017,batter,0.322460831423958,26,329,-303,True,war_delta
+543829,-0.42,-0.008,658,3.71,695.0,batter,,Dee Strange-Gordon,2017,batter,0.32100651238932737,54,329,-275,True,war_delta
+502481,-0.65,-0.0216,374,2.69,390.0,batter,,Jarrod Dyson,2017,batter,0.3097161215194647,100,361,-261,True,war_delta
+520471,-0.88,-0.0168,652,1.99,663.0,batter,,Freddy Galvis,2017,batter,0.30519335211214615,139,388,-249,True,war_delta
+455117,-1.13,-0.031,457,1.67,471.0,batter,,Martín Maldonado,2017,batter,0.2939673311882877,162,408,-246,True,war_delta
+571740,-2.03,-0.0415,613,1.27,633.0,batter,,Billy Hamilton,2017,batter,0.29469244994134547,187,432,-245,True,war_delta
+501571,-0.73,-0.034,267,2.07,272.0,batter,,Juan Lagares,2017,batter,0.30235721077422023,136,371,-235,True,war_delta
+543063,-0.78,-0.0172,565,1.94,570.0,batter,,Brandon Crawford,2017,batter,0.320097915017488,144,379,-235,True,war_delta
+571466,-0.23,-0.007,405,3.62,423.0,batter,,Tucker Barnhart,2017,batter,0.32517689271736283,58,292,-234,True,war_delta
+572365,-1.48,-0.0417,443,1.05,459.0,batter,,Ryan Goins,2017,batter,0.2928397937658176,209,424,-215,True,war_delta
+570560,-0.07,-0.0016,521,3.52,534.0,batter,,Yolmer Sánchez,2017,batter,0.31765908633522943,61,268,-207,True,war_delta
+594694,-0.69,-0.025,344,1.69,365.0,batter,,Wilmer Difo,2017,batter,0.3207281492192485,161,366,-205,True,war_delta
+607680,-0.08,-0.0016,621,2.81,632.0,batter,,Kevin Pillar,2017,batter,0.314438263038474,88,272,-184,True,war_delta
+608365,-0.32,-0.0095,414,2.14,385.0,batter,,Addison Russell,2017,batter,0.3280126773737694,127,311,-184,False,war_delta
+595978,-1.47,-0.0458,402,0.7,417.0,batter,,Austin Hedges,2017,batter,0.2865752010138954,240,422,-182,False,war_delta
+593871,-0.59,-0.0139,534,1.35,544.0,batter,,Jorge Polanco,2017,batter,0.3311372043971751,180,356,-176,True,war_delta
+488771,-0.21,-0.0065,406,2.45,407.0,batter,,Jason Castro,2017,batter,0.30862221265245654,115,289,-174,True,war_delta
+446334,0.04,0.0007,674,3.27,677.0,batter,,Evan Longoria,2017,batter,0.3358856756939564,69,242,-173,True,war_delta
+572073,-0.97,-0.0455,266,0.85,277.0,batter,,Joey Rickard,2017,batter,0.30954659423339453,226,397,-171,True,war_delta
+628338,-0.54,-0.0163,417,1.38,426.0,batter,,Guillermo Heredia,2017,batter,0.31939374619617916,179,350,-171,True,war_delta
+598265,0.17,0.0039,551,3.35,541.0,batter,,Jackie Bradley,2017,batter,0.34508024561754,67,222,-155,True,war_delta
+572122,0.24,0.0046,639,3.57,650.0,batter,,Kyle Seager,2017,batter,0.34331377007987346,60,213,-153,True,war_delta
+506702,-1.0,-0.0407,306,0.56,301.0,batter,,Sandy León,2017,batter,0.3189806312814691,253,400,-147,True,war_delta
+518735,-0.07,-0.0018,485,2.28,482.0,batter,,Yasmani Grandal,2017,batter,0.33580106155724376,121,268,-147,False,war_delta
+435079,-0.23,-0.0048,609,1.86,613.0,batter,,Ian Kinsler,2017,batter,0.3320717052400223,147,292,-145,False,war_delta

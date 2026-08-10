@@ -1,0 +1,26 @@
+player_id,position_type,war_agg,vol_agg,causal_war,point_estimate_per_pa,pa,war_f,name,_rank_group,rank_trad,rank_model,rank_diff,hit,basis
+691023,batter,-0.11,465.0,0.76,0.0206,459,-0.83,Jordan Walker,batter,428,107,321,False,war_agg_half
+642528,pitcher,-0.11000000000000004,65.66666666666667,1.12,0.0462,302,0.34,Jonathan Loáisiga,pitcher,474,153,321,True,war_agg_half
+592178,batter,-0.31999999999999995,516.0,0.38,0.0094,505,-0.79,Kris Bryant,batter,447,146,301,False,war_agg_half
+622250,pitcher,-0.97,74.66666666666667,0.45,0.0162,349,-0.01,Josh Sborz,pitcher,563,264,299,True,war_agg_half
+519293,pitcher,-0.51,116.33333333333334,0.6,0.0151,496,-0.91,Will Smith,pitcher,528,235,293,False,war_agg_half
+650895,pitcher,-0.19999999999999998,63.0,0.77,0.0364,265,0.21,Diego Castillo,pitcher,488,208,280,True,war_agg_half
+642397,pitcher,0.08,120.66666666666667,0.97,0.0234,521,0.28,Gregory Soto,pitcher,442,179,263,True,war_agg_half
+680779,batter,-1.49,255.0,-0.68,-0.0336,253,-0.61,Henry Davis,batter,519,258,261,True,war_agg_half
+642701,pitcher,-0.8099999999999999,69.33333333333333,0.29,0.0119,303,0.8500000000000001,Dennis Santana,pitcher,552,297,255,True,war_agg_half
+660766,batter,-0.4,339.0,-0.21,-0.0075,344,0.57,Juan Yepez,batter,455,202,253,True,war_agg_half
+658668,batter,0.31,559.0,0.49,0.011,554,-0.67,Edward Olivares,batter,386,134,252,False,war_agg_half
+641343,batter,-0.94,272.0,-0.62,-0.0287,272,-0.32,Jake Bauers,batter,496,246,250,True,war_agg_half
+641343,batter,-0.94,272.0,-0.62,-0.0287,272,0.01,Jake Bauers,batter,496,246,250,True,war_agg_half
+641627,pitcher,-0.48,103.66666666666666,0.41,0.0118,433,,Trevor Gott,pitcher,521,273,248,,exit_no_followup_row
+669212,pitcher,0.11,134.0,0.93,0.0208,558,1.08,Eli Morgan,pitcher,432,184,248,True,war_agg_half
+657044,pitcher,0.10999999999999996,73.33333333333333,0.9,0.0331,342,0.99,Ryan Thompson,pitcher,434,191,243,True,war_agg_half
+543606,pitcher,-0.22000000000000003,106.33333333333334,0.52,0.0139,464,,Jake Odorizzi,pitcher,493,250,243,,exit_no_followup_row
+456713,pitcher,-0.8500000000000001,70.0,0.18,0.0078,287,,Matt Bush,pitcher,558,317,241,,exit_no_followup_row
+682641,batter,-0.37,253.0,-0.32,-0.0162,250,-0.17,Luis Matos,batter,451,217,234,True,war_agg_half
+523260,pitcher,-0.6299999999999999,76.33333333333334,0.2,0.0072,344,-0.38,Joe Kelly,pitcher,539,307,232,False,war_agg_half
+670950,pitcher,-0.9700000000000001,136.66666666666669,0.12,0.0024,595,-0.3,Trevor Richards,pitcher,565,334,231,True,war_agg_half
+519151,pitcher,0.97,113.66666666666666,2.62,0.067,490,0.4,Ryan Pressly,pitcher,287,57,230,False,war_agg_half
+687952,batter,0.45,241.0,0.44,0.0227,241,-1.04,Christian Encarnacion-Strand,batter,369,140,229,False,war_agg_half
+570257,pitcher,-0.37,61.333333333333336,0.32,0.0154,263,-0.53,Joely Rodríguez,pitcher,510,286,224,False,war_agg_half
+573131,batter,-1.8499999999999999,445.0,-0.97,-0.0271,448,,Darin Ruf,batter,529,308,221,,exit_no_followup_row

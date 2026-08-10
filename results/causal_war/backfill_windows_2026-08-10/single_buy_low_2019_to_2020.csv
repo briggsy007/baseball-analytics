@@ -1,0 +1,26 @@
+player_id,causal_war,point_estimate_per_pa,pa,trad_war,pa_total,position,ip_total,name,baseline_year,_rank_group,rank_trad,rank_model,rank_diff,hit,basis
+622259,0.31,0.018,217,-0.38,,pitcher,51.0,Trey Wingenter,2019,pitcher,457,151,306,,no_2026_record
+571670,0.34,0.0222,189,-0.37,,pitcher,46.666666666666664,Dylan Floro,2019,pitcher,451,145,306,True,war_delta
+621363,0.76,0.0433,220,0.01,,pitcher,51.666666666666664,Colin Poche,2019,pitcher,367,82,285,,no_2026_record
+435622,0.68,0.0176,479,-1.5,482.0,batter,,Ian Desmond,2019,batter,447,162,285,,no_2026_record
+453192,0.06,0.0031,249,-0.49,,pitcher,54.666666666666664,Andrew Miller,2019,pitcher,484,203,281,True,war_delta
+622103,-0.04,-0.004,115,-0.48,,pitcher,26.0,Gerardo Reyes,2019,pitcher,482,225,257,,no_2026_record
+669160,0.45,0.0374,151,-0.02,,pitcher,34.666666666666664,Dustin May,2019,pitcher,374,123,251,True,war_delta
+641627,0.99,0.0582,213,0.31,,pitcher,52.666666666666664,Trevor Gott,2019,pitcher,302,59,243,False,war_delta
+656547,-0.3,-0.0208,180,-0.88,,pitcher,41.333333333333336,Jonathan Holder,2019,pitcher,521,292,229,True,war_delta
+520980,1.12,0.0509,274,0.45,,pitcher,69.66666666666667,Pedro Báez,2019,pitcher,270,44,226,False,war_delta
+445276,0.48,0.0232,260,0.13,,pitcher,63.0,Kenley Jansen,2019,pitcher,337,118,219,True,war_delta
+554340,0.64,0.0328,243,0.27,,pitcher,62.333333333333336,Yimi García,2019,pitcher,313,96,217,True,war_delta
+573046,0.13,0.0077,204,-0.13,,pitcher,50.66666666666667,Mike Morin,2019,pitcher,408,193,215,True,war_delta
+523260,-0.24,-0.0127,237,-0.55,,pitcher,51.333333333333336,Joe Kelly,2019,pitcher,492,280,212,True,war_delta
+641341,-0.16,-0.0211,96,-0.43,,pitcher,22.0,Tyler Bashlor,2019,pitcher,468,257,211,True,war_delta
+465657,1.05,0.049,269,0.51,,pitcher,69.0,Joakim Soria,2019,pitcher,255,50,205,False,war_delta
+500874,0.69,0.0225,384,-0.28,373.0,batter,,José Martínez,2019,batter,364,161,203,False,war_delta
+622253,-0.02,-0.002,93,-0.21,,pitcher,21.0,Dillon Tate,2019,pitcher,424,221,203,True,war_delta
+623364,-0.15,-0.0124,148,-0.37000000000000005,,pitcher,34.66666666666667,Brad Wieck,2019,pitcher,456,254,202,True,war_delta
+466320,0.08,0.0026,389,-1.18,397.0,batter,,Melky Cabrera,2019,batter,439,239,200,,no_2026_record
+608638,-0.08,-0.0118,86,-0.31,,pitcher,21.333333333333332,J. T. Chargois,2019,pitcher,438,240,198,,no_2026_record
+502026,-0.11,-0.0061,220,-0.31,,pitcher,52.0,Jeremy Jeffress,2019,pitcher,438,247,191,True,war_delta
+650893,-0.29,-0.0344,104,-0.46,,pitcher,20.333333333333332,Génesis Cabrera,2019,pitcher,478,290,188,True,war_delta
+430945,0.28,0.0066,525,-0.7,528.0,batter,,Adam Jones,2019,batter,398,213,185,,no_2026_record
+643778,1.0,0.0544,229,0.62,,pitcher,55.0,Tyler Webb,2019,pitcher,237,55,182,False,war_delta

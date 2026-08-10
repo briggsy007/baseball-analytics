@@ -1,0 +1,26 @@
+player_id,position_type,war_agg,vol_agg,causal_war,point_estimate_per_pa,pa,war_f,name,_rank_group,rank_trad,rank_model,rank_diff,hit,basis
+622250,pitcher,-0.67,68.66666666666667,0.87,0.0343,318,,Josh Sborz,pitcher,559,163,396,,exit_no_followup_row
+670950,pitcher,-0.45999999999999996,138.0,0.81,0.0173,588,-0.09,Trevor Richards,pitcher,540,180,360,True,war_agg_half
+519293,pitcher,-0.87,98.66666666666667,0.45,0.0133,420,,Will Smith,pitcher,570,238,332,,exit_no_followup_row
+543859,pitcher,0.1100000000000001,159.33333333333331,1.15,0.0217,664,0.24,Michael Tonkin,pitcher,451,127,324,True,war_agg_half
+543294,pitcher,-0.53,267.66666666666663,0.52,0.0057,1144,1.68,Kyle Hendricks,pitcher,549,225,324,True,war_agg_half
+691023,batter,-0.94,643.0,0.08,0.0016,637,-1.69,Jordan Walker,batter,485,184,301,False,war_agg_half
+608723,pitcher,-0.59,95.66666666666666,0.34,0.0106,404,,Austin Voth,pitcher,555,262,293,,exit_no_followup_row
+605137,batter,-0.4000000000000001,1220.0,0.18,0.0019,1209,0.5,Josh Bell,batter,452,170,282,True,war_agg_half
+676395,pitcher,0.28,91.66666666666666,1.04,0.035,370,0.48,Robert Garcia,pitcher,420,143,277,True,war_agg_half
+621466,batter,-0.41000000000000003,379.0,0.1,0.0033,377,,DJ Stewart,batter,453,181,272,,exit_no_followup_row
+656976,batter,-0.21999999999999997,386.0,0.33,0.0104,395,0.43,Pavin Smith,batter,425,155,270,True,war_agg_half
+642100,pitcher,0.07000000000000006,78.33333333333333,0.65,0.026,312,1.39,Gabe Speier,pitcher,462,204,258,True,war_agg_half
+658668,batter,-0.43000000000000005,581.0,-0.03,-0.0005,577,,Edward Olivares,batter,456,199,257,,exit_no_followup_row
+668885,batter,-0.98,257.0,-0.37,-0.018,255,0.71,Austin Martin,batter,490,237,253,True,war_agg_half
+660825,pitcher,0.09999999999999999,43.66666666666667,0.63,0.0456,174,1.79,Eduard Bazardo,pitcher,456,208,248,True,war_agg_half
+678495,pitcher,-0.19,52.333333333333336,0.36,0.0206,220,1.91,Randy Rodríguez,pitcher,504,256,248,True,war_agg_half
+519317,batter,0.050000000000000044,874.0,0.35,0.0047,920,1.87,Giancarlo Stanton,batter,399,153,246,True,war_agg_half
+608717,pitcher,-0.26,141.0,0.31,0.0063,608,-0.48,Chris Stratton,pitcher,514,271,243,False,war_agg_half
+622075,pitcher,-0.44,63.666666666666664,0.21,0.0099,267,,Yency Almonte,pitcher,535,293,242,,exit_no_followup_row
+607481,pitcher,-0.42999999999999994,113.66666666666667,0.22,0.0054,507,0.13,Aaron Bummer,pitcher,533,292,241,True,war_agg_half
+592773,pitcher,-0.18999999999999995,106.0,0.34,0.0086,498,-1.01,Ryne Stanek,pitcher,503,262,241,False,war_agg_half
+681517,pitcher,-0.09,50.33333333333333,0.39,0.0238,206,1.55,Kyle Leahy,pitcher,491,250,241,True,war_agg_half
+664062,pitcher,-0.22,103.0,0.29,0.0084,432,0.0,Tony Gonsolin,pitcher,510,273,237,True,war_agg_half
+518617,pitcher,-0.5700000000000001,88.66666666666667,0.08,0.0026,384,,Jake Diekman,pitcher,554,318,236,,exit_no_followup_row
+605130,pitcher,0.08999999999999997,123.0,0.53,0.0124,534,0.72,Scott Barlow,pitcher,458,222,236,True,war_agg_half

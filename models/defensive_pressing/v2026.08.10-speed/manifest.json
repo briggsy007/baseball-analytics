@@ -1,0 +1,24 @@
+{
+  "artifact": "defensive_pressing/xout_v2_speed_2026_08_10.pkl",
+  "version": "v2026.08.10-speed",
+  "sha256": "f6a523e7f70d1d313bfac898ab282a61204fb4928ddb99749351b54b9438efe7",
+  "hash_policy": "pinned",
+  "created_utc": "2026-08-10T16:01:27.008762+00:00",
+  "git_sha": "d3dbe23ff5642dd77cac5916de3096bd936638f0",
+  "train_window": "2015-2022",
+  "data_snapshot": {
+    "tables": {
+      "pitches": {
+        "train_bip_rows": 918292
+      },
+      "sprint_speed": {
+        "player_season_rows": 6624,
+        "ingest_log": "results/ingest/sprint_speed_ingest_20260810T154343Z.json"
+      }
+    }
+  },
+  "training_script": "scripts/dpi_v2_speed_xout.py",
+  "spec_version": "docs/plans/2026-08-10_platform_improvement_plan.md WS3.3",
+  "validation_results_ref": "results/defensive_pressing/v2_2026-08/speed_xout_summary.json",
+  "notes": "EXPERIMENTAL DPI v2 speed variant (WS3.3). Not production, not frozen_validated; aliases untouched."
+}

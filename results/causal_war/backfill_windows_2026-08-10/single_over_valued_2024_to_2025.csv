@@ -1,0 +1,26 @@
+player_id,causal_war,point_estimate_per_pa,pa,trad_war,pa_total,position,ip_total,name,baseline_year,_rank_group,rank_trad,rank_model,rank_diff,hit,basis
+615698,-1.8,-0.0346,652,1.77,,pitcher,148.33333333333334,Cal Quantrill,2024,pitcher,102,534,-432,True,war_delta
+623167,-1.93,-0.0343,702,1.61,,pitcher,160.0,Chris Flexen,2024,pitcher,119,535,-416,True,war_delta
+596295,-0.68,-0.0122,695,2.43,,pitcher,165.0,Austin Gomber,2024,pitcher,62,469,-407,True,war_delta
+665926,-1.7,-0.0318,669,3.99,633.0,batter,,Andrés Giménez,2024,batter,33,438,-405,True,war_delta
+656605,-0.61,-0.0098,772,1.97,,pitcher,178.0,Mitch Keller,2024,pitcher,82,458,-376,True,war_delta
+687765,-0.78,-0.015,650,1.61,,pitcher,151.33333333333334,Mitch Spence,2024,pitcher,119,481,-362,True,war_delta
+683011,-1.19,-0.0201,741,3.49,689.0,batter,,Anthony Volpe,2024,batter,53,395,-342,True,war_delta
+686563,-0.43,-0.0104,521,1.88,,pitcher,124.33333333333333,Jonathan Cannon,2024,pitcher,95,428,-333,True,war_delta
+527048,-1.39,-0.0295,588,0.88,,pitcher,135.0,Martín Pérez,2024,pitcher,193,522,-329,False,war_delta
+668930,-0.86,-0.0173,622,4.76,619.0,batter,,Brice Turang,2024,batter,21,337,-316,False,war_delta
+665871,-0.39,-0.0076,633,1.66,,pitcher,147.0,Javier Assad,2024,pitcher,112,416,-304,True,war_delta
+663855,-0.82,-0.0215,478,0.98,,pitcher,109.66666666666667,Jordan Hicks,2024,pitcher,181,484,-303,True,war_delta
+642350,-1.82,-0.0512,445,1.84,448.0,batter,,José Siri,2024,batter,152,446,-294,True,war_delta
+671096,0.0,0.0,581,3.3,,pitcher,138.0,Andrew Abbott,2024,pitcher,25,318,-293,False,war_delta
+662139,-0.76,-0.0186,509,4.83,513.0,batter,,Daulton Varsho,2024,batter,20,311,-291,True,war_delta
+573186,-1.49,-0.0279,670,0.62,,pitcher,154.66666666666666,Marcus Stroman,2024,pitcher,249,527,-278,True,war_delta
+641487,-1.08,-0.03,449,2.66,451.0,batter,,J. P. Crawford,2024,batter,100,377,-277,False,war_delta
+672580,-2.33,-0.0452,645,1.41,626.0,batter,,Maikel García,2024,batter,179,452,-273,False,war_delta
+672275,-1.56,-0.0437,445,1.73,448.0,batter,,Patrick Bailey,2024,batter,158,430,-272,True,war_delta
+641680,-2.44,-0.0621,490,1.36,491.0,batter,,Jonah Heim,2024,batter,183,454,-271,True,war_delta
+669022,-0.69,-0.0118,727,0.85,,pitcher,166.33333333333334,MacKenzie Gore,2024,pitcher,200,471,-271,False,war_delta
+681082,-1.12,-0.0242,581,2.3,571.0,batter,,Bryson Stott,2024,batter,116,387,-271,True,war_delta
+450203,-0.48,-0.0085,698,1.07,,pitcher,165.33333333333334,Charlie Morton,2024,pitcher,169,440,-271,True,war_delta
+668939,-0.84,-0.0164,643,3.14,638.0,batter,,Adley Rutschman,2024,batter,65,333,-268,True,war_delta
+677587,-1.38,-0.0363,476,1.94,442.0,batter,,Brayan Rocchio,2024,batter,145,411,-266,True,war_delta

@@ -1,0 +1,26 @@
+player_id,causal_war,point_estimate_per_pa,pa,trad_war,pa_total,position,ip_total,name,baseline_year,_rank_group,rank_trad,rank_model,rank_diff,hit,basis
+642528,0.7,0.0373,235,-0.46,,pitcher,48.0,Jonathan Loáisiga,2022,pitcher,467,163,304,True,war_delta
+683734,0.39,0.009,548,-0.28,555.0,batter,,Andrew Vaughn,2022,batter,390,93,297,True,war_delta
+623352,0.36,0.0189,237,-0.95,,pitcher,50.0,Josh Hader,2022,pitcher,527,242,285,True,war_delta
+642701,0.45,0.022,254,-0.72,,pitcher,58.666666666666664,Dennis Santana,2022,pitcher,498,224,274,True,war_delta
+650644,0.19,0.0057,410,-0.86,,pitcher,97.0,Aaron Civale,2022,pitcher,522,279,243,True,war_delta
+650895,0.87,0.0485,224,-0.02,,pitcher,54.333333333333336,Diego Castillo,2022,pitcher,383,140,243,False,war_delta
+669212,1.2,0.0558,268,0.22,,pitcher,66.66666666666667,Eli Morgan,2022,pitcher,325,95,230,False,war_delta
+543606,0.52,0.0139,464,-0.22000000000000003,,pitcher,106.33333333333334,Jake Odorizzi,2022,pitcher,428,200,228,,no_2026_record
+663855,0.47,0.022,266,-0.29,,pitcher,61.333333333333336,Jordan Hicks,2022,pitcher,439,214,225,True,war_delta
+663697,-0.06,-0.0017,426,-0.25,431.0,batter,,Jonathan India,2022,batter,385,162,223,True,war_delta
+607237,0.73,0.0466,196,0.0,,pitcher,45.333333333333336,Amir Garrett,2022,pitcher,378,156,222,True,war_delta
+613564,0.2,0.0222,110,0.07,111.0,batter,,Jason Vosler,2022,batter,337,119,218,False,war_delta
+570257,0.5,0.0294,212,-0.2,,pitcher,50.333333333333336,Joely Rodríguez,2022,pitcher,423,209,214,True,war_delta
+641627,0.44,0.0293,186,-0.29,,pitcher,45.666666666666664,Trevor Gott,2022,pitcher,439,226,213,True,war_delta
+571875,-0.06,-0.0067,111,-0.16,111.0,batter,,Jake Lamb,2022,batter,374,162,212,True,war_delta
+676369,-0.39,-0.0244,202,-0.63,206.0,batter,,Nelson Velázquez,2022,batter,423,211,212,True,war_delta
+593576,1.48,0.0669,276,0.45,,pitcher,65.33333333333333,Héctor Neris,2022,pitcher,279,70,209,True,war_delta
+680814,-0.25,-0.0312,102,-0.35,102.0,batter,,Peyton Burdick,2022,batter,398,189,209,True,war_delta
+573124,0.16,0.0075,271,-0.5700000000000001,,pitcher,64.33333333333334,Taylor Rogers,2022,pitcher,488,284,204,True,war_delta
+623451,0.68,0.036,236,0.02,,pitcher,53.666666666666664,Jackson Stephens,2022,pitcher,374,171,203,True,war_delta
+658668,0.06,0.0043,173,0.07,174.0,batter,,Edward Olivares,2022,batter,337,140,197,True,war_delta
+456713,0.57,0.03,239,-0.03999999999999998,,pitcher,59.666666666666664,Matt Bush,2022,pitcher,387,190,197,False,war_delta
+666135,-0.4,-0.0324,156,-0.44,156.0,batter,,Alex Kirilloff,2022,batter,407,213,194,True,war_delta
+669394,-0.06,-0.0043,179,-0.02,183.0,batter,,Jake Burger,2022,batter,356,162,194,True,war_delta
+660766,0.24,0.0108,279,0.35,274.0,batter,,Juan Yepez,2022,batter,302,110,192,False,war_delta

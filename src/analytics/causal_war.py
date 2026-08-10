@@ -97,6 +97,16 @@ class CausalWARConfig:
     # tendency) + weather confounders -- see causal_war_results.md.
     model_version: str = "v2_umpweather"
 
+    # WS4.1 (2026-08-10): opt-in v3 covariate block -- season-lagged pitcher
+    # wOBA-against (opponent quality) + park via ``pitches.home_team`` (the
+    # honest re-application of the reverted 2026-04-18 venue fix; the
+    # ``games`` table is still empty, so the legacy venue_code confounder is
+    # a dead constant).  Default False so every existing caller (stability
+    # script, reliever board, precompute, v1/v2 checkpoints) sees a
+    # byte-identical feature layout.  Set True together with a bumped
+    # ``model_version`` (e.g. "v3_oppq_park") for the v3 retrain.
+    include_opp_quality_park: bool = False
+
 
 # ---------------------------------------------------------------------------
 # Core model class
@@ -143,7 +153,12 @@ class CausalWARModel(BaseAnalyticsModel):
         logger.info("Training CausalWAR for season %d", season)
 
         # Extract confounder-enriched data
-        df = _extract_pa_data(conn, season)
+        df = _extract_pa_data(
+            conn, season,
+            include_opp_quality_park=bool(
+                getattr(self.config, "include_opp_quality_park", False)
+            ),
+        )
         logger.info("Extracted %d plate appearances for season %d", len(df), season)
 
         if len(df) < _MIN_TRAINING_OBS:
@@ -288,7 +303,10 @@ class CausalWARModel(BaseAnalyticsModel):
         )
 
         # ---- Extract train and test data --------------------------------
-        train_df = _extract_pa_data(conn, year_range=(train_start, train_end))
+        _v3 = bool(getattr(self.config, "include_opp_quality_park", False))
+        train_df = _extract_pa_data(
+            conn, year_range=(train_start, train_end), include_opp_quality_park=_v3,
+        )
         logger.info(
             "Extracted %d train PAs (%d-%d)", len(train_df), train_start, train_end,
         )
@@ -298,7 +316,9 @@ class CausalWARModel(BaseAnalyticsModel):
                 f"need at least {_MIN_TRAINING_OBS}."
             )
 
-        test_df = _extract_pa_data(conn, year_range=(test_start, test_end))
+        test_df = _extract_pa_data(
+            conn, year_range=(test_start, test_end), include_opp_quality_park=_v3,
+        )
         logger.info(
             "Extracted %d test PAs (%d-%d)", len(test_df), test_start, test_end,
         )
@@ -413,6 +433,24 @@ class CausalWARModel(BaseAnalyticsModel):
             artifact_dir
             / f"causal_war_trainsplit_{train_start}_{train_end}{version_suffix}.pkl"
         )
+        # WS4.1 (2026-08-10) write-once guard: never overwrite an existing
+        # checkpoint (audit failure class F-A -- one path serving frozen and
+        # retrain roles).  The 2015-2022 pkl is the frozen basis of the
+        # contrarian stability evidence and the 2026 reliever board (sha
+        # pinned in the frozen resolution spec's deviations log); the v2
+        # umpweather pkl is the production default.  A colliding save is
+        # diverted to a UTC-timestamped sibling path instead.
+        if artifact_path.exists():
+            ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+            diverted = artifact_path.with_name(
+                f"{artifact_path.stem}_{ts}{artifact_path.suffix}"
+            )
+            logger.warning(
+                "Refusing to overwrite existing checkpoint %s; saving to %s "
+                "instead (write-once policy, 2026-08-10).",
+                artifact_path, diverted,
+            )
+            artifact_path = diverted
         artifact = {
             "nuisance_outcome": full_model,
             "config": self.config,
@@ -743,6 +781,7 @@ def _extract_pa_data(
     season: int | None = None,
     *,
     year_range: tuple[int, int] | None = None,
+    include_opp_quality_park: bool = False,
 ) -> pd.DataFrame:
     """Extract plate-appearance-level data with confounders.
 
@@ -756,6 +795,23 @@ def _extract_pa_data(
         year_range: Optional inclusive ``(start_year, end_year)`` tuple for
             multi-season extraction (used by the temporal train/test split
             workflow).
+        include_opp_quality_park: WS4.1 (2026-08-10) opt-in v3 covariates.
+            When True, two extra columns are emitted:
+
+            * ``opp_woba_lag`` -- the opposing pitcher's PRIOR-season wOBA
+              allowed, ``SUM(woba_value)/SUM(woba_denom)`` over that
+              pitcher's PA-ending rows in season t-1 (``pitches.pitcher_id``
+              has 0 NULLs; ``season_pitching_stats.xwoba``/``.stuff_plus``
+              are 100% NULL and are deliberately not used).  NULL when the
+              pitcher has no prior-season PAs (2015 rows, rookies) -- NULLs
+              are preserved for HistGB native missing-value handling.
+            * ``park_ht`` -- ``pitches.home_team`` (100% populated
+              2015-2026), the honest park carrier.  The legacy
+              ``games``-join venue is a dead constant (0-row table).
+
+            Default False: output is byte-identical to the pre-WS4.1
+            extractor, so v1/v2 checkpoints and every existing caller are
+            unaffected.
 
     Returns:
         DataFrame with one row per plate appearance.
@@ -822,6 +878,36 @@ def _extract_pa_data(
         if has_weather else ""
     )
 
+    # ---- WS4.1 v3 covariates (opt-in) ------------------------------------
+    # ``opp_woba_lag``: prior-season pitcher wOBA-against, computed over ALL
+    # seasons in the pitches table (the lag for a train-window year needs
+    # season t-1 even when t-1 is outside the extraction filter).  Joined on
+    # season t-1 -> strictly pre-treatment, no look-ahead leakage.
+    # ``park_ht``: home_team lifted from the pitch rows themselves (constant
+    # within a PA), NOT the dead ``games`` join.
+    v3_pa_select = ",\n                MAX(p.home_team) AS park_ht" if include_opp_quality_park else ""
+    v3_select = ", pl.opp_woba_lag" if include_opp_quality_park else ""
+    v3_cte = (
+        """,
+        pitcher_lag AS (
+            SELECT
+                pitcher_id,
+                EXTRACT(YEAR FROM game_date)::INTEGER + 1 AS season_applies,
+                SUM(COALESCE(woba_value, 0))
+                    / NULLIF(SUM(COALESCE(woba_denom, 0)), 0) AS opp_woba_lag
+            FROM pitches
+            WHERE woba_denom > 0
+            GROUP BY 1, 2
+        )"""
+        if include_opp_quality_park else ""
+    )
+    v3_join = (
+        " LEFT JOIN pitcher_lag pl"
+        "   ON pl.pitcher_id = pa.pitcher_id"
+        "   AND pl.season_applies = EXTRACT(YEAR FROM pa.game_date)::INTEGER"
+        if include_opp_quality_park else ""
+    )
+
     query = f"""
         WITH pa_events AS (
             SELECT
@@ -844,7 +930,7 @@ def _extract_pa_data(
                 -- Use the last pitch's state in the PA
                 MAX(p.balls) AS balls,
                 MAX(p.strikes) AS strikes,
-                COUNT(*) AS pitches_in_pa
+                COUNT(*) AS pitches_in_pa{v3_pa_select}
             FROM pitches p
             WHERE {year_filter}
               AND p.pitch_type IS NOT NULL
@@ -852,7 +938,7 @@ def _extract_pa_data(
                 p.pitcher_id, p.batter_id, p.game_pk, p.game_date,
                 p.at_bat_number, p.stand, p.p_throws, p.inning,
                 p.inning_topbot, p.outs_when_up, p.on_1b, p.on_2b, p.on_3b
-        )
+        ){v3_cte}
         SELECT
             pa.*,
             g.venue,
@@ -860,15 +946,34 @@ def _extract_pa_data(
             g.away_team
             {ump_select}
             {weather_select}
+            {v3_select}
         FROM pa_events pa
         LEFT JOIN games g ON pa.game_pk = g.game_pk
         {ump_join}
         {weather_join}
+        {v3_join}
         WHERE pa.woba_denom > 0
         ORDER BY pa.game_date, pa.game_pk, pa.at_bat_number
     """
     df = conn.execute(query, params).fetchdf()
     return df
+
+
+# WS4.1 (2026-08-10): FIXED park ordinal mapping for the v3 ``park_ht``
+# covariate.  Frozen from ``SELECT DISTINCT home_team FROM pitches`` over
+# 2015-2026 (exactly 30 codes; Statcast normalises team codes across history,
+# e.g. ATH/AZ).  A fixed module-level map -- not per-frame ``pd.factorize`` --
+# is deliberate: factorize orders by first appearance, so train and test
+# frames built separately would assign DIFFERENT integers to the same park
+# (a real defect of the reverted 2026-04-18 fix).  Unknown/missing codes map
+# to NaN, which HistGB routes natively.
+_PARK_CODE_MAP: dict[str, int] = {
+    team: idx for idx, team in enumerate([
+        "ATH", "ATL", "AZ", "BAL", "BOS", "CHC", "CIN", "CLE", "COL", "CWS",
+        "DET", "HOU", "KC", "LAA", "LAD", "MIA", "MIL", "MIN", "NYM", "NYY",
+        "PHI", "PIT", "SD", "SEA", "SF", "STL", "TB", "TEX", "TOR", "WSH",
+    ])
+}
 
 
 def _build_features(
@@ -979,6 +1084,21 @@ def _build_features(
         for col in added_ump_weather:
             df[col] = pd.to_numeric(df[col], errors="coerce").astype(np.float64)
         confounder_cols = confounder_cols + added_ump_weather
+
+    # ---- Optional confounder block: v3 opponent quality + park (WS4.1) ----
+    # Present only when the extractor ran with include_opp_quality_park=True.
+    # Appended AFTER ump/weather so the legacy 12-column layout and the v2
+    # 19-column layout are unchanged for existing checkpoints.  NaNs are
+    # preserved (HistGB native handling): opp_woba_lag NaN = "no prior-season
+    # record" is structurally informative (rookies / 2015 rows).
+    if "opp_woba_lag" in df.columns:
+        df["opp_woba_lag"] = pd.to_numeric(
+            df["opp_woba_lag"], errors="coerce"
+        ).astype(np.float64)
+        confounder_cols = confounder_cols + ["opp_woba_lag"]
+    if "park_ht" in df.columns:
+        df["park_code"] = df["park_ht"].map(_PARK_CODE_MAP).astype(np.float64)
+        confounder_cols = confounder_cols + ["park_code"]
 
     W = df[confounder_cols].values.astype(np.float64)
 

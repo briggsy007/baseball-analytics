@@ -1097,9 +1097,17 @@ def test_mid_pa_context_mutation_produces_nonconstant_context():
 @pytest.mark.skipif(
     not _has_pg_concat_head_predictor(), reason=_PGCH_SKIP_MSG
 )
-def test_disable_class_calibration_flag_drops_class_cal_keeps_pos0():
+def test_disable_class_calibration_flag_drops_class_cal():
     """Phase 0.6.1 A/B switch: `disable_class_calibration=True` nulls the
-    all-position class_calibration but retains the position-0 recalibration."""
+    all-position class_calibration.
+
+    Phase 0.6.2 (2026-08-10): this test REPLACES the retired
+    ``test_disable_class_calibration_flag_drops_class_cal_keeps_pos0``,
+    which enshrined the tainted pos-0 npz (fit ON the 2025 eval cohort,
+    PHASE_0.6.2_PLAN.md §2) as a required production artifact.  The pos-0
+    vector is no longer asserted to load; its taint handling is covered by
+    the provenance-guard tests below.
+    """
     from src.analytics.pitchgpt_sim import PGConcatHeadPredictor
 
     # Default (calibration enabled): the shipped JSON carries class_calibration.
@@ -1109,15 +1117,28 @@ def test_disable_class_calibration_flag_drops_class_cal_keeps_pos0():
     )
     assert pred_on.class_calibration_disabled is False
 
-    # Disabled: class_calibration dropped, pos-0 recalibration retained.
+    # Disabled: class_calibration dropped.
     pred_off = PGConcatHeadPredictor(disable_class_calibration=True)
     assert pred_off._class_calibration is None
     assert pred_off.class_calibration_disabled is True
-    # pos-0 npz ships in models/, so it must still be loaded.
-    assert pred_off._class_calibration_pos0 is not None, (
-        "pos-0 recalibration must be retained when class_calibration is disabled"
-    )
     assert pred_off.calibration.get("class_calibration_disabled") is True
+
+
+@pytest.mark.skipif(
+    not _has_pg_concat_head_predictor(), reason=_PGCH_SKIP_MSG
+)
+def test_disable_pos0_calibration_flag_drops_pos0():
+    """Phase 0.6.2: `disable_pos0_calibration=True` skips the (2025-fit-
+    tainted) pos-0 vector entirely — required for the raw-T fit rolls."""
+    from src.analytics.pitchgpt_sim import PGConcatHeadPredictor
+
+    pred = PGConcatHeadPredictor(
+        disable_class_calibration=True, disable_pos0_calibration=True,
+    )
+    assert pred._class_calibration is None
+    assert pred._class_calibration_pos0 is None
+    assert pred.pos0_calibration_disabled is True
+    assert pred.calibration.get("pos0_calibration_disabled") is True
 
 
 @pytest.mark.skipif(
@@ -1136,4 +1157,235 @@ def test_disable_class_calibration_env_var(monkeypatch):
     # Explicit False must OVERRIDE the env var.
     pred2 = PGConcatHeadPredictor(disable_class_calibration=False)
     assert pred2.class_calibration_disabled is False
-    assert pred2._class_calibration is not None
+
+
+# ═════════════════════════════════════════════════════════════════════════════
+# Phase 0.6.2 — rollout-regime per-position W path + provenance guard (K5)
+# ═════════════════════════════════════════════════════════════════════════════
+
+
+def _write_w_npz(path, w, fit_season=2023, **extra):
+    """Helper: write a synthetic W npz with the sidecar provenance schema."""
+    payload = dict(
+        W=np.asarray(w, dtype=np.float64),
+        fit_cohort_season=np.int64(fit_season),
+        n_iterations=np.int64(1),
+        converged=np.bool_(True),
+    )
+    payload.update(extra)
+    np.savez(path, **payload)
+    return path
+
+
+@pytest.mark.skipif(
+    not _has_pg_concat_head_predictor(), reason=_PGCH_SKIP_MSG
+)
+def test_rollout_perpos_opt_in_with_missing_artifact_raises(tmp_path):
+    """Opting into the W path with no artifact is an ERROR, not a silent
+    identity (PHASE_0.6.2_PLAN.md §3)."""
+    # Import CalibrationError alongside the predictor so both resolve from the
+    # SAME (possibly freshly re-imported) module: other tests in the suite pop
+    # src.analytics.pitchgpt_sim from sys.modules, which would otherwise make
+    # the module-level CalibrationError a stale class that pytest.raises
+    # cannot match against the freshly-raised one.
+    from src.analytics.pitchgpt_sim import CalibrationError, PGConcatHeadPredictor
+
+    with pytest.raises(CalibrationError, match="missing|no W artifact"):
+        PGConcatHeadPredictor(
+            use_rollout_perpos_calibration=True,
+            rollout_perpos_calibration_path=tmp_path / "does_not_exist.npz",
+        )
+
+
+@pytest.mark.skipif(
+    not _has_pg_concat_head_predictor(), reason=_PGCH_SKIP_MSG
+)
+@pytest.mark.parametrize("bad_season", [2025, 2026])
+def test_provenance_guard_refuses_gate_cohort_fit_W(tmp_path, bad_season):
+    """K5 enforcement: a W artifact declaring a gate-evaluation cohort
+    (2025 budgeted tier / 2026 lockbox) as its fit cohort is REFUSED at
+    load time.  No calibration vector may ever be fit on a cohort that
+    any gate is evaluated on."""
+    # Same-module import: see test_rollout_perpos_opt_in_with_missing_artifact_raises.
+    from src.analytics.pitchgpt_sim import CalibrationError, PGConcatHeadPredictor
+
+    w = np.ones((6, 7), dtype=np.float64)
+    p = _write_w_npz(tmp_path / "w_tainted.npz", w, fit_season=bad_season)
+    with pytest.raises(CalibrationError, match="fit_cohort_season"):
+        PGConcatHeadPredictor(
+            use_rollout_perpos_calibration=True,
+            rollout_perpos_calibration_path=p,
+        )
+
+
+@pytest.mark.skipif(
+    not _has_pg_concat_head_predictor(), reason=_PGCH_SKIP_MSG
+)
+def test_provenance_guard_requires_declared_fit_cohort(tmp_path):
+    """Sidecar schema: a W artifact that does NOT declare its fit cohort is
+    refused — undeclared provenance is treated as tainted."""
+    # Same-module import: see test_rollout_perpos_opt_in_with_missing_artifact_raises.
+    from src.analytics.pitchgpt_sim import CalibrationError, PGConcatHeadPredictor
+
+    p = tmp_path / "w_undeclared.npz"
+    np.savez(p, W=np.ones((6, 7), dtype=np.float64))  # no fit_cohort_season
+    with pytest.raises(CalibrationError, match="fit_cohort_season"):
+        PGConcatHeadPredictor(
+            use_rollout_perpos_calibration=True,
+            rollout_perpos_calibration_path=p,
+        )
+
+
+@pytest.mark.skipif(
+    not _has_pg_concat_head_predictor(), reason=_PGCH_SKIP_MSG
+)
+def test_rollout_perpos_W_mode_scoping(tmp_path):
+    """§3 mode-scoping, by construction:
+
+    * position-aware calls apply ``p ∝ softmax_T(z) * W[pos]`` and SKIP
+      class_calibration + pos-0 (W REPLACES the stack in rollout mode);
+    * calls WITHOUT a position return bit-identical probabilities to a
+      default predictor — the per-pitch ECE claim is untouched.
+    """
+    import torch
+    from src.analytics.pitchgpt_sim import PGConcatHeadPredictor
+
+    # Distinctive per-row W so row selection is observable.
+    w = np.ones((6, 7), dtype=np.float64)
+    w[0, 0] = 3.0   # pos 0 boosts `ball`
+    w[2, 2] = 0.25  # pos 2 suppresses `swinging_strike`
+    wp = _write_w_npz(tmp_path / "w_test.npz", w)
+
+    pred_w = PGConcatHeadPredictor(
+        use_rollout_perpos_calibration=True,
+        rollout_perpos_calibration_path=wp,
+    )
+    pred_default = PGConcatHeadPredictor()
+    pred_raw = PGConcatHeadPredictor(
+        disable_class_calibration=True, disable_pos0_calibration=True,
+    )
+    assert pred_w.rollout_position_aware is True
+    assert pred_default.rollout_position_aware is False
+    assert pred_w.rollout_perpos_meta["fit_cohort_season"] == 2023
+
+    torch.manual_seed(7)
+    dev = next(pred_w.head.parameters()).device
+    hidden = torch.randn(2, 3, 128, device=dev)
+    ctx = torch.randn(2, 3, 35, device=dev)
+    tok = torch.randint(0, 100, (2, 3), device=dev)
+
+    # Teacher-forced (no position): bit-identical to the default stack.
+    p_w_none = pred_w.predict_outcome_probs(hidden, ctx, tok)
+    p_default = pred_default.predict_outcome_probs(hidden, ctx, tok)
+    np.testing.assert_allclose(
+        p_w_none.cpu().numpy(), p_default.cpu().numpy(), rtol=0, atol=1e-7,
+        err_msg="teacher-forced path changed — per-pitch ECE claim violated",
+    )
+
+    # Position-aware: equals renorm(raw-T softmax * W[pos]); class_cal +
+    # pos-0 are skipped entirely.
+    p_raw = pred_raw.predict_outcome_probs(hidden, ctx, tok).cpu().numpy()
+    for pos, row in [(0, w[0]), (2, w[2]), (11, w[5])]:  # 11 clamps to H-1
+        p_pos = pred_w.predict_outcome_probs(
+            hidden, ctx, tok, position=pos,
+        ).cpu().numpy()
+        expected = p_raw * row[None, None, :]
+        expected = expected / expected.sum(axis=-1, keepdims=True)
+        np.testing.assert_allclose(
+            p_pos, expected, rtol=0, atol=1e-6,
+            err_msg=f"W[{pos}] application mismatch",
+        )
+    # And the position-aware output actually differs from the default stack
+    # (W replaces, not stacks).
+    p_pos0 = pred_w.predict_outcome_probs(
+        hidden, ctx, tok, position=0,
+    ).cpu().numpy()
+    assert not np.allclose(p_pos0, p_default.cpu().numpy(), atol=1e-4)
+
+
+@pytest.mark.skipif(
+    not (_MODELS / "pitchgpt_v2.pt").exists(),
+    reason="backbone models/pitchgpt_v2.pt missing — skip position-passing test.",
+)
+def test_rollout_passes_positions_to_position_aware_predictor():
+    """rollout() hands the within-PA position to predictors that advertise
+    ``rollout_position_aware``; legacy predictors keep the 3-arg call."""
+    from src.analytics.pitchgpt_sim import rollout
+
+    class _RecordingPosPredictor(_RecordingFoulPredictor):
+        rollout_position_aware = True
+
+        def __init__(self):
+            super().__init__()
+            self.seen_positions = []
+
+        def predict_outcome_probs(
+            self, backbone_hidden, context_vec, pitch_token, position=None,
+        ):
+            self.seen_positions.append(position)
+            return super().predict_outcome_probs(
+                backbone_hidden, context_vec, pitch_token,
+            )
+
+    ctx = _make_default_context()
+    pred = _RecordingPosPredictor()
+    horizon = 4
+    rollout(
+        ctx, outcome_predictor=pred, n_samples=2, horizon=horizon,
+        temperature=1.0, seed=11,
+    )
+    assert pred.seen_positions == list(range(horizon)), (
+        f"expected positions {list(range(horizon))}, got {pred.seen_positions}"
+    )
+
+    # Legacy predictor (no flag): still called WITHOUT a position kwarg.
+    legacy = _RecordingFoulPredictor()  # has no `position` parameter at all
+    rollout(
+        ctx, outcome_predictor=legacy, n_samples=2, horizon=2,
+        temperature=1.0, seed=11,
+    )
+    assert len(legacy.seen_contexts) == 2  # ran fine through the 3-arg path
+
+
+def test_shipped_rollout_perpos_artifact_provenance_if_present():
+    """Once ``models/calibration_rollout_perpos.npz`` ships, it must declare
+    a NON-gate fit cohort (2023), its iteration count within the §4 budget,
+    and convergence.  Skips before the artifact exists."""
+    p = _MODELS / "calibration_rollout_perpos.npz"
+    if not p.exists():
+        pytest.skip("calibration_rollout_perpos.npz not yet produced")
+    npz = np.load(p, allow_pickle=False)
+    for key in ("W", "fit_cohort_season", "n_iterations", "converged"):
+        assert key in npz, f"sidecar provenance key {key!r} missing"
+    assert int(np.asarray(npz["fit_cohort_season"]).item()) == 2023
+    assert int(np.asarray(npz["n_iterations"]).item()) in (1, 2)
+    assert bool(np.asarray(npz["converged"]).item()) is True
+    w = np.asarray(npz["W"])
+    assert w.shape == (6, 7)
+    assert np.all(np.isfinite(w)) and np.all(w > 0)
+    assert np.all(w >= 0.2 - 1e-9) and np.all(w <= 5.0 + 1e-9)
+
+
+def test_tainted_pos0_artifact_stays_declared_2025():
+    """The retired pos-0 npz stays on disk for replay (§3) and must keep
+    declaring its 2025 fit cohort — the taint is documented, not hidden."""
+    p = _MODELS / "calibration_class_marginal_pos0.npz"
+    if not p.exists():
+        pytest.skip("pos-0 npz absent")
+    npz = np.load(p, allow_pickle=False)
+    assert int(np.asarray(npz["cohort_season"]).item()) == 2025, (
+        "the pos-0 npz must keep declaring its (tainted) 2025 fit cohort"
+    )
+
+
+def test_a1_class_calibration_fit_cohort_is_2023():
+    """The teacher-forced class_calibration must declare a non-gate fit
+    cohort (2023 val) — K5 provenance for the JSON sidecar."""
+    if not _A1_CALIBRATION.exists():
+        pytest.skip("A1 calibration JSON absent")
+    data = json.loads(_A1_CALIBRATION.read_text(encoding="utf-8"))
+    if "class_calibration" not in data:
+        pytest.skip("A1 JSON carries no class_calibration")
+    assert int(data.get("class_calibration_val_season", -1)) == 2023, (
+        "class_calibration must declare fit on 2023 val, never the eval cohort"
+    )

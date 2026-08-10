@@ -302,6 +302,10 @@ class TestTraining:
             db_conn,
             seasons=list(range(2015, 2027)),
             val_seasons=[2026],
+            # Synthetic fixture DB, not the real 2026 lockbox — explicit
+            # opt-in per Phase 0.6.2 §10.A5 (train_pitchgpt now refuses
+            # holdout val seasons by default).
+            allow_holdout_val=True,
             epochs=1,
             batch_size=4,
             d_model=32,
@@ -338,6 +342,9 @@ class TestInference:
                 db_conn,
                 seasons=list(range(2015, 2027)),
                 val_seasons=[2026],
+                # Synthetic fixture DB — explicit opt-in per Phase 0.6.2
+                # §10.A5.
+                allow_holdout_val=True,
                 epochs=1,
                 batch_size=4,
                 d_model=32,

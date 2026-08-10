@@ -1,0 +1,136 @@
+{
+ "task": "WS3.3 sprint-speed xOut variant -- C1a",
+ "ran_at": "2026-08-10T16:01:27.034068+00:00",
+ "frozen_checkpoint": {
+  "path": "C:\\Users\\hunte\\projects\\baseball\\models\\defensive_pressing\\xout_v1.pkl",
+  "sha256": "e689bff6ab069474c57df6950ba3ed7d376de8b0a3a7a71861d2a96dc3d3bb39",
+  "recorded_holdout_auc": 0.8936
+ },
+ "environment": {
+  "python": "3.12.0",
+  "sklearn": "1.6.1",
+  "omp_num_threads": "6",
+  "frozen_pickle_note": "frozen checkpoint pickled under sklearn 1.8.0, scored here under the installed version; A5 parity check verified fidelity"
+ },
+ "cohort": {
+  "train_window": "2015-2022",
+  "n_samples": 918292,
+  "n_train": 734633,
+  "n_test": 183659,
+  "split": "stratified 80/20, random_state 42 (frozen recipe)",
+  "manifest_frozen_n_samples": 837571
+ },
+ "league_mean_sprint_speed": {
+  "global_bip_weighted_matched_applicable_2015_2022": 27.1015,
+  "per_season_player_level_mean_train_window": {
+   "2015": 27.016,
+   "2016": 27.03,
+   "2017": 27.115,
+   "2018": 27.106,
+   "2019": 27.074,
+   "2020": 26.812,
+   "2021": 27.169,
+   "2022": 27.232
+  },
+  "per_season_player_level_mean_all": {
+   "2015": 27.016,
+   "2016": 27.03,
+   "2017": 27.115,
+   "2018": 27.106,
+   "2019": 27.074,
+   "2020": 26.812,
+   "2021": 27.169,
+   "2022": 27.232,
+   "2023": 27.293,
+   "2024": 27.303,
+   "2025": 27.34,
+   "2026": 27.319
+  },
+  "used_for": "imputation of unmatched batters AND neutral fill on non-applicable rows (one global value: zero season-level information in the feature)"
+ },
+ "holdout_auc": {
+  "frozen_as_loaded": 0.89476,
+  "control_4feat_same_split": 0.89433,
+  "variant_5feat_speed": 0.89433,
+  "delta_variant_minus_control": -0.0,
+  "delta_variant_minus_control_ci95": [
+   -0.00016,
+   0.00016
+  ],
+  "delta_variant_minus_frozen": -0.00043,
+  "delta_variant_minus_frozen_ci95": [
+   -0.00063,
+   -0.00024
+  ],
+  "n_boot": 1000,
+  "status": "holdout within the 2015-2022 train window (frozen recipe convention), not future-season OOS"
+ },
+ "subset_auc": {
+  "applicable_gb_weak": {
+   "n": 83162,
+   "out_rate": 0.7393,
+   "auc_frozen": 0.80138,
+   "auc_control": 0.80005,
+   "auc_variant": 0.80158
+  },
+  "not_applicable": {
+   "n": 100497,
+   "out_rate": 0.5988,
+   "auc_frozen": 0.93351,
+   "auc_control": 0.93344,
+   "auc_variant": 0.93297
+  }
+ },
+ "monotonicity_check": {
+  "constraint": "monotonic_cst=-1 on sprint_speed_gbweak",
+  "n_rows_checked": 2000,
+  "speed_grid": [
+   23.0,
+   24.5,
+   26.0,
+   27.5,
+   29.0,
+   30.5
+  ],
+  "pass": true
+ },
+ "new_artifact": {
+  "path": "C:\\Users\\hunte\\projects\\baseball\\models\\defensive_pressing\\xout_v2_speed_2026_08_10.pkl",
+  "sha256": "f6a523e7f70d1d313bfac898ab282a61204fb4928ddb99749351b54b9438efe7",
+  "registry": {
+   "registered": true,
+   "version": "v2026.08.10-speed",
+   "sha256": "f6a523e7f70d1d313bfac898ab282a61204fb4928ddb99749351b54b9438efe7"
+  }
+ },
+ "first_attempt_status": {
+  "status": "SUPERSEDED by speed_xout_det_summary.json (deterministic rerun)",
+  "defect": "data pull had no ORDER BY; DuckDB scan order is connection-dependent, so the 80/20 split is not reproducible across runs. Numbers in this file are internally valid for the run that produced them (all models scored on the same in-memory holdout) but could not be reproduced bit-for-bit.",
+  "invalidated_followup": {
+   "note": "scripts/dpi_v2_speed_subset_ci.py attempted subset-delta CIs by rebuilding the split in a new process; it landed a DIFFERENT split (reproduced control AUC 0.89359 vs recorded 0.89433; applicable-subset test n 82,858 vs 83,162), and scored the persisted variant on test rows overlapping its own training rows (leakage). Its subset deltas (applicable +0.00413, not-applicable +0.00081) are leakage-inflated and MUST NOT be quoted.",
+   "invalid_numbers_kept_for_record": {
+    "note": "paired bootstrap over test rows within each subset; control reproduced deterministically (identical rows, seed 42); reproduction verified against recorded overall AUCs above",
+    "reproduced_overall_auc": {
+     "control": 0.89359,
+     "variant": 0.89506
+    },
+    "applicable_gb_weak": {
+     "n": 82858,
+     "delta_variant_minus_control": 0.00413,
+     "delta_ci95": [
+      0.00345,
+      0.0048
+     ]
+    },
+    "not_applicable": {
+     "n": 100801,
+     "delta_variant_minus_control": 0.00081,
+     "delta_ci95": [
+      0.00064,
+      0.00096
+     ]
+    }
+   }
+  }
+ }
+}

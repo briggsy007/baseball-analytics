@@ -1,0 +1,14 @@
+{
+  "artifact": "adjusted_war_v3/adjusted_war_v3_2026_08_10.pkl",
+  "version": "v2026.08.10",
+  "sha256": "60a62686ebcaf4121b8b0339b0870374d52808ffea057980c990e720132cb026",
+  "hash_policy": "pinned",
+  "created_utc": "2026-08-10T22:26:31.942892+00:00",
+  "git_sha": "d3dbe23ff5642dd77cac5916de3096bd936638f0",
+  "train_window": "fits: 2023 single, 2024 single, 2022-2024 pooled; lambda CV 2015-2023",
+  "data_snapshot": null,
+  "training_script": "scripts/adjusted_war_v3_forward_eval.py",
+  "spec_version": "WS4.2 plan 2026-08-10",
+  "validation_results_ref": "docs/models/adjusted_war_v3_2026-08.md",
+  "notes": "EXPERIMENTAL ridge joint-estimation model (working name AdjustedWAR v3). No production/frozen_validated alias set: naming + flagship decisions are pre-registered as the user call in Batch D."
+}

@@ -52,6 +52,10 @@ Usage
 
     # Generate the board + summary (after 2026 WAR is backfilled)::
     python scripts/contrarian_2026_midseason.py
+
+FROZEN (2026-08-10): generation is permanently refused — the board is a
+frozen resolution basis (see the guard above ``generate()`` and the spec's
+section 8 Deviations Log). ``--check`` still works read-only.
 """
 from __future__ import annotations
 
@@ -501,7 +505,36 @@ def write_summary(
 # Main
 # ---------------------------------------------------------------------------
 
+# ---------------------------------------------------------------------------
+# WS4 carry-over (2026-08-10): refuse-regeneration guard.
+#
+# The 2026 mid-season resolution basis is FROZEN: the 50 batter picks are
+# fixed by docs/models/contrarian_2026_resolution_spec.md section 3.1 (board.csv
+# sha256 EF89356E..., commit 0928baf) and registered in the append-only pick
+# ledger (predictions/picks.jsonl). Regenerating this board post-freeze would
+# mint lookalike board.csv/summary.md artifacts from a drifted data snapshot
+# that CANNOT join the frozen resolution basis, inviting exactly the
+# artifact-identity confusion the audit calls failure class F-A. The guard is
+# unconditional (no override flag): a new season's board is a new script/spec.
+# Recorded as a dated entry in the spec's section 8 Deviations Log.
+# ---------------------------------------------------------------------------
+_FREEZE_GUARD_MSG = (
+    "REFUSED: the 2026 mid-season contrarian board is a FROZEN resolution "
+    "basis (docs/models/contrarian_2026_resolution_spec.md section 3.1, spec sha256 "
+    "1a27cd0e..., commit 912ede6; picks registered in predictions/picks.jsonl). "
+    "Regeneration would create artifacts that cannot join the frozen basis. "
+    "Read the frozen board from results/edges/contrarian_2026_midseason/ "
+    "(dated dirs + latest.json). Resolution happens once, per spec section 7."
+)
+
+
 def generate() -> int:
+    logger.error(_FREEZE_GUARD_MSG)
+    return 2
+
+
+def _generate_prefreeze_disabled() -> int:  # pragma: no cover - frozen path
+    """Original generator, disabled 2026-08-10 by the freeze guard above."""
     conn = get_connection(read_only=True)
     try:
         ready, info = check_preconditions(conn)

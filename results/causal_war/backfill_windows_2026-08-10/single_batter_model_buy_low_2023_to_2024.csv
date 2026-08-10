@@ -1,0 +1,26 @@
+player_id,causal_war,point_estimate_per_pa,pa,trad_war,pa_total,position,ip_total,name,baseline_year,_rank_group,proj_woba,rank_trad,rank_model,rank_diff,hit,basis
+691023,0.85,0.0231,459,-0.11,465.0,batter,,Jordan Walker,2023,batter,0.35626343016627365,353,101,252,False,war_delta
+656941,2.32,0.0379,764,0.66,720.0,batter,,Kyle Schwarber,2023,batter,0.3583547315081294,252,23,229,True,war_delta
+592669,-0.07,-0.0017,540,-0.51,548.0,batter,,Hunter Renfroe,2023,batter,0.33286667286574806,404,216,188,True,war_delta
+650559,-0.21,-0.0043,627,-0.68,626.0,batter,,Bryan De La Cruz,2023,batter,0.32625280847237986,422,240,182,False,war_delta
+658668,0.56,0.0184,381,0.24,385.0,batter,,Edward Olivares,2023,batter,0.33615701480967575,308,130,178,False,war_delta
+592178,-0.3,-0.0118,324,-0.97,335.0,batter,,Kris Bryant,2023,batter,0.3435151730701623,438,264,174,True,war_delta
+542583,-0.23,-0.0265,109,-0.6,115.0,batter,,Jesús Aguilar,2023,batter,0.3110721239514781,416,245,171,,no_2026_record
+605137,0.18,0.0037,610,-0.10000000000000003,617.0,batter,,Josh Bell,2023,batter,0.3454518222714081,351,181,170,False,war_delta
+669004,-0.11,-0.0024,596,-0.4,602.0,batter,,MJ Melendez,2023,batter,0.3261938362074982,392,223,169,False,war_delta
+686469,0.22,0.0108,253,-0.03,260.0,batter,,Vinnie Pasquantino,2023,batter,0.3503503582805011,338,173,165,True,war_delta
+458015,0.07,0.0036,242,-0.13,242.0,batter,,Joey Votto,2023,batter,0.33408369736792337,357,195,162,,no_2026_record
+645302,0.21,0.0226,118,-0.04,126.0,batter,,Víctor Robles,2023,batter,0.303146999441936,339,178,161,True,war_delta
+621466,0.54,0.0368,184,0.37,185.0,batter,,DJ Stewart,2023,batter,0.33277528818005864,293,132,161,False,war_delta
+694384,0.23,0.0224,131,0.08,132.0,batter,,Nolan Schanuel,2023,batter,0.3486699837819106,330,170,160,True,war_delta
+669222,0.2,0.0078,328,0.02,330.0,batter,,Nick Senzel,2023,batter,0.31622509204060806,334,180,154,False,war_delta
+663527,-0.27,-0.0308,111,-0.52,111.0,batter,,Tyler Nevin,2023,batter,0.3111923293150295,406,253,153,True,war_delta
+665839,0.14,0.0118,148,0.0,149.0,batter,,Enmanuel Valdez,2023,batter,0.34090937785718045,337,187,150,False,war_delta
+443558,-0.16,-0.0139,147,-0.36,152.0,batter,,Nelson Cruz,2023,batter,0.3125671765225191,385,235,150,,no_2026_record
+656976,-0.44,-0.0231,237,-0.83,228.0,batter,,Pavin Smith,2023,batter,0.31868664982442313,434,287,147,True,war_delta
+687952,0.51,0.0264,241,0.45,241.0,batter,,Christian Encarnacion-Strand,2023,batter,0.3497814208954084,281,136,145,False,war_delta
+596059,-0.21,-0.0169,157,-0.32,157.0,batter,,Rougned Odor,2023,batter,0.29961267716154405,380,240,140,,no_2026_record
+641505,0.04,0.0053,102,-0.04,104.0,batter,,Jonathan Davis,2023,batter,0.30360370715884993,339,201,138,,no_2026_record
+649966,-0.13,-0.0097,173,-0.2,177.0,batter,,Luis Urías,2023,batter,0.340728803020182,365,228,137,True,war_delta
+543333,-0.29,-0.038,95,-0.43,100.0,batter,,Eric Hosmer,2023,batter,0.32187290713454614,395,259,136,,no_2026_record
+624585,1.67,0.0364,575,1.45,580.0,batter,,Jorge Soler,2023,batter,0.3403641381048488,182,50,132,False,war_delta

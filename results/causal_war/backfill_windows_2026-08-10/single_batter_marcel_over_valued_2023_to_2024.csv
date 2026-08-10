@@ -1,0 +1,26 @@
+player_id,causal_war,point_estimate_per_pa,pa,trad_war,pa_total,position,ip_total,name,baseline_year,_rank_group,proj_woba,rank_trad,rank_model,rank_diff,hit,basis
+670764,-1.04,-0.037,353,1.97,349.0,batter,,Taylor Walls,2023,batter,0.2905950513053897,145,446,-301,True,war_delta
+664728,-0.96,-0.0389,309,2.01,313.0,batter,,Kyle Isbel,2023,batter,0.2998263311104343,141,413,-272,True,war_delta
+643289,0.22,0.0055,512,2.69,492.0,batter,,Mauricio Dubón,2023,batter,0.3116788267387489,97,341,-244,True,war_delta
+668930,-2.06,-0.058,444,1.51,448.0,batter,,Brice Turang,2023,batter,0.29847795979516695,177,420,-243,False,war_delta
+650489,-0.02,-0.0005,422,2.63,409.0,batter,,Willi Castro,2023,batter,0.3117236898834215,101,340,-239,True,war_delta
+500743,-1.17,-0.035,419,1.36,423.0,batter,,Miguel Rojas,2023,batter,0.29716278954887926,190,427,-237,False,war_delta
+467793,0.09,0.0017,621,2.65,619.0,batter,,Carlos Santana,2023,batter,0.31217548051583804,100,335,-235,True,war_delta
+641680,-0.25,-0.0055,561,3.09,501.0,batter,,Jonah Heim,2023,batter,0.3138815824213495,79,314,-235,True,war_delta
+543228,-0.01,-0.0004,414,1.98,419.0,batter,,Yan Gomes,2023,batter,0.30745864324289035,144,374,-230,True,war_delta
+665750,-0.44,-0.0089,613,2.94,554.0,batter,,Leody Taveras,2023,batter,0.3144124663374971,81,307,-226,True,war_delta
+670032,-0.53,-0.0256,257,1.8,262.0,batter,,Nicky Lopez,2023,batter,0.30623369102755194,158,382,-224,True,war_delta
+572191,-0.41,-0.0129,395,1.85,388.0,batter,,Michael Taylor,2023,batter,0.3072855302586308,154,375,-221,True,war_delta
+672284,0.36,0.0111,403,2.12,416.0,batter,,Jarred Kelenic,2023,batter,0.31110941588299507,130,350,-220,True,war_delta
+595281,0.3,0.0094,403,3.82,408.0,batter,,Kevin Kiermaier,2023,batter,0.3199474849291645,47,266,-219,True,war_delta
+664702,-1.79,-0.0447,500,0.93,518.0,batter,,Myles Straw,2023,batter,0.2926630521746531,221,439,-218,True,war_delta
+642350,-0.32,-0.011,361,1.64,364.0,batter,,José Siri,2023,batter,0.30627108520517077,167,381,-214,False,war_delta
+624428,-0.81,-0.0224,450,1.7,455.0,batter,,Adam Frazier,2023,batter,0.3074683637401125,164,373,-209,True,war_delta
+668800,-0.24,-0.0124,238,1.0,241.0,batter,,Andrew Knizner,2023,batter,0.29741767063974356,216,424,-208,True,war_delta
+686668,-1.93,-0.0565,426,0.84,431.0,batter,,Brenton Doyle,2023,batter,0.2957609597156407,227,435,-208,False,war_delta
+673490,0.82,0.0168,611,5.44,626.0,batter,,Ha-Seong Kim,2023,batter,0.3249014757639622,14,219,-205,True,war_delta
+683011,-1.28,-0.0268,597,3.25,601.0,batter,,Anthony Volpe,2023,batter,0.318234297434808,74,279,-205,False,war_delta
+656716,-1.07,-0.0262,510,1.33,518.0,batter,,Zach McKinstry,2023,batter,0.30472143405922786,192,391,-199,True,war_delta
+657136,-0.79,-0.0249,397,2.18,403.0,batter,,Connor Wong,2023,batter,0.31348838303601856,124,319,-195,True,war_delta
+681082,0.47,0.0086,684,4.32,640.0,batter,,Bryson Stott,2023,batter,0.32370283253343196,34,227,-193,True,war_delta
+622761,-1.11,-0.0401,346,0.8,350.0,batter,,Jorge Mateo,2023,batter,0.2975819727893101,233,423,-190,True,war_delta

@@ -1,0 +1,26 @@
+player_id,causal_war,point_estimate_per_pa,pa,trad_war,pa_total,position,ip_total,name,baseline_year,_rank_group,proj_woba,rank_trad,rank_model,rank_diff,hit,basis
+605113,-0.75,-0.0168,558,3.76,564.0,batter,,Nick Ahmed,2018,batter,0.30338451017425294,48,398,-350,False,war_delta
+592444,-1.53,-0.0414,463,1.73,467.0,batter,,JaCoby Jones,2018,batter,0.29061395217071795,151,432,-281,True,war_delta
+460086,-0.63,-0.0141,562,2.02,568.0,batter,,Alex Gordon,2018,batter,0.29858512038817164,135,409,-274,True,war_delta
+641313,-0.88,-0.0183,600,3.88,606.0,batter,,Tim Anderson,2018,batter,0.31912859960432344,44,305,-261,False,war_delta
+543228,0.37,0.0105,436,2.63,435.0,batter,,Yan Gomes,2018,batter,0.3130819250787999,96,351,-255,True,war_delta
+641553,-1.91,-0.0531,450,1.15,463.0,batter,,Adam Engel,2018,batter,0.282344325723015,199,447,-248,True,war_delta
+595375,-1.0,-0.0384,327,1.71,332.0,batter,,JT Riddle,2018,batter,0.303291834129627,152,399,-247,True,war_delta
+520471,-1.48,-0.029,637,1.71,656.0,batter,,Freddy Galvis,2018,batter,0.30670229569481283,152,386,-234,False,war_delta
+607680,-0.23,-0.0052,542,2.32,542.0,batter,,Kevin Pillar,2018,batter,0.31522900336253723,109,337,-228,True,war_delta
+543760,-0.51,-0.0091,700,4.17,703.0,batter,,Marcus Semien,2018,batter,0.3242473380589557,37,265,-228,False,war_delta
+519222,-0.2,-0.0096,263,1.38,265.0,batter,,Austin Romine,2018,batter,0.30417336783765947,176,395,-219,True,war_delta
+578428,-0.03,-0.0009,459,1.97,464.0,batter,,Jose Iglesias,2018,batter,0.31243568112077685,139,352,-213,True,war_delta
+458731,-0.66,-0.0135,615,3.27,609.0,batter,,Brett Gardner,2018,batter,0.3235414665208623,62,273,-211,False,war_delta
+547982,0.14,0.0052,346,1.62,353.0,batter,,Leonys Martín,2018,batter,0.3097591687745612,157,368,-211,True,war_delta
+621020,-0.58,-0.0142,510,2.24,533.0,batter,,Dansby Swanson,2018,batter,0.31742807944415047,114,322,-208,True,war_delta
+518792,-0.07,-0.0019,488,2.15,489.0,batter,,Jason Heyward,2018,batter,0.3164568810661633,123,328,-205,False,war_delta
+425772,-1.27,-0.0743,214,0.68,218.0,batter,,Jeff Mathis,2018,batter,0.27822208974879215,243,448,-205,True,war_delta
+592261,-1.48,-0.0503,368,1.29,393.0,batter,,Delino DeShields,2018,batter,0.3062810456844488,183,387,-204,True,war_delta
+571912,-0.15,-0.0079,231,0.95,231.0,batter,,Luke Maile,2018,batter,0.29675378125370067,214,416,-202,True,war_delta
+543829,-2.02,-0.0452,559,1.05,588.0,batter,,Dee Strange-Gordon,2018,batter,0.3007141500542523,208,406,-198,False,war_delta
+545350,-0.65,-0.035,233,1.77,235.0,batter,,Jake Marisnick,2018,batter,0.31414758846769325,149,344,-195,True,war_delta
+570560,-1.42,-0.0272,653,2.32,662.0,batter,,Yolmer Sánchez,2018,batter,0.31974889941904716,109,303,-194,True,war_delta
+595978,-0.24,-0.0092,322,1.16,326.0,batter,,Austin Hedges,2018,batter,0.3054940024751679,198,391,-193,True,war_delta
+608671,-0.61,-0.0207,369,1.24,387.0,batter,,Travis Jankowski,2018,batter,0.3084001478144656,188,376,-188,True,war_delta
+502226,-0.42,-0.0319,164,1.05,169.0,batter,,Craig Gentry,2018,batter,0.30556737418414437,208,390,-182,,no_2026_record

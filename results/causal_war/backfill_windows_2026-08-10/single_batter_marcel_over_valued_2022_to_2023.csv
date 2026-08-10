@@ -1,0 +1,26 @@
+player_id,causal_war,point_estimate_per_pa,pa,trad_war,pa_total,position,ip_total,name,baseline_year,_rank_group,proj_woba,rank_trad,rank_model,rank_diff,hit,basis
+670764,-2.9,-0.0773,468,2.53,466.0,batter,,Taylor Walls,2022,batter,0.28511918182440105,97,455,-358,True,war_delta
+622761,-1.53,-0.0362,529,3.72,533.0,batter,,Jorge Mateo,2022,batter,0.3002627889149927,60,388,-328,True,war_delta
+664702,-3.19,-0.0644,619,2.71,596.0,batter,,Myles Straw,2022,batter,0.29696123224881255,93,411,-318,True,war_delta
+462101,-0.35,-0.0077,575,3.09,577.0,batter,,Elvis Andrus,2022,batter,0.3016923986298997,73,381,-308,True,war_delta
+624431,-1.05,-0.0353,372,2.28,353.0,batter,,Jose Trevino,2022,batter,0.2954629041039687,119,419,-300,True,war_delta
+623205,-2.13,-0.078,342,1.39,349.0,batter,,Andrew Velazquez,2022,batter,0.2785964207365655,170,462,-292,True,war_delta
+572191,-0.74,-0.0203,453,3.35,456.0,batter,,Michael Taylor,2022,batter,0.3053092509367848,68,354,-286,True,war_delta
+673490,-0.59,-0.0118,625,4.99,582.0,batter,,Ha-Seong Kim,2022,batter,0.3114899720130445,29,315,-286,False,war_delta
+645302,-1.59,-0.0502,396,1.78,407.0,batter,,Víctor Robles,2022,batter,0.29528368442907904,144,420,-276,True,war_delta
+641680,-0.98,-0.0272,448,2.36,450.0,batter,,Jonah Heim,2022,batter,0.3015620019221556,113,382,-269,False,war_delta
+642350,-1.57,-0.0588,334,1.46,325.0,batter,,José Siri,2022,batter,0.29732685069176273,161,408,-247,False,war_delta
+669397,-1.94,-0.0757,320,1.11,326.0,batter,,Nick Allen,2022,batter,0.28828760324513086,197,444,-247,True,war_delta
+500743,-1.65,-0.0409,504,2.45,507.0,batter,,Miguel Rojas,2022,batter,0.30670330719410716,105,347,-242,True,war_delta
+545121,-0.47,-0.0265,221,1.52,222.0,batter,,Ildemaro Vargas,2022,batter,0.2991924523290125,158,394,-236,True,war_delta
+669242,-0.75,-0.0149,631,6.15,630.0,batter,,Tommy Edman,2022,batter,0.3206281373872383,12,244,-232,True,war_delta
+621028,-0.31,-0.0125,305,1.1,309.0,batter,,Kevin Newman,2022,batter,0.29235370241533043,199,430,-231,True,war_delta
+650859,-0.91,-0.0223,510,2.5,511.0,batter,,Luis Rengifo,2022,batter,0.30880071971417716,102,332,-230,True,war_delta
+642201,-0.43,-0.0463,117,0.94,117.0,batter,,Eli White,2022,batter,0.2894879999567719,214,441,-227,True,war_delta
+641355,-1.51,-0.0339,556,1.32,550.0,batter,,Cody Bellinger,2022,batter,0.2987399287584903,176,397,-221,False,war_delta
+606157,-1.16,-0.0539,270,1.33,276.0,batter,,Aristides Aquino,2022,batter,0.2996482342148124,175,392,-217,,no_2026_record
+643396,-1.19,-0.0273,545,2.9,531.0,batter,,Isiah Kiner-Falefa,2022,batter,0.3131147932834268,85,297,-212,True,war_delta
+668800,-1.14,-0.049,292,0.67,293.0,batter,,Andrew Knizner,2022,batter,0.28731778722429074,253,450,-197,False,war_delta
+542932,-0.33,-0.0103,403,2.43,404.0,batter,,Jon Berti,2022,batter,0.31285524828936356,108,300,-192,True,war_delta
+503556,-1.09,-0.0666,204,0.59,207.0,batter,,Marwin González,2022,batter,0.28114841620060965,268,458,-190,,no_2026_record
+663728,-0.07,-0.002,439,3.86,415.0,batter,,Cal Raleigh,2022,batter,0.32102207425935986,54,242,-188,True,war_delta

@@ -826,6 +826,21 @@ _HEAD_FROZEN_DEPRECATED_CALIB_PATH: Path = (
 _HEAD_CONCAT_A1_POS0_CALIB_PATH: Path = (
     _MODELS_DIR / "calibration_class_marginal_pos0.npz"
 )
+#: Phase 0.6.2 rollout-regime per-position calibration table W (H x 7).
+#: Saved by ``scripts/pitchgpt_fit_rollout_calibration.py`` (fit on the 2023
+#: pitcher-disjoint cohort ONLY — see PHASE_0.6.2_PLAN.md §4 + §10.A4).  In
+#: rollout mode (explicit opt-in) W REPLACES the stacked
+#: ``class_calibration`` + pos-0 corrections; teacher-forced / per-pitch
+#: paths never see it, so the per-pitch ECE claim is untouched by
+#: construction (§3 mode-scoping).
+_ROLLOUT_PERPOS_CALIB_PATH: Path = (
+    _MODELS_DIR / "calibration_rollout_perpos.npz"
+)
+#: Provenance guard (kill criterion K5, 2026-08-10 plan §8): a rollout-regime
+#: calibration may NEVER be fit on a cohort any gate is evaluated on.  2025
+#: is the budgeted eval tier and 2026 the sealed lockbox — W artifacts
+#: declaring either as their fit cohort are refused at load time.
+_PROHIBITED_FIT_COHORT_SEASONS: frozenset[int] = frozenset({2025, 2026})
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -1039,6 +1054,9 @@ class PGConcatHeadPredictor(nn.Module):
         require_calibration: bool = False,
         pos0_calibration_path: Path | str | None = None,
         disable_class_calibration: bool | None = None,
+        disable_pos0_calibration: bool = False,
+        use_rollout_perpos_calibration: bool = False,
+        rollout_perpos_calibration_path: Path | str | None = None,
     ):
         """
         Parameters
@@ -1079,6 +1097,40 @@ class PGConcatHeadPredictor(nn.Module):
             ``calibration_class_marginal_pos0.npz``; missing file silently
             no-ops (identity).  Closes the Phase 0.6 BB% deficit by
             restoring the +7.8pp `ball` under-emission at PA-start.
+            **Phase 0.6.2 note (2026-08-10):** this vector was fit ON the
+            2025 pitcher-disjoint eval cohort (fit-on-holdout taint,
+            PHASE_0.6.2_PLAN.md §2).  It is retained on disk for replay
+            only; the rollout-regime W path below bypasses it by
+            construction, and it can be dropped explicitly via
+            ``disable_pos0_calibration=True``.
+        disable_pos0_calibration
+            **NEW (Phase 0.6.2, 2026-08-10).**  When True, skip loading the
+            pos-0 recalibration npz entirely (``_class_calibration_pos0 =
+            None``).  Required for the raw-T fit rolls of
+            ``scripts/pitchgpt_fit_rollout_calibration.py`` (the W fit must
+            act on the uncorrected distribution, §4 step 3) and available
+            for taint-free teacher-forced configurations.
+        use_rollout_perpos_calibration
+            **NEW (Phase 0.6.2, 2026-08-10).**  Explicit opt-in for the
+            rollout-regime per-position calibration table W (H x 7).  When
+            True the artifact MUST exist and validate (missing/invalid ⇒
+            ``CalibrationError`` — opting in with no artifact is an error,
+            not a silent identity), and the predictor advertises
+            ``rollout_position_aware = True`` so ``rollout()`` passes the
+            within-PA position into :meth:`predict_outcome_probs`.
+            Position-aware calls then apply ``p ∝ softmax_T(z) * W[pos]``
+            and SKIP both ``class_calibration`` and the pos-0 vector (W
+            *replaces* the stack in rollout mode, PHASE_0.6.2_PLAN.md §3).
+            Calls without a position (teacher-forced / per-pitch scoring)
+            keep the existing behavior unchanged.  Default False preserves
+            current behavior until the orchestrator flips it for
+            evaluation.
+        rollout_perpos_calibration_path
+            Optional override for the W npz path.  Default ``None``
+            resolves to the sibling ``calibration_rollout_perpos.npz``.
+            The npz must carry ``W`` (H x 7, positive finite) and declare
+            ``fit_cohort_season``; a declared fit cohort of 2025 or 2026
+            is refused outright (kill-criterion K5 provenance guard).
         """
         super().__init__()
         path = Path(checkpoint_path)
@@ -1226,7 +1278,17 @@ class PGConcatHeadPredictor(nn.Module):
             if pos0_calibration_path is not None
             else _HEAD_CONCAT_A1_POS0_CALIB_PATH
         )
-        if ppath.exists():
+        self.pos0_calibration_disabled: bool = bool(disable_pos0_calibration)
+        if self.pos0_calibration_disabled:
+            # Phase 0.6.2: skip the (2025-fit-tainted) pos-0 vector entirely.
+            self._class_calibration_pos0: torch.Tensor | None = None
+            self.calibration = dict(self.calibration)
+            self.calibration["pos0_calibration_disabled"] = True
+            logger.info(
+                "PGConcatHeadPredictor: pos-0 recalibration DISABLED "
+                "(Phase 0.6.2 taint remediation / raw-T fit mode)."
+            )
+        elif ppath.exists():
             try:
                 npz = np.load(ppath, allow_pickle=False)
                 pos0 = np.asarray(
@@ -1264,12 +1326,99 @@ class PGConcatHeadPredictor(nn.Module):
         else:
             self._class_calibration_pos0 = None
 
+        # Phase 0.6.2 (2026-08-10): rollout-regime per-position calibration
+        # table W (H x 7).  Explicit opt-in ONLY; in position-aware calls W
+        # REPLACES class_calibration + pos-0 (see predict_outcome_probs).
+        self.use_rollout_perpos_calibration: bool = bool(
+            use_rollout_perpos_calibration
+        )
+        self.rollout_position_aware: bool = False
+        self._rollout_perpos_W: torch.Tensor | None = None
+        self.rollout_perpos_meta: dict | None = None
+        if self.use_rollout_perpos_calibration:
+            wpath = (
+                Path(rollout_perpos_calibration_path)
+                if rollout_perpos_calibration_path is not None
+                else _ROLLOUT_PERPOS_CALIB_PATH
+            )
+            if not wpath.exists():
+                raise CalibrationError(
+                    f"PGConcatHeadPredictor: use_rollout_perpos_calibration="
+                    f"True but no W artifact at {wpath}.  Opting in with a "
+                    "missing artifact is an error, not a silent identity "
+                    "(PHASE_0.6.2_PLAN.md §3)."
+                )
+            try:
+                wnpz = np.load(wpath, allow_pickle=False)
+            except Exception as exc:
+                raise CalibrationError(
+                    f"PGConcatHeadPredictor: rollout-perpos W npz at {wpath} "
+                    f"failed to load: {exc}"
+                ) from exc
+            for required_key in ("W", "fit_cohort_season"):
+                if required_key not in wnpz:
+                    raise CalibrationError(
+                        f"PGConcatHeadPredictor: rollout-perpos W npz at "
+                        f"{wpath} is missing required key {required_key!r} "
+                        "(sidecar provenance schema, PHASE_0.6.2_PLAN.md "
+                        "§10.A4)."
+                    )
+            w_arr = np.asarray(wnpz["W"], dtype=np.float32)
+            if w_arr.ndim != 2 or w_arr.shape[1] != NUM_OUTCOME_CLASSES or w_arr.shape[0] < 1:
+                raise CalibrationError(
+                    f"PGConcatHeadPredictor: rollout-perpos W has shape "
+                    f"{w_arr.shape}; expected (H, {NUM_OUTCOME_CLASSES}) "
+                    "with H >= 1."
+                )
+            if not np.all(np.isfinite(w_arr)) or np.any(w_arr <= 0):
+                raise CalibrationError(
+                    "PGConcatHeadPredictor: rollout-perpos W must be "
+                    "all-positive finite floats."
+                )
+            fit_season = int(np.asarray(wnpz["fit_cohort_season"]).item())
+            if fit_season in _PROHIBITED_FIT_COHORT_SEASONS:
+                raise CalibrationError(
+                    f"PGConcatHeadPredictor: rollout-perpos W at {wpath} "
+                    f"declares fit_cohort_season={fit_season}, which is a "
+                    "gate-evaluation tier (2025 budgeted / 2026 lockbox).  "
+                    "Kill criterion K5: no calibration vector may ever be "
+                    "fit on a cohort that any gate is evaluated on.  "
+                    "Refusing to load."
+                )
+            self._rollout_perpos_W = torch.from_numpy(w_arr).to(device)
+            self.rollout_position_aware = True
+            self.rollout_perpos_meta = {
+                "path": str(wpath),
+                "sha256": _sha256_file(wpath),
+                "fit_cohort_season": fit_season,
+                "horizon_rows": int(w_arr.shape[0]),
+                "n_iterations": (
+                    int(np.asarray(wnpz["n_iterations"]).item())
+                    if "n_iterations" in wnpz else None
+                ),
+                "converged": (
+                    bool(np.asarray(wnpz["converged"]).item())
+                    if "converged" in wnpz else None
+                ),
+            }
+            self.calibration = dict(self.calibration)
+            self.calibration["rollout_perpos_calibration"] = dict(
+                self.rollout_perpos_meta
+            )
+            logger.info(
+                "PGConcatHeadPredictor: rollout-regime per-position W "
+                "loaded from %s (H=%d, fit_cohort_season=%d, sha256=%s...)",
+                wpath, w_arr.shape[0], fit_season,
+                self.rollout_perpos_meta["sha256"][:12],
+            )
+
     @torch.no_grad()
     def predict_outcome_probs(
         self,
         backbone_hidden: torch.Tensor,
         context_vec: torch.Tensor,
         pitch_token: torch.Tensor,
+        position: int | None = None,
     ) -> torch.Tensor:
         """Return calibrated 7-class probabilities, shape ``(B, S, 7)``.
 
@@ -1282,6 +1431,15 @@ class PGConcatHeadPredictor(nn.Module):
              fit on 2025 val) -- closes +7.8pp `ball` under-emission at
              PA position 0.
 
+        **Phase 0.6.2 rollout-regime branch (2026-08-10):** when
+        ``position`` is given AND the per-position table W is loaded
+        (``use_rollout_perpos_calibration=True``), the applied stack is
+        instead ``p ∝ softmax_T(z) * W[min(position, H-1)]`` — steps 3
+        and 4 are SKIPPED (W replaces them in rollout mode,
+        PHASE_0.6.2_PLAN.md §3).  Calls without ``position`` (all
+        teacher-forced / per-pitch scoring paths) never take this branch,
+        so the per-pitch ECE claim is untouched by construction.
+
         Each multiplicative step is followed by per-row renormalization
         on the last axis.  Missing pos-0 calibration ⇒ identity.
         """
@@ -1292,6 +1450,13 @@ class PGConcatHeadPredictor(nn.Module):
         logits = self.head(backbone_hidden, context_vec, pt_oh, zn_oh, vl_oh)
         scaled = logits / max(self.temperature, 1e-8)
         probs = F.softmax(scaled, dim=-1)
+        if position is not None and self._rollout_perpos_W is not None:
+            # Phase 0.6.2 rollout-regime path: T-softmax * W[pos], then
+            # renormalize.  REPLACES class_calibration + pos-0 entirely.
+            row_idx = min(int(position), self._rollout_perpos_W.shape[0] - 1)
+            weighted = probs * self._rollout_perpos_W[row_idx]
+            denom = weighted.sum(dim=-1, keepdim=True).clamp_min(1e-12)
+            return weighted / denom
         if self._class_calibration is not None:
             # Element-wise re-weight + renormalize on the last (class)
             # axis.  Broadcasts (..., 7) * (7,) -> (..., 7).
@@ -2012,6 +2177,14 @@ def rollout(
     balls_arr = np.full((n_samples,), starting_context.count[0], dtype=np.int64)
     strikes_arr = np.full((n_samples,), starting_context.count[1], dtype=np.int64)
 
+    # Phase 0.6.2 (2026-08-10): predictors that opted into the rollout-regime
+    # per-position calibration table W advertise ``rollout_position_aware``;
+    # they receive the within-PA position (prefix-aware) each step.  All
+    # other predictors keep the unchanged 3-argument protocol call.
+    pos_aware_predictor = bool(
+        getattr(outcome_predictor, "rollout_position_aware", False)
+    )
+
     # ── Phase 0.6 fix (2026-04-26): mid-PA context mutation ────────────
     # Per PHASE_0.5_PLAN §5.2 risk 2 + the Phase 0.6 static-context
     # diagnostic (`results/pitchgpt/rollout_sanity_2025/diagnose_static_context.md`),
@@ -2075,9 +2248,17 @@ def rollout(
                 last_ctx = cur_context[:, -1:, :]
                 last_tok = next_tok.unsqueeze(1)
 
-                outc_probs = outcome_predictor.predict_outcome_probs(
-                    last_hidden, last_ctx, last_tok,
-                )  # (N, 1, 7)
+                if pos_aware_predictor:
+                    # Within-PA position = prefix pitches already thrown +
+                    # current loop position (prefix-empty PA starts: = pos).
+                    outc_probs = outcome_predictor.predict_outcome_probs(
+                        last_hidden, last_ctx, last_tok,
+                        position=prefix_len + pos,
+                    )  # (N, 1, 7)
+                else:
+                    outc_probs = outcome_predictor.predict_outcome_probs(
+                        last_hidden, last_ctx, last_tok,
+                    )  # (N, 1, 7)
                 outc_probs = outc_probs.squeeze(1)
                 # Defensive: predictors may return CPU tensors regardless of rollout device; coerce before generator-bound multinomial.
                 outc_probs = outc_probs.to(device)

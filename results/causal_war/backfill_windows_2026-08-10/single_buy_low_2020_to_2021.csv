@@ -1,0 +1,26 @@
+player_id,causal_war,point_estimate_per_pa,pa,trad_war,pa_total,position,ip_total,name,baseline_year,_rank_group,rank_trad,rank_model,rank_diff,hit,basis
+656427,0.41,0.0265,195,-0.33,,pitcher,40.333333333333336,Jack Flaherty,2020,pitcher,284,98,186,True,war_delta
+650402,0.7,0.0466,189,-0.03,160.0,batter,,Gleyber Torres,2020,batter,246,60,186,True,war_delta
+543867,0.41,0.0578,89,-0.27,,pitcher,21.666666666666668,Nik Turley,2020,pitcher,273,98,175,,no_2026_record
+514888,0.37,0.0173,269,-0.32,210.0,batter,,José Altuve,2020,batter,280,105,175,True,war_delta
+595014,0.4,0.0334,150,-0.22,,pitcher,25.666666666666668,Blake Treinen,2020,pitcher,265,102,163,True,war_delta
+621111,1.03,0.0519,248,0.35,,pitcher,36.666666666666664,Walker Buehler,2020,pitcher,186,25,161,False,war_delta
+641941,0.51,0.0597,106,0.07,,pitcher,22.0,Emilio Pagán,2020,pitcher,237,78,159,False,war_delta
+660813,0.78,0.0828,118,0.28,,pitcher,23.333333333333332,Brusdar Graterol,2020,pitcher,194,38,156,False,war_delta
+608717,0.21,0.0198,131,-0.52,,pitcher,30.0,Chris Stratton,2020,pitcher,298,146,152,True,war_delta
+641540,0.54,0.0464,146,0.14,,pitcher,34.0,Dane Dunning,2020,pitcher,225,74,151,False,war_delta
+664208,0.28,0.0329,107,-0.3,,pitcher,21.666666666666668,Phil Maton,2020,pitcher,279,132,147,True,war_delta
+605204,0.44,0.0243,227,0.04,229.0,batter,,J. D. Davis,2020,batter,235,92,143,True,war_delta
+641755,0.54,0.0718,94,0.18,,pitcher,23.666666666666668,Tyler Kinley,2020,pitcher,217,74,143,True,war_delta
+461325,0.74,0.094,98,0.37,,pitcher,26.0,Tyler Clippard,2020,pitcher,182,43,139,True,war_delta
+501985,0.33,0.0165,253,-0.08,,pitcher,56.66666666666667,Mike Minor,2020,pitcher,252,117,135,True,war_delta
+642083,0.87,0.0931,117,0.45,,pitcher,26.0,Aaron Slegers,2020,pitcher,165,33,132,False,war_delta
+592626,0.12,0.0085,173,-0.31,138.0,batter,,Joc Pederson,2020,batter,278,150,128,True,war_delta
+624413,0.44,0.0236,232,0.14,239.0,batter,,Pete Alonso,2020,batter,217,92,125,True,war_delta
+579328,0.36,0.0234,194,0.1,,pitcher,47.0,Yusei Kikuchi,2020,pitcher,234,109,125,False,war_delta
+458015,0.36,0.0194,231,0.06,223.0,batter,,Joey Votto,2020,batter,231,109,122,True,war_delta
+543507,0.33,0.0408,102,0.06,,pitcher,23.333333333333332,Trevor May,2020,pitcher,239,117,122,True,war_delta
+650489,0.68,0.0609,139,0.45,140.0,batter,,Willi Castro,2020,batter,183,62,121,False,war_delta
+457705,0.2,0.0107,239,-0.09,241.0,batter,,Andrew McCutchen,2020,batter,256,138,118,True,war_delta
+643338,0.57,0.0593,120,0.36,,pitcher,25.666666666666668,Chad Green,2020,pitcher,183,65,118,True,war_delta
+459964,0.02,0.0015,160,-0.35,148.0,batter,,Matt Joyce,2020,batter,283,170,113,False,war_delta

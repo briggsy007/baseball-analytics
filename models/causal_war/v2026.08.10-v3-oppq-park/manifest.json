@@ -1,0 +1,14 @@
+{
+  "artifact": "causal_war/causal_war_trainsplit_2015_2022_v3_oppq_park.pkl",
+  "version": "v2026.08.10-v3-oppq-park",
+  "sha256": "205bfa94cc9e9a227d7c86d17a4f683b67e3feb19150c387bda748bdffb5ba1b",
+  "hash_policy": "pinned",
+  "created_utc": "2026-08-10T23:33:43.973104+00:00",
+  "git_sha": "d3dbe23ff5642dd77cac5916de3096bd936638f0",
+  "train_window": "2015-2022 (test 2023-2024, OOS)",
+  "data_snapshot": null,
+  "training_script": "scripts/causal_war_v3_retrain.py",
+  "spec_version": "WS4.1 plan 2026-08-10",
+  "validation_results_ref": "results/causal_war/v3_gates_2026-08-10/v3_gates_metrics.json",
+  "notes": "Experimental v3 covariate retrain (opp_woba_lag + park_code on v2 layout). NOT production, NOT frozen_validated \u2014 gate numbers land where they land; Batch D adjudicates. No alias touched."
+}

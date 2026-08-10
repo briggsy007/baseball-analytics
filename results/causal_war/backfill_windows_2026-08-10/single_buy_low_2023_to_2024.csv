@@ -1,0 +1,26 @@
+player_id,causal_war,point_estimate_per_pa,pa,trad_war,pa_total,position,ip_total,name,baseline_year,_rank_group,rank_trad,rank_model,rank_diff,hit,basis
+622250,0.65,0.0323,250,-0.66,,pitcher,52.333333333333336,Josh Sborz,2023,pitcher,514,126,388,True,war_delta
+519293,0.87,0.0455,238,0.04,,pitcher,57.333333333333336,Will Smith,2023,pitcher,381,88,293,False,war_delta
+519151,1.02,0.0451,283,0.15,,pitcher,65.33333333333333,Ryan Pressly,2023,pitcher,357,68,289,True,war_delta
+607481,0.08,0.0038,260,-0.99,,pitcher,58.333333333333336,Aaron Bummer,2023,pitcher,530,251,279,True,war_delta
+663158,0.73,0.0871,105,0.03,,pitcher,27.666666666666668,Robert Suarez,2023,pitcher,386,109,277,True,war_delta
+642397,0.65,0.0311,260,0.03,,pitcher,60.333333333333336,Gregory Soto,2023,pitcher,386,126,260,True,war_delta
+691023,0.85,0.0231,459,-0.11,465.0,batter,,Jordan Walker,2023,batter,353,101,252,False,war_delta
+605130,0.4,0.0172,294,-0.09000000000000002,,pitcher,68.0,Scott Barlow,2023,pitcher,426,176,250,True,war_delta
+664062,0.29,0.0084,432,-0.22,,pitcher,103.0,Tony Gonsolin,2023,pitcher,449,205,244,,no_2026_record
+656941,2.32,0.0379,764,0.66,720.0,batter,,Kyle Schwarber,2023,batter,252,23,229,True,war_delta
+523260,0.33,0.0237,175,-0.06,,pitcher,39.333333333333336,Joe Kelly,2023,pitcher,416,194,222,False,war_delta
+543859,0.73,0.0282,326,0.27,,pitcher,80.0,Michael Tonkin,2023,pitcher,327,109,218,False,war_delta
+518397,0.16,0.0101,204,-0.23,,pitcher,48.333333333333336,Scott Alexander,2023,pitcher,453,237,216,True,war_delta
+663558,0.07,0.0048,180,-0.32,,pitcher,42.333333333333336,Jovani Morán,2023,pitcher,470,255,215,,no_2026_record
+663878,0.09,0.006,180,-0.27,,pitcher,42.666666666666664,Nate Pearson,2023,pitcher,463,250,213,True,war_delta
+656222,-0.1,-0.0069,191,-0.65,,pitcher,42.333333333333336,Jalen Beeks,2023,pitcher,510,301,209,True,war_delta
+622075,-0.07,-0.0046,201,-0.52,,pitcher,48.0,Yency Almonte,2023,pitcher,500,292,208,True,war_delta
+518585,0.68,0.0309,274,0.28,,pitcher,66.0,Fernando Cruz,2023,pitcher,326,120,206,True,war_delta
+518617,0.62,0.032,241,0.22999999999999998,,pitcher,56.66666666666667,Jake Diekman,2023,pitcher,338,133,205,False,war_delta
+592669,-0.07,-0.0017,540,-0.51,548.0,batter,,Hunter Renfroe,2023,batter,404,216,188,True,war_delta
+606965,0.55,0.039,178,0.26999999999999996,,pitcher,42.33333333333333,Chris Devenski,2023,pitcher,330,144,186,False,war_delta
+656290,0.06,0.0099,82,-0.18,,pitcher,20.666666666666668,Drew Carlton,2023,pitcher,442,259,183,,no_2026_record
+650559,-0.21,-0.0043,627,-0.68,626.0,batter,,Bryan De La Cruz,2023,batter,422,240,182,False,war_delta
+658668,0.56,0.0184,381,0.24,385.0,batter,,Edward Olivares,2023,batter,308,130,178,False,war_delta
+573009,0.33,0.022,188,0.08,,pitcher,39.0,Joe Mantiply,2023,pitcher,372,194,178,True,war_delta

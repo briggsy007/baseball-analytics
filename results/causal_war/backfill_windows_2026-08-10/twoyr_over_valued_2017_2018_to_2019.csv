@@ -1,0 +1,26 @@
+player_id,position_type,war_agg,vol_agg,causal_war,point_estimate_per_pa,pa,war_f,name,_rank_group,rank_trad,rank_model,rank_diff,hit,basis
+488768,pitcher,4.95,319.66666666666663,-2.12,-0.0193,1375,-0.02,Andrew Cashner,pitcher,78,761,-683,True,war_agg_half
+488768,pitcher,4.95,319.66666666666663,-2.12,-0.0193,1375,2.19,Andrew Cashner,pitcher,78,761,-683,True,war_agg_half
+592332,pitcher,5.01,370.3333333333333,-1.98,-0.0156,1592,-0.31,Kevin Gausman,pitcher,74,745,-671,True,war_agg_half
+592332,pitcher,5.01,370.3333333333333,-1.98,-0.0156,1592,-0.5,Kevin Gausman,pitcher,74,745,-671,True,war_agg_half
+571666,pitcher,3.8899999999999997,325.33333333333337,-1.52,-0.0139,1367,3.36,Mike Fiers,pitcher,122,701,-579,False,war_agg_half
+519141,pitcher,3.0300000000000002,247.66666666666666,-2.04,-0.0237,1076,-0.29000000000000004,Drew Pomeranz,pitcher,191,753,-562,True,war_agg_half
+519141,pitcher,3.0300000000000002,247.66666666666666,-2.04,-0.0237,1076,0.83,Drew Pomeranz,pitcher,191,753,-562,True,war_agg_half
+502043,pitcher,3.89,354.66666666666663,-1.26,-0.0105,1502,0.35,Kyle Gibson,pitcher,120,669,-549,True,war_agg_half
+502043,pitcher,3.89,354.66666666666663,-1.26,-0.0105,1502,0.08,Kyle Gibson,pitcher,120,669,-549,True,war_agg_half
+467100,pitcher,2.94,348.0,-1.88,-0.0167,1412,-0.06,Iván Nova,pitcher,199,741,-542,True,war_agg_half
+467100,pitcher,2.94,348.0,-1.88,-0.0167,1412,1.89,Iván Nova,pitcher,199,741,-542,False,war_agg_half
+462136,pitcher,2.17,329.66666666666663,-2.38,-0.0209,1423,-0.36,Marco Estrada,pitcher,254,776,-522,True,war_agg_half
+519455,pitcher,1.73,291.33333333333337,-3.73,-0.0371,1255,-0.08,Jordan Zimmermann,pitcher,301,800,-499,True,war_agg_half
+519455,pitcher,1.73,291.33333333333337,-3.73,-0.0371,1255,-0.03,Jordan Zimmermann,pitcher,301,800,-499,True,war_agg_half
+502171,pitcher,3.5200000000000005,331.6666666666667,-1.14,-0.0103,1386,-0.43,Alex Cobb,pitcher,149,640,-491,True,war_agg_half
+519144,pitcher,2.06,394.6666666666667,-2.02,-0.0143,1766,-0.1,Rick Porcello,pitcher,267,750,-483,True,war_agg_half
+543022,pitcher,1.8900000000000001,251.33333333333331,-2.14,-0.0244,1098,1.28,Tyler Chatwood,pitcher,280,763,-483,False,war_agg_half
+519144,pitcher,2.06,394.6666666666667,-2.02,-0.0143,1766,0.84,Rick Porcello,pitcher,267,750,-483,True,war_agg_half
+543022,pitcher,1.8900000000000001,251.33333333333331,-2.14,-0.0244,1098,0.09,Tyler Chatwood,pitcher,280,763,-483,True,war_agg_half
+605164,pitcher,2.5300000000000002,341.3333333333333,-1.55,-0.0135,1436,2.13,Dylan Bundy,pitcher,231,705,-474,False,war_agg_half
+605164,pitcher,2.5300000000000002,341.3333333333333,-1.55,-0.0135,1436,-0.03,Dylan Bundy,pitcher,231,705,-474,True,war_agg_half
+527048,pitcher,1.5,270.3333333333333,-4.35,-0.0456,1192,0.42,Martín Pérez,pitcher,329,802,-473,True,war_agg_half
+527048,pitcher,1.5,270.3333333333333,-4.35,-0.0456,1192,0.07,Martín Pérez,pitcher,329,802,-473,True,war_agg_half
+456501,pitcher,3.34,200.33333333333334,-1.11,-0.0165,842,0.05,Johnny Cueto,pitcher,165,632,-467,True,war_agg_half
+456501,pitcher,3.34,200.33333333333334,-1.11,-0.0165,842,-0.05,Johnny Cueto,pitcher,165,632,-467,True,war_agg_half

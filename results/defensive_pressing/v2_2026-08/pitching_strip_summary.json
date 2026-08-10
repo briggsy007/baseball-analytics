@@ -1,0 +1,492 @@
+{
+ "task": "WS3.2 pitching strip (DPI v2 stage 1) -- C1a",
+ "ran_at": "2026-08-10T15:56:14.674578+00:00",
+ "inputs": {
+  "game_dpi_csv": "C:\\Users\\hunte\\projects\\baseball\\results\\defensive_pressing\\reliability_2026-08-10\\game_dpi_2015_2025.csv",
+  "game_dpi_csv_sha256": "6ce88a267300cfb94021c9c0bb2b657d8690d01e019ec650bf37cc2114afbc9d",
+  "game_dpi_model": "frozen xOut v2026.04.18 (train 2015-2022, sha256 e689bff6ab069474...)",
+  "rankings_csv": "C:\\Users\\hunte\\projects\\baseball\\results\\defensive_pressing\\2025_validation\\team_rankings_all_years.csv",
+  "rankings_csv_sha256": "498ee4b24d92f1b7f61748563f17bdc31c2e2e3a8adc796d620a29d4d680f989"
+ },
+ "peripheral_definitions": {
+  "pa": "events IS NOT NULL minus ['truncated_pa', 'ejection', 'game_advisory']",
+  "k_pct": "['strikeout', 'strikeout_double_play'] / PA",
+  "ubb_pct": "['walk'] / PA (intent_walk excluded)",
+  "net_gb": "(GB - FB) / PA, bb_type on type='X' rows",
+  "popup_rate": "PU / PA, bb_type='popup' on type='X' rows",
+  "sp_share": "LOGO share of season appearances that were starts (start = first pitch of the side's defensive game)"
+ },
+ "leakage_rule": {
+  "choice": "leave-one-game-out (LOGO): season totals minus the scored game's own counts",
+  "why": "keeps same-season contact profile (the actual confound), no rookie/mover missingness; the scored game's outcomes never enter its own adjustment",
+  "fallback": "LOGO PA < 20 -> league-season mean rates"
+ },
+ "logo_accounting": {
+  "min_logo_pa": 20,
+  "n_pitcher_game_rows": 227267,
+  "n_rows_league_fallback": 4685,
+  "pct_rows_league_fallback": 2.061,
+  "pct_bip_weight_league_fallback": 1.39,
+  "league_season_means": {
+   "2015": {
+    "k_pct": 0.20449,
+    "ubb_pct": 0.0714,
+    "net_gb": 0.19292,
+    "popup_rate": 0.04766,
+    "sp_share": 0.24309
+   },
+   "2016": {
+    "k_pct": 0.21172,
+    "ubb_pct": 0.07659,
+    "net_gb": 0.17333,
+    "popup_rate": 0.04886,
+    "sp_share": 0.24051
+   },
+   "2017": {
+    "k_pct": 0.21694,
+    "ubb_pct": 0.08029,
+    "net_gb": 0.1576,
+    "popup_rate": 0.04918,
+    "sp_share": 0.23661
+   },
+   "2018": {
+    "k_pct": 0.22294,
+    "ubb_pct": 0.07986,
+    "net_gb": 0.14604,
+    "popup_rate": 0.05037,
+    "sp_share": 0.22863
+   },
+   "2019": {
+    "k_pct": 0.2301,
+    "ubb_pct": 0.08126,
+    "net_gb": 0.13394,
+    "popup_rate": 0.04911,
+    "sp_share": 0.22421
+   },
+   "2020": {
+    "k_pct": 0.23562,
+    "ubb_pct": 0.08873,
+    "net_gb": 0.129,
+    "popup_rate": 0.04861,
+    "sp_share": 0.22384
+   },
+   "2021": {
+    "k_pct": 0.233,
+    "ubb_pct": 0.08316,
+    "net_gb": 0.12192,
+    "popup_rate": 0.04587,
+    "sp_share": 0.22197
+   },
+   "2022": {
+    "k_pct": 0.22608,
+    "ubb_pct": 0.07948,
+    "net_gb": 0.12024,
+    "popup_rate": 0.04795,
+    "sp_share": 0.22412
+   },
+   "2023": {
+    "k_pct": 0.22728,
+    "ubb_pct": 0.08328,
+    "net_gb": 0.11371,
+    "popup_rate": 0.04632,
+    "sp_share": 0.23503
+   },
+   "2024": {
+    "k_pct": 0.22672,
+    "ubb_pct": 0.07968,
+    "net_gb": 0.11064,
+    "popup_rate": 0.04821,
+    "sp_share": 0.23154
+   },
+   "2025": {
+    "k_pct": 0.22297,
+    "ubb_pct": 0.08125,
+    "net_gb": 0.10742,
+    "popup_rate": 0.0479,
+    "sp_share": 0.23033
+   }
+  }
+ },
+ "join_stats": {
+  "n_team_games": 52498,
+  "n_unmatched_staff": 0,
+  "n_bip_count_mismatch": 0,
+  "max_abs_bip_diff": 0.0
+ },
+ "stage1_regressions_by_season": [
+  {
+   "season": 2015,
+   "n_games": 4928,
+   "r2_game_level": 0.03189,
+   "intercept": -0.00161,
+   "coef_k_pct": -1.85515,
+   "coef_ubb_pct": -2.05013,
+   "coef_net_gb": -1.18174,
+   "coef_popup_rate": -3.02243,
+   "coef_sp_share": 1.98441
+  },
+  {
+   "season": 2016,
+   "n_games": 4924,
+   "r2_game_level": 0.03553,
+   "intercept": -0.68114,
+   "coef_k_pct": 0.60087,
+   "coef_ubb_pct": -3.91749,
+   "coef_net_gb": -0.19789,
+   "coef_popup_rate": -0.8741,
+   "coef_sp_share": 1.87486
+  },
+  {
+   "season": 2017,
+   "n_games": 4934,
+   "r2_game_level": 0.03744,
+   "intercept": -1.24783,
+   "coef_k_pct": -0.35878,
+   "coef_ubb_pct": 2.62513,
+   "coef_net_gb": -0.21541,
+   "coef_popup_rate": 3.99917,
+   "coef_sp_share": 2.23462
+  },
+  {
+   "season": 2018,
+   "n_games": 4928,
+   "r2_game_level": 0.03481,
+   "intercept": -1.25897,
+   "coef_k_pct": 0.5291,
+   "coef_ubb_pct": 1.98996,
+   "coef_net_gb": 1.27812,
+   "coef_popup_rate": 1.2933,
+   "coef_sp_share": 1.70291
+  },
+  {
+   "season": 2019,
+   "n_games": 5128,
+   "r2_game_level": 0.02434,
+   "intercept": -0.60289,
+   "coef_k_pct": 0.0926,
+   "coef_ubb_pct": -2.34539,
+   "coef_net_gb": 0.88437,
+   "coef_popup_rate": -0.28871,
+   "coef_sp_share": 1.25887
+  },
+  {
+   "season": 2020,
+   "n_games": 1902,
+   "r2_game_level": 0.02637,
+   "intercept": -1.14093,
+   "coef_k_pct": -0.1039,
+   "coef_ubb_pct": 3.48991,
+   "coef_net_gb": 2.11252,
+   "coef_popup_rate": 2.95091,
+   "coef_sp_share": 1.21564
+  },
+  {
+   "season": 2021,
+   "n_games": 5224,
+   "r2_game_level": 0.02953,
+   "intercept": -0.12848,
+   "coef_k_pct": -0.23962,
+   "coef_ubb_pct": -0.69715,
+   "coef_net_gb": -0.46482,
+   "coef_popup_rate": -3.52844,
+   "coef_sp_share": 1.50201
+  },
+  {
+   "season": 2022,
+   "n_games": 5404,
+   "r2_game_level": 0.0354,
+   "intercept": -0.74756,
+   "coef_k_pct": 0.89927,
+   "coef_ubb_pct": -3.65482,
+   "coef_net_gb": 0.55655,
+   "coef_popup_rate": 6.78002,
+   "coef_sp_share": 1.48782
+  },
+  {
+   "season": 2023,
+   "n_games": 4900,
+   "r2_game_level": 0.02985,
+   "intercept": -0.72031,
+   "coef_k_pct": 0.94356,
+   "coef_ubb_pct": -0.80708,
+   "coef_net_gb": 0.54556,
+   "coef_popup_rate": -1.6059,
+   "coef_sp_share": 1.57312
+  },
+  {
+   "season": 2024,
+   "n_games": 5120,
+   "r2_game_level": 0.02499,
+   "intercept": -0.232,
+   "coef_k_pct": 2.0837,
+   "coef_ubb_pct": -3.29733,
+   "coef_net_gb": -1.05927,
+   "coef_popup_rate": -4.8388,
+   "coef_sp_share": 1.33655
+  },
+  {
+   "season": 2025,
+   "n_games": 5106,
+   "r2_game_level": 0.03326,
+   "intercept": -0.81034,
+   "coef_k_pct": 1.90564,
+   "coef_ubb_pct": -2.42397,
+   "coef_net_gb": 0.23971,
+   "coef_popup_rate": 3.64204,
+   "coef_sp_share": 1.71135
+  }
+ ],
+ "team_season_variance_share": [
+  {
+   "season": 2015,
+   "n_teams": 30,
+   "var_team_season_dpi_v1": 0.041956,
+   "var_team_season_pitch_hat": 0.003291,
+   "pitch_hat_var_share": 0.0785,
+   "r_pitch_hat_vs_dpi_v1": -0.2805
+  },
+  {
+   "season": 2016,
+   "n_teams": 30,
+   "var_team_season_dpi_v1": 0.067118,
+   "var_team_season_pitch_hat": 0.009104,
+   "pitch_hat_var_share": 0.1356,
+   "r_pitch_hat_vs_dpi_v1": 0.2668
+  },
+  {
+   "season": 2017,
+   "n_teams": 30,
+   "var_team_season_dpi_v1": 0.055604,
+   "var_team_season_pitch_hat": 0.005661,
+   "pitch_hat_var_share": 0.1018,
+   "r_pitch_hat_vs_dpi_v1": 0.2752
+  },
+  {
+   "season": 2018,
+   "n_teams": 30,
+   "var_team_season_dpi_v1": 0.072191,
+   "var_team_season_pitch_hat": 0.009349,
+   "pitch_hat_var_share": 0.1295,
+   "r_pitch_hat_vs_dpi_v1": 0.049
+  },
+  {
+   "season": 2019,
+   "n_teams": 30,
+   "var_team_season_dpi_v1": 0.065458,
+   "var_team_season_pitch_hat": 0.006143,
+   "pitch_hat_var_share": 0.0939,
+   "r_pitch_hat_vs_dpi_v1": 0.2888
+  },
+  {
+   "season": 2020,
+   "n_teams": 30,
+   "var_team_season_dpi_v1": 0.118894,
+   "var_team_season_pitch_hat": 0.005682,
+   "pitch_hat_var_share": 0.0478,
+   "r_pitch_hat_vs_dpi_v1": 0.0262
+  },
+  {
+   "season": 2021,
+   "n_teams": 30,
+   "var_team_season_dpi_v1": 0.056126,
+   "var_team_season_pitch_hat": 0.003136,
+   "pitch_hat_var_share": 0.0559,
+   "r_pitch_hat_vs_dpi_v1": 0.1762
+  },
+  {
+   "season": 2022,
+   "n_teams": 30,
+   "var_team_season_dpi_v1": 0.050095,
+   "var_team_season_pitch_hat": 0.007448,
+   "pitch_hat_var_share": 0.1487,
+   "r_pitch_hat_vs_dpi_v1": 0.5221
+  },
+  {
+   "season": 2023,
+   "n_teams": 30,
+   "var_team_season_dpi_v1": 0.053762,
+   "var_team_season_pitch_hat": 0.007239,
+   "pitch_hat_var_share": 0.1346,
+   "r_pitch_hat_vs_dpi_v1": 0.5236
+  },
+  {
+   "season": 2024,
+   "n_teams": 30,
+   "var_team_season_dpi_v1": 0.038611,
+   "var_team_season_pitch_hat": 0.006328,
+   "pitch_hat_var_share": 0.1639,
+   "r_pitch_hat_vs_dpi_v1": 0.3005
+  },
+  {
+   "season": 2025,
+   "n_teams": 30,
+   "var_team_season_dpi_v1": 0.051851,
+   "var_team_season_pitch_hat": 0.005418,
+   "pitch_hat_var_share": 0.1045,
+   "r_pitch_hat_vs_dpi_v1": 0.2201
+  }
+ ],
+ "k2_interim_partial_r": [
+  {
+   "metric": "v1_frozen",
+   "window": "2023",
+   "r": 0.4206,
+   "n": 30,
+   "p": 0.02309893281982298,
+   "fisher_ci": [
+    0.0639,
+    0.682
+   ],
+   "cluster_boot_ci": null
+  },
+  {
+   "metric": "v1_frozen",
+   "window": "2024",
+   "r": 0.685,
+   "n": 30,
+   "p": 4.138852145179009e-05,
+   "fisher_ci": [
+    0.4253,
+    0.8405
+   ],
+   "cluster_boot_ci": null
+  },
+  {
+   "metric": "v1_frozen",
+   "window": "2025",
+   "r": 0.5387,
+   "n": 30,
+   "p": 0.002569960159285643,
+   "fisher_ci": [
+    0.2146,
+    0.756
+   ],
+   "cluster_boot_ci": null
+  },
+  {
+   "metric": "v1_frozen",
+   "window": "pooled_2023_2025",
+   "r": 0.4064,
+   "n": 90,
+   "p": 7.749711232639955e-05,
+   "fisher_ci": [
+    0.2165,
+    0.5667
+   ],
+   "cluster_boot_ci": [
+    0.2205,
+    0.5414
+   ]
+  },
+  {
+   "metric": "v1_frozen_season_centered",
+   "window": "2023",
+   "r": 0.4206,
+   "n": 30,
+   "p": 0.02309893281982298,
+   "fisher_ci": [
+    0.0639,
+    0.682
+   ],
+   "cluster_boot_ci": null
+  },
+  {
+   "metric": "v1_frozen_season_centered",
+   "window": "2024",
+   "r": 0.685,
+   "n": 30,
+   "p": 4.138852145179009e-05,
+   "fisher_ci": [
+    0.4253,
+    0.8405
+   ],
+   "cluster_boot_ci": null
+  },
+  {
+   "metric": "v1_frozen_season_centered",
+   "window": "2025",
+   "r": 0.5387,
+   "n": 30,
+   "p": 0.002569960159285643,
+   "fisher_ci": [
+    0.2146,
+    0.756
+   ],
+   "cluster_boot_ci": null
+  },
+  {
+   "metric": "v1_frozen_season_centered",
+   "window": "pooled_2023_2025",
+   "r": 0.5725,
+   "n": 90,
+   "p": 4.570381189491654e-09,
+   "fisher_ci": [
+    0.4136,
+    0.6976
+   ],
+   "cluster_boot_ci": [
+    0.4108,
+    0.6959
+   ]
+  },
+  {
+   "metric": "v2_stage1_pitching_strip",
+   "window": "2023",
+   "r": 0.3647,
+   "n": 30,
+   "p": 0.051771997647596525,
+   "fisher_ci": [
+    -0.0021,
+    0.645
+   ],
+   "cluster_boot_ci": null
+  },
+  {
+   "metric": "v2_stage1_pitching_strip",
+   "window": "2024",
+   "r": 0.5226,
+   "n": 30,
+   "p": 0.0036340893409408264,
+   "fisher_ci": [
+    0.1931,
+    0.7462
+   ],
+   "cluster_boot_ci": null
+  },
+  {
+   "metric": "v2_stage1_pitching_strip",
+   "window": "2025",
+   "r": 0.4039,
+   "n": 30,
+   "p": 0.029772137076037212,
+   "fisher_ci": [
+    0.0439,
+    0.6711
+   ],
+   "cluster_boot_ci": null
+  },
+  {
+   "metric": "v2_stage1_pitching_strip",
+   "window": "pooled_2023_2025",
+   "r": 0.4531,
+   "n": 90,
+   "p": 8.242344271500785e-06,
+   "fisher_ci": [
+    0.2704,
+    0.6043
+   ],
+   "cluster_boot_ci": [
+    0.2866,
+    0.5925
+   ]
+  }
+ ],
+ "notes": [
+  "Stage-1 fit is per-season OLS on the same season's games (descriptive decomposition, in-sample by construction; the underlying DPI for 2023-25 is OOS w.r.t. the frozen xOut train window 2015-2022).",
+  "Stage-1 residuals are season-centered (OLS intercept); the v1_frozen_season_centered rows isolate how much of any pooled change comes from centering alone.",
+  "Pooled partial-r rows carry both a Fisher CI (iid) and a pairs cluster bootstrap CI over the 30 team franchises.",
+  "K2 adjudicates on the FINAL number after park + speed (C1b); these are interim trajectory measurements only."
+ ],
+ "seed": 42,
+ "n_boot": 5000
+}

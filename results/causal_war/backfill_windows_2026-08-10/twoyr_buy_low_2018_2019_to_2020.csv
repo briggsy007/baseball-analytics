@@ -1,0 +1,26 @@
+player_id,position_type,war_agg,vol_agg,causal_war,point_estimate_per_pa,pa,war_f,name,_rank_group,rank_trad,rank_model,rank_diff,hit,basis
+435622,batter,-1.75,1101.0,0.97,0.0109,1112,,Ian Desmond,batter,492,151,341,,exit_no_followup_row
+656547,pitcher,-0.13,107.33333333333334,0.85,0.0234,455,0.11,Jonathan Holder,pitcher,451,132,319,True,war_agg_half
+622259,pitcher,-0.25,70.0,0.51,0.0214,298,,Trey Wingenter,pitcher,467,173,294,,exit_no_followup_row
+642547,pitcher,-0.26,163.33333333333331,0.5,0.0089,704,0.3,Freddy Peralta,pitcher,469,175,294,True,war_agg_half
+621363,pitcher,0.01,51.666666666666664,0.74,0.0419,220,,Colin Poche,pitcher,425,140,285,,exit_no_followup_row
+523260,pitcher,-0.3400000000000001,117.0,0.33,0.0073,565,0.21,Joe Kelly,pitcher,485,204,281,True,war_agg_half
+592454,pitcher,-0.09000000000000008,84.66666666666667,0.48,0.0154,387,0.1,Tommy Kahnle,pitcher,443,177,266,True,war_agg_half
+641627,pitcher,0.07999999999999999,71.66666666666666,0.65,0.0275,295,-0.8,Trevor Gott,pitcher,409,151,258,False,war_agg_half
+605204,batter,0.34999999999999987,566.0,1.55,0.0347,558,0.04,J. D. Davis,batter,359,111,248,False,war_agg_half
+643778,pitcher,0.15999999999999998,75.33333333333334,0.69,0.0274,316,0.44,Tyler Webb,pitcher,395,147,248,True,war_agg_half
+608716,pitcher,0.13999999999999999,79.0,0.63,0.0246,322,,Drew Steckenrider,pitcher,400,153,247,,exit_no_followup_row
+608349,pitcher,0.33,55.333333333333336,0.83,0.0408,255,-0.12,Corey Knebel,pitcher,377,134,243,False,war_agg_half
+458924,pitcher,-0.8300000000000001,42.33333333333333,-0.13,-0.0081,196,,Jonny Venters,pitcher,530,296,234,,exit_no_followup_row
+445276,pitcher,0.74,134.66666666666669,1.5,0.032,584,0.35,Kenley Jansen,pitcher,309,78,231,False,war_agg_half
+466320,batter,-1.18,675.0,0.0,0.0001,674,,Melky Cabrera,batter,477,250,227,,exit_no_followup_row
+643493,pitcher,-0.010000000000000009,116.66666666666667,0.28,0.0075,475,,Austin Pruitt,pitcher,430,210,220,,exit_no_followup_row
+502085,pitcher,0.65,76.33333333333334,1.09,0.042,323,,David Robertson,pitcher,326,106,220,,exit_no_followup_row
+572955,pitcher,-0.3,43.666666666666664,0.04,0.0026,183,0.39,Pierce Johnson,pitcher,477,258,219,True,war_agg_half
+572362,pitcher,-0.26,164.33333333333334,0.07,0.0013,675,-0.54,Robbie Erlin,pitcher,469,251,218,False,war_agg_half
+641432,batter,0.07000000000000006,445.0,0.73,0.0204,445,-0.99,Willie Calhoun,batter,392,177,215,False,war_agg_half
+623364,pitcher,-0.15000000000000005,41.66666666666667,0.12,0.009,172,-0.13,Brad Wieck,pitcher,453,240,213,False,war_agg_half
+641531,batter,0.56,974.0,1.29,0.0166,971,0.37,Hunter Dozier,batter,337,124,213,True,war_agg_half
+640449,batter,-0.08000000000000002,287.0,0.54,0.0236,286,1.77,Clint Frazier,batter,402,190,212,True,war_agg_half
+502202,pitcher,-0.77,80.0,-0.25,-0.009,349,0.46,Brad Boxberger,pitcher,525,317,208,True,war_agg_half
+425492,pitcher,-0.8300000000000001,52.66666666666667,-0.31,-0.0147,264,,Ryan Madson,pitcher,530,327,203,,exit_no_followup_row

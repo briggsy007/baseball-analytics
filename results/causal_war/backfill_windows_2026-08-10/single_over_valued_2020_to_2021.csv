@@ -1,0 +1,26 @@
+player_id,causal_war,point_estimate_per_pa,pa,trad_war,pa_total,position,ip_total,name,baseline_year,_rank_group,rank_trad,rank_model,rank_diff,hit,basis
+571578,-1.02,-0.0434,294,1.65,,pitcher,65.66666666666667,Patrick Corbin,2020,pitcher,27,310,-283,True,war_delta
+607536,-0.45,-0.0188,303,1.88,,pitcher,70.66666666666667,Kyle Freeland,2020,pitcher,21,269,-248,True,war_delta
+607200,-0.41,-0.0237,216,1.52,,pitcher,50.333333333333336,Erick Fedde,2020,pitcher,32,259,-227,True,war_delta
+543901,-0.42,-0.0288,184,1.17,,pitcher,43.0,Ryan Weber,2020,pitcher,55,262,-207,True,war_delta
+527048,-0.32,-0.0153,258,1.18,,pitcher,62.0,Martín Pérez,2020,pitcher,54,251,-197,True,war_delta
+543135,-0.25,-0.0159,197,1.26,,pitcher,48.333333333333336,Nathan Eovaldi,2020,pitcher,44,238,-194,True,war_delta
+453286,-0.03,-0.0013,291,2.18,,pitcher,67.33333333333333,Max Scherzer,2020,pitcher,12,201,-189,True,war_delta
+669242,-0.63,-0.033,240,1.14,227.0,batter,,Tommy Edman,2020,batter,95,277,-182,False,war_delta
+621107,-0.06,-0.003,243,1.68,,pitcher,59.0,Zach Eflin,2020,pitcher,24,205,-181,True,war_delta
+656288,-0.29,-0.0152,235,1.06,,pitcher,56.333333333333336,Griffin Canning,2020,pitcher,65,244,-179,True,war_delta
+502171,-0.22,-0.0121,226,1.12,,pitcher,52.333333333333336,Alex Cobb,2020,pitcher,59,234,-175,True,war_delta
+453562,-0.44,-0.0293,187,0.77,,pitcher,44.333333333333336,Jake Arrieta,2020,pitcher,102,268,-166,True,war_delta
+595281,-0.23,-0.0134,215,1.86,159.0,batter,,Kevin Kiermaier,2020,batter,37,202,-165,False,war_delta
+608336,-0.28,-0.0156,223,1.59,226.0,batter,,Joey Gallo,2020,batter,54,214,-160,False,war_delta
+621563,-0.38,-0.0196,244,1.38,184.0,batter,,Joey Wendle,2020,batter,74,232,-158,False,war_delta
+547943,0.18,0.008,286,2.89,,pitcher,67.0,Hyun Jin Ryu,2020,pitcher,3,159,-156,True,war_delta
+657656,-0.3,-0.0149,249,1.43,222.0,batter,,Ramón Laureano,2020,batter,68,220,-152,False,war_delta
+543939,-0.39,-0.0224,219,1.26,208.0,batter,,Kolten Wong,2020,batter,84,235,-151,False,war_delta
+641487,-0.23,-0.0127,230,1.58,232.0,batter,,J. P. Crawford,2020,batter,57,202,-145,False,war_delta
+571448,-0.25,-0.0161,198,1.45,201.0,batter,,Nolan Arenado,2020,batter,65,208,-143,False,war_delta
+595879,-0.94,-0.0489,240,0.68,235.0,batter,,Javier Báez,2020,batter,158,300,-142,False,war_delta
+666200,-0.31,-0.0138,278,0.74,,pitcher,59.0,Jesús Luzardo,2020,pitcher,107,248,-141,True,war_delta
+609275,-0.36,-0.0195,230,1.25,233.0,batter,,Adalberto Mondesí,2020,batter,87,228,-141,True,war_delta
+445213,0.05,0.0052,110,1.29,,pitcher,24.333333333333332,Brandon Kintzler,2020,pitcher,43,180,-137,True,war_delta
+547888,-0.32,-0.0171,236,0.71,,pitcher,48.0,Masahiro Tanaka,2020,pitcher,115,251,-136,,no_2026_record

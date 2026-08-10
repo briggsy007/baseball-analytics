@@ -1,0 +1,26 @@
+player_id,position_type,war_agg,vol_agg,causal_war,point_estimate_per_pa,pa,war_f,name,_rank_group,adjusted_war_v3,rank_trad,rank_model,rank_diff,hit,basis
+665926,batter,9.01,1249.0,-1.98,-0.0195,1268,1.1,Andrés Giménez,batter,-1.425500184267032,22,494,-472,True,war_agg_half
+662139,batter,8.42,1094.0,-1.85,-0.0213,1085,2.77,Daulton Varsho,batter,-1.4031697039278674,27,493,-466,True,war_agg_half
+676664,pitcher,5.15,353.0,-0.79,-0.0066,1488,0.68,JP Sears,pitcher,-0.6383108990284556,36,501,-465,True,war_agg_half
+678394,pitcher,4.32,319.33333333333337,-1.19,-0.0109,1367,2.31,Brayan Bello,pitcher,-0.7223256086014802,52,516,-464,False,war_agg_half
+656427,pitcher,4.1,306.33333333333337,-0.32,-0.0029,1384,0.86,Jack Flaherty,pitcher,-0.7390053595238208,60,521,-461,True,war_agg_half
+683011,batter,6.74,1290.0,-2.47,-0.0231,1338,1.62,Anthony Volpe,batter,-1.6208443526072518,48,508,-460,True,war_agg_half
+668930,batter,6.27,1067.0,-2.92,-0.0342,1066,5.61,Brice Turang,batter,-2.1235806921772915,62,520,-458,False,war_agg_half
+668933,pitcher,2.84,223.0,-1.95,-0.0252,967,0.24,Graham Ashcraft,pitcher,-1.092399494753261,107,560,-453,True,war_agg_half
+678662,batter,6.0600000000000005,1310.0,-0.56,-0.0054,1289,0.58,Ezequiel Tovar,batter,-1.8047947952221386,66,515,-449,True,war_agg_half
+665871,pitcher,3.7299999999999995,256.3333333333333,0.18,0.0021,1080,0.39,Javier Assad,pitcher,-0.6488923547408504,71,506,-435,True,war_agg_half
+681082,batter,6.62,1211.0,-0.65,-0.0065,1265,2.23,Bryson Stott,batter,-1.3555166591232033,52,485,-433,True,war_agg_half
+657376,pitcher,2.5999999999999996,244.33333333333331,-0.61,-0.007,1094,1.73,Clarke Schmidt,pitcher,-0.9308249166092976,122,546,-424,False,war_agg_half
+686668,batter,4.7,1034.0,-1.53,-0.0187,1023,0.15,Brenton Doyle,batter,-2.1333030633766166,101,522,-421,True,war_agg_half
+592866,pitcher,2.29,211.0,-1.56,-0.0214,913,-0.59,Trevor Williams,pitcher,-1.1503516415098098,145,563,-418,True,war_agg_half
+641680,batter,4.45,992.0,-2.68,-0.0319,1051,0.37,Jonah Heim,batter,-2.081762336002316,108,519,-411,True,war_agg_half
+621112,pitcher,2.02,179.0,-1.01,-0.0162,778,-0.52,Paul Blackburn,pitcher,-1.199835081842436,161,568,-407,True,war_agg_half
+656629,pitcher,1.9700000000000002,197.0,-1.18,-0.0163,905,0.22,Michael Kopech,pitcher,-1.2952304537451123,165,572,-407,True,war_agg_half
+656288,pitcher,2.21,298.66666666666663,-0.65,-0.0065,1247,1.11,Griffin Canning,pitcher,-1.0247749661275773,149,552,-403,False,war_agg_half
+615698,pitcher,1.76,248.0,-2.6,-0.0297,1094,-0.6,Cal Quantrill,pitcher,-1.659590557832341,192,587,-395,True,war_agg_half
+663903,pitcher,3.18,339.3333333333333,-1.02,-0.0087,1452,3.1,Brady Singer,pitcher,-0.5605898177904621,88,482,-394,False,war_agg_half
+450203,pitcher,4.09,328.6666666666667,-0.41,-0.0036,1407,-0.77,Charlie Morton,pitcher,-0.4448072042855843,61,455,-394,True,war_agg_half
+680686,pitcher,2.5,167.33333333333334,-0.94,-0.0159,740,,Josiah Gray,pitcher,-0.745404430996105,131,522,-391,,exit_no_followup_row
+669022,pitcher,2.7399999999999998,302.6666666666667,-1.53,-0.0147,1307,2.98,MacKenzie Gore,pitcher,-0.6202600296645853,113,499,-386,False,war_agg_half
+641857,batter,5.26,1272.0,0.48,0.0048,1253,2.26,Ryan McMahon,batter,-1.1517136407867172,84,467,-383,True,war_agg_half
+573186,pitcher,1.87,291.3333333333333,-0.53,-0.0055,1220,-0.36,Marcus Stroman,pitcher,-1.0523667612326193,178,555,-377,True,war_agg_half

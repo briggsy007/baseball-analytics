@@ -1,0 +1,26 @@
+player_id,causal_war,point_estimate_per_pa,pa,trad_war,pa_total,position,ip_total,name,baseline_year,_rank_group,proj_woba,rank_trad,rank_model,rank_diff,hit,basis
+660670,0.29,0.0164,221,0.02,222.0,batter,,Ronald Acuña,2024,batter,0.3836285008871568,337,119,218,True,war_delta
+605137,0.0,0.0,599,-0.30000000000000004,603.0,batter,,Josh Bell,2024,batter,0.33473611050635826,378,163,215,True,war_delta
+656248,-0.2,-0.0233,107,-0.59,108.0,batter,,Sean Bouchard,2024,batter,0.3422452846828459,413,200,213,False,war_delta
+668885,-0.37,-0.018,255,-0.98,257.0,batter,,Austin Martin,2024,batter,0.31852360776185124,436,231,205,True,war_delta
+656976,0.77,0.0606,158,0.61,158.0,batter,,Pavin Smith,2024,batter,0.3280376309166885,267,70,197,False,war_delta
+592178,-0.38,-0.0308,155,-0.79,155.0,batter,,Kris Bryant,2024,batter,0.31803622739644294,425,233,192,True,war_delta
+519317,0.96,0.0233,515,0.8,459.0,batter,,Giancarlo Stanton,2024,batter,0.3243367024830948,240,55,185,True,war_delta
+621466,-0.44,-0.0287,193,-0.78,194.0,batter,,DJ Stewart,2024,batter,0.3223225395221158,424,246,178,,no_2026_record
+656541,0.3,0.0244,152,0.41,158.0,batter,,Sam Hilliard,2024,batter,0.31401883265476316,294,116,178,False,war_delta
+592206,0.47,0.0088,672,0.58,659.0,batter,,Nick Castellanos,2024,batter,0.32692643053493786,272,99,173,False,war_delta
+453568,0.34,0.0086,495,0.5,499.0,batter,,Charlie Blackmon,2024,batter,0.3246283709861876,283,112,171,,no_2026_record
+605361,-0.3,-0.0231,163,-0.36,163.0,batter,,Nick Martini,2024,batter,0.3185594545544922,384,217,167,True,war_delta
+669234,-0.4,-0.0206,241,-0.49,230.0,batter,,Justyn-Henry Malloy,2024,batter,0.3202367032746487,401,239,162,True,war_delta
+572761,-0.15,-0.0119,155,-0.08,157.0,batter,,Matt Carpenter,2024,batter,0.3228431852138613,348,187,161,,no_2026_record
+671213,0.46,0.0241,238,0.66,243.0,batter,,Triston Casas,2024,batter,0.36175529199891165,259,100,159,False,war_delta
+643265,-0.57,-0.0618,116,-0.79,116.0,batter,,Garrett Cooper,2024,batter,0.31187370281823384,425,268,157,,no_2026_record
+642708,-0.16,-0.0059,346,-0.04999999999999993,346.0,batter,,Amed Rosario,2024,batter,0.31875592210153186,346,192,154,True,war_delta
+681146,0.73,0.0335,271,0.89,272.0,batter,,Jonah Bride,2024,batter,0.3187494533651423,227,74,153,False,war_delta
+666135,-0.48,-0.0342,177,-0.56,178.0,batter,,Alex Kirilloff,2024,batter,0.3216314228266695,407,254,153,,no_2026_record
+656537,-0.13,-0.0095,170,0.08,172.0,batter,,Derek Hill,2024,batter,0.303278842507204,334,182,152,True,war_delta
+624585,1.06,0.0228,581,1.09,574.0,batter,,Jorge Soler,2024,batter,0.3405678449913391,203,51,152,False,war_delta
+666134,-0.61,-0.0259,294,-0.8,297.0,batter,,Nolan Jones,2024,batter,0.3490605139402304,428,277,151,False,war_delta
+677008,0.09,0.0101,114,0.38,114.0,batter,,Heston Kjerstad,2024,batter,0.33225352410889863,296,145,151,False,war_delta
+608701,0.78,0.0322,304,0.94,307.0,batter,,Rob Refsnyder,2024,batter,0.3408517263206714,219,69,150,True,war_delta
+680118,-0.11,-0.0106,131,0.1,132.0,batter,,Dairon Blanco,2024,batter,0.3272669657537389,329,180,149,False,war_delta

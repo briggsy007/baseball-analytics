@@ -1,0 +1,279 @@
+{
+  "run_utc": "2026-08-10T16:08:54.673468+00:00",
+  "convention": "frozen resolution spec section 5.3 (2026-08-10, commit 912ede6): Buy-Low exit = MISS; Over-Valued exit = VOID (never HIT, never MISS); per-protocol reported alongside, never as headline",
+  "windows": [
+    {
+      "config": "single_season",
+      "baseline_year": 2022,
+      "followup_year": 2023,
+      "nuisance": "frozen 2015-2022 checkpoint (2022 baseline lightly in-sample)",
+      "buy_low": {
+        "side": "buy_low",
+        "n_leaderboard": 25,
+        "hits": 20,
+        "resolved_misses": 4,
+        "exits_unresolved": 1,
+        "itt": {
+          "rate": 0.8,
+          "numerator": 20,
+          "denominator": 25,
+          "voids_excluded": 0,
+          "ci95_bootstrap": [
+            0.64,
+            0.96
+          ],
+          "convention": "exit=MISS (denominator 25)"
+        },
+        "worst_case_rate": 0.8,
+        "per_protocol": {
+          "rate": 0.8333,
+          "numerator": 20,
+          "denominator": 24
+        },
+        "exit_basis_breakdown": {
+          "no_2026_record": 1
+        },
+        "exit_names": [
+          "Jake Odorizzi"
+        ]
+      },
+      "over_valued": {
+        "side": "over_valued",
+        "n_leaderboard": 25,
+        "hits": 20,
+        "resolved_misses": 5,
+        "exits_unresolved": 0,
+        "itt": {
+          "rate": 0.8,
+          "numerator": 20,
+          "denominator": 25,
+          "voids_excluded": 0,
+          "ci95_bootstrap": [
+            0.64,
+            0.96
+          ],
+          "convention": "exit=VOID (excluded, disclosed)"
+        },
+        "worst_case_rate": 0.8,
+        "per_protocol": {
+          "rate": 0.8,
+          "numerator": 20,
+          "denominator": 25
+        },
+        "exit_basis_breakdown": {},
+        "exit_names": []
+      }
+    },
+    {
+      "config": "single_season",
+      "baseline_year": 2023,
+      "followup_year": 2024,
+      "nuisance": "frozen 2015-2022 checkpoint (fully OOS)",
+      "buy_low": {
+        "side": "buy_low",
+        "n_leaderboard": 25,
+        "hits": 14,
+        "resolved_misses": 8,
+        "exits_unresolved": 3,
+        "itt": {
+          "rate": 0.56,
+          "numerator": 14,
+          "denominator": 25,
+          "voids_excluded": 0,
+          "ci95_bootstrap": [
+            0.36,
+            0.76
+          ],
+          "convention": "exit=MISS (denominator 25)"
+        },
+        "worst_case_rate": 0.56,
+        "per_protocol": {
+          "rate": 0.6364,
+          "numerator": 14,
+          "denominator": 22
+        },
+        "exit_basis_breakdown": {
+          "no_2026_record": 3
+        },
+        "exit_names": [
+          "Tony Gonsolin",
+          "Jovani Mor\u00e1n",
+          "Drew Carlton"
+        ]
+      },
+      "over_valued": {
+        "side": "over_valued",
+        "n_leaderboard": 25,
+        "hits": 14,
+        "resolved_misses": 9,
+        "exits_unresolved": 2,
+        "itt": {
+          "rate": 0.6087,
+          "numerator": 14,
+          "denominator": 23,
+          "voids_excluded": 2,
+          "ci95_bootstrap": [
+            0.3913,
+            0.7826
+          ],
+          "convention": "exit=VOID (excluded, disclosed)"
+        },
+        "worst_case_rate": 0.56,
+        "per_protocol": {
+          "rate": 0.6087,
+          "numerator": 14,
+          "denominator": 23
+        },
+        "exit_basis_breakdown": {
+          "no_2026_record": 2
+        },
+        "exit_names": [
+          "Lucas Giolito",
+          "Zack Greinke"
+        ]
+      }
+    },
+    {
+      "config": "single_season",
+      "baseline_year": 2024,
+      "followup_year": 2025,
+      "nuisance": "frozen 2015-2022 checkpoint (fully OOS)",
+      "buy_low": {
+        "side": "buy_low",
+        "n_leaderboard": 25,
+        "hits": 18,
+        "resolved_misses": 4,
+        "exits_unresolved": 3,
+        "itt": {
+          "rate": 0.72,
+          "numerator": 18,
+          "denominator": 25,
+          "voids_excluded": 0,
+          "ci95_bootstrap": [
+            0.52,
+            0.88
+          ],
+          "convention": "exit=MISS (denominator 25)"
+        },
+        "worst_case_rate": 0.72,
+        "per_protocol": {
+          "rate": 0.8182,
+          "numerator": 18,
+          "denominator": 22
+        },
+        "exit_basis_breakdown": {
+          "no_2026_record": 3
+        },
+        "exit_names": [
+          "Austin Voth",
+          "Michael Grove",
+          "DJ Stewart"
+        ]
+      },
+      "over_valued": {
+        "side": "over_valued",
+        "n_leaderboard": 25,
+        "hits": 19,
+        "resolved_misses": 6,
+        "exits_unresolved": 0,
+        "itt": {
+          "rate": 0.76,
+          "numerator": 19,
+          "denominator": 25,
+          "voids_excluded": 0,
+          "ci95_bootstrap": [
+            0.56,
+            0.92
+          ],
+          "convention": "exit=VOID (excluded, disclosed)"
+        },
+        "worst_case_rate": 0.76,
+        "per_protocol": {
+          "rate": 0.76,
+          "numerator": 19,
+          "denominator": 25
+        },
+        "exit_basis_breakdown": {},
+        "exit_names": []
+      }
+    },
+    {
+      "config": "two_year_aggregate_2023_24_to_2025",
+      "baseline_years": [
+        2023,
+        2024
+      ],
+      "followup_year": 2025,
+      "source": "hit_rates_reproduction.json (row-level reproduction of causal_war_baseline_comparison_2023_2024.csv, v1 pin)",
+      "nuisance": "frozen 2015-2022 checkpoint (fully OOS for 2023-24 baselines)",
+      "buy_low": {
+        "side": "buy_low",
+        "n_leaderboard": 25,
+        "hits": 13,
+        "resolved_misses": 6,
+        "exits_unresolved": 6,
+        "itt": {
+          "rate": 0.52,
+          "numerator": 13,
+          "denominator": 25,
+          "voids_excluded": 0,
+          "ci95_bootstrap": [
+            0.32,
+            0.68
+          ],
+          "convention": "exit=MISS (denominator 25)"
+        },
+        "worst_case_rate": 0.52,
+        "per_protocol": {
+          "rate": 0.6842,
+          "numerator": 13,
+          "denominator": 19
+        },
+        "exit_names": [
+          "Josh Sborz",
+          "Will Smith",
+          "Austin Voth",
+          "Yency Almonte",
+          "Cody Bradford",
+          "Victor Gonz\u00e1lez"
+        ],
+        "marquee_per_protocol_check": {
+          "expected": "13/19 = 68.4%",
+          "recomputed": "13/19"
+        }
+      },
+      "over_valued": {
+        "side": "over_valued",
+        "n_leaderboard": 25,
+        "hits": 14,
+        "resolved_misses": 9,
+        "exits_unresolved": 2,
+        "itt": {
+          "rate": 0.6087,
+          "numerator": 14,
+          "denominator": 23,
+          "voids_excluded": 2,
+          "ci95_bootstrap": [
+            0.4348,
+            0.8261
+          ],
+          "convention": "exit=VOID (excluded, disclosed)"
+        },
+        "worst_case_rate": 0.56,
+        "per_protocol": {
+          "rate": 0.6087,
+          "numerator": 14,
+          "denominator": 23
+        },
+        "exit_names": [
+          "Josiah Gray",
+          "Alex Cobb"
+        ],
+        "marquee_per_protocol_check": {
+          "expected": "14/23 = 60.9%",
+          "recomputed": "14/23"
+        }
+      }
+    }
+  ]
+}

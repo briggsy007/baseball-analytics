@@ -1,0 +1,26 @@
+player_id,causal_war,point_estimate_per_pa,pa,trad_war,pa_total,position,ip_total,name,baseline_year,_rank_group,proj_woba,rank_trad,rank_model,rank_diff,hit,basis
+605137,0.4,0.0364,137,-0.79,152.0,batter,,Josh Bell,2016,batter,0.35083732085034003,409,75,334,True,war_delta
+457705,1.11,0.0214,649,-0.36,675.0,batter,,Andrew McCutchen,2016,batter,0.3543796201852066,374,55,319,True,war_delta
+630111,1.71,0.0384,555,-0.85,563.0,batter,,Yasmany Tomás,2016,batter,0.3437957896894683,415,103,312,True,war_delta
+570267,0.87,0.0389,278,-0.19,281.0,batter,,Domingo Santana,2016,batter,0.352465763857998,355,65,290,True,war_delta
+592273,1.54,0.0397,486,-0.09,499.0,batter,,Brandon Drury,2016,batter,0.3517267411695666,345,71,274,True,war_delta
+593934,0.86,0.0223,485,0.27,495.0,batter,,Miguel Sanó,2016,batter,0.36593877599466107,302,30,272,True,war_delta
+433217,0.08,0.0046,207,-0.44,209.0,batter,,Andrés Blanco,2016,batter,0.3406272845700196,382,119,263,True,war_delta
+592620,0.37,0.0309,148,0.16,151.0,batter,,Jarrett Parker,2016,batter,0.3525901079012753,320,64,256,True,war_delta
+425902,-0.73,-0.0252,363,-1.6,370.0,batter,,Prince Fielder,2016,batter,0.3308865508989969,434,191,243,,no_2026_record
+543257,1.63,0.0528,386,0.28,389.0,batter,,Robbie Grossman,2016,batter,0.3542700936365138,295,56,239,True,war_delta
+624585,0.58,0.0264,274,0.17,264.0,batter,,Jorge Soler,2016,batter,0.34817174862015615,317,84,233,False,war_delta
+502054,0.16,0.0112,181,-0.27,183.0,batter,,Tommy Pham,2016,batter,0.3383492025166598,364,137,227,True,war_delta
+430605,-0.09,-0.0046,253,-0.59,256.0,batter,,Ryan Raburn,2016,batter,0.33258025962471166,396,180,216,True,war_delta
+460026,0.39,0.016,309,0.06,317.0,batter,,Nick Hundley,2016,batter,0.3418748031446018,327,114,213,True,war_delta
+570615,0.13,0.0158,100,-0.46,100.0,batter,,Steven Moya,2016,batter,0.33319304133384037,386,173,213,,no_2026_record
+624428,0.51,0.0427,148,0.4,160.0,batter,,Adam Frazier,2016,batter,0.3511721827762627,282,73,209,True,war_delta
+425783,0.29,0.0173,209,0.18,210.0,batter,,Shin-Soo Choo,2016,batter,0.34299531473888534,315,107,208,True,war_delta
+444482,-0.16,-0.011,179,0.53,183.0,batter,,David Peralta,2016,batter,0.3537644185563285,262,60,202,True,war_delta
+429711,0.44,0.0197,277,0.42,283.0,batter,,Franklin Gutiérrez,2016,batter,0.34740646519030544,276,87,189,False,war_delta
+446263,-0.04,-0.0027,168,0.02,172.0,batter,,Lucas Duda,2016,batter,0.3376953786296406,331,142,189,True,war_delta
+571830,0.84,0.0307,344,0.47,347.0,batter,,Tommy Joseph,2016,batter,0.34763847706951767,271,86,185,False,war_delta
+608577,0.45,0.0099,571,0.44,568.0,batter,,Nomar Mazara,2016,batter,0.34584046996517936,275,93,182,False,war_delta
+621311,1.01,0.0533,236,0.94,237.0,batter,,David Dahl,2016,batter,0.3652969379875757,213,32,181,,no_2026_record
+407893,-1.3,-0.0375,433,-1.14,438.0,batter,,Mark Teixeira,2016,batter,0.32306490003101557,426,247,179,,no_2026_record
+519208,-0.35,-0.0206,215,-0.63,224.0,batter,,Clint Robinson,2016,batter,0.3262377788236306,399,221,178,,no_2026_record

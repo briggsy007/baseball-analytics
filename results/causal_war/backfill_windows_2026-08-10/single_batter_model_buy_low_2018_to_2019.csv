@@ -1,0 +1,26 @@
+player_id,causal_war,point_estimate_per_pa,pa,trad_war,pa_total,position,ip_total,name,baseline_year,_rank_group,proj_woba,rank_trad,rank_model,rank_diff,hit,basis
+608385,1.11,0.0426,327,0.01,334.0,batter,,Jesse Winker,2018,batter,0.36706164705434136,341,76,265,True,war_delta
+640457,0.32,0.0214,189,-0.32,191.0,batter,,Austin Meadows,2018,batter,0.34311418863974863,381,148,233,True,war_delta
+435622,0.31,0.0061,633,-0.25,619.0,batter,,Ian Desmond,2018,batter,0.32661242672997315,375,152,223,False,war_delta
+518618,0.27,0.0062,547,-0.34,551.0,batter,,Derek Dietrich,2018,batter,0.33908549429311047,384,163,221,True,war_delta
+624585,1.04,0.0506,256,0.31,257.0,batter,,Jorge Soler,2018,batter,0.3400043245887657,300,82,218,True,war_delta
+448602,0.37,0.0196,234,-0.13,235.0,batter,,Mark Reynolds,2018,batter,0.3494781767018671,354,140,214,False,war_delta
+608384,-0.07,-0.002,445,-0.55,448.0,batter,,Nick Williams,2018,batter,0.34503889954023326,401,212,189,False,war_delta
+502517,0.31,0.0112,352,0.030000000000000027,351.0,batter,,Daniel Murphy,2018,batter,0.36904095455685226,337,152,185,True,war_delta
+453568,2.5,0.0442,706,0.97,696.0,batter,,Charlie Blackmon,2018,batter,0.3857629205100982,213,29,184,True,war_delta
+408234,0.47,0.0386,153,0.33,157.0,batter,,Miguel Cabrera,2018,batter,0.3508410681633746,298,130,168,False,war_delta
+640447,-0.19,-0.0094,246,-0.54,247.0,batter,,Phil Ervin,2018,batter,0.32969242323027675,400,238,162,True,war_delta
+656555,2.32,0.0444,655,1.19,660.0,batter,,Rhys Hoskins,2018,batter,0.3772189028608584,194,34,160,True,war_delta
+605508,-0.3,-0.0321,117,-0.84,121.0,batter,,Charlie Tilson,2018,batter,0.32061149248605986,423,265,158,True,war_delta
+435062,0.33,0.0258,159,0.3,160.0,batter,,Howie Kendrick,2018,batter,0.3327322112800166,301,144,157,True,war_delta
+650490,0.3,0.0309,122,0.25,120.0,batter,,Yandy Díaz,2018,batter,0.33856048249708837,306,154,152,True,war_delta
+622168,0.4,0.0156,321,0.4,329.0,batter,,Yairo Muñoz,2018,batter,0.3443563919356721,287,136,151,False,war_delta
+596748,0.3,0.0082,455,0.26,465.0,batter,,Maikel Franco,2018,batter,0.3242404167054772,304,154,150,False,war_delta
+614173,0.07,0.0065,141,0.0,154.0,batter,,Franchy Cordero,2018,batter,0.3331841767982291,343,194,149,True,war_delta
+434670,0.13,0.0081,195,0.08,195.0,batter,,Hanley Ramírez,2018,batter,0.34098791715274623,329,183,146,False,war_delta
+605137,0.76,0.0165,578,0.66,583.0,batter,,Josh Bell,2018,batter,0.35245878267794967,247,104,143,True,war_delta
+656811,0.96,0.0705,170,0.84,170.0,batter,,Ryan O'Hearn,2018,batter,0.3620872437345863,227,87,140,False,war_delta
+571718,-0.07,-0.0049,178,-0.04000000000000001,180.0,batter,,Brian Goodwin,2018,batter,0.336584660300646,350,212,138,True,war_delta
+547180,3.06,0.0566,677,1.74,695.0,batter,,Bryce Harper,2018,batter,0.3822245523049226,150,14,136,True,war_delta
+641856,0.11,0.0108,132,0.16999999999999998,132.0,batter,,Billy McKinney,2018,batter,0.3389262246504193,320,186,134,True,war_delta
+641432,-0.41,-0.0472,108,-0.7,108.0,batter,,Willie Calhoun,2018,batter,0.3241021979100646,410,279,131,True,war_delta

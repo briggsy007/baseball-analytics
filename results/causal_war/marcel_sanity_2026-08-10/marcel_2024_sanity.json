@@ -1,0 +1,44 @@
+{
+  "run_utc": "2026-08-10T16:07:36.424642+00:00",
+  "target_season": 2024,
+  "lag_seasons": [
+    2021,
+    2022,
+    2023
+  ],
+  "naive_forecast": {
+    "definition": "constant = 2023 PA-weighted league wOBA (most recent completed season)",
+    "value": 0.328953
+  },
+  "woba_source": "pitches SUM(woba_value)/SUM(woba_denom) per batter-season (season_batting_stats.woba is 100% NULL, verified 2026-08-10); PA from season_batting_stats.pa",
+  "n_projected": 1334,
+  "n_overlap_with_2024": 542,
+  "n_age_unknown_in_pool": 0,
+  "floors": {
+    "pa_ge_502": {
+      "n_batters": 130,
+      "rmse_marcel": 0.026672,
+      "rmse_naive_league": 0.03417,
+      "marcel_minus_naive": -0.007497,
+      "mean_abs_err_marcel": 0.021574,
+      "mean_signed_err_marcel": 0.002527
+    },
+    "pa_ge_300": {
+      "n_batters": 282,
+      "rmse_marcel": 0.029615,
+      "rmse_naive_league": 0.034123,
+      "marcel_minus_naive": -0.004509,
+      "mean_abs_err_marcel": 0.023472,
+      "mean_signed_err_marcel": 0.007138
+    },
+    "pa_ge_100": {
+      "n_batters": 417,
+      "rmse_marcel": 0.034038,
+      "rmse_naive_league": 0.038046,
+      "marcel_minus_naive": -0.004007,
+      "mean_abs_err_marcel": 0.026647,
+      "mean_signed_err_marcel": 0.010338
+    }
+  },
+  "dataset": "in-sample-free: projection inputs are 2021-2023 only; 2024 outcomes are OOS relative to every Marcel input"
+}

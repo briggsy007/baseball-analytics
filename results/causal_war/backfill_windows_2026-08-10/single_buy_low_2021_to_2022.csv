@@ -1,0 +1,26 @@
+player_id,causal_war,point_estimate_per_pa,pa,trad_war,pa_total,position,ip_total,name,baseline_year,_rank_group,rank_trad,rank_model,rank_diff,hit,basis
+642232,0.09,0.0018,647,-1.04,,pitcher,155.0,Ryan Yarbrough,2021,pitcher,545,287,258,True,war_delta
+676879,0.39,0.0333,148,-0.33,,pitcher,31.666666666666668,Aaron Ashby,2021,pitcher,462,206,256,False,war_delta
+548384,0.32,0.017,233,-0.44,,pitcher,49.0,Brooks Raley,2021,pitcher,486,231,255,True,war_delta
+669952,0.48,0.0312,194,-0.22,,pitcher,46.666666666666664,Mitch White,2021,pitcher,436,181,255,False,war_delta
+593372,-0.02,-0.0006,358,-1.25,,pitcher,82.33333333333333,Carlos Martínez,2021,pitcher,558,320,238,,no_2026_record
+670370,0.02,0.0019,104,-0.74,104.0,batter,,Andrew Young,2021,batter,432,194,238,,no_2026_record
+643316,0.14,0.0081,213,-0.59,,pitcher,47.333333333333336,Paul Fry,2021,pitcher,508,274,234,True,war_delta
+664854,0.42,0.0258,203,-0.21,,pitcher,47.333333333333336,Ryan Helsley,2021,pitcher,432,198,234,True,war_delta
+676596,0.13,0.0037,446,-0.55,,pitcher,104.33333333333333,Josh Fleming,2021,pitcher,501,277,224,False,war_delta
+500610,0.8,0.0373,268,0.18,,pitcher,65.66666666666667,Deolis Guerra,2021,pitcher,341,124,217,,no_2026_record
+624585,0.79,0.0155,635,0.08999999999999986,602.0,batter,,Jorge Soler,2021,batter,318,101,217,True,war_delta
+592773,1.27,0.0494,321,0.48,,pitcher,68.33333333333333,Ryne Stanek,2021,pitcher,273,66,207,True,war_delta
+650893,0.78,0.0337,289,0.23,,pitcher,70.0,Génesis Cabrera,2021,pitcher,330,127,203,False,war_delta
+660896,0.87,0.0482,226,0.29,,pitcher,59.666666666666664,Jorge Alcalá,2021,pitcher,317,116,201,False,war_delta
+657757,0.49,0.032,191,0.06,179.0,batter,,Gavin Sheets,2021,batter,322,126,196,False,war_delta
+592390,0.2,0.0102,241,-0.3,,pitcher,58.0,Heath Hembree,2021,pitcher,453,260,193,False,war_delta
+621345,0.69,0.0322,268,0.23,,pitcher,52.333333333333336,A. J. Minter,2021,pitcher,330,143,187,True,war_delta
+642701,0.32,0.0171,234,-0.13,,pitcher,54.666666666666664,Dennis Santana,2021,pitcher,416,231,185,False,war_delta
+543272,0.15,0.0069,271,-0.29999999999999993,,pitcher,64.66666666666666,Brad Hand,2021,pitcher,452,269,183,True,war_delta
+660813,0.48,0.0342,176,0.08,,pitcher,33.333333333333336,Brusdar Graterol,2021,pitcher,364,181,183,True,war_delta
+571945,0.36,0.0245,184,-0.03,,pitcher,44.666666666666664,Miles Mikolas,2021,pitcher,397,217,180,True,war_delta
+605538,0.48,0.0298,203,0.10999999999999999,,pitcher,48.666666666666664,Matt Wisler,2021,pitcher,360,181,179,True,war_delta
+501659,-0.21,-0.0149,174,-0.66,175.0,batter,,Abraham Almonte,2021,batter,421,243,178,True,war_delta
+592858,0.37,0.0467,100,-0.01,,pitcher,23.0,Rowan Wick,2021,pitcher,388,213,175,True,war_delta
+667297,-0.09,-0.0086,127,-0.65,,pitcher,28.666666666666668,Tommy Nance,2021,pitcher,514,339,175,True,war_delta

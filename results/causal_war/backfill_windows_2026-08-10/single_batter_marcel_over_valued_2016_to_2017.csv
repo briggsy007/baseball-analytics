@@ -1,0 +1,26 @@
+player_id,causal_war,point_estimate_per_pa,pa,trad_war,pa_total,position,ip_total,name,baseline_year,_rank_group,proj_woba,rank_trad,rank_model,rank_diff,hit,basis
+571740,-1.0,-0.029,431,3.07,460.0,batter,,Billy Hamilton,2016,batter,0.2949597671522832,71,410,-339,True,war_delta
+607680,-1.22,-0.0253,603,3.52,584.0,batter,,Kevin Pillar,2016,batter,0.31129705419626685,56,333,-277,True,war_delta
+424325,-0.02,-0.001,210,1.68,205.0,batter,,David Ross,2016,batter,0.2857439815875965,154,429,-275,,no_2026_record
+429666,0.04,0.0011,438,2.14,438.0,batter,,J. J. Hardy,2016,batter,0.29929929553633716,123,395,-272,True,war_delta
+400085,0.22,0.0078,358,1.64,365.0,batter,,Ichiro Suzuki,2016,batter,0.28954415066753647,160,427,-267,True,war_delta
+592743,-0.04,-0.001,475,4.45,483.0,batter,,Andrelton Simmons,2016,batter,0.3172147209257299,39,295,-256,False,war_delta
+572287,0.44,0.0289,191,1.76,192.0,batter,,Mike Zunino,2016,batter,0.29948110381619364,142,393,-251,False,war_delta
+434563,0.29,0.0149,242,1.81,233.0,batter,,Carlos Ruiz,2016,batter,0.3022856393814302,138,382,-244,True,war_delta
+502481,-0.26,-0.0103,311,2.84,337.0,batter,,Jarrod Dyson,2016,batter,0.31181215810687385,88,330,-242,True,war_delta
+545350,-0.96,-0.04,301,1.71,311.0,batter,,Jake Marisnick,2016,batter,0.30383268646465517,147,376,-229,False,war_delta
+453056,0.06,0.0013,607,2.63,626.0,batter,,Jacoby Ellsbury,2016,batter,0.3142396224879275,94,320,-226,True,war_delta
+588751,-1.78,-0.0426,521,1.18,547.0,batter,,Adeiny Hechavarría,2016,batter,0.2945376890877871,193,414,-221,True,war_delta
+547982,-0.85,-0.019,559,1.2,576.0,batter,,Leonys Martín,2016,batter,0.29585714511666195,191,406,-215,True,war_delta
+457787,-1.53,-0.0334,573,1.7,601.0,batter,,Danny Espinosa,2016,batter,0.3059370274236083,150,364,-214,True,war_delta
+400284,-0.35,-0.0075,587,1.31,565.0,batter,,Chase Utley,2016,batter,0.3004950901088916,181,389,-208,True,war_delta
+434636,0.3,0.007,536,1.71,543.0,batter,,Ángel Pagán,2016,batter,0.3080188282588761,147,355,-208,,no_2026_record
+573135,0.25,0.0103,308,1.99,319.0,batter,,Tyler Saladino,2016,batter,0.31182131944961755,130,329,-199,True,war_delta
+543063,0.09,0.0019,611,5.51,623.0,batter,,Brandon Crawford,2016,batter,0.3268389815718061,19,217,-198,True,war_delta
+425784,-0.64,-0.0387,205,0.74,207.0,batter,,René Rivera,2016,batter,0.2689810938635947,242,438,-196,True,war_delta
+452104,-0.17,-0.004,523,2.49,529.0,batter,,Chase Headley,2016,batter,0.31682116815718303,102,296,-194,True,war_delta
+431094,0.02,0.0005,420,1.46,429.0,batter,,Aaron Hill,2016,batter,0.30768829717698665,169,359,-190,True,war_delta
+446308,-0.69,-0.0187,459,1.96,464.0,batter,,Matt Wieters,2016,batter,0.3142648909397159,132,319,-187,True,war_delta
+520471,-1.91,-0.0399,597,0.93,624.0,batter,,Freddy Galvis,2016,batter,0.29851186998846874,216,398,-182,False,war_delta
+425877,1.47,0.0321,574,2.92,581.0,batter,,Yadier Molina,2016,batter,0.3208697971301252,80,261,-181,True,war_delta
+488771,-0.43,-0.0144,372,0.94,376.0,batter,,Jason Castro,2016,batter,0.29968795950350763,213,392,-179,False,war_delta

@@ -1275,13 +1275,23 @@ def train_pitchgpt(
     max_seq_len: int = DEFAULT_MAX_SEQ,
     version: str = "1",
     max_games: int = 3000,
+    allow_holdout_val: bool = False,
 ) -> dict:
     """Train PitchGPT end-to-end.
 
     Args:
         conn: DuckDB connection.
         seasons: Training seasons (default 2015-2024).
-        val_seasons: Validation seasons (default [2025, 2026]).
+        val_seasons: Validation seasons (default ``[2024]`` — the burned dev
+            tier).  **Phase 0.6.2 §10.A5 (2026-08-10):** the legacy default
+            ``[2025, 2026]`` was a holdout landmine — 2025 is the budgeted
+            validation tier and 2026 the sealed lockbox
+            (``docs/holdout_ledger.jsonl``).  Passing 2025 or 2026 now
+            requires ``allow_holdout_val=True``, and any evaluation contact
+            remains subject to the ledger.
+        allow_holdout_val: Explicit opt-in to validate on 2025/2026.
+            Default False raises ``ValueError`` if ``val_seasons`` touches
+            a holdout season.
         epochs: Training epochs.
         batch_size: Mini-batch size.
         lr: Learning rate.
@@ -1300,7 +1310,18 @@ def train_pitchgpt(
     if seasons is None:
         seasons = list(range(2015, 2025))
     if val_seasons is None:
-        val_seasons = [2025, 2026]
+        # Phase 0.6.2 §10.A5: dev-safe default (2024 = burned dev tier).
+        # The legacy [2025, 2026] default silently spent holdout contacts.
+        val_seasons = [2024]
+    holdout_touched = sorted({int(s) for s in val_seasons} & {2025, 2026})
+    if holdout_touched and not allow_holdout_val:
+        raise ValueError(
+            f"train_pitchgpt: val_seasons={list(val_seasons)} touches "
+            f"registered holdout season(s) {holdout_touched} (2025 = "
+            "budgeted tier, 2026 = sealed lockbox; docs/holdout_ledger.jsonl)."
+            "  Pass allow_holdout_val=True ONLY for a pre-registered, "
+            "ledger-logged contact (src.holdout)."
+        )
 
     device = _get_device()
 

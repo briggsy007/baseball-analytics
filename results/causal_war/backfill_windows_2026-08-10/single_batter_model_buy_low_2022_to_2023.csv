@@ -1,0 +1,26 @@
+player_id,causal_war,point_estimate_per_pa,pa,trad_war,pa_total,position,ip_total,name,baseline_year,_rank_group,proj_woba,rank_trad,rank_model,rank_diff,hit,basis
+683734,0.39,0.009,548,-0.28,555.0,batter,,Andrew Vaughn,2022,batter,0.33853694947624463,390,93,297,True,war_delta
+663697,-0.06,-0.0017,426,-0.25,431.0,batter,,Jonathan India,2022,batter,0.35326904280170823,385,162,223,True,war_delta
+613564,0.2,0.0222,110,0.07,111.0,batter,,Jason Vosler,2022,batter,0.320558039966166,337,119,218,False,war_delta
+571875,-0.06,-0.0067,111,-0.16,111.0,batter,,Jake Lamb,2022,batter,0.3153122982706367,374,162,212,True,war_delta
+676369,-0.39,-0.0244,202,-0.63,206.0,batter,,Nelson Velázquez,2022,batter,0.32024372210144536,423,211,212,True,war_delta
+680814,-0.25,-0.0312,102,-0.35,102.0,batter,,Peyton Burdick,2022,batter,0.3176163165728685,398,189,209,True,war_delta
+658668,0.06,0.0043,173,0.07,174.0,batter,,Edward Olivares,2022,batter,0.3243083391161989,337,140,197,True,war_delta
+666135,-0.4,-0.0324,156,-0.44,156.0,batter,,Alex Kirilloff,2022,batter,0.32396509974779975,407,213,194,True,war_delta
+669394,-0.06,-0.0043,179,-0.02,183.0,batter,,Jake Burger,2022,batter,0.331479798112017,356,162,194,True,war_delta
+660766,0.24,0.0108,279,0.35,274.0,batter,,Juan Yepez,2022,batter,0.3366149895436839,302,110,192,False,war_delta
+641584,0.41,0.0213,243,0.5,247.0,batter,,Jake Fraley,2022,batter,0.33695392590879547,278,92,186,True,war_delta
+592178,0.73,0.0502,181,0.65,181.0,batter,,Kris Bryant,2022,batter,0.3562364357220051,261,75,186,False,war_delta
+664247,0.08,0.0061,162,0.25,162.0,batter,,Kyle Garlick,2022,batter,0.32160430529298534,317,135,182,False,war_delta
+592567,-0.37,-0.0367,127,-0.29,128.0,batter,,Colin Moran,2022,batter,0.32341996406797613,392,210,182,,no_2026_record
+664731,-0.31,-0.0174,222,-0.15,229.0,batter,,P. J. Higgins,2022,batter,0.30557190613199564,371,195,176,,no_2026_record
+679631,-0.13,-0.0157,102,0.02,103.0,batter,,Terrin Vavra,2022,batter,0.32365393779971596,349,174,175,False,war_delta
+670712,0.23,0.0176,160,0.44,160.0,batter,,Mike Brosseau,2022,batter,0.33232196404204906,286,112,174,False,war_delta
+453568,0.01,0.0001,567,0.18,577.0,batter,,Charlie Blackmon,2022,batter,0.3281313458399499,326,152,174,True,war_delta
+669911,-0.25,-0.0264,120,-0.07,120.0,batter,,Michael Toglia,2022,batter,0.3225687385473653,362,189,173,False,war_delta
+458015,-0.33,-0.0112,372,-0.15,376.0,batter,,Joey Votto,2022,batter,0.3419935878896326,371,199,172,True,war_delta
+681481,0.08,0.009,113,0.34,113.0,batter,,Kerry Carpenter,2022,batter,0.3311717749534736,306,135,171,True,war_delta
+664670,-0.45,-0.0371,152,-0.28,156.0,batter,,Alejo López,2022,batter,0.31107526171213673,390,222,168,True,war_delta
+671221,0.08,0.0096,109,0.35,109.0,batter,,Drew Waters,2022,batter,0.33669804454365376,302,135,167,True,war_delta
+663853,-0.45,-0.0519,108,-0.27,109.0,batter,,Romy Gonzalez,2022,batter,0.3061150598182968,388,222,166,False,war_delta
+676701,-0.04,-0.0037,124,0.19,125.0,batter,,Alan Trejo,2022,batter,0.31974153833526,325,161,164,False,war_delta

@@ -1,0 +1,26 @@
+player_id,causal_war,point_estimate_per_pa,pa,trad_war,pa_total,position,ip_total,name,baseline_year,_rank_group,proj_woba,rank_trad,rank_model,rank_diff,hit,basis
+595281,-1.31,-0.0329,499,2.33,480.0,batter,,Kevin Kiermaier,2019,batter,0.3113517073844107,112,430,-318,True,war_delta
+570560,-1.43,-0.033,543,1.62,555.0,batter,,Yolmer Sánchez,2019,batter,0.3163109912507358,154,438,-284,True,war_delta
+502481,-1.5,-0.0417,448,1.53,452.0,batter,,Jarrod Dyson,2019,batter,0.289655551559033,168,440,-272,True,war_delta
+520471,-0.35,-0.0076,583,3.19,589.0,batter,,Freddy Galvis,2019,batter,0.31643611994104387,75,320,-245,True,war_delta
+609275,-0.63,-0.018,437,2.03,443.0,batter,,Adalberto Mondesí,2019,batter,0.333303987204178,129,369,-240,True,war_delta
+543829,-0.99,-0.0309,400,1.22,421.0,batter,,Dee Strange-Gordon,2019,batter,0.3005636858989328,199,409,-210,True,war_delta
+592743,-0.71,-0.0216,414,1.44,424.0,batter,,Andrelton Simmons,2019,batter,0.32730536527677795,176,385,-209,True,war_delta
+643376,-1.18,-0.0388,382,1.03,384.0,batter,,Danny Jansen,2019,batter,0.317162998368787,215,423,-208,True,war_delta
+503556,-0.42,-0.0111,470,1.96,463.0,batter,,Marwin González,2019,batter,0.3369589491924735,131,335,-204,True,war_delta
+456715,-0.26,-0.0053,618,2.61,623.0,batter,,Lorenzo Cain,2019,batter,0.3422750837380318,101,302,-201,True,war_delta
+544725,-0.9,-0.0185,606,1.17,618.0,batter,,Leury García,2019,batter,0.31946442628368554,203,403,-200,True,war_delta
+571771,-0.41,-0.0111,463,1.88,460.0,batter,,Enrique Hernández,2019,batter,0.32682155731611234,134,334,-200,True,war_delta
+664056,-0.32,-0.0098,405,2.26,406.0,batter,,Harrison Bader,2019,batter,0.33189729591217254,118,317,-199,True,war_delta
+622534,-0.38,-0.0111,434,1.84,441.0,batter,,Manuel Margot,2019,batter,0.32260624932818244,139,328,-189,True,war_delta
+572761,-0.62,-0.0157,497,1.2,492.0,batter,,Matt Carpenter,2019,batter,0.34449604327284994,202,367,-165,True,war_delta
+592261,-0.58,-0.0186,391,1.24,408.0,batter,,Delino DeShields,2019,batter,0.30983078733810043,196,359,-163,True,war_delta
+547172,-0.4,-0.0124,404,1.44,411.0,batter,,Tony Wolters,2019,batter,0.31050635158327694,176,333,-157,True,war_delta
+640461,-0.28,-0.0099,358,1.67,370.0,batter,,Chad Pinder,2019,batter,0.33138372692370105,151,306,-155,True,war_delta
+455117,-0.56,-0.018,388,1.2200000000000002,374.0,batter,,Martín Maldonado,2019,batter,0.29791746672998143,198,353,-155,True,war_delta
+641487,-0.39,-0.0126,389,1.45,396.0,batter,,J. P. Crawford,2019,batter,0.32585733525476085,175,330,-155,False,war_delta
+514917,-0.19,-0.0035,660,1.9,667.0,batter,,César Hernández,2019,batter,0.33652472687720353,133,287,-154,True,war_delta
+543939,0.62,0.0139,556,5.39,549.0,batter,,Kolten Wong,2019,batter,0.33848645646990067,19,171,-152,True,war_delta
+571740,-1.78,-0.065,342,0.36,353.0,batter,,Billy Hamilton,2019,batter,0.2885994143818411,293,445,-152,True,war_delta
+543257,-0.61,-0.0159,480,1.03,482.0,batter,,Robbie Grossman,2019,batter,0.3330812589568721,215,364,-149,False,war_delta
+543228,-0.39,-0.0129,381,1.39,358.0,batter,,Yan Gomes,2019,batter,0.320539588262212,183,330,-147,True,war_delta
