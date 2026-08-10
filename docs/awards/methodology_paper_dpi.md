@@ -4,6 +4,23 @@
 **Date:** 2026-04-18
 **Version:** 1.0 (v2 xOut checkpoint, 2023–2025 external validation)
 
+> **CORRECTION NOTICE (2026-08-10).** This paper is preserved as submitted;
+> a 2026-08-10 adversarial audit (`docs/audits/FLAGSHIP_AUDIT_2026-08-10.md`
+> §1) supersedes several of its claims. Where they conflict, this notice
+> governs. (1) The r = −0.80 BABIP-against tracking quoted in the abstract
+> and §3 is majority circular, not corroboration: DPI's numerator is the
+> team BIP out-rate minus an expectation and BABIP-against is the same
+> out-rate inverted (shared R² 0.43–0.65 by year, by construction). It is
+> not a selling point. The defensible external-signal core is the partial
+> correlation r(DPI, OAA | BABIP-against) = 0.42/0.69/0.54 by year (0.41
+> pooled 2023–25). (2) Any "three-year stability 0.58/0.56/0.64" reading is
+> mislabeled — those are per-year DPI-vs-OAA cross-metric correlations;
+> true YoY stability was measured once (2023→24, r ≈ 0.59). (3) Two CI
+> statements in the companion results doc were factually false and carry a
+> dated erratum (`docs/models/defensive_pressing_results.md`, Erratum
+> 2026-08-10): CI lower bounds 0.307 and 0.42 do NOT clear the 0.45 Gate 6
+> threshold, which was itself set after the first measurement.
+
 ---
 
 ## Abstract

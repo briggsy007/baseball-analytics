@@ -11,7 +11,7 @@ Purpose: keep concurrent Claude sessions aligned. Read this first. Append a sess
 | 0.3 Train outcome head | **COMPLETE 2026-04-26 — A1 ships** | Session A | Plan B closed. A1 (frozen v2 + concat-input 3-layer MLP head, 211→128→64→7) lifts +18.31% over freq prior (CI [+18.10%, +18.53%]); ECE post-T 0.0114; HBP log-loss 3.02 (first variant under PASS <4.0). A1−A3 paired delta +2.48pp (CI [+2.24, +2.72]). Backbone byte-identity verified. Verdict: WEAKER PASS (clears <2.5 in_play_hit, misses full <2.0). See `results/pitchgpt_sim/outcome_baselines_2026_04_25/SUMMARY.md`. |
 | 0.4 Outcome-head OOS validation | Not started, unblocked | unassigned | A1's per-pitcher variance + per-class log-loss already measured during Step 2 (mean ll 1.346, var 0.0010, range [1.27, 1.40] across top-50 pitchers; see `a1_concat/report.md`). The full 0.4 ticket as scoped (per-class confusion + per-class reliability diagrams) remains open as a follow-up but is no longer blocking. |
 | 0.5 Rollout harness `pitchgpt_sim.py` | Not started, unblocked | unassigned | Production OutcomePredictor: PGConcatHeadPredictor at `models/pitchgpt_v2_outcomehead_a1.pt`. See `PHASE_0.5_PLAN.md` (forthcoming). |
-| 0.6 Rollout sanity check | **PARTIAL** — wOBA + PA-length PASS, K%/BB%/HR% FAIL | — | Clean-provenance re-run (HEAD + pos-0 calibration). Static-context drift diagnosed as ~6pp of the +11.6pp K% bias. |
+| 0.6 Rollout sanity check | **PARTIAL** — wOBA + PA-length PASS [TAINTED - pending Phase 0.6.2 re-evaluation (pos-0 calibration was fit on the eval cohort)], K%/BB%/HR% FAIL | — | Clean-provenance re-run (HEAD + pos-0 calibration). Static-context drift diagnosed as ~6pp of the +11.6pp K% bias. |
 | 0.6.1 Mid-PA context mutation | **IMPLEMENTED 2026-08-04, pending sanity re-run** | this session | `count_state` one-hot re-emitted per position from the running (balls,strikes) via `_advance_count`; flows through BOTH the pitch-token backbone forward and the outcome-head forward (shared `cur_context`). Verified functionally correct (integration test). Added `PGConcatHeadPredictor(disable_class_calibration=…)` + `PITCHGPT_DISABLE_CLASS_CALIBRATION` env A/B switch (pos-0 recalibration always retained). Orchestrator to re-run `scripts/pitchgpt_rollout_sanity_2025.py` with/without the switch. |
 
 ## Scale-verify results (2026-04-24)
@@ -138,6 +138,11 @@ Post-mutation-verification A/B on the 2025 pitcher-disjoint cohort (10K PA x 100
 |---|---:|---:|---:|:--:|:--:|:--:|
 | class_calibration ON (default) | 0.3339 FAIL | 0.1177 FAIL | 0.0242 FAIL | PASS | PASS | **FAIL** |
 | class_calibration OFF (`PITCHGPT_DISABLE_CLASS_CALIBRATION=1`) | 0.3651 FAIL | 0.0376 FAIL | 0.0261 FAIL | FAIL | PASS | **FAIL (worse)** |
+
+NOTE (2026-08-10): the wOBA / PA-length PASS cells above are TAINTED - pending Phase 0.6.2
+re-evaluation (pos-0 calibration was fit on the eval cohort). Both A/B variants retained the
+pos-0 recalibration, so these PASSes are partly bought with holdout-fitted weights and must be
+re-earned under the clean 2023-only fit (`PHASE_0.6.2_PLAN.md` §2, §5).
 
 Verdict: keep class_calibration ON as production default. Root cause of residual K% surplus is the
 model's flat per-position strike response in the self-generated rollout regime (CS ~0.28-0.33 across

@@ -5,6 +5,19 @@ companion comparison-vs-bWAR walkthrough lives at
 `docs/models/causal_war_baseline_results.md`; this file is the short-form
 results log and preserves priors for diff.
 
+> **Audit note (2026-08-10).** Wherever the 68.4% Buy-Low hit rate appears
+> below, read it with the bounds established by
+> `docs/audits/FLAGSHIP_AUDIT_2026-08-10.md` §2: the hit criterion was
+> defined post-hoc (no hit-rate gate exists in the spec); intention-to-treat
+> scoring (the 6 excluded no-2025-record picks counted as misses) is
+> 13/25 = 52%; the artifact-confirmed 95% CI [0.474, 0.843] includes chance
+> (the [0.474, 0.895] upper bound printed in the tables below is a known
+> inconsistency vs the JSON artifacts); and the platform's own matched-naive
+> mean-reversion controls score 66.5–73.0% on the same pools. 68.4% is not
+> a validated edge and "marquee" framing below is historical. The defensible
+> results are the reliever-tag subset (78.1% vs 56.9% within-filter naive,
+> n=32) and two fully-OOS windows (−2.8pp / +10.8pp vs naive).
+
 Spec gates (from `docs/models/causal_war_validation_spec.md` Ticket #2):
 
 | Gate | Threshold |

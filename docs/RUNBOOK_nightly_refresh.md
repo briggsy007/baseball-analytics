@@ -82,7 +82,33 @@ C:\Users\hunte\AppData\Local\Programs\Python\Python312\python.exe scripts\nightl
 ```
 
 Exit codes: `0` ok / ok_with_warnings · `1` a required step failed · `2` refused
-(pre-flight block) · `3` dry-run would be blocked.
+(pre-flight block) · `3` dry-run would be blocked · `4` another nightly run
+already holds the single-instance lock.
+
+## Addendum 2026-08-10 (WS0.1 / WS0.4)
+
+- **Single-instance lock.** The wrapper now acquires `logs/nightly/nightly.lock`
+  (via `filelock`, non-blocking) before doing anything. A second concurrent
+  launch — manual or scheduled — refuses immediately with exit `4`. schtasks'
+  IgnoreNew policy only governs scheduler triggers; the lock is the real gate.
+- **Task registration status.** As of 2026-08-10 **no `BaseballNightlyRefresh`
+  task is registered** in Windows Task Scheduler (`schtasks /query` finds no
+  match) despite this runbook: the chain only runs when launched manually.
+  Register it with the command above when nightly automation is wanted.
+- **Frozen vs in-season model artifacts.** Retrains inside the chain
+  (`daily_refresh --full`, tier-1 precompute first-run, `retrain_active_2026`)
+  write ONLY the in-season artifacts `models/stuff_model_2026_inseason.pkl` /
+  `models/defensive_pressing/xout_2026_inseason.pkl` (gitignored). The frozen
+  validated artifacts `models/stuff_model.pkl` / `models/defensive_pressing/xout_v1.pkl`
+  are never written by any production path; overwriting them requires an
+  explicit `allow_frozen_overwrite=True` / `--allow-checkpoint-overwrite`.
+- **`retrain_active_2026` status JSON** now lands at
+  `logs/nightly/retrain_status.json` (was a dead hard-coded scratchpad path).
+- **Contrarian mid-season boards** are written as dated copies under
+  `results/edges/contrarian_2026_midseason/YYYY-MM-DD/` plus an atomically
+  replaced `latest.json` pointer; the top-level `board.csv` / `summary.md` are
+  frozen legacy artifacts (first generation, preserved as the `2026-08-10`
+  dated copy).
 
 ## Disable / enable / delete the task
 

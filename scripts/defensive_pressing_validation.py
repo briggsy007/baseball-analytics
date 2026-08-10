@@ -95,6 +95,10 @@ class DPIValidationConfig:
     )
     use_persisted_xout: bool = True  # load checkpoint if present
     persist_xout: bool = True  # write checkpoint after fit
+    # WS0.1 guard: refitting must NEVER silently overwrite an existing
+    # checkpoint file (the frozen validated xout_v1.pkl in particular).
+    # Overwriting requires this explicit opt-in (--allow-checkpoint-overwrite).
+    allow_checkpoint_overwrite: bool = False
     # v3 weather features: wind parallel/perpendicular to spray + temp_f
     use_weather: bool = False
     xout_checkpoint_path: Optional[Path] = None  # default -> v1 / v2 based on flag
@@ -155,18 +159,36 @@ def _fit_xout_on_train_window(
             chk_seasons, chk_weather, seasons, cfg.use_weather,
         )
 
-    # Fit (and optionally persist)
+    # Fit (and optionally persist). WS0.1 guard: never silently overwrite an
+    # existing checkpoint file — historically this branch refit-and-overwrote
+    # the frozen validated xout_v1.pkl whenever the requested train window
+    # differed from the checkpoint's. Overwriting now requires the explicit
+    # --allow-checkpoint-overwrite flag.
+    persist_path = chk_path if cfg.persist_xout else None
+    if (
+        persist_path is not None
+        and Path(persist_path).exists()
+        and not cfg.allow_checkpoint_overwrite
+    ):
+        raise RuntimeError(
+            f"Refusing to overwrite existing xOut checkpoint {persist_path} "
+            f"(its train_seasons do not match the requested "
+            f"{cfg.train_start}-{cfg.train_end} window). Re-run with "
+            f"--allow-checkpoint-overwrite to deliberately replace it, "
+            f"--no-persist-xout to fit in memory only, or "
+            f"--xout-checkpoint-path to write elsewhere."
+        )
     logger.info(
         "Fitting xOut classifier on BIP rows from seasons %d-%d (use_weather=%s)",
         cfg.train_start, cfg.train_end, cfg.use_weather,
     )
-    persist_path = chk_path if cfg.persist_xout else None
     metrics = dp.fit_xout(
         conn,
         seasons=seasons,
         persist_path=persist_path,
         use_park=False,
         use_weather=cfg.use_weather,
+        allow_frozen_overwrite=cfg.allow_checkpoint_overwrite,
     )
     metrics["train_seasons"] = seasons
     metrics["loaded_from_checkpoint"] = False
@@ -967,6 +989,19 @@ def build_argparser() -> argparse.ArgumentParser:
         ),
     )
     p.add_argument(
+        "--allow-checkpoint-overwrite", action="store_true",
+        help=(
+            "Explicitly allow a refit to OVERWRITE an existing checkpoint "
+            "file (including the frozen validated xout_v1.pkl). Without this "
+            "flag a refit that would replace an existing checkpoint aborts "
+            "(WS0.1 quarantine guard)."
+        ),
+    )
+    p.add_argument(
+        "--no-persist-xout", action="store_true",
+        help="Fit the xOut model in memory only; never write a checkpoint.",
+    )
+    p.add_argument(
         "--external-oaa-path", type=Path, default=None,
         help=(
             "Override external Statcast OAA parquet. Defaults to "
@@ -989,6 +1024,8 @@ def main(argv: list[str] | None = None) -> int:
         holdout_sample_size=args.holdout_sample_size,
         use_weather=bool(args.use_weather),
         xout_checkpoint_path=args.xout_checkpoint_path,
+        allow_checkpoint_overwrite=bool(args.allow_checkpoint_overwrite),
+        persist_xout=not bool(args.no_persist_xout),
     )
     if args.external_oaa_path is not None:
         cfg_kwargs["external_oaa_path"] = args.external_oaa_path

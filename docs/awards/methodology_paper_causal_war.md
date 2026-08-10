@@ -4,6 +4,26 @@
 **Date.** 2026-04-18
 **Affiliation.** Independent. Baseball analytics platform (private codebase).
 
+> **CORRECTION NOTICE (2026-08-10).** This paper is preserved as submitted;
+> a 2026-08-10 adversarial audit (`docs/audits/FLAGSHIP_AUDIT_2026-08-10.md`
+> §2) supersedes several of its claims. Where they conflict, this notice
+> governs. (1) The "first at-scale DML" / "gold-standard identification"
+> framing overstates the implementation: production fits one nuisance
+> E[Y|W] and takes per-player mean residuals — no treatment model, no
+> residual-on-residual regression — and the venue confounder is inert in
+> production (empty games join). (2) The 68.4% Buy-Low marquee is NOT a
+> validated edge: the hit criterion was defined post-hoc, intention-to-treat
+> is 13/25 = 52%, the 95% CI [0.474, 0.843] includes chance, and matched-
+> naive mean-reversion controls score 66.5–73.0% on the same pools (the
+> 2-yr-aggregate 68.4% config never received its own matched-naive control).
+> (3) The "78/70/79%" mechanism-core rates aggregate subgroups selected
+> after outcomes were observed; treat as exploratory. (4) "Same 13-of-19
+> preserved" v1→v2 is false at player level (10/13 overlap), and production
+> v2 Over-Valued is 13/23 = 56.5%, not v1's 60.9%. The defensible core:
+> pre-registered correlation gates; the reliever-tag subset (78.1% vs 56.9%
+> within-filter naive, n=32); two fully-OOS windows (−2.8pp / +10.8pp vs
+> naive).
+
 ## Abstract
 
 We present **CausalWAR**, the first at-scale deployment of Chernozhukov-style Double Machine Learning (DML) with Frisch-Waugh-Lovell residualization to per-plate-appearance run-value estimation in MLB. A 5-fold cross-fitted HistGradientBoosting nuisance model partials out base-out state, platoon, park, inning, month, and handedness; each player's causal effect is recovered as the residual-on-residual regression, then aggregated to a WAR scale. Trained on 2015-2022 Statcast (1.23M PAs) and tested on a disjoint 2023-2024 hold-out (968 qualified players), CausalWAR correlates with bWAR at Pearson **r=0.71** and Spearman **ρ=0.62** (both above pre-registered gates). The economically interesting product is the **disagreement**: CausalWAR's Contrarian Leaderboards surface Buy-Low and Over-Valued picks tagged with mechanism labels (RELIEVER LEVERAGE GAP, PARK FACTOR, DEFENSE GAP). Three-year out-of-sample hit rates (2022→23 / 2023→24 / 2024→25) are **83.3% / 63.6% / 81.8%** (Buy-Low) and **80.0% / 60.9% / 76.0%** (Over-Valued). The 2025 Buy-Low marquee is **68.4% (13/19, 95% CI [0.47, 0.84])**. The mechanism-tagged cores replicate at **78% / 70% / 79%** across all three windows combined (RELIEVER LEVERAGE GAP Buy-Low 25/32; PARK FACTOR Over-Valued 30/43; DEFENSE GAP Over-Valued 19/24). The 2023→24 cohort underperformed its WAR-matched naive baseline (-2.8pp / -8.6pp lift), an autopsied miss localized to GENUINE EDGE? Buy-Low and [0,1] baseline-WAR Over-Valued buckets.

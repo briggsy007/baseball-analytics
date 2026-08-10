@@ -51,6 +51,30 @@ DEFAULT_XOUT_CHECKPOINT = DEFAULT_MODEL_DIR / "xout_v1.pkl"
 # to the xOut feature matrix. v1 is preserved for reproducibility.
 DEFAULT_XOUT_V2_CHECKPOINT = DEFAULT_MODEL_DIR / "xout_v2_weather.pkl"
 
+# ---------------------------------------------------------------------------
+# Frozen vs in-season artifact separation (WS0.1, 2026-08-10)
+# ---------------------------------------------------------------------------
+# ``xout_v1.pkl`` is the FROZEN validated checkpoint (train_seasons 2015-2022,
+# fitted 2026-04-18, the artifact every validation gate was scored with).
+# Production/nightly retrains that ingest in-progress-season data must write
+# the in-season path below instead.  :func:`fit_xout` refuses to overwrite an
+# existing frozen checkpoint unless ``allow_frozen_overwrite=True`` is passed
+# explicitly (deliberate re-freeze only).
+FROZEN_XOUT_CHECKPOINT = DEFAULT_XOUT_CHECKPOINT
+INSEASON_XOUT_CHECKPOINT = DEFAULT_MODEL_DIR / "xout_2026_inseason.pkl"
+
+
+def resolve_scoring_checkpoint() -> Path:
+    """Checkpoint production scoring should load.
+
+    Prefers the in-season retrained artifact (kept current by the nightly
+    chain; in-sample for the seasons it was trained through) and falls back
+    to the frozen validated checkpoint when no in-season artifact exists.
+    """
+    if INSEASON_XOUT_CHECKPOINT.exists():
+        return INSEASON_XOUT_CHECKPOINT
+    return FROZEN_XOUT_CHECKPOINT
+
 # Events that count as a defensive out on a BIP
 OUT_EVENTS: set[str] = {
     "field_out",
@@ -515,28 +539,57 @@ def fit_xout(
     use_park: bool = False,
     park_smoothing: float = 100.0,
     use_weather: bool = False,
+    allow_frozen_overwrite: bool = False,
 ) -> dict:
     """Fit the xOut classifier and optionally pickle it via joblib.
 
     A thin convenience wrapper around :func:`train_expected_out_model` that
     also writes the trained model + training metadata to ``persist_path``
-    (default: ``DEFAULT_XOUT_CHECKPOINT``) so future calls can re-use it.
+    so future calls can re-use it.
 
     Args:
         conn: Open DuckDB connection.
         seasons: Train seasons (default: all available).
         config: DPI configuration.
-        persist_path: Where to pickle the model. ``None`` skips persistence.
+        persist_path: Where to pickle the model. ``None`` skips persistence
+            (fit in memory only). Historical note: prior to 2026-08-10 the
+            ``None`` default silently persisted to the frozen validated
+            ``xout_v1.pkl`` — the production-leakage bug from the flagship
+            audit. In-season retrains must pass ``INSEASON_XOUT_CHECKPOINT``
+            explicitly.
         use_park: Whether to add the per-park target-encoded feature.
         park_smoothing: Smoothing for the park target encoding.
         use_weather: Whether to attach wind / temperature BIP features
             (requires ``game_weather`` table). Defaults to False.
+        allow_frozen_overwrite: Explicit opt-in required to overwrite an
+            EXISTING frozen validated checkpoint (deliberate re-freeze).
+            Without it, targeting an existing frozen checkpoint raises.
 
     Returns:
         The dict returned by :func:`train_expected_out_model`, augmented
         with ``persist_path`` and ``train_seasons`` for reproducibility.
+
+    Raises:
+        RuntimeError: If ``persist_path`` resolves to an existing frozen
+            validated checkpoint and ``allow_frozen_overwrite`` is False.
     """
     global _xout_metadata
+
+    if persist_path is not None:
+        persist_path = Path(persist_path)
+        if (
+            persist_path.resolve() == FROZEN_XOUT_CHECKPOINT.resolve()
+            and FROZEN_XOUT_CHECKPOINT.exists()
+            and not allow_frozen_overwrite
+        ):
+            raise RuntimeError(
+                f"Refusing to overwrite the frozen validated xOut checkpoint "
+                f"at {FROZEN_XOUT_CHECKPOINT}. In-season retrains must "
+                f"persist to {INSEASON_XOUT_CHECKPOINT}. Pass "
+                f"allow_frozen_overwrite=True only for a deliberate, "
+                f"documented re-freeze."
+            )
+
     metrics = train_expected_out_model(
         conn,
         seasons=seasons,
@@ -547,10 +600,6 @@ def fit_xout(
     )
     metrics = dict(metrics)
     metrics["train_seasons"] = list(seasons) if seasons else None
-
-    if persist_path is None:
-        persist_path = DEFAULT_XOUT_CHECKPOINT
-    persist_path = Path(persist_path)
 
     feature_columns = metrics.get("feature_columns") or [
         "launch_speed", "launch_angle", "spray_angle", "bb_type_encoded",
@@ -606,10 +655,20 @@ def ensure_xout_model(
     latest season (to keep the train cohort the same shape: trailing
     seasons up to but not including any in-progress year).
 
+    Artifact policy (WS0.1): when no ``persist_path`` is given, loading
+    resolves via :func:`resolve_scoring_checkpoint` (in-season first, frozen
+    fallback) and any refit persists to ``INSEASON_XOUT_CHECKPOINT`` — a
+    refit can never target the frozen validated ``xout_v1.pkl``.
+
     Returns metadata describing what was done; sets module ``_xout_model``.
     """
     global _xout_model, _xout_metadata
-    persist_path = Path(persist_path) if persist_path else DEFAULT_XOUT_CHECKPOINT
+    if persist_path is not None:
+        persist_path = Path(persist_path)
+        refit_path = persist_path
+    else:
+        persist_path = resolve_scoring_checkpoint()
+        refit_path = INSEASON_XOUT_CHECKPOINT
 
     # Try load first
     if not force_refit and _xout_model is None:
@@ -646,7 +705,7 @@ def ensure_xout_model(
         else:
             seasons = None
         metrics = fit_xout(
-            conn, seasons=seasons, config=config, persist_path=persist_path,
+            conn, seasons=seasons, config=config, persist_path=refit_path,
         )
         metrics["loaded_from_checkpoint"] = False
         metrics["refit_reason"] = refit_reason

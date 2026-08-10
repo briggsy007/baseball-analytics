@@ -213,7 +213,10 @@ an arithmetic mean of 0.59 — the v2 headline (r = 0.549 on the
 highest point estimate and the tightest CI of the three years. No trend
 is detectable with n = 3, but the relationship is unambiguously stable.
 2025's CI lower bound (0.42) is above the Gate 6 threshold of 0.45 by
-a narrow margin; the point estimate clears by +0.19.
+a narrow margin; the point estimate clears by +0.19. *[see Erratum
+2026-08-10, items 1 and 3 — the CI-lower-bound sentence is factually
+false (0.42 < 0.45), and "stability" here mislabels per-year DPI-vs-OAA
+cross-metric correlations.]*
 
 **Top-5 agreement.** 2025 DPI top-5 = CHC, MIA, MIL, PIT, TEX;
 OAA top-5 = CHC, HOU, KC, MIL, STL. Two in common (CHC, MIL). Averaged
@@ -241,7 +244,9 @@ uniformly stronger than OAA's across all three years (2025: DPI r =
 −0.80 vs OAA r = −0.44). This is consistent with DPI being a
 tighter BIP-outcome residual metric and OAA being a broader
 range-skill metric measuring overlapping-but-not-identical defensive
-dimensions.
+dimensions. *[see Erratum 2026-08-10, item 4 — this correlation is
+majority circular by construction and must not be read as
+corroboration or quoted as a headline.]*
 
 **Rigor confirmations.**
 - xOut checkpoint (train_seasons 2015-2022) loaded cleanly; leakage
@@ -343,7 +348,9 @@ season-disjoint train/test split). All six gates clear with margin.
    **Gate 6 result:** Pearson r(DPI, OAA) = **0.5492**, 95% bootstrap
    CI [0.307, 0.721], n = 60. Spearman rho = 0.5442. The bottom of
    the CI is well above the 0.45 threshold; the relationship is
-   robust. For context, OAA itself correlates with raw BABIP-against
+   robust. *[see Erratum 2026-08-10, item 2 — this sentence is
+   factually false: 0.307 is below 0.45.]* For context, OAA itself
+   correlates with raw BABIP-against
    only at r = -0.23 in this same cohort, so DPI is materially closer
    to OAA's signal than naive BABIP-against would be — exactly the
    value-add a BIP-residual metric should deliver.
@@ -525,7 +532,10 @@ driven by a few outliers.
    (so a team facing weaker contact would naturally have lower
    BABIP-against without earning DPI credit). The strong negative
    correlation says the context adjustment doesn't destroy the underlying
-   skill signal.
+   skill signal. *[see Erratum 2026-08-10, item 4 — this "not
+   tautological" argument materially understates the shared-variance
+   circularity: DPI shares R² 0.43-0.65 of team variance with raw
+   BABIP-against by construction.]*
 
 4. **DPI captures a stable team trait, not noise.** Year-over-year
    r = 0.59 across the 30 MLB teams -- in the same range as published
@@ -602,4 +612,53 @@ like. The analysis is reproducible on the existing schema in 2 minutes
 - `results/validate_defensive_pressing_20260418T212701Z/defensive_pressing_team_seasons.csv` (60 rows, full team-season DPI + proxies)
 - `results/validate_defensive_pressing_20260418T212701Z/defensive_pressing_xout_holdout_sample.csv` (5,000-row inspection sample of xOut predictions vs actual)
 - `results/validate_defensive_pressing_20260418T212701Z/step_1_validation.log` (full stdout/stderr)
+
+---
+
+## Erratum — 2026-08-10
+
+Appended per the 2026-08-10 adversarial audit
+(`docs/audits/FLAGSHIP_AUDIT_2026-08-10.md`, §1 findings 1, 2, and 5).
+The original text above is left intact, with inline
+`[see Erratum 2026-08-10]` markers at each affected statement. Where this
+erratum conflicts with the original text, the erratum governs.
+
+**1. False CI statement (2025 validation section, "Three-year
+stability").** The original text reads: *"2025's CI lower bound (0.42) is
+above the Gate 6 threshold of 0.45 by a narrow margin; the point estimate
+clears by +0.19."* This is factually false: **0.42 is below 0.45.** The
+2025 Gate 6 result passes on the point estimate (r = 0.6406 >= 0.45), but
+its 95% CI lower bound does not clear the threshold.
+
+**2. False CI statement (v2 hardening run, Gate 6 result).** The original
+text reads: *"Pearson r(DPI, OAA) = 0.5492, 95% bootstrap CI [0.307,
+0.721], n = 60. ... The bottom of the CI is well above the 0.45 threshold;
+the relationship is robust."* This is factually false: **0.307 is below
+0.45.** The gate passes on the point estimate only; the CI is compatible
+with values well under the threshold. Two further caveats compound this:
+the 0.45 threshold was set after observing r = 0.557
+(`defensive_pressing_validation_spec.md:175-178`), and the bootstrap
+ignores team clustering (the same team's seasons correlate ~0.59), so the
+CI is likely too narrow as well.
+
+**3. Mislabeled "stability" claim.** The 0.58/0.56/0.64 values
+(2023/2024/2025) labeled "three-year stability" are per-year DPI-vs-OAA
+*cross-metric correlations*, not stability. True year-over-year stability
+has been measured exactly once: 2023→2024, r ≈ 0.59. The 2024→2025
+stability had not been computed as of this erratum.
+
+**4. The BABIP-against correlation is majority circular.** The
+"corroborating signal" framing of DPI's r = −0.80 with BABIP-against (vs
+OAA's −0.44) overstates the evidence: DPI's numerator is the team BIP
+out-rate minus a model expectation, and BABIP-against is the same out-rate
+inverted, so the two share R²(DPI ~ BABIP-against) = 0.63 / 0.43 / 0.65 of
+team variance by year *by construction*. Any residual-on-outcome metric
+wins this comparison against an externally-measured metric such as OAA.
+The −0.80 is not a selling point, and the "not tautological" argument in
+the promotion-audit section understates the shared-variance circularity.
+The defensible external-signal core is the **partial correlation
+r(DPI, OAA | BABIP-against) = 0.42 / 0.69 / 0.54 by year (0.41 pooled
+2023–25)** — DPI carries genuine OAA-aligned signal beyond raw outcomes,
+and that partial correlation, not the raw BABIP tracking, is the number
+to quote.
 - `results/validate_defensive_pressing_20260418T212701Z/validation_summary.json` (validate-model SKILL Step 5 schema)

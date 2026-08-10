@@ -2,6 +2,23 @@
 
 **Author:** Hunter Briggs
 
+> **CORRECTION NOTICE (2026-08-10).** This paper is preserved as submitted;
+> later evidence supersedes its headline LSTM claim. Where they conflict,
+> this notice governs. (1) The +13.80% LSTM perplexity margin quoted
+> throughout was a 1K-vs-1K small-sample result that did NOT replicate at
+> matched 10K scale: the locked numbers are +2.57% (v1) / +3.13% (v2), the
+> ≥15% gate fails decisively, and the 13.80% figure was retired 2026-04-24
+> and is banned as a live claim (`NORTH_STAR.md`; see
+> `methodology_paper_pitchgpt_v2.md` and `docs/models/pitchgpt_results.md`
+> §"scale-verify"). (2) The ECE = 0.0098 claim describes the
+> pre-class-calibration per-pitch stack; the production-path ECE (after the
+> class-calibration and pos-0 corrections production applies) has never
+> been measured, and a 0.10 top-1 ECE gate for a 2,210-way predictor with
+> mean confidence ~5% is weak evidence of calibration. (3) PA-level rollout
+> marginals (K%/BB%/HR%) currently FAIL their Phase 0.6 fidelity gates;
+> the wOBA/PA-length PASSes are TAINTED pending Phase 0.6.2 re-evaluation
+> (pos-0 calibration was fit on the eval cohort).
+
 ---
 
 ## Abstract

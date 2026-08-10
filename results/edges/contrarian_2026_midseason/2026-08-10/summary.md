@@ -1,6 +1,6 @@
 # Contrarian Leaderboards -- 2026 Mid-Season (live)
 
-> **APPLICATION of the validated 2023-2025 CausalWAR contrarian methodology to PARTIAL-SEASON 2026 data. The validated Buy-Low hit-rate (68.4%, 13/19, 95% CI [0.47, 0.84]) was measured on FULL-SEASON 2023-24 picks resolved against 2025 outcomes and does NOT transfer to these mid-season boards. 2026 picks here are UNRESOLVED and can only be scored after future seasons.**
+> **APPLICATION of the 2023-2025 CausalWAR contrarian methodology to PARTIAL-SEASON 2026 data. The headline Buy-Low hit rate (68.4%, 13/19) is NOT a validated edge: its hit criterion was defined post-hoc, the 95% CI [0.474, 0.843] includes chance, intention-to-treat scoring (exits count against the pick) is 13/25 = 52%, and matched-naive mean-reversion baselines score 66.5-73% on the same pools. It was measured on FULL-SEASON 2023-24 picks resolved against 2025 outcomes and does NOT transfer to these mid-season boards. 2026 picks here are UNRESOLVED and can only be scored after future seasons.**
 
 _Generated from CausalWAR-2026 (leaderboard_cache) vs 2026 season-to-date Baseball-Reference WAR. Season snapshot through Aug 3, 2026._
 
@@ -61,24 +61,8 @@ Players bWAR ranks higher than CausalWAR -- value likely leaning on glove / park
 
 ## Methodology + honest caveats
 
-- **Tags** reuse the validated dashboard heuristic (`src/dashboard/views/contrarian_leaderboards.py::_classify_row`): `RELIEVER LEVERAGE GAP`, `PARK FACTOR`, `DEFENSE GAP`, `GENUINE EDGE?`, `OTHER`. Internal tag thresholds (e.g. GENUINE EDGE needs PA>=400) are the validated FULL-SEASON values applied as-is, so fewer rows earn GENUINE at mid-season.
+- **Tags** reuse the dashboard mechanism-tag heuristic (`src/dashboard/views/contrarian_leaderboards.py::_classify_row`): `RELIEVER LEVERAGE GAP`, `PARK FACTOR`, `DEFENSE GAP`, `GENUINE EDGE?`, `OTHER`. Internal tag thresholds (e.g. GENUINE EDGE needs PA>=400) are the FULL-SEASON values from the 2023-24 evidence run applied as-is, so fewer rows earn GENUINE at mid-season.
 - The 2026 CausalWAR leaderboard is **batter-only**, so RELIEVER LEVERAGE GAP and PARK FACTOR (pitcher tags) do not appear on this board.
 - **DEFENSE GAP** depends on `players.position`, which is currently NULL for the 2026 leaderboard players, so that tag rarely fires; it will activate automatically once fielding positions are populated.
 - Rows with NULL 2026 bWAR are dropped, never imputed. NULL stays NULL.
-- **These picks are unresolved.** The 68.4% validated hit-rate is a full-season 2023-24 -> 2025 result and does not transfer here. Resolution requires a future season.
-
----
-
-## ERRATUM (2026-08-10) — appended, original text above unchanged
-
-This file is the frozen first-generation (2026-08) artifact. Its banner and final
-bullet attach "validated" to the 68.4% Buy-Low figure; per the 2026-08-10 audit (§2)
-that framing is retracted:
-
-- The 68.4% (13/19) Buy-Low hit rate is **NOT a validated edge**: its hit criterion
-  was defined post-hoc, the 95% CI [0.474, 0.843] includes chance, intention-to-treat
-  scoring (exits count against the pick) is 13/25 = 52%, and matched-naive
-  mean-reversion baselines score 66.5-73% on the same pools.
-- Current boards with detached language live in the dated directories resolved via
-  `latest.json` (e.g. `2026-08-10/summary.md`). This top-level file is kept only as
-  the frozen legacy copy and receives no further updates.
+- **These picks are unresolved.** The headline 68.4% Buy-Low hit rate is a full-season 2023-24 -> 2025 result and is NOT a validated edge (post-hoc hit criterion; 95% CI [0.474, 0.843] includes chance; intention-to-treat is 13/25 = 52%; matched-naive baselines score 66.5-73% on the same pools). It does not transfer here; resolution requires a future season.

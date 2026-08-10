@@ -70,3 +70,9 @@ results/hit_parlay/*.json
 
 # Nightly refresh run logs
 logs/nightly/
+
+# In-season retrained model artifacts (WS0.1) — churn nightly, never frozen.
+# The frozen validated artifacts (models/stuff_model.pkl,
+# models/defensive_pressing/xout_v1.pkl) stay tracked.
+models/stuff_model_2026_inseason.pkl
+models/defensive_pressing/xout_2026_inseason.pkl

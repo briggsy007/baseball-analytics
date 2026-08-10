@@ -115,6 +115,8 @@ def render() -> None:
         )
         return
 
+    _render_artifact_provenance(leaderboard, season)
+
     # ---- Team selector ---------------------------------------------------
     team_options = leaderboard["team_id"].tolist()
     default_idx = team_options.index("PHI") if "PHI" in team_options else 0
@@ -148,6 +150,47 @@ def render() -> None:
 
     with tab_timeline:
         _render_timeline(conn, selected_team, season)
+
+
+# ---------------------------------------------------------------------------
+# Artifact provenance (WS0.1: state which xOut artifact scored each season)
+# ---------------------------------------------------------------------------
+
+def _render_artifact_provenance(leaderboard: pd.DataFrame, season: int) -> None:
+    """State which xOut artifact scored this season and whether in-sample.
+
+    The frozen validated checkpoint (``xout_v1.pkl``, train 2015-2022) is
+    out-of-sample for 2023+; the in-season retrain (``xout_2026_inseason.pkl``,
+    train 2015-2026) is in-sample for every displayed season.
+    """
+    if "scoring_artifact" in leaderboard.columns:
+        artifact = str(leaderboard["scoring_artifact"].iloc[0])
+        seasons_label = str(
+            leaderboard.get(
+                "artifact_train_seasons", pd.Series(["unknown"])
+            ).iloc[0]
+        )
+        in_sample = leaderboard.get("scored_in_sample", pd.Series([None])).iloc[0]
+        if in_sample is None or pd.isna(in_sample):
+            sample_note = "in-/out-of-sample status unknown"
+        elif bool(in_sample):
+            sample_note = "IN-SAMPLE (season inside the train window)"
+        else:
+            sample_note = "out-of-sample"
+        st.caption(
+            f"Scoring artifact: `{artifact}` (xOut train seasons "
+            f"{seasons_label}) — {season} scores are **{sample_note}**. "
+            f"Validation gates were scored with the frozen `xout_v1.pkl` "
+            f"(train 2015-2022, OOS for 2023+), not necessarily this artifact."
+        )
+    else:
+        st.caption(
+            "Scoring artifact: unknown (cache predates provenance stamping, "
+            "2026-08-10). Nightly-scored seasons 2023-2026 were produced by "
+            "an in-season xOut retrain (train 2015-2026) and are IN-SAMPLE; "
+            "only the frozen `xout_v1.pkl` (train 2015-2022) gives OOS scores "
+            "for 2023+."
+        )
 
 
 # ---------------------------------------------------------------------------

@@ -179,9 +179,14 @@ def _step_retrain_model() -> bool:
 
     try:
         try:
-            from src.analytics.stuff_model import train_stuff_model
-            train_stuff_model(_get_conn())
-            _ok("Stuff+ model retrained")
+            # Writes the IN-SEASON artifact — never the frozen
+            # models/stuff_model.pkl (WS0.1 checkpoint quarantine).
+            from src.analytics.stuff_model import (
+                train_stuff_model,
+                INSEASON_MODEL_PATH,
+            )
+            train_stuff_model(_get_conn(), model_path=str(INSEASON_MODEL_PATH))
+            _ok(f"Stuff+ model retrained -> {INSEASON_MODEL_PATH.name}")
             return True
         except ImportError:
             _warn("Stuff+ training module not found -- skipping")

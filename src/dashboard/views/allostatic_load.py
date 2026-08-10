@@ -73,6 +73,17 @@ _CHANNEL_LABELS = {
 def render() -> None:
     """Render the Allostatic Batting Load Analysis page."""
     st.title("Allostatic Batting Load (ABL)")
+    st.warning(
+        "RETIRED — NOT VALIDATED (1 of 4 gates passed). On its 30-day "
+        "pre-IL validation ABL scored AUC 0.581 (gate >= 0.60), false-"
+        "positive rate 77.5% at the ABL=75 operating threshold (gate "
+        "<= 30%), and +0.014 AUC over a games-played baseline (gate "
+        ">= +0.05). Per-season z-score normalization saturates nearly "
+        "every healthy season to ABL 100, so threshold-based alerts are "
+        "non-discriminative. The scores below are descriptive only — no "
+        "fatigue-performance or rest-benefit claim is validated. See "
+        "`docs/models/allostatic_load_results.md`."
+    )
     st.caption(
         "Multi-channel cumulative decision fatigue model for hitters. "
         "Tracks pitch processing, decision conflict, swing exertion, "
@@ -82,14 +93,13 @@ def render() -> None:
 
     with st.expander("What does this mean?"):
         st.markdown("""
-**ABL tracks cumulative cognitive and physical fatigue** across a season — not just "is he tired today" but "how much wear has accumulated without adequate recovery."
+**ABL accumulates game-by-game stressors** across a season — not just "is he tired today" but "how much wear the model has accrued without adequate recovery."
 
-- **ABL 0-30** = fresh — decision-making is sharp, swing decisions are clean
-- **ABL 30-60** = moderate load — slight uptick in chase rate and bad contact
-- **ABL 60+** = high load — expect measurably worse plate discipline, especially on borderline pitches
+- **ABL 0-30** = low accumulated load in the model's units
+- **ABL 30-60** = moderate accumulated load
+- **ABL 60+** = high accumulated load
 - **5 channels tracked:** pitch processing load, decision conflict (borderline pitches), swing exertion, schedule density, travel stress
-- **The key insight:** A hitter can look physically fine (barrel rate holds up) but make worse decisions (chase rate spikes) — ABL catches the cognitive fatigue that box scores miss
-- **Impact:** Resting a hitter *before* they hit ABL 60 (not after they're slumping) prevents 2-3 week cold streaks that cost 5-10 runs per season
+- **Validation status:** ABL was tested as an injury/fatigue early-warning signal and failed 3 of 4 gates (AUC 0.581 vs 0.60 gate; FPR 77.5% vs 30% gate; +0.014 vs +0.05 delta-AUC gate). The model is retired; ABL values describe modeled load accumulation and carry no validated link to plate discipline, slumps, or IL risk.
 """)
 
     conn = get_db_connection()

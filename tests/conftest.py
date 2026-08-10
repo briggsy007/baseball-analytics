@@ -477,6 +477,94 @@ _PROJECT_ROOT = Path(__file__).resolve().parents[1]
 _MODELS_DIR = _PROJECT_ROOT / "models"
 
 
+# ---------------------------------------------------------------------------
+# WS0.2 guards (2026-08-10 plan): tests must NEVER modify repo-level models/
+# ---------------------------------------------------------------------------
+
+
+def _snapshot_models_tree() -> dict[str, tuple[int, int]]:
+    """Map relative path -> (size, mtime_ns) for every file under models/."""
+    if not _MODELS_DIR.exists():
+        return {}
+    snap: dict[str, tuple[int, int]] = {}
+    for p in _MODELS_DIR.rglob("*"):
+        if p.is_file():
+            st = p.stat()
+            snap[p.relative_to(_MODELS_DIR).as_posix()] = (
+                st.st_size,
+                st.st_mtime_ns,
+            )
+    return snap
+
+
+@pytest.fixture(scope="session", autouse=True)
+def models_dir_write_guard():
+    """Fail the session if any test creates, modifies, or deletes files
+    under the repo-level ``models/`` directory.
+
+    Committed model artifacts are frozen-validation evidence (WS0.2 /
+    audit failure class F-A: one path serving both frozen-validation and
+    test/nightly-write roles).  Tests must write artifacts only to pytest
+    tmp dirs — via ``PITCHGPT_MODELS_DIR`` / ``MECHANIX_AE_MODELS_DIR``
+    env overrides, an explicit save-path argument, or monkeypatching the
+    module's default path constant (see test_causal_war.py).
+
+    Session-level check: snapshot (path, size, mtime) before and after the
+    run and error loudly on any difference.
+    """
+    before = _snapshot_models_tree()
+    yield
+    after = _snapshot_models_tree()
+    added = sorted(set(after) - set(before))
+    removed = sorted(set(before) - set(after))
+    changed = sorted(
+        k for k in set(before) & set(after) if before[k] != after[k]
+    )
+    if added or removed or changed:
+        lines = [
+            "WS0.2 VIOLATION: this test run modified the repo-level models/ "
+            "directory. Committed artifacts are frozen-validation evidence; "
+            "tests must write only to pytest tmp dirs."
+        ]
+        if added:
+            lines.append(f"  created:  {added}")
+        if removed:
+            lines.append(f"  deleted:  {removed}")
+        if changed:
+            lines.append(f"  modified: {changed}")
+        lines.append(
+            "Fix: redirect the writing code path via PITCHGPT_MODELS_DIR / "
+            "MECHANIX_AE_MODELS_DIR, an explicit model_path/persist_path "
+            "argument, or a monkeypatched default-path constant."
+        )
+        pytest.fail("\n".join(lines), pytrace=False)
+
+
+@pytest.fixture(scope="session", autouse=True)
+def _quarantine_dpi_frozen_checkpoint(tmp_path_factory: pytest.TempPathFactory):
+    """Point defensive_pressing's default xOut checkpoint at a tmp path.
+
+    ``batch_calculate`` -> ``ensure_xout_model`` auto-refits AND persists to
+    ``DEFAULT_XOUT_CHECKPOINT`` (models/defensive_pressing/xout_v1.pkl — the
+    frozen validated artifact) whenever the loaded checkpoint's max train
+    season is more than one season behind the connected DB.  The synthetic
+    test DB contains 2026 pitches, so against the frozen 2015-2024 artifact
+    that policy would silently overwrite it from inside the test suite
+    (2026-08-10 audit, DPI finding 3).  Redirecting the module constant for
+    the whole session makes that write structurally impossible here.
+    """
+    import src.analytics.defensive_pressing as dp
+
+    mp = pytest.MonkeyPatch()
+    mp.setattr(
+        dp,
+        "DEFAULT_XOUT_CHECKPOINT",
+        tmp_path_factory.mktemp("dpi_checkpoints") / "xout_vtest.pkl",
+    )
+    yield
+    mp.undo()
+
+
 @pytest.fixture(scope="session")
 def stuff_model_artifact():
     """Load the Stuff+ model artifact; skip if not available."""

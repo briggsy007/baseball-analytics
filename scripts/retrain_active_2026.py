@@ -30,11 +30,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-STATUS_PATH = Path(
-    r"C:\Users\hunte\AppData\Local\Temp\claude"
-    r"\C--Users-hunte-projects-baseball"
-    r"\1284a947-3226-496c-b90a-c86e975dce67\scratchpad\retrain_status.json"
-)
+# Status JSON lives under the repo's nightly log dir (WS0.4: previously a
+# hard-coded dead scratchpad path from a long-gone agent session).
+STATUS_PATH = ROOT / "logs" / "nightly" / "retrain_status.json"
 SEASON = 2026
 status: dict = {"started": datetime.now().isoformat(), "steps": {}, "done": False}
 
@@ -62,22 +60,29 @@ def main() -> None:
     print("=== PHASE 1: artifact retrains (read-only DB) ===", flush=True)
     conn_ro = get_connection(read_only=True)
 
-    # 1a. Stuff+
+    # 1a. Stuff+ — writes the IN-SEASON artifact, never the frozen
+    # models/stuff_model.pkl (WS0.1 checkpoint quarantine).
     try:
-        from src.analytics.stuff_model import train_stuff_model, DEFAULT_MODEL_PATH
-        m = train_stuff_model(conn_ro)
+        from src.analytics.stuff_model import train_stuff_model, INSEASON_MODEL_PATH
+        m = train_stuff_model(conn_ro, model_path=str(INSEASON_MODEL_PATH))
         _mark("stuff_plus_artifact", ok=True,
               r2_test=m.get("r2_test"), rmse_test=m.get("rmse_test"),
-              path=str(DEFAULT_MODEL_PATH))
+              path=str(INSEASON_MODEL_PATH))
         print("PHASE1_STUFF_DONE", flush=True)
     except Exception as exc:
         _mark("stuff_plus_artifact", ok=False, error=str(exc))
         print(f"PHASE1_STUFF_FAIL: {exc}", flush=True)
 
-    # 1b. DPI xOut (persist checkpoint the live dashboard loads, incl. 2026 BIP)
+    # 1b. DPI xOut — writes the IN-SEASON checkpoint the live dashboard loads
+    # (incl. 2026 BIP). The frozen validated xout_v1.pkl is never touched
+    # (WS0.1 checkpoint quarantine).
     try:
         import src.analytics.defensive_pressing as dp
-        res = dp.fit_xout(conn_ro, seasons=list(range(2015, SEASON + 1)))
+        res = dp.fit_xout(
+            conn_ro,
+            seasons=list(range(2015, SEASON + 1)),
+            persist_path=dp.INSEASON_XOUT_CHECKPOINT,
+        )
         _mark("dpi_xout_artifact", ok=True,
               detail={k: res.get(k) for k in list(res)[:6]} if isinstance(res, dict) else str(res))
         print("PHASE1_DPI_DONE", flush=True)

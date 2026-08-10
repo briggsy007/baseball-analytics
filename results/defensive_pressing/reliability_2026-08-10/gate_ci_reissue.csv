@@ -1,0 +1,8 @@
+gate,y_metric,window,n,n_clusters,threshold,direction,pearson_r,spearman_rho,recorded_r,recorded_ci_lo,recorded_ci_hi,pairs_cluster_ci_lo,pairs_cluster_ci_hi,pairs_cluster_spearman_ci_lo,pairs_cluster_spearman_ci_hi,wcb_t_ci_lo,wcb_t_ci_hi,cluster_robust_se,iid_se,se_inflation,point_estimate_clears_threshold,wcb_ci_bound_clears_threshold,pairs_ci_bound_clears_threshold,wildboottest_p_at_threshold,wildboottest_note
+gate2_rp_2023_2024,rp_proxy,2023+2024,60,30,0.4,>=,0.6162,0.5492,0.6197,0.4228,0.771,0.3932,0.7605,0.2974,0.7328,0.3059,0.9288,0.1324,0.1034,1.28,True,False,False,0.16121612161216123,
+gate2_rp_pooled_2023_2025,rp_proxy,2023+2024+2025,90,30,0.4,>=,0.5826,0.4873,,,,0.369,0.7236,0.2804,0.6549,0.2619,0.9148,0.1494,0.0866,1.724,True,False,False,0.35353535353535354,
+gate3_babip_2023_2024,babip_against,2023+2024,60,30,-0.5,<=,-0.7355,-0.7358,-0.7334,-0.8306,-0.623,-0.8259,-0.6151,-0.8391,-0.5744,-0.9556,-0.5133,0.097,0.089,1.09,True,True,True,0.0392039203920392,
+gate3_babip_pooled_2023_2025,babip_against,2023+2024+2025,90,30,-0.5,<=,-0.718,-0.7204,,,,-0.8029,-0.6134,-0.7972,-0.607,-0.9316,-0.501,0.0886,0.0742,1.194,True,True,True,0.013001300130013,
+gate6_oaa_2023_2024,team_oaa,2023+2024,60,30,0.45,>=,0.5612,0.553,0.5492,0.307,0.721,0.3082,0.7535,0.2825,0.7422,0.2347,0.8855,0.1426,0.1087,1.312,True,False,False,0.47014701470147013,
+gate6_oaa_2025,team_oaa,2025,30,30,0.45,>=,0.6406,0.6018,0.6406,0.4209,0.7922,0.4243,0.7972,0.2834,0.8017,0.2701,1.0057,0.1351,0.1451,0.931,True,False,False,0.1624162416241624,
+gate6_oaa_pooled_2023_2025,team_oaa,2023+2024+2025,90,30,0.45,>=,0.4869,0.4602,0.4869,0.3174,0.635,0.3165,0.6271,0.2483,0.6128,0.273,0.7001,0.094,0.0931,1.009,True,False,False,0.7073707370737073,

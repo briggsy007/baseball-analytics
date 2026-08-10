@@ -4,20 +4,24 @@ Generate the 2026 mid-season Contrarian Leaderboards (Buy-Low / Over-Valued).
 
 What this is
 ------------
-An **application** of the validated 2023-2025 CausalWAR-vs-bWAR contrarian
+An **application** of the 2023-2025 CausalWAR-vs-bWAR contrarian
 methodology to *partial-season* 2026 data.  It joins the retrained CausalWAR
 2026 leaderboard (from ``leaderboard_cache``) against 2026 season-to-date
 Baseball-Reference WAR (backfilled by ``scripts/backfill_2026_war.py``),
 ranks players by the two-directional rank disagreement, tags each row with the
-validated mechanism heuristic, and writes a board + summary.
+dashboard mechanism-tag heuristic, and writes a board + summary.
 
 What this is NOT
 ---------------
-This is NOT a validated hit-rate claim.  The marquee Buy-Low figure
-(68.4%, 13/19, 95% CI [0.47, 0.84]) was measured on FULL-SEASON 2023-24
-picks resolved against 2025 outcomes.  Mid-season 2026 picks are UNRESOLVED
--- they can only be scored after a future season plays out.  The generated
-``summary.md`` states this explicitly.
+This is NOT a validated hit-rate claim.  The headline Buy-Low figure
+(68.4%, 13/19) is NOT a validated edge (2026-08-10 audit §2): its hit
+criterion was defined post-hoc, the 95% CI [0.474, 0.843] includes chance,
+intention-to-treat scoring (exits count against the pick) is 13/25 = 52%,
+and matched-naive mean-reversion baselines score 66.5-73% on the same
+pools.  It was measured on FULL-SEASON 2023-24 picks resolved against 2025
+outcomes.  Mid-season 2026 picks are UNRESOLVED -- they can only be scored
+after a future season plays out.  The generated ``summary.md`` states this
+explicitly.
 
 Cohort gates (mid-season, pro-rated)
 -----------------------------------
@@ -53,8 +57,11 @@ from __future__ import annotations
 
 import argparse
 import io
+import json
 import logging
+import os
 import sys
+from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -98,15 +105,50 @@ IP_MIN = round(FULL_IP_GATE * SEASON_PROGRESS)  # 34
 TOP_N = 25
 
 OUT_DIR = ROOT / "results" / "edges" / "contrarian_2026_midseason"
-BOARD_CSV = OUT_DIR / "board.csv"
-SUMMARY_MD = OUT_DIR / "summary.md"
+# WS0.4 (2026-08-10): the script writes DATED copies under
+# OUT_DIR/YYYY-MM-DD/{board.csv,summary.md} plus an atomically-replaced
+# ``latest.json`` pointer. The original top-level board.csv / summary.md
+# (first generation, 2026-08) are frozen legacy artifacts — never
+# overwritten in place again; their content is preserved as the 2026-08-10
+# dated copy.
+LEGACY_BOARD_CSV = OUT_DIR / "board.csv"
+LEGACY_SUMMARY_MD = OUT_DIR / "summary.md"
+LATEST_POINTER = OUT_DIR / "latest.json"
+
+
+def _dated_dir(run_date: str) -> Path:
+    return OUT_DIR / run_date
+
+
+def _write_latest_pointer(run_date: str) -> None:
+    """Atomically update ``latest.json`` to name the newest dated dir.
+
+    Written via temp file + ``os.replace`` (atomic on the same volume) so a
+    concurrent reader never sees a partial pointer.
+    """
+    payload = {
+        "latest": run_date,
+        "board_csv": f"{run_date}/board.csv",
+        "summary_md": f"{run_date}/summary.md",
+        "written_utc": datetime.now(timezone.utc).isoformat(),
+    }
+    tmp = LATEST_POINTER.with_suffix(".json.tmp")
+    tmp.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+    os.replace(tmp, LATEST_POINTER)
 
 _PHI = "PHI"
 
+# Detached language per WS0.3 (2026-08-10 audit §2): no "validated" attached
+# to 68.4%. Wording mirrors the dashboard's _BANNER_2026
+# (src/dashboard/views/contrarian_leaderboards.py).
 _BANNER = (
-    "APPLICATION of the validated 2023-2025 CausalWAR contrarian methodology to "
-    "PARTIAL-SEASON 2026 data. The validated Buy-Low hit-rate (68.4%, 13/19, "
-    "95% CI [0.47, 0.84]) was measured on FULL-SEASON 2023-24 picks resolved "
+    "APPLICATION of the 2023-2025 CausalWAR contrarian methodology to "
+    "PARTIAL-SEASON 2026 data. The headline Buy-Low hit rate (68.4%, 13/19) "
+    "is NOT a validated edge: its hit criterion was defined post-hoc, the "
+    "95% CI [0.474, 0.843] includes chance, intention-to-treat scoring "
+    "(exits count against the pick) is 13/25 = 52%, and matched-naive "
+    "mean-reversion baselines score 66.5-73% on the same pools. It "
+    "was measured on FULL-SEASON 2023-24 picks resolved "
     "against 2025 outcomes and does NOT transfer to these mid-season boards. "
     "2026 picks here are UNRESOLVED and can only be scored after future seasons."
 )
@@ -369,8 +411,10 @@ def _top_table_md(df: pd.DataFrame, n: int = 10) -> str:
     return "\n".join(lines)
 
 
-def write_summary(board: pd.DataFrame, meta: dict[str, Any]) -> None:
-    OUT_DIR.mkdir(parents=True, exist_ok=True)
+def write_summary(
+    board: pd.DataFrame, meta: dict[str, Any], out_path: Path,
+) -> None:
+    out_path.parent.mkdir(parents=True, exist_ok=True)
     buy_low = board[board["board"] == "buy_low"]
     over_valued = board[board["board"] == "over_valued"]
 
@@ -430,23 +474,27 @@ def write_summary(board: pd.DataFrame, meta: dict[str, Any]) -> None:
         lines.append("")
     lines.append("## Methodology + honest caveats")
     lines.append("")
-    lines.append("- **Tags** reuse the validated dashboard heuristic "
+    lines.append("- **Tags** reuse the dashboard mechanism-tag heuristic "
                  "(`src/dashboard/views/contrarian_leaderboards.py::_classify_row`): "
                  f"`{_TAG_RELIEVER}`, `{_TAG_PARK}`, `{_TAG_DEFENSE}`, `{_TAG_GENUINE}`, `{_TAG_OTHER}`. "
-                 "Internal tag thresholds (e.g. GENUINE EDGE needs PA>=400) are the validated "
-                 "FULL-SEASON values applied as-is, so fewer rows earn GENUINE at mid-season.")
+                 "Internal tag thresholds (e.g. GENUINE EDGE needs PA>=400) are the "
+                 "FULL-SEASON values from the 2023-24 evidence run applied as-is, "
+                 "so fewer rows earn GENUINE at mid-season.")
     lines.append("- The 2026 CausalWAR leaderboard is **batter-only**, so RELIEVER LEVERAGE GAP "
                  "and PARK FACTOR (pitcher tags) do not appear on this board.")
     lines.append("- **DEFENSE GAP** depends on `players.position`, which is currently NULL for the "
                  "2026 leaderboard players, so that tag rarely fires; it will activate automatically "
                  "once fielding positions are populated.")
     lines.append("- Rows with NULL 2026 bWAR are dropped, never imputed. NULL stays NULL.")
-    lines.append("- **These picks are unresolved.** The 68.4% validated hit-rate is a full-season "
-                 "2023-24 -> 2025 result and does not transfer here. Resolution requires a future season.")
+    lines.append("- **These picks are unresolved.** The headline 68.4% Buy-Low hit rate is a "
+                 "full-season 2023-24 -> 2025 result and is NOT a validated edge (post-hoc hit "
+                 "criterion; 95% CI [0.474, 0.843] includes chance; intention-to-treat is "
+                 "13/25 = 52%; matched-naive baselines score 66.5-73% on the same pools). "
+                 "It does not transfer here; resolution requires a future season.")
     lines.append("")
 
-    SUMMARY_MD.write_text("\n".join(lines), encoding="utf-8")
-    logger.info("Wrote %s", SUMMARY_MD)
+    out_path.write_text("\n".join(lines), encoding="utf-8")
+    logger.info("Wrote %s", out_path)
 
 
 # ---------------------------------------------------------------------------
@@ -471,10 +519,17 @@ def generate() -> int:
             logger.error("Board is empty after cohort gating (meta=%s). Nothing written.", meta)
             return 1
 
-        OUT_DIR.mkdir(parents=True, exist_ok=True)
-        board.to_csv(BOARD_CSV, index=False)
-        logger.info("Wrote %s (%d rows)", BOARD_CSV, len(board))
-        write_summary(board, meta)
+        # WS0.4: dated output dir + atomically-replaced latest pointer.
+        # The legacy top-level board.csv / summary.md are never rewritten.
+        run_date = date.today().isoformat()
+        dated = _dated_dir(run_date)
+        dated.mkdir(parents=True, exist_ok=True)
+        board_csv = dated / "board.csv"
+        board.to_csv(board_csv, index=False)
+        logger.info("Wrote %s (%d rows)", board_csv, len(board))
+        write_summary(board, meta, dated / "summary.md")
+        _write_latest_pointer(run_date)
+        logger.info("Updated latest pointer -> %s", LATEST_POINTER)
         logger.info(
             "Done. Buy-Low=%d Over-Valued=%d (pool=%d, thresholds PA>=%d/IP>=%d)",
             int((board["board"] == "buy_low").sum()),

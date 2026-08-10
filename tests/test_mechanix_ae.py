@@ -40,6 +40,24 @@ from src.analytics.mechanix_ae import (
 )
 
 
+@pytest.fixture(scope="module", autouse=True)
+def mechanix_models_tmpdir(tmp_path_factory: pytest.TempPathFactory):
+    """Redirect all MechanixAE checkpoint I/O in this module to a tmp dir.
+
+    WS0.2 (2026-08-10 plan): tests must never write into the repo-level
+    ``models/`` directory — the dirty ``models/mechanix_ae_554430.pt`` in the
+    2026-08-10 audit came from ``train_mechanix_ae`` being invoked by this
+    file.  ``MECHANIX_AE_MODELS_DIR`` sends both the train-save and the
+    ``calculate_mdi`` / ``calculate_drift_velocity`` load paths to a pytest
+    tmp dir instead.
+    """
+    mp = pytest.MonkeyPatch()
+    models_dir = tmp_path_factory.mktemp("mechanix_models")
+    mp.setenv("MECHANIX_AE_MODELS_DIR", str(models_dir))
+    yield models_dir
+    mp.undo()
+
+
 # ── Helpers ───────────────────────────────────────────────────────────────
 
 

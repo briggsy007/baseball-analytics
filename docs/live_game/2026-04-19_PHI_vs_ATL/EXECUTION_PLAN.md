@@ -1,5 +1,12 @@
 # Live Game Case Study — 2026-04-19 PHI vs ATL — Session Handover & Execution Plan
 
+> **Correction note (2026-08-10).** Historical planning doc, preserved as
+> written. The "13.80%" LSTM number quoted below was retired 2026-04-24
+> (locked: 2.57–3.13% at matched 10K); the 68.4% Buy-Low rate is not a
+> validated edge (post-hoc criterion; ITT 13/25 = 52%; CI includes chance);
+> the "First DML-at-scale" framing overstates the one-nuisance
+> implementation. See `docs/audits/FLAGSHIP_AUDIT_2026-08-10.md`.
+
 **First pitch:** 7:20 PM EST, 2026-04-19.
 **Teams:** Philadelphia Phillies vs Atlanta Braves (confirm home/away from MLB feed at game time).
 **Purpose of this document:** self-contained handover — a fresh Claude session with no prior context should be able to read this plus `docs/NORTH_STAR.md` and execute end-to-end.

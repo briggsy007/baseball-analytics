@@ -1,0 +1,6 @@
+player_id,player_name,season,position_type,war,pa_or_ip,war_source
+642376,Jefry Yan,2026,pitcher,0.12,2.0,bref_bwar
+663884,Nolan Kingham,2026,pitcher,-0.02,1.0,bref_bwar
+681320,Nate Lavender,2026,pitcher,0.16,2.3333333333333335,bref_bwar
+693308,Nick Frasso,2026,pitcher,-0.02,2.0,bref_bwar
+805345,Trent Harris,2026,pitcher,-0.22,0.3333333333333333,bref_bwar

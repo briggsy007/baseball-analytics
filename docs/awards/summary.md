@@ -9,10 +9,10 @@ The unifying philosophy across all three models is transparency: edge is found e
 ---
 
 ## ⚾ 1. CausalWAR: Exploiting the Value Inefficiency
-Traditional WAR is an accounting ledger that easily gets fooled by park factors and sequencing noise. **CausalWAR** is a Double Machine Learning (DML) model trained on over 1.2 million plate appearances that strips away context (inning, stadium, base-state) to isolate pure, causal player skill.
+Traditional WAR is an accounting ledger that easily gets fooled by park factors and sequencing noise. **CausalWAR** is a DML-inspired model (a one-nuisance approximation, not full residual-on-residual DML) trained on over 1.2 million plate appearances that residualizes observable context (inning, base-state, platoon) to isolate per-PA offensive skill.
 
 * **The Edge:** The model automatically generates "Contrarian Leaderboards" that highlight strict disagreements with traditional bWAR. It identifies **Buy-Low** targets (short-sample / late-callup relievers whose small-IP bWAR is artificially depressed by leverage weighting) and **Over-Valued** players (starters buoyed by pitcher-friendly parks, fielders credited by favorable defensive positioning).
-* **The Proof:** Over a three-year out-of-sample window, players flagged on these contrarian leaderboards regress in the predicted direction **70% to 80%** of the time the following season. It serves as a data-backed trade deadline and off-season shopping list.
+* **The Proof (bounded):** The headline Buy-Low hit rate is 68.4% (13/19) under a criterion defined post-hoc; its 95% CI [0.474, 0.843] includes chance, intention-to-treat scoring is 13/25 = 52%, and matched-naive mean-reversion baselines score 66.5–73% on the same pools — at n=19 the rate is statistically indistinguishable from the naive base rate. The defensible, base-rate-cleared result is the reliever-tag subset (78.1% vs 56.9% within-filter naive, n=32), plus two fully-OOS windows (−2.8pp / +10.8pp vs naive). Treat the boards as a divergence-surfacing shopping list, not a validated edge.
 
 ## 🧤 2. Defensive Pressing Intensity (DPI): The System Illusion
 Public defensive metrics like Outs Above Average (OAA) measure individual athleticism and range. They explicitly penalize teams that position their players perfectly, creating a blind spot where highly efficient defensive *systems* are graded poorly. **DPI** measures outcome suppression.
@@ -21,10 +21,10 @@ Public defensive metrics like Outs Above Average (OAA) measure individual athlet
 * **The Proof:** DPI adds distinct information to public defensive metrics like OAA — particularly on next-year BABIP-against, where DPI's advantage over OAA is statistically significant (CI excludes zero). It is the missing half of the defensive evaluation equation — a measurement tool rather than a standalone forecaster, best used alongside prior-year run-prevention totals.
 
 ## 🤖 3. PitchGPT: The Calibrated Sequence Engine
-Public pitch prediction models often chase raw accuracy, generating overconfident forecasts that poison downstream strategy simulators. **PitchGPT** is a decoder-only Transformer model that predicts the next pitch sequence (pitch type, zone, and velocity) not with a crystal ball, but with perfect mathematical calibration.
+Public pitch prediction models often chase raw accuracy, generating overconfident forecasts that poison downstream strategy simulators. **PitchGPT** is a decoder-only Transformer model that predicts the next pitch sequence (pitch type, zone, and velocity) with measured, bounded calibration rather than raw-accuracy bravado.
 
-* **The Edge:** PitchGPT is honest about what it knows. If it predicts a 3.4% chance of a slider low-and-away, that exact scenario happens exactly 3.4% of the time. 
-* **The Proof:** Validated on a strict, out-of-sample holdout of pitchers the model had never seen (334 pitchers new to 2025, zero leakage), PitchGPT achieves near-perfect Expected Calibration Error (ECE = 0.0098 post-temperature). While it is not designed as a standalone dugout tool to guess the next pitch, it is a mathematically sound sequence engine positioned to serve as a foundation for batter-preparation simulations and pitcher workload-management systems.
+* **The Edge:** PitchGPT reports honest probabilities. Its measured top-1 expected calibration error is low (ECE 0.0090–0.0114 post-temperature across evaluations) — though note that a 0.10 ECE gate for a 2,210-class predictor is easy to pass, so this is evidence of calibration, not proof of it.
+* **The Proof (scoped):** Evaluated on a strict, out-of-sample holdout of pitchers the model had never seen (334 pitchers new to 2025, zero leakage), PitchGPT scores top-1 ECE = 0.0098 post-temperature. That number describes the pre-class-calibration per-pitch stack; the production-path ECE (after the class-calibration corrections production applies) has not been measured, and PA-level rollout marginals (K%/BB%/HR%) currently FAIL their fidelity gates. It is a per-pitch-calibrated sequence engine and a foundation under active validation — not yet a validated simulator for absolute PA-level rates.
 
 ---
 

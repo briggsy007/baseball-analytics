@@ -14,7 +14,7 @@
 
 **Strategy context.** Per `docs/NORTH_STAR.md` "Post-evidence consolidation — 2026-04-18 late evening":
 - Flagships are three: DPI, CausalWAR, **PitchGPT**.
-- PitchGPT's current narrowed claim is "calibrated sequence-modeling achievement, not a decision-utility replacement." See `docs/awards/methodology_paper_pitchgpt.md` §1 — the 13.80% LSTM delta (CI [12.22, 15.51]) misses the 15% spec gate by 1.2pp; the downstream pitch-outcome-bucket log-loss delta vs LSTM was 0.00007 (CI brackets zero, a statistical tie). That framing is **locked in** — the sim-engine plan lives inside those constraints, it does not relitigate them.
+- PitchGPT's current narrowed claim is "calibrated sequence-modeling achievement, not a decision-utility replacement." See `docs/awards/methodology_paper_pitchgpt.md` §1 — the 13.80% LSTM delta (CI [12.22, 15.51]) misses the 15% spec gate by 1.2pp *[superseded 2026-04-24: the 13.80% was a 1K-vs-1K artifact, retired; at matched 10K scale the delta is 2.57–3.13% and the gate fails decisively]*; the downstream pitch-outcome-bucket log-loss delta vs LSTM was 0.00007 (CI brackets zero, a statistical tie). That framing is **locked in** — the sim-engine plan lives inside those constraints, it does not relitigate them.
 - Path 2 philosophy: edge surfacing over gate completion. Honest-negatives reporting is the standard.
 - Retracted / demoted / retired (do NOT re-litigate): VWR (retracted 2026-04-18 late evening as small-sample artifact), MechanixAE (demoted to descriptive profiling), ChemNet v1+v2 (retired null), volatility_surface (retired null).
 

@@ -423,10 +423,99 @@ def write_status(step_dir: Path, status: dict) -> Path:
 
 
 # ---------------------------------------------------------------------------
+# Single-instance lock (WS0.4)
+# ---------------------------------------------------------------------------
+# schtasks' IgnoreNew policy only governs *scheduler-triggered* starts; a
+# manual launch can still overlap a running chain. A process-level file lock
+# is the real mutual-exclusion gate. Uses the `filelock` package (installed);
+# falls back to an O_EXCL lockfile if it is ever missing.
+
+LOCK_PATH = LOG_ROOT / "nightly.lock"
+_LOCK_BLOCKED_EXIT = 4
+
+
+class _OExclLock:
+    """Minimal O_EXCL lockfile fallback when `filelock` is unavailable.
+
+    NOT reentrant and leaves a stale file if the process is killed hard;
+    `filelock` (which recovers stale locks) is strongly preferred.
+    """
+
+    def __init__(self, path: Path):
+        self.path = Path(path)
+        self._fd: int | None = None
+
+    def __enter__(self):
+        try:
+            self._fd = os.open(
+                str(self.path), os.O_CREAT | os.O_EXCL | os.O_WRONLY
+            )
+            os.write(self._fd, str(os.getpid()).encode())
+        except FileExistsError as exc:
+            raise TimeoutError(f"lock already held: {self.path}") from exc
+        return self
+
+    def __exit__(self, *exc_info):
+        if self._fd is not None:
+            os.close(self._fd)
+            self._fd = None
+        try:
+            self.path.unlink()
+        except OSError:
+            pass
+        return False
+
+
+def _acquire_nightly_lock():
+    """Return an acquired, non-blocking lock context or raise Timeout."""
+    LOG_ROOT.mkdir(parents=True, exist_ok=True)
+    try:
+        from filelock import FileLock, Timeout  # type: ignore
+
+        lock = FileLock(str(LOCK_PATH))
+        try:
+            lock.acquire(timeout=0)
+        except Timeout as exc:
+            raise TimeoutError(
+                f"another nightly run holds {LOCK_PATH}"
+            ) from exc
+        return lock
+    except ImportError:
+        return _OExclLock(LOCK_PATH).__enter__()
+
+
+def _release_nightly_lock(lock) -> None:
+    try:
+        if hasattr(lock, "release"):
+            lock.release()
+        else:
+            lock.__exit__(None, None, None)
+    except Exception:
+        pass
+
+
+# ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 
 def main() -> int:
+    """Acquire the single-instance nightly lock, then run the chain."""
+    try:
+        lock = _acquire_nightly_lock()
+    except TimeoutError as exc:
+        print(
+            f"REFUSED: nightly chain already running ({exc}). "
+            f"Exit {_LOCK_BLOCKED_EXIT}.",
+            flush=True,
+        )
+        return _LOCK_BLOCKED_EXIT
+    try:
+        return _run()
+    finally:
+        _release_nightly_lock(lock)
+
+
+def _run() -> int:
     ap = argparse.ArgumentParser(description="Nightly refresh orchestration wrapper.")
     ap.add_argument("--season", type=int, default=None,
                     help="MLB season for precompute (default: derived from today's date).")

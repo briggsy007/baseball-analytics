@@ -15,7 +15,9 @@ ECE (0.0114) is NOT at stake and must not be perturbed (see §4 mode-scoping).
 
 - Mid-PA count mutation is live and tested (verified in `6111cd6`, tests added in `ed1d4dd`).
 - Sanity A/B on 2025 (10K PA × 100 samples, seed 42):
-  class_calibration ON → K% +11.6pp / BB% +3.0pp / HR% −0.8pp FAIL, wOBA + PA-length PASS.
+  class_calibration ON → K% +11.6pp / BB% +3.0pp / HR% −0.8pp FAIL, wOBA + PA-length PASS
+  [TAINTED - pending Phase 0.6.2 re-evaluation (pos-0 calibration was fit on the eval cohort);
+  see the taint bullet below].
   class_calibration OFF → strictly worse (BB% crashes to 0.038, wOBA flips FAIL).
 - Root cause of residual K% surplus: flat per-position strike response in the self-generated
   rollout regime (CS ~0.28–0.33 across positions vs empirical collapse 0.290 → 0.045 by pos 5).

@@ -52,7 +52,7 @@ _VWR_ZONES = [
     (0, 25, "#2ECC71", "Fresh"),       # green
     (25, 50, "#F1C40F", "Moderate"),    # yellow
     (50, 75, "#E67E22", "Elevated"),    # orange
-    (75, 100, "#E74C3C", "High Risk"),  # red
+    (75, 100, "#E74C3C", "High Strain"),  # red
 ]
 
 
@@ -69,7 +69,7 @@ def _vwr_label(score: float) -> str:
     for lo, hi, _, label in _VWR_ZONES:
         if lo <= score < hi:
             return label
-    return "High Risk"
+    return "High Strain"
 
 
 # ---------------------------------------------------------------------------
@@ -94,22 +94,35 @@ def _cached_recovery(pitcher_id: int, rest_days: int) -> dict:
 def render() -> None:
     """Render the Viscoelastic Workload Response analysis page."""
     st.title("Viscoelastic Workload Response (VWR)")
+    st.warning(
+        "RETRACTED 2026-04-18 — DESCRIPTIVE WORKLOAD TRACKER ONLY. VWR was "
+        "promoted to flagship on a 64-fit 2015-16 sample (residual AUC "
+        "0.768). Scale verification on n=563 injured fits (2017-2024) "
+        "collapsed the out-of-sample residual AUC to 0.438 — below chance — "
+        "and the 2025 holdout scored 0.493. The small-sample finding was a "
+        "label-calendar artifact; the injury-signal claim did not replicate "
+        "and VWR is permanently off the flagship-candidate list. VWR values "
+        "describe accumulated workload; they carry NO validated "
+        "injury-prediction signal. See "
+        "`docs/models/viscoelastic_workload_results.md` for the retraction."
+    )
     st.caption(
         "Biomechanical arm stress-strain model using Standard Linear Solid "
-        "viscoelasticity.  Higher VWR = more accumulated arm strain."
+        "viscoelasticity.  Higher VWR = more accumulated arm strain in the "
+        "model's units."
     )
 
     with st.expander("What does this mean?"):
         st.markdown("""
-**VWR models a pitcher's arm like a biomechanical material** — each pitch adds strain that partially recovers over time, following real tissue physics.
+**VWR models a pitcher's arm like a biomechanical material** — each pitch adds strain that partially recovers over time, following a tissue-physics analogy.
 
-- **VWR 0-40** = low strain (well-rested, recovered from recent outings)
-- **VWR 40-70** = moderate strain (accumulating load, monitor closely)
-- **VWR 70-90** = high strain (increased injury risk — consider extra rest)
-- **VWR 90+** = critical (tissue-level strain hasn't recovered — strong recommendation to skip a start or extend rest)
+- **VWR 0-40** = low accumulated strain (well-rested, recovered from recent outings)
+- **VWR 40-70** = moderate accumulated strain
+- **VWR 70-90** = high accumulated strain in the model's units
+- **VWR 90+** = the model's strain accumulator has not recovered between outings
 - **Key difference from pitch count:** Two pitchers at 90 pitches can have wildly different VWR based on rest days, pitch effort, and recovery time between outings
-- **Recovery predictor** shows exactly how many rest days are needed to return to a safe VWR level
-- **Impact:** Monitoring VWR during workload ramp-ups (especially for young arms) can prevent the overuse injuries that end careers
+- **Recovery predictor** shows how many rest days the model projects until VWR returns to a lower level
+- **Validation status:** VWR was tested as an injury early-warning signal and retracted 2026-04-18 — out-of-sample residual AUC 0.438 on n=563 injured fits (below chance), 2025 holdout 0.493. Nothing on this page predicts injuries or should drive rest decisions.
 """)
 
     if not _VWR_AVAILABLE:

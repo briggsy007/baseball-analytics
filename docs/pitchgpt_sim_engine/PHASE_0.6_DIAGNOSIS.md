@@ -195,10 +195,10 @@ Re-ran `scripts/pitchgpt_rollout_sanity_2025.py` end-to-end (PRIMARY 682s, SECON
 | BB% | 0.0429 | **0.1309** | 0.0876 | ±0.0088 | FAIL (Δ +0.0433) |
 | HR% | 0.0276 | 0.0263 | 0.0321 | ±0.0032 | FAIL (Δ −0.0058) |
 | mean wOBA | 0.2938 | 0.3052 | 0.3302 | ±0.015 | FAIL (Δ −0.025) |
-| mean PA length (pitches) | 3.2249 | **3.6975** | 3.8858 | ±0.5 | **PASS** (Δ −0.188) |
+| mean PA length (pitches) | 3.2249 | **3.6975** | 3.8858 | ±0.5 | **PASS** (Δ −0.188) [TAINTED - pending Phase 0.6.2 re-evaluation (pos-0 calibration was fit on the eval cohort)] |
 | calibration_valid_coverage | 1.000 | **1.000** | ≥0.95 | — | **PASS** |
 
-**Direction of change is favorable on every gate.** K% bias halved (8.9pp → 3.8pp); BB% bias **flipped sign** (−4.5pp → +4.3pp, similar magnitude); mean PA length moved from −0.66 to −0.19 (PASS); mean wOBA gap closed by ~30%; HR% slightly worse but inside the original CI.
+**Direction of change is favorable on every gate.** K% bias halved (8.9pp → 3.8pp); BB% bias **flipped sign** (−4.5pp → +4.3pp, similar magnitude); mean PA length moved from −0.66 to −0.19 (PASS [TAINTED - pending Phase 0.6.2 re-evaluation (pos-0 calibration was fit on the eval cohort)]); mean wOBA gap closed by ~30%; HR% slightly worse but inside the original CI.
 
 ### 9.4 Why the per-PA gates still FAIL despite per-pitch marginals being exact
 

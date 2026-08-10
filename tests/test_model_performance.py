@@ -88,17 +88,21 @@ class TestStuffPlusPerformance:
         """League standard deviation must be positive (non-degenerate model)."""
         assert stuff_model_artifact["league_std"] > 0
 
-    def test_r2_above_baseline(self, stuff_model_artifact, db_conn, baselines):
+    def test_r2_above_baseline(self, stuff_model_artifact, db_conn, baselines, tmp_path):
         """Retrain on test data and verify R2 meets the baseline threshold.
 
         This trains a fresh model on the test database and checks the
         test-split R2 against the stored baseline.  The threshold is
         intentionally lenient because the test DB has limited data.
+        The throwaway artifact goes to tmp_path, never to the repo-level
+        ``models/stuff_model.pkl`` (WS0.2).
         """
         from src.analytics.stuff_model import train_stuff_model
 
         try:
-            metrics = train_stuff_model(db_conn)
+            metrics = train_stuff_model(
+                db_conn, model_path=str(tmp_path / "stuff_model_vtest.pkl")
+            )
         except ValueError as exc:
             pytest.skip(f"Insufficient data for Stuff+ training: {exc}")
 
@@ -108,12 +112,14 @@ class TestStuffPlusPerformance:
             f"Stuff+ R2 test ({r2_test:.4f}) below baseline ({r2_threshold})"
         )
 
-    def test_rmse_below_threshold(self, stuff_model_artifact, db_conn, baselines):
+    def test_rmse_below_threshold(self, stuff_model_artifact, db_conn, baselines, tmp_path):
         """RMSE on the test split should not exceed the baseline threshold."""
         from src.analytics.stuff_model import train_stuff_model
 
         try:
-            metrics = train_stuff_model(db_conn)
+            metrics = train_stuff_model(
+                db_conn, model_path=str(tmp_path / "stuff_model_vtest.pkl")
+            )
         except ValueError:
             pytest.skip("Insufficient data for Stuff+ training")
 
@@ -780,12 +786,16 @@ class TestRegressionDetection:
     intentionally retrained.
     """
 
-    def test_stuff_plus_no_regression(self, stuff_model_artifact, db_conn, baselines):
+    def test_stuff_plus_no_regression(
+        self, stuff_model_artifact, db_conn, baselines, tmp_path
+    ):
         """Stuff+ R2 should not regress more than 5% below baseline."""
         from src.analytics.stuff_model import train_stuff_model
 
         try:
-            metrics = train_stuff_model(db_conn)
+            metrics = train_stuff_model(
+                db_conn, model_path=str(tmp_path / "stuff_model_vtest.pkl")
+            )
         except ValueError:
             pytest.skip("Insufficient data for Stuff+ training")
 

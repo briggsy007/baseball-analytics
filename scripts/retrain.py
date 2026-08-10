@@ -248,10 +248,12 @@ def _retrain_stuff_plus(
         return result
 
     try:
-        from src.analytics.stuff_model import train_stuff_model
+        # Writes the IN-SEASON artifact — never the frozen
+        # models/stuff_model.pkl (WS0.1 checkpoint quarantine).
+        from src.analytics.stuff_model import train_stuff_model, INSEASON_MODEL_PATH
 
         _info("Training stuff_plus model...")
-        metrics = train_stuff_model(conn)
+        metrics = train_stuff_model(conn, model_path=str(INSEASON_MODEL_PATH))
         result["metrics_new"] = metrics
         result["status"] = "trained"
         result["decision"] = "saved (standalone model, always saves)"

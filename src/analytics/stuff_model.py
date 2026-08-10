@@ -32,6 +32,29 @@ _PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_MODEL_DIR = _PROJECT_ROOT / "models"
 DEFAULT_MODEL_PATH = DEFAULT_MODEL_DIR / "stuff_model.pkl"
 
+# ---------------------------------------------------------------------------
+# Frozen vs in-season artifact separation (WS0.1, 2026-08-10)
+# ---------------------------------------------------------------------------
+# ``stuff_model.pkl`` is the FROZEN artifact (train data through 2025 only).
+# Nightly / in-season retrains that ingest in-progress-season data write the
+# in-season path below.  :func:`train_stuff_model` refuses to overwrite an
+# existing frozen artifact unless ``allow_frozen_overwrite=True`` is passed
+# explicitly (deliberate re-freeze only).
+FROZEN_MODEL_PATH = DEFAULT_MODEL_PATH
+INSEASON_MODEL_PATH = DEFAULT_MODEL_DIR / "stuff_model_2026_inseason.pkl"
+
+
+def resolve_scoring_model_path() -> Path:
+    """Artifact path production scoring should load.
+
+    Prefers the in-season retrained artifact (kept current by the nightly
+    chain; in-sample for the in-progress season) and falls back to the
+    frozen artifact when no in-season artifact exists.
+    """
+    if INSEASON_MODEL_PATH.exists():
+        return INSEASON_MODEL_PATH
+    return FROZEN_MODEL_PATH
+
 # ── Feature columns ─────────────────────────────────────────────────────────
 _PHYSICAL_FEATURES: list[str] = [
     "release_speed",
@@ -135,6 +158,9 @@ def prepare_training_data(
 def train_stuff_model(
     conn: duckdb.DuckDBPyConnection,
     model_path: Optional[str] = None,
+    *,
+    train_through_season: Optional[int] = None,
+    allow_frozen_overwrite: bool = False,
 ) -> dict:
     """Train the Stuff+ gradient boosting model and persist it to disk.
 
@@ -143,8 +169,17 @@ def train_stuff_model(
 
     Args:
         conn: Open DuckDB connection.
-        model_path: Override for the saved model location.  Defaults to
-                    ``models/stuff_model.pkl``.
+        model_path: Override for the saved model location.  Defaults to the
+                    IN-SEASON artifact ``models/stuff_model_2026_inseason.pkl``
+                    (prior to 2026-08-10 this default silently overwrote the
+                    frozen ``models/stuff_model.pkl`` — the audited leakage
+                    pattern).
+        train_through_season: If set, only pitches from seasons ``<=`` this
+                    year are used. Required to reproduce a frozen pre-season
+                    artifact (e.g. ``2025``); ``None`` uses all data.
+        allow_frozen_overwrite: Explicit opt-in required to overwrite an
+                    EXISTING frozen artifact at ``models/stuff_model.pkl``
+                    (deliberate re-freeze only). Otherwise targeting it raises.
 
     Returns:
         Dictionary of training metrics::
@@ -162,13 +197,33 @@ def train_stuff_model(
                 "league_std": float,
                 "pitch_type_classes": list[str],
             }
+
+    Raises:
+        RuntimeError: If ``model_path`` resolves to an existing frozen
+            artifact and ``allow_frozen_overwrite`` is False.
     """
-    save_path = Path(model_path) if model_path else DEFAULT_MODEL_PATH
+    save_path = Path(model_path) if model_path else INSEASON_MODEL_PATH
+    if (
+        save_path.resolve() == FROZEN_MODEL_PATH.resolve()
+        and FROZEN_MODEL_PATH.exists()
+        and not allow_frozen_overwrite
+    ):
+        raise RuntimeError(
+            f"Refusing to overwrite the frozen Stuff+ artifact at "
+            f"{FROZEN_MODEL_PATH}. In-season retrains must write "
+            f"{INSEASON_MODEL_PATH}. Pass allow_frozen_overwrite=True only "
+            f"for a deliberate, documented re-freeze."
+        )
     save_path.parent.mkdir(parents=True, exist_ok=True)
 
     # ── Prepare data ─────────────────────────────────────────────────────
     # We need game_date for the temporal split, so we query separately.
-    query = """
+    season_filter = ""
+    if train_through_season is not None:
+        season_filter = (
+            f"AND EXTRACT(YEAR FROM game_date) <= {int(train_through_season)}"
+        )
+    query = f"""
         SELECT
             release_speed,
             release_spin_rate,
@@ -191,6 +246,7 @@ def train_stuff_model(
           AND pfx_x IS NOT NULL
           AND pfx_z IS NOT NULL
           AND pitch_type IS NOT NULL
+          {season_filter}
     """
     df: pd.DataFrame = conn.execute(query).fetchdf()
 
@@ -259,6 +315,11 @@ def train_stuff_model(
     importances = {col: round(float(imp), 4) for col, imp in zip(feature_cols, raw_imp)}
 
     # ── Persist ──────────────────────────────────────────────────────────
+    from datetime import datetime, timezone
+
+    train_seasons = sorted(
+        int(y) for y in df["game_date"].dt.year.unique()
+    )
     artefact = {
         "model": model,
         "label_encoder": le,
@@ -266,6 +327,16 @@ def train_stuff_model(
         "league_mean": league_mean,
         "league_std": league_std,
         "pitch_type_classes": list(le.classes_),
+        # Provenance metadata (added 2026-08-10; earlier artifacts lack it)
+        "metadata": {
+            "train_seasons": train_seasons,
+            "train_through_season": train_through_season,
+            "fitted_at": datetime.now(timezone.utc).isoformat(),
+            "n_train": int(train_mask.sum()),
+            "n_test": int(test_mask.sum()),
+            "r2_test": round(r2_test, 4),
+            "rmse_test": round(rmse_test, 4),
+        },
     }
     joblib.dump(artefact, save_path)
     logger.info("Stuff+ model saved to %s", save_path)
@@ -293,13 +364,16 @@ def train_stuff_model(
 def _load_model(model_path: Optional[str] = None) -> dict:
     """Load the persisted Stuff+ model artefact.
 
+    With no explicit path, resolves via :func:`resolve_scoring_model_path`
+    (in-season artifact first, frozen fallback).
+
     Returns:
         Dictionary containing the model, encoders, and scaling parameters.
 
     Raises:
         FileNotFoundError: If the model file does not exist.
     """
-    path = Path(model_path) if model_path else DEFAULT_MODEL_PATH
+    path = Path(model_path) if model_path else resolve_scoring_model_path()
     if not path.exists():
         raise FileNotFoundError(
             f"Stuff+ model not found at {path}. "

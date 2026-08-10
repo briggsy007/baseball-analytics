@@ -49,6 +49,24 @@ _SCORE_BUCKET_OFFSET = (
 )
 
 
+@pytest.fixture(scope="module", autouse=True)
+def pitchgpt_models_tmpdir(tmp_path_factory: pytest.TempPathFactory):
+    """Redirect all PitchGPT checkpoint I/O in this module to a tmp dir.
+
+    WS0.2 (2026-08-10 plan): tests must never write into the repo-level
+    ``models/`` directory.  Every test in this file uses ``version="test"``,
+    so pointing ``PITCHGPT_MODELS_DIR`` at a pytest tmp dir sends the tiny
+    ``pitchgpt_vtest.pt`` checkpoint (train AND load paths) there.  Module
+    scope means the model trained by the first inference test is reused by
+    the rest of the file.
+    """
+    mp = pytest.MonkeyPatch()
+    models_dir = tmp_path_factory.mktemp("pitchgpt_models")
+    mp.setenv("PITCHGPT_MODELS_DIR", str(models_dir))
+    yield models_dir
+    mp.undo()
+
+
 # ═════════════════════════════════════════════════════════════════════════════
 # Tokenizer tests
 # ═════════════════════════════════════════════════════════════════════════════
@@ -308,10 +326,13 @@ class TestInference:
     """Tests for PPS and disruption index (require a trained model)."""
 
     @pytest.fixture(autouse=True)
-    def ensure_model(self, db_conn):
-        """Train a tiny model for inference tests."""
-        from pathlib import Path
-        model_path = Path(__file__).resolve().parents[1] / "models" / "pitchgpt_vtest.pt"
+    def ensure_model(self, db_conn, pitchgpt_models_tmpdir):
+        """Train a tiny model for inference tests (into the tmp models dir).
+
+        Writes ``pitchgpt_vtest.pt`` to the ``pitchgpt_models_tmpdir``
+        redirect target, never to the repo-level ``models/`` (WS0.2).
+        """
+        model_path = pitchgpt_models_tmpdir / "pitchgpt_vtest.pt"
         if not model_path.exists():
             train_pitchgpt(
                 db_conn,

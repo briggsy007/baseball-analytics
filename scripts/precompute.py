@@ -232,14 +232,19 @@ def precompute_stuff_plus(conn, season: int) -> dict:
     from src.analytics.stuff_model import (
         batch_calculate_stuff_plus,
         train_stuff_model,
-        DEFAULT_MODEL_PATH,
+        resolve_scoring_model_path,
+        INSEASON_MODEL_PATH,
     )
 
-    # Ensure the model artefact exists
-    if not DEFAULT_MODEL_PATH.exists():
-        _info("Stuff+: training model (first run)...")
-        train_stuff_model(conn)
+    # Ensure a model artefact exists. First-run training writes the
+    # IN-SEASON artifact — never the frozen models/stuff_model.pkl (WS0.1).
+    scoring_path = resolve_scoring_model_path()
+    if not scoring_path.exists():
+        _info("Stuff+: training model (first run, in-season artifact)...")
+        train_stuff_model(conn, model_path=str(INSEASON_MODEL_PATH))
+        scoring_path = resolve_scoring_model_path()
 
+    _info(f"Stuff+: scoring with artifact {scoring_path.name}")
     _info("Stuff+: running batch inference...")
     df = batch_calculate_stuff_plus(conn, season=season)
     elapsed = time.time() - t0
@@ -359,7 +364,14 @@ def precompute_bullpen_matchups(conn, season: int) -> dict:
 def precompute_defensive_pressing(conn, season: int) -> dict:
     """Precompute the DPI leaderboard for all teams.
 
-    Trains the xOut model if needed, then computes team DPI rankings.
+    Loads the in-season xOut checkpoint (frozen-validated fallback) via
+    ``ensure_xout_model`` — it does NOT retrain. Prior to 2026-08-10 this
+    function retrained the in-memory xOut model on ALL seasons at every
+    precompute (the audited in-sample-scoring pattern, WS0.1).
+
+    The cached leaderboard carries ``scoring_artifact`` /
+    ``artifact_train_seasons`` columns so the dashboard can state which
+    artifact scored the season (in-sample vs OOS).
 
     Returns:
         Summary dict with status, row_count, and elapsed seconds.
@@ -367,13 +379,21 @@ def precompute_defensive_pressing(conn, season: int) -> dict:
     t0 = time.time()
     _info("Defensive Pressing: importing module...")
 
-    from src.analytics.defensive_pressing import (
-        batch_calculate,
-        train_expected_out_model,
-    )
+    import src.analytics.defensive_pressing as dp
+    from src.analytics.defensive_pressing import batch_calculate
 
-    _info("Defensive Pressing: ensuring xOut model is trained...")
-    train_expected_out_model(conn)
+    _info("Defensive Pressing: loading xOut checkpoint (no retrain)...")
+    xout_info = dp.ensure_xout_model(conn)
+    artifact_path = xout_info.get("persist_path")
+    train_seasons = xout_info.get("train_seasons") or []
+    seasons_label = (
+        f"{min(train_seasons)}-{max(train_seasons)}" if train_seasons else "unknown"
+    )
+    _info(
+        f"Defensive Pressing: scoring with artifact "
+        f"{Path(artifact_path).name if artifact_path else 'unknown'} "
+        f"(train_seasons {seasons_label})"
+    )
 
     _info("Defensive Pressing: computing DPI leaderboard...")
     df = batch_calculate(conn, season=season)
@@ -382,6 +402,16 @@ def precompute_defensive_pressing(conn, season: int) -> dict:
     if df is None or df.empty:
         _warn(f"Defensive Pressing: empty result ({elapsed:.1f}s)")
         return {"status": "empty", "rows": 0, "seconds": round(elapsed, 2)}
+
+    # Artifact provenance for dashboard honesty (WS0.1 acceptance): which
+    # artifact scored this season, and is the score in-sample or OOS?
+    df = df.copy()
+    df["scoring_artifact"] = Path(artifact_path).name if artifact_path else "unknown"
+    df["artifact_train_seasons"] = seasons_label
+    if train_seasons:
+        df["scored_in_sample"] = bool(int(season) in [int(s) for s in train_seasons])
+    else:
+        df["scored_in_sample"] = None
 
     conn.execute(
         "DELETE FROM leaderboard_cache WHERE model_name = 'defensive_pressing' AND season = $1",

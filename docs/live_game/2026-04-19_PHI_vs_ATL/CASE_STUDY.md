@@ -5,6 +5,14 @@
 **Companion docs.** `docs/awards/headline_findings.md`, `docs/awards/summary.md`, methodology papers in `docs/awards/`
 **Final score.** ATL 4, PHI 2 (regulation, 9 innings, Citizens Bank Park, attendance 36,806)
 
+> **Correction note (2026-08-10).** This case study predates two later
+> corrections and is preserved as written: the "2025 OOS edge of 13.80%"
+> quoted below was retired 2026-04-24 as a 1K-vs-1K small-sample artifact
+> (locked replacement: 2.57–3.13% at matched 10K scale), and the 68.4%
+> Buy-Low rate referenced via the companion docs is not a validated edge
+> (post-hoc criterion; ITT 13/25 = 52%; CI includes chance). See
+> `docs/audits/FLAGSHIP_AUDIT_2026-08-10.md`.
+
 ---
 
 ## Headline

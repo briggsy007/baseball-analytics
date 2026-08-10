@@ -1,5 +1,22 @@
 # NORTH STAR
 
+> **Audit note (2026-08-10).** This document is a layered strategy record;
+> its dated strata quote claims that the 2026-08-10 adversarial audit
+> (`docs/audits/FLAGSHIP_AUDIT_2026-08-10.md`) later narrowed or retired.
+> Read every stratum below with these corrections: the 68.4% Buy-Low rate
+> is NOT a validated edge (post-hoc criterion; ITT 13/25 = 52%; 95% CI
+> [0.474, 0.843] includes chance; matched-naive 66.5–73% on the same pools);
+> DPI's −0.80 BABIP-against correlation is majority circular and is not a
+> selling point (defensible core: partial r(DPI, OAA | BABIP-against) =
+> 0.42/0.69/0.54 by year, 0.41 pooled; "0.58/0.56/0.64 stability" mislabels
+> per-year DPI-vs-OAA correlations — true YoY stability measured once,
+> 2023→24 r≈0.59); the 13.80% LSTM number remains banned (locked
+> 2.57–3.13% at matched 10K, per the 2026-04-24 stratum); PitchGPT's ECE
+> 0.0090–0.0114 describes the pre-class-calibration stack and the
+> production-path ECE is unmeasured; the wOBA/PA-length rollout PASSes are
+> TAINTED pending Phase 0.6.2 (pos-0 calibration was fit on the eval
+> cohort).
+
 ## Mission
 
 Build a baseball analytics platform that sees what the best MLB front offices see — surfacing edges the public analytics (FanGraphs, Baseball Savant) miss — and validates each edge with world-class data-science rigor. The award is downstream: top-tier methodology + tweetable real findings is what wins it. This document is the authoritative record of the strategy, the current state of the platform, and the sequence of work required to cross the finish line. Future Claude sessions should treat it as the single source of truth and begin each session by reading it.

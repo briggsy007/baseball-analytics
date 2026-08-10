@@ -1,5 +1,9 @@
 """
-MechanixAE dashboard view -- Mechanical Drift Detection & Injury Risk.
+MechanixAE dashboard view -- Mechanical Drift Detection (descriptive profiling).
+
+DEMOTED 2026-04-18: MechanixAE scored ROC AUC 0.387 (below random) on its
+30-day pre-injury classification task. MDI is a descriptive mechanical-drift
+measure only; it carries no validated injury-prediction signal.
 
 Provides:
   - **MDI Gauge**: Current Mechanical Drift Index with color zones.
@@ -139,22 +143,31 @@ def _cached_drift_velocity(pitcher_id: int) -> dict:
 def render() -> None:
     """Render the MechanixAE dashboard page."""
     st.title("MechanixAE -- Mechanical Drift Detection")
+    st.warning(
+        "DEMOTED 2026-04-18 — DESCRIPTIVE PROFILING ONLY. MechanixAE was "
+        "built as an injury early-warning system, but on its 30-day "
+        "pre-injury classification task it scored ROC AUC 0.387 — below "
+        "random (0.5). MDI values describe mechanical variation; they carry "
+        "NO validated injury-prediction signal, and no MDI threshold should "
+        "be read as an IL-stint predictor. See "
+        "`docs/models/mechanix_ae_results.md` for the demotion record."
+    )
     st.caption(
-        "Variational Autoencoder for detecting pitching mechanical drift and "
-        "predicting injury risk.  Higher MDI = greater mechanical divergence "
-        "from the pitcher's healthy baseline."
+        "Variational Autoencoder for describing pitching mechanical drift. "
+        "Higher MDI = greater mechanical divergence from the pitcher's "
+        "recent baseline."
     )
 
     with st.expander("What does this mean?"):
         st.markdown("""
-**MechanixAE monitors pitcher mechanics for subtle drift** that humans can't see — using a neural network trained on each pitcher's "healthy" delivery.
+**MechanixAE describes pitcher mechanical drift** — using a neural network trained on each pitcher's baseline delivery.
 
 - **MDI 0-40** = normal mechanical variation (all pitchers have some noise)
-- **MDI 40-70** = elevated drift (mechanics are shifting — could be fatigue, adjustment, or early injury signal)
-- **MDI 70+** = significant mechanical change (strong correlation with upcoming IL stints in historical data)
-- **Drift Velocity** matters more than raw MDI — *accelerating* drift is the real red flag
-- **Feature Attribution** shows *what* is changing (arm slot dropping? release point moving forward?) so training staff knows where to look
-- **Impact:** Catching mechanical drift 2-3 starts before a pitcher hits the IL can save $10M+ in lost production and prevent minor issues from becoming major injuries
+- **MDI 40-70** = elevated drift (mechanics are shifting — could be fatigue or an intentional adjustment)
+- **MDI 70+** = significant mechanical change from the baseline window
+- **Drift Velocity** distinguishes steady variation from *accelerating* change
+- **Feature Attribution** shows *what* is changing (arm slot dropping? release point moving forward?) so you know where to look
+- **Validation status:** MechanixAE was tested as an injury early-warning signal (30-day pre-IL classification) and failed — ROC AUC 0.387, below random. It was demoted 2026-04-18 to descriptive profiling; nothing on this page predicts injuries.
 """)
 
     if not _MECHANIX_AVAILABLE:
@@ -542,9 +555,11 @@ def _render_alert_system(conn) -> None:
     """List pitchers with MDI above the 80th percentile."""
     st.subheader("Mechanical Drift Alerts")
     st.caption(
-        "Pitchers whose current MDI exceeds the 80th percentile "
-        "of all computed MDI values.  These arms may be at elevated "
-        "risk for performance decline or injury."
+        "Pitchers whose current MDI exceeds the 80th percentile of all "
+        "computed MDI values — i.e. the largest current mechanical "
+        "divergence from baseline. Descriptive only: MDI scored AUC 0.387 "
+        "(below random) on injury prediction and must not be read as an "
+        "injury-risk alert."
     )
 
     min_pitches = st.slider(

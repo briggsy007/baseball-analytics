@@ -77,21 +77,30 @@ def _cached_batch_volatility(_conn, min_pitches: int) -> pd.DataFrame:
 def render() -> None:
     """Render the Pitch Implied Volatility Surface page."""
     st.title("Pitch Implied Volatility Surface")
+    st.warning(
+        "RETIRED — NULL RESULT. DESCRIPTIVE VISUALIZATION ONLY. The "
+        "predictability-tax hypothesis this model was built to test "
+        "returned a clean null (r = -0.013, p = 0.89): a pitcher's "
+        "outcome-entropy profile showed no relationship with the tested "
+        "performance outcome. The surfaces below are descriptive entropy "
+        "maps; no predictive or strategic edge has been validated, and "
+        "'exploitable' cells carry no demonstrated on-field consequence."
+    )
     st.caption(
         "Options-pricing-inspired view of pitch outcome uncertainty. "
-        "Maps Shannon entropy across zone and count to reveal where a "
-        "pitcher is most unpredictable."
+        "Maps Shannon entropy across zone and count to describe where a "
+        "pitcher's outcomes are most and least varied."
     )
 
     with st.expander("What does this mean?"):
         st.markdown("""
-**The volatility surface maps how unpredictable a pitcher's outcomes are** across every zone-count combination — like an options trader's implied vol surface.
+**The volatility surface maps how varied a pitcher's outcomes are** across every zone-count combination — like an options trader's implied vol surface.
 
-- **High entropy (red)** = unpredictable outcomes → good for the pitcher inside the zone (hitters can't sit on one outcome), bad outside (command issues)
-- **Low entropy (blue)** = predictable outcomes → exploitable if hitters identify the pattern ("he always gets a chase swing here")
-- **Vol Smile** shows if a pitcher is more unpredictable at the zone edges (good — deceptive) or the middle (bad — hittable)
-- **Vol Term Structure** reveals if a pitcher becomes more predictable as counts deepen (bad — hitters can narrow their approach in full counts)
-- **Impact:** Identifying the 2-3 zone-count cells where a pitcher is most predictable gives hitters a concrete plan of attack
+- **High entropy (red)** = varied outcomes in that cell
+- **Low entropy (blue)** = concentrated, repetitive outcomes in that cell
+- **Vol Smile** shows whether entropy is higher at the zone edges or the middle
+- **Vol Term Structure** shows how entropy changes as counts deepen
+- **Validation status:** the hypothesis that low-entropy (predictable) cells impose a measurable performance tax was tested and returned a clean null (r = -0.013, p = 0.89). This model is retired; the page is kept as a descriptive visualization only.
 """)
 
     if not _PIVS_AVAILABLE:

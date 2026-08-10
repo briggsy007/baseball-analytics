@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import logging
 import math
+import os
 from pathlib import Path
 from typing import Any, Literal, Optional
 
@@ -223,6 +224,18 @@ def _compute_per_pitch_score_diff(df: pd.DataFrame) -> list[int]:
 
 # ── Paths ────────────────────────────────────────────────────────────────────
 _MODEL_DIR = Path(__file__).resolve().parents[2] / "models"
+
+
+def _model_dir() -> Path:
+    """Resolve the model artifact directory at call time.
+
+    Honors the ``PITCHGPT_MODELS_DIR`` environment variable so tests can
+    redirect checkpoint writes/reads to a pytest tmp dir (WS0.2, 2026-08-10
+    plan: the test suite must never write into the repo-level ``models/``).
+    Production default is the repo-level ``models/`` directory.
+    """
+    override = os.environ.get("PITCHGPT_MODELS_DIR")
+    return Path(override) if override else _MODEL_DIR
 
 
 # ── Umpire tendency loader ───────────────────────────────────────────────────
@@ -1383,8 +1396,9 @@ def train_pitchgpt(
         )
 
     # Save model
-    _MODEL_DIR.mkdir(parents=True, exist_ok=True)
-    save_path = _MODEL_DIR / f"pitchgpt_v{version}.pt"
+    model_dir = _model_dir()
+    model_dir.mkdir(parents=True, exist_ok=True)
+    save_path = model_dir / f"pitchgpt_v{version}.pt"
     torch.save(
         {
             "model_state_dict": model.state_dict(),
@@ -1427,7 +1441,7 @@ def _load_model(version: str = "1") -> PitchGPTModel:
     ``context_proj.weight`` shape so v1 (34) and v2 (35) both load.
     """
     device = _get_device()
-    path = _MODEL_DIR / f"pitchgpt_v{version}.pt"
+    path = _model_dir() / f"pitchgpt_v{version}.pt"
     if not path.exists():
         raise FileNotFoundError(
             f"No trained PitchGPT model at {path}. Run train_pitchgpt() first."

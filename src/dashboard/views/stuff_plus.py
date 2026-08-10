@@ -124,6 +124,20 @@ def render() -> None:
         )
         return
 
+    # Artifact provenance (WS0.1): state which artifact scores this page.
+    try:
+        from src.analytics.stuff_model import resolve_scoring_model_path
+        _scoring_path = resolve_scoring_model_path()
+        _kind = (
+            "in-season retrain (includes in-progress-season pitches — "
+            "in-sample for the current season)"
+            if "inseason" in _scoring_path.name
+            else "frozen artifact (train data through 2025)"
+        )
+        st.caption(f"Scoring artifact: `{_scoring_path.name}` — {_kind}.")
+    except Exception:
+        pass
+
     # ── Main content ─────────────────────────────────────────────────────
     tab_board, tab_pitcher = st.tabs(["Leaderboard", "Pitcher Deep Dive"])
 
@@ -140,16 +154,22 @@ def render() -> None:
 
 
 def _check_model_exists() -> bool:
-    """Return True if a trained Stuff+ model file exists."""
-    from src.analytics.stuff_model import DEFAULT_MODEL_PATH
-    return DEFAULT_MODEL_PATH.exists()
+    """Return True if a trained Stuff+ model file exists (in-season or frozen)."""
+    from src.analytics.stuff_model import resolve_scoring_model_path
+    return resolve_scoring_model_path().exists()
 
 
 def _train_model_ui(conn) -> None:
-    """Train the model and show progress / results in the UI."""
+    """Train the model and show progress / results in the UI.
+
+    Writes the IN-SEASON artifact; the frozen ``models/stuff_model.pkl``
+    is never overwritten from the dashboard (WS0.1).
+    """
+    from src.analytics.stuff_model import INSEASON_MODEL_PATH
+
     with st.spinner("Training Stuff+ model... this may take a moment."):
         try:
-            metrics = train_stuff_model(conn)
+            metrics = train_stuff_model(conn, model_path=str(INSEASON_MODEL_PATH))
             st.success("Model trained successfully!")
             col1, col2, col3, col4 = st.columns(4)
             col1.metric("Train R\u00b2", f"{metrics['r2_train']:.4f}")

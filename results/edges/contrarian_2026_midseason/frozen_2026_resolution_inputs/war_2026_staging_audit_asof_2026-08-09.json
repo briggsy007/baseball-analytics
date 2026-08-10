@@ -1,0 +1,30 @@
+{
+  "n_fetched_total": 1401,
+  "n_matched": 1396,
+  "n_unmatched": 5,
+  "match_rate": 0.9964311206281228,
+  "per_year": [
+    {
+      "season": 2026,
+      "batters": 613,
+      "pitchers": 783,
+      "batters_nonnull_war": 613,
+      "pitchers_nonnull_war": 783,
+      "war_mean_bat": 0.6697716150081566,
+      "war_std_bat": 1.2451904650134036,
+      "war_min_bat": -1.76,
+      "war_max_bat": 6.83,
+      "war_mean_pit": 0.3796040868454662,
+      "war_min_pit": -1.57,
+      "war_max_pit": 6.2
+    }
+  ],
+  "batter_war_p01": -0.9988,
+  "batter_war_p99": 4.9704,
+  "n_batter_war_neg_gt_3": 0,
+  "n_batter_war_gt_10": 0,
+  "pitcher_war_p01": -1.1425999999999998,
+  "pitcher_war_p99": 4.084399999999996,
+  "season": 2026,
+  "dry_run": false
+}

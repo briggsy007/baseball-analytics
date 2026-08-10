@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import logging
 import math
+import os
 from pathlib import Path
 from typing import Literal, Optional
 
@@ -76,6 +77,19 @@ LATENT_DIM: int = 6
 BETA_KL: float = 0.1
 
 MODELS_DIR: Path = Path(__file__).resolve().parents[2] / "models"
+
+
+def _models_dir() -> Path:
+    """Resolve the model artifact directory at call time.
+
+    Honors the ``MECHANIX_AE_MODELS_DIR`` environment variable so tests can
+    redirect checkpoint writes/reads to a pytest tmp dir (WS0.2, 2026-08-10
+    plan: the test suite must never write into the repo-level ``models/`` —
+    the dirty ``mechanix_ae_554430.pt`` came from exactly this path).
+    Production default is the repo-level ``models/`` directory.
+    """
+    override = os.environ.get("MECHANIX_AE_MODELS_DIR")
+    return Path(override) if override else MODELS_DIR
 
 
 # ── Feature engineering helpers ───────────────────────────────────────────
@@ -522,9 +536,10 @@ def train_mechanix_ae(
     healthy_recon_std = float(baseline_errors.std()) if len(baseline_errors) else 0.0
 
     # Save model
-    MODELS_DIR.mkdir(parents=True, exist_ok=True)
+    models_dir = _models_dir()
+    models_dir.mkdir(parents=True, exist_ok=True)
     tag = str(pitcher_id) if pitcher_id else "universal"
-    save_path = MODELS_DIR / f"mechanix_ae_{tag}.pt"
+    save_path = models_dir / f"mechanix_ae_{tag}.pt"
     torch.save({
         "model_state_dict": model.state_dict(),
         "means": means,
@@ -557,10 +572,11 @@ def _load_model(pitcher_id: int | None = None) -> tuple[MechanixVAE, dict]:
         (model, checkpoint_dict)
     """
     tag = str(pitcher_id) if pitcher_id else "universal"
-    path = MODELS_DIR / f"mechanix_ae_{tag}.pt"
+    models_dir = _models_dir()
+    path = models_dir / f"mechanix_ae_{tag}.pt"
 
     if not path.exists() and pitcher_id is not None:
-        path = MODELS_DIR / "mechanix_ae_universal.pt"
+        path = models_dir / "mechanix_ae_universal.pt"
 
     if not path.exists():
         raise FileNotFoundError(
