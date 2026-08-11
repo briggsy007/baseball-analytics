@@ -634,4 +634,4 @@ Sections 0-8 are immutable after the freeze commit.
 
 | # | Date (UTC) | Entry |
 |---|---|---|
-| 1 | _pending_ | **Freeze commit SHA: `<to be filled by the orchestrator in the commit that introduces this file, or the immediately following commit>`.** This spec's body (§0-§8) is frozen as of that commit. Authored 2026-08-10 by the Batch-D executor for task D3a under the 2026-08-10 platform improvement plan; no training run had been executed against it at freeze time. |
+| 1 | 2026-08-11 | **Freeze commit SHA: `b61e05b3729aca2fa4609fbdadf4e533c1cd814f`; file sha256 at freeze: `b19b54d96b496c5ffbff3f9af3070c180609003ec3d5d0aae71bfa84bb8d6d5b`.** Verify against the frozen blob via `git show b61e05b:docs/pitchgpt_sim_engine/PITCHGPT_V2_SPEC.md` — the working-tree file legitimately diverges from the frozen hash from this entry onward.** This spec's body (§0-§8) is frozen as of that commit. Authored 2026-08-10 by the Batch-D executor for task D3a under the 2026-08-10 platform improvement plan; no training run had been executed against it at freeze time. |
