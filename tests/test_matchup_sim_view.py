@@ -201,5 +201,94 @@ def test_matchup_fixture_reproducible_under_same_seed():
     assert fx_a.percentiles == fx_b.percentiles
 
 
+# ---------------------------------------------------------------------------
+# K5 consequence: no simulated wOBA level may reach the page (2026-08-10)
+# ---------------------------------------------------------------------------
+
+
+def test_simulated_median_is_zero_so_median_centring_is_a_no_op():
+    """Pins the fact that motivated withholding rather than re-centring.
+
+    PA-terminal wOBA is zero for every PA ending in an out, so the simulated
+    median is exactly zero for every pair. Any "delta vs own median" display
+    would therefore render the absolute levels unchanged under a delta label.
+    If this ever stops holding, the module docstring's rejected-alternative
+    rationale needs revisiting -- it does not license re-centring.
+    """
+    for i, _ in enumerate(SAMPLE_MATCHUPS):
+        fx = build_matchup_fixture(matchup_idx=i, seed=99)
+        assert fx.percentiles["p50"] == 0.0, (
+            f"matchup {i}: median {fx.percentiles['p50']} is no longer zero"
+        )
+
+
+def test_cohort_rank_products_publish_integer_ordinals_only():
+    """The A3 payload may carry ordinals and labels -- never a wOBA quantity.
+
+    This is the structural guarantee behind the "absolute levels are
+    withheld" copy: if a float ever re-enters the payload, it is a wOBA-scale
+    number and this fails.
+    """
+    from src.dashboard.views import matchup_sim
+
+    n = len(SAMPLE_MATCHUPS)
+    seen_ranks = []
+    for i in range(n):
+        products = matchup_sim.cohort_rank_products(i)
+        assert set(products) == {"rank", "n_pairs", "ordering"}
+        assert type(products["rank"]) is int
+        assert type(products["n_pairs"]) is int
+        assert products["n_pairs"] == n
+        assert 1 <= products["rank"] <= n
+        seen_ranks.append(products["rank"])
+
+        assert len(products["ordering"]) == n
+        assert sum(row["selected"] for row in products["ordering"]) == 1
+        assert [row["rank"] for row in products["ordering"]] == list(range(1, n + 1))
+        for row in products["ordering"]:
+            assert set(row) == {"rank", "matchup", "selected"}
+            assert type(row["rank"]) is int
+            assert type(row["selected"]) is bool
+            assert isinstance(row["matchup"], str) and row["matchup"].strip()
+        # The selected row is the pair's own rank.
+        selected = [row for row in products["ordering"] if row["selected"]][0]
+        assert selected["rank"] == products["rank"]
+
+    # Ranks are a permutation: the ordering is total, not degenerate.
+    assert sorted(seen_ranks) == list(range(1, n + 1))
+
+
+def test_render_path_never_touches_woba_samples_or_percentiles():
+    """Source guard: the rendered products may not be built from wOBA values.
+
+    ``_cohort_order`` is the single sanctioned reader of ``woba_samples`` (it
+    reduces them to an ordering and discards the levels). Neither the public
+    product builder nor the renderer may read a wOBA level.
+    """
+    import inspect
+
+    from src.dashboard.views import matchup_sim
+
+    for fn in (matchup_sim.cohort_rank_products, matchup_sim._render_ordinal_products):
+        src = inspect.getsource(fn)
+        assert "percentiles" not in src, f"{fn.__name__} reads percentile bands"
+        assert "woba_samples" not in src, f"{fn.__name__} reads wOBA samples"
+
+
+def test_kill_quantities_render_as_text_not_a_dict_repr():
+    """The kill claim's value is a mapping; banners must format its sub-keys."""
+    from src.claims import get_claim
+    from src.dashboard.views import matchup_sim
+
+    kill = get_claim("pitchgpt_phase062_kill").value
+    for text in (matchup_sim._KILL_QUANTITIES, matchup_sim._PA_ABSOLUTE_DROPPED_BANNER):
+        assert "{'" not in text, "raw Python dict repr leaked into the banner"
+        for key in kill:
+            assert key not in text, f"dict key {key!r} leaked into user-facing copy"
+    for key in ("iteration_1_max_abs_delta_pp", "iteration_2_max_abs_delta_pp"):
+        assert f"{kill[key]:.3f}pp" in matchup_sim._KILL_QUANTITIES
+    assert kill["verdict"] in matchup_sim._KILL_QUANTITIES
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

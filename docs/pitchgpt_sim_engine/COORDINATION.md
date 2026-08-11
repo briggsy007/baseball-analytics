@@ -11,7 +11,7 @@ Purpose: keep concurrent Claude sessions aligned. Read this first. Append a sess
 | 0.3 Train outcome head | **COMPLETE 2026-04-26 — A1 ships** | Session A | Plan B closed. A1 (frozen v2 + concat-input 3-layer MLP head, 211→128→64→7) lifts +18.31% over freq prior (CI [+18.10%, +18.53%]); ECE post-T 0.0114; HBP log-loss 3.02 (first variant under PASS <4.0). A1−A3 paired delta +2.48pp (CI [+2.24, +2.72]). Backbone byte-identity verified. Verdict: WEAKER PASS (clears <2.5 in_play_hit, misses full <2.0). See `results/pitchgpt_sim/outcome_baselines_2026_04_25/SUMMARY.md`. |
 | 0.4 Outcome-head OOS validation | Not started, unblocked | unassigned | A1's per-pitcher variance + per-class log-loss already measured during Step 2 (mean ll 1.346, var 0.0010, range [1.27, 1.40] across top-50 pitchers; see `a1_concat/report.md`). The full 0.4 ticket as scoped (per-class confusion + per-class reliability diagrams) remains open as a follow-up but is no longer blocking. |
 | 0.5 Rollout harness `pitchgpt_sim.py` | Not started, unblocked | unassigned | Production OutcomePredictor: PGConcatHeadPredictor at `models/pitchgpt_v2_outcomehead_a1.pt`. See `PHASE_0.5_PLAN.md` (forthcoming). |
-| 0.6 Rollout sanity check | **PARTIAL** — wOBA + PA-length PASS [TAINTED - pending Phase 0.6.2 re-evaluation (pos-0 calibration was fit on the eval cohort)], K%/BB%/HR% FAIL | — | Clean-provenance re-run (HEAD + pos-0 calibration). Static-context drift diagnosed as ~6pp of the +11.6pp K% bias. |
+| 0.6 Rollout sanity check | **CLOSED as FAIL 2026-08-10** — K%/BB%/HR% FAIL; wOBA + PA-length PASSes [TAINTED and now PERMANENTLY UNEARNED for v2-era PitchGPT: 0.6.2 KILLED 2026-08-10 at the fit-convergence gate, so the clean re-evaluation never ran] | — | Clean-provenance re-run (HEAD + pos-0 calibration). Static-context drift diagnosed as ~6pp of the +11.6pp K% bias. Kill record: §"2026-08-10 — Phase 0.6.2 executed" below + `docs/models/pitchgpt_phase062_results.md`. |
 | 0.6.1 Mid-PA context mutation | **IMPLEMENTED 2026-08-04, pending sanity re-run** | this session | `count_state` one-hot re-emitted per position from the running (balls,strikes) via `_advance_count`; flows through BOTH the pitch-token backbone forward and the outcome-head forward (shared `cur_context`). Verified functionally correct (integration test). Added `PGConcatHeadPredictor(disable_class_calibration=…)` + `PITCHGPT_DISABLE_CLASS_CALIBRATION` env A/B switch (pos-0 recalibration always retained). Orchestrator to re-run `scripts/pitchgpt_rollout_sanity_2025.py` with/without the switch. |
 
 ## Scale-verify results (2026-04-24)
@@ -139,10 +139,19 @@ Post-mutation-verification A/B on the 2025 pitcher-disjoint cohort (10K PA x 100
 | class_calibration ON (default) | 0.3339 FAIL | 0.1177 FAIL | 0.0242 FAIL | PASS | PASS | **FAIL** |
 | class_calibration OFF (`PITCHGPT_DISABLE_CLASS_CALIBRATION=1`) | 0.3651 FAIL | 0.0376 FAIL | 0.0261 FAIL | FAIL | PASS | **FAIL (worse)** |
 
-NOTE (2026-08-10): the wOBA / PA-length PASS cells above are TAINTED - pending Phase 0.6.2
-re-evaluation (pos-0 calibration was fit on the eval cohort). Both A/B variants retained the
-pos-0 recalibration, so these PASSes are partly bought with holdout-fitted weights and must be
-re-earned under the clean 2023-only fit (`PHASE_0.6.2_PLAN.md` §2, §5).
+NOTE (2026-08-10, superseded same day — see the amendment immediately below): the wOBA /
+PA-length PASS cells above are TAINTED - pending Phase 0.6.2 re-evaluation (pos-0 calibration
+was fit on the eval cohort). Both A/B variants retained the pos-0 recalibration, so these
+PASSes are partly bought with holdout-fitted weights and must be re-earned under the clean
+2023-only fit (`PHASE_0.6.2_PLAN.md` §2, §5).
+
+AMENDED NOTE (2026-08-10, Batch D / K5 consequence): "pending" is now false. **Phase 0.6.2 was
+KILLED 2026-08-10 at the fit-convergence gate** (§6 first disjunct; iteration 1 = 4.418pp,
+iteration 2 = 2.625pp vs the 1.0pp threshold, 2023 fit cohort), so the clean 2023-only
+re-evaluation of these cells NEVER RAN and none is authorized under that protocol (2025 was
+never read; holdout contact #13 unspent). **The wOBA / PA-length PASSes above are permanently
+unearned for v2-era PitchGPT** and may not be quoted as PASS anywhere. Claim ids:
+`pitchgpt_phase062_kill` (the kill), `pitchgpt_woba_pa_pass_pre062` (retracted PASSes).
 
 Verdict: keep class_calibration ON as production default. Root cause of residual K% surplus is the
 model's flat per-position strike response in the self-generated rollout regime (CS ~0.28-0.33 across
@@ -187,3 +196,45 @@ npz 2025 fit-on-holdout taint discovered during planning.
   0.6.1 wOBA/PA-length TAINTED PASSes are now permanently unresolved for v2-era PitchGPT.
   Claims-registry/product-scope execution + any WS5.2 retrain go/no-go = Batch D
   (orchestrator + user), per the 2026-08-10 plan §8 K5.
+
+### 2026-08-10 — Batch D: K5 consequences executed + WS5.2/5.3 v2 spec pre-registered
+
+User adjudication of 2026-08-10: **K5 FIRED. Phase 0.6.2 is KILLED**; consequences execute now,
+and the WS5.2 v2 retrain is green-lit *with its spec pre-registered BEFORE any training* (no
+training in this batch; the spec freezes by the orchestrator's commit).
+
+Consequences applied (all documentation/surface work — no model, no GPU, no DB write):
+
+- **Claims registry** (`docs/claims/claims.yaml`): new active entry
+  `pitchgpt_phase062_kill` (iteration 1 = 4.418pp, iteration 2 = 2.625pp vs the 1.0pp
+  threshold, 2023 fit cohort, contact #13 unspent, no artifact shipped). Caveats updated on
+  `pitchgpt_per_pitch_ece` (production-path ECE now UNMEASURED **and stranded** — it rode
+  contact #13; a standalone measurement needs a new dated amendment plus one of the 2
+  remaining budgeted 2025 contacts, NOT authorized), `pitchgpt_pa_rates_fail` (FAIL is now the
+  permanent PA-level position) and `pitchgpt_woba_pa_pass_pre062` (PASSes permanently
+  unearned).
+- **Dashboard**: `views/matchup_sim.py` (A3) now WITHHOLDS every simulated wOBA quantity —
+  level, p05/p25/p50/p75/p95 bands, histogram, mean, in-play-hit share, K%/BB%/HR% — and
+  publishes only the pair's ordinal position in the loaded cohort behind a scope banner.
+  Median-centring was evaluated as an alternative to withholding and REJECTED: PA-terminal
+  wOBA is zero for every PA ending in an out, so the simulated median is exactly zero and a
+  median-centred display renders byte-identical numbers under a "delta" label.
+  `views/pitch_call_grades.py` (A1) keeps its
+  grades — a rank/differential product §6 explicitly permits — behind a required marginal-bias
+  disclosure that names the kill.
+- **TAINTED-pending-0.6.2 markers retired repo-wide** (they now cite the kill): this file's
+  phase table + the 0.6.1 A/B note, `PHASE_0.6_DIAGNOSIS.md` §9.3, `docs/NORTH_STAR.md` audit
+  note, `docs/NORTH_STAR_CURRENT.md` §3.3, `docs/awards/methodology_paper_pitchgpt.md` note (3),
+  `docs/awards/methodology_paper_pitchgpt_v2.md` (new correction notice — its "calibrated
+  PA-level distribution generator" framing may not be written into prose),
+  `docs/models/pitchgpt_validation_spec.md` foreknowledge amendment.
+  `PHASE_0.6.2_PLAN.md` §§1–8 were deliberately NOT edited (frozen verbatim; §11 already
+  records the kill).
+- **New pre-registration**: `docs/pitchgpt_sim_engine/PITCHGPT_V2_SPEC.md` — chain-rule
+  factorized heads (pitch_type → zone|type → velo|type,zone), rollout-aware curriculum
+  fine-tuning, data policy (train ≤2023, dev = 2024 burned tier, 2025 budgeted tier NOT
+  touched, sealed-2026 lockbox = exactly ONE contact at season end per K5), a gate suite that
+  can fail (classwise-ECE/TACE, KCE hypothesis test, PIT/marginal calibration, per-count-state
+  binned calibration, decision calibration) with numeric thresholds fixed in advance, and
+  fit-stage + gate-stage kill criteria. **No training may start before that spec's freeze
+  commit exists**; its deviations-log entry 1 is the freeze SHA, added by the orchestrator.

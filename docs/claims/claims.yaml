@@ -26,7 +26,114 @@ updated: "2026-08-10"
 claims:
   # ------------------------------------------------------------------
   # DPI (Defensive Pressing)
+  #
+  # 2026-08-10 WS3.6 rewrite: the DPI block now LEADS with the DPI v2
+  # defensible core (partial r vs OAA given BABIP, cluster-honest CIs) and
+  # the positioning A/B result. The v1 partial-r entry is superseded (never
+  # deleted); the -0.80 BABIP corroboration framing stays retracted.
   # ------------------------------------------------------------------
+  - id: dpi_v2_partial_r_oaa_given_babip
+    model: defensive_pressing
+    artifact_version: >-
+      DPI_v2_final (P2) = pitching strip (leave-one-game-out staff
+      peripherals) + park/team-season MixedLM BLUP, expectation model
+      = registry defensive_pressing/v2026.08.10-speed.det (sha256
+      31af3e3ea5b1dc2e..., train 2015-2022); game DPI descends from the
+      frozen xout_v1 recipe (sha256 e689bff6...d3bb39)
+    metric: "Partial correlation r(DPI_v2_final, OAA | BABIP-against), team-season, by year and pooled 2023-25 (n=30/yr, 90 pooled)"
+    value:
+      "2023": 0.3959
+      "2024": 0.5309
+      "2025": 0.4213
+      pooled_2023_25: 0.4698
+    ci: >-
+      pooled Fisher-z 95% [0.2900, 0.6177]; team-cluster pairs bootstrap 95%
+      [0.2847, 0.5998] (5,000 draws over the 30 franchises); per-year 2023
+      [0.0344, 0.6658] / 2024 [0.2041, 0.7512] / 2025 [0.0648, 0.6824]
+    dataset:
+      path: results/defensive_pressing/v2_2026-08/k2_final_partial_r.csv
+      sha256: 70969ffb1430eb901068224ae8dc7b902e6f4131303b4e7201afc72d2234458d
+    source_doc: docs/models/defensive_pressing_v2_2026-08.md
+    status: narrowed
+    superseded_by: null
+    effective: "2026-08-10"
+    caveat: >-
+      DPI's defensible core and the number kill criterion K2 adjudicates.
+      K2 did NOT fire: the pre-committed pooled point estimate 0.4698 sits
+      0.17 above the 0.30 line, adjudicated 2026-08-10 on the point estimate
+      as K2 is worded. Two STANDING CAVEATS travel with the number and may
+      not be dropped: (1) both CI floors sit BELOW the K2 line -- Fisher
+      0.2900, team-cluster 0.2847 -- so the estimate is not separated from
+      its own criterion; (2) the stage trajectory declines as confounds are
+      removed (v1 season-centered 0.5725 -> pitching strip 0.4531 -> +park
+      0.4805 -> +speed 0.4698), so a further bias-removal stage could carry
+      it under the line. Descriptive on 90 team-seasons: 2023-25 DPI is OOS
+      w.r.t. the expectation model's 2015-2022 train window, but the stage-1
+      OLS and the MixedLM are within-window decompositions, not forecasts.
+      Never quote as a bare r.
+
+  - id: dpi_positioning_alignment_ab
+    model: defensive_pressing
+    artifact_version: "xout_v2_alignment_ab_2026_08_10.pkl (sha256 d6fab7444f191f5d..., registry defensive_pressing/v2026.08.10-alignment-ab); four era x feature-set models"
+    metric: "Positioning thesis A/B -- xOut-B (ball features + fielding-alignment block) minus xOut-A (ball features only) holdout AUC, and split-half reliability of per-team positioning value, era split at the 2023-03-30 shift ban"
+    value:
+      auc_delta_pre_ban_2015_2022: 0.0119
+      auc_delta_post_ban_2023_2025: 0.0135
+      positioning_split_half_alpha_pre_ban: 0.4958
+      positioning_split_half_alpha_post_ban: 0.3088
+    ci: >-
+      AUC deltas, paired bootstrap 95% (1,000 draws): pre-ban [+0.0113,
+      +0.0125] on n_test 183,659; post-ban [+0.0126, +0.0144] on n_test
+      76,437. Alphas are Fisher-z means of per-season Spearman-Brown values
+      (8 pre-ban seasons, 3 post-ban); pooled season-centered sensitivity
+      0.4617 / 0.3557
+    dataset:
+      path: results/defensive_pressing/v2_2026-08/alignment_ab_summary.json
+      sha256: c3db92c0d907a46dcc288fac7979761eeb4047ae5f2f34c761955ef4b012e40b
+    source_doc: docs/models/defensive_pressing_v2_2026-08.md
+    status: narrowed
+    superseded_by: null
+    effective: "2026-08-10"
+    caveat: >-
+      Kill criterion K1 did NOT fire: its conjunct is decisively false on
+      the AUC arm (deltas are ~6-7x the 0.002 materiality line in BOTH eras,
+      CIs excluding it), so the "pressing"/positioning name survives. The
+      honest split: BIP-level positioning signal is real, team-level
+      positioning RANKING is noise -- per-team positioning value fails the
+      split-half arm in both eras (alpha 0.4958 / 0.3088, below the
+      criterion's 0.5 bar and far below the FanGraphs 0.707 convention), and
+      the post-ban series contains a negative season (2024, -0.167). No team
+      positioning leaderboard, ranking, or per-team positioning-runs number
+      may ship. AUC measured on per-era internal 20% holdouts, not
+      future-season OOS; positioning values are descriptive (in-era models
+      scored on all era rows, train rows included).
+
+  - id: dpi_pitching_strip_variance_share
+    model: defensive_pressing
+    artifact_version: "stage-1 leave-one-game-out staff peripherals (K%, uBB%, net GB, popup rate, SP share) regressed out of frozen-model game DPI; scripts/dpi_v2_pitching_strip.py"
+    metric: "Share of team-season DPI v1 variance carried by the opposing-staff pitching stage, 2023-25 (and its correlation with the v1 ranking)"
+    value:
+      "2023": 0.1346
+      "2024": 0.1639
+      "2025": 0.1045
+      max_r_pitch_stage_vs_dpi_v1_2023_25: 0.5236
+    ci: null
+    dataset:
+      path: results/defensive_pressing/v2_2026-08/stage1_team_season_variance_share.csv
+      sha256: 53c285a70a3663d93b7d3909fe08585651232baa794721b3b498a8c2f3cf0c47
+    source_doc: docs/models/defensive_pressing_v2_2026-08.md
+    status: active
+    superseded_by: null
+    effective: "2026-08-10"
+    caveat: >-
+      Quantifies audit finding 7: 10.5-16.4% of team-season DPI v1 variance
+      in the 2023-25 window is opposing-staff contact management, correlating
+      up to r=0.52 with the v1 ranking (2023). Every DPI v1 number -- the
+      Gate 2/3/6 correlations included -- carries this confound; DPI v2
+      strips it, which is why the v2 partial r is LOWER than v1's, not
+      higher. In-sample descriptive decomposition over 52,498 team-games
+      2015-2025, not a forecast.
+
   - id: dpi_oaa_2025_r
     model: defensive_pressing
     artifact_version: "xout_v1 frozen (train 2015-2022, sha256 e689bff6ab069474c57df6950ba3ed7d376de8b0a3a7a71861d2a96dc3d3bb39)"
@@ -44,7 +151,10 @@ claims:
       Clears the Gate 6 threshold (0.45, set after the first measurement) on
       the point estimate only -- under cluster-honest CIs no Gate 6 window is
       separated from the threshold (wild-cluster p=0.162 vs 0.45 for 2025).
-      Quote with the CI, never as a bare r.
+      Quote with the CI, never as a bare r. 2026-08-10 (WS3.6): this is a
+      RAW DPI v1 correlation and inherits the opposing-staff confound
+      (dpi_pitching_strip_variance_share) and unmodeled park; the v2
+      defensible core is dpi_v2_partial_r_oaa_given_babip.
 
   - id: dpi_partial_r_oaa_given_babip
     model: defensive_pressing
@@ -60,14 +170,18 @@ claims:
       path: results/defensive_pressing/2025_validation/team_rankings_all_years.csv
       sha256: 498ee4b24d92f1b7f61748563f17bdc31c2e2e3a8adc796d620a29d4d680f989
     source_doc: docs/audits/FLAGSHIP_AUDIT_2026-08-10.md
-    status: active
-    superseded_by: null
+    status: superseded
+    superseded_by: dpi_v2_partial_r_oaa_given_babip
     effective: "2026-08-10"
     caveat: >-
-      The defensible core: OAA-aligned signal beyond raw outcomes. First
-      computed by the 2026-08-10 audit (marked recomputed-from-artifacts
-      there); not part of the original gate suite and carries no
-      pre-registered threshold.
+      SUPERSEDED by dpi_v2_partial_r_oaa_given_babip (WS3.6, same day):
+      these are DPI v1 values, and v1 carries the opposing-staff contact
+      confound quantified in dpi_pitching_strip_variance_share (10.5-16.4%
+      of team-season variance) plus unmodeled park. Quote the v2 entry
+      instead. Original scope, unchanged: OAA-aligned signal beyond raw
+      outcomes, first computed by the 2026-08-10 audit (marked
+      recomputed-from-artifacts there), not part of the original gate suite,
+      no pre-registered threshold, no CI ever published for these values.
 
   - id: dpi_yoy_stability
     model: defensive_pressing
@@ -127,7 +241,10 @@ claims:
       Clears the RETROFITTED 0.45 threshold by 0.037 with a wild-cluster
       bootstrap p of 0.707 against H0 r=0.45 -- statistically
       indistinguishable from its own gate line. Passing is not evidence of
-      margin; the threshold was set after the first measurement.
+      margin; the threshold was set after the first measurement. 2026-08-10
+      (WS3.6): raw DPI v1 basis, so it inherits the opposing-staff confound
+      (dpi_pitching_strip_variance_share) and unmodeled park; the v2
+      defensible core is dpi_v2_partial_r_oaa_given_babip.
 
   - id: dpi_babip_corroboration
     model: defensive_pressing
@@ -151,8 +268,198 @@ claims:
       dpi_partial_r_oaa_given_babip instead.
 
   # ------------------------------------------------------------------
-  # CausalWAR
+  # AdjustedWAR (player value) -- renamed from CausalWAR on 2026-08-10.
+  # Live surfaces say AdjustedWAR; module paths, DB cache keys, registry
+  # ids and pick-ledger product ids keep the historical `causal_war` name
+  # (append-only history is not rewritten). Production model since
+  # 2026-08-10: adjusted_war_v3 (ridge), registry alias v2026.08.10.
   # ------------------------------------------------------------------
+  - id: adjusted_war_v3_forward_rmse
+    model: adjusted_war
+    artifact_version: "adjusted_war_v3 v2026.08.10 (sha256 60a62686ebcaf4121b8b0339b0870374d52808ffea057980c990e720132cb026), lambda* = 400"
+    metric: "Season-forward PA-weighted RMSE on next-season batter wOBA, held-out 2024 + 2025 pooled (n=812, follow-up PA >= 100)"
+    value:
+      ridge_1yr: 0.03265
+      current_v1: 0.04567
+      marcel: 0.03290
+      naive_league_constant: 0.03748
+      shrunk_raw_diagnostic: 0.03289
+      rmse_delta_ridge_minus_current: -0.013028
+    ci: "ridge vs current head-to-head |error| 321-143-348; PA-weighted paired t = 8.58 (n_eff ~ 670), confidence ridge better ~ 1.0 (1 - 7e-17)"
+    dataset:
+      path: results/adjusted_war_v3/forward_eval_2026-08-10/forward_eval.json
+      sha256: c49fb2c7b4fe397cc27eef42a0b9cfeade5de00a4e8a91f81f140d5b61408d8c
+    source_doc: docs/models/adjusted_war_v3_2026-08.md
+    status: active
+    superseded_by: null
+    effective: "2026-08-10"
+    caveat: >-
+      K3 half 1, measured under the WS4.4 protocol on two fully held-out
+      seasons. The decisive gap is ridge vs the LEGACY formulation, not
+      ridge vs Marcel: ridge (0.03265) and Marcel (0.03290) are a tie, and
+      identically-shrunk raw wOBA (0.03289) is also a tie -- most of
+      ridge's win over raw wOBA is shrinkage, not adjustment. The legacy
+      current_v1 formulation is worse than a naive league constant. At PA
+      floors 300 and 502 Marcel is slightly BETTER than ridge. No
+      forecasting superiority claim over Marcel is permitted (K6).
+
+  - id: adjusted_war_v3_vs_marcel_forward
+    model: adjusted_war
+    artifact_version: "adjusted_war_v3 v2026.08.10 vs literal Marcel (src/analytics/marcel.py)"
+    metric: "WS4.4 head-to-head vs Marcel on season-forward wOBA, pooled held-out 2024 + 2025 (n=812, 0.010-wOBA tie band)"
+    value:
+      ridge_w_l_t: "178-133-501"
+      current_v1_w_l_t: "175-320-317"
+      ridge_paired_t_confidence: 0.567
+      superiority_claim_allowed: false
+    ci: "ridge paired-t confidence 0.567 (bar is 0.90); current_v1 paired-t confidence ~ 0 (t = -7.9)"
+    dataset:
+      path: results/adjusted_war_v3/forward_eval_2026-08-10/forward_eval.json
+      sha256: c49fb2c7b4fe397cc27eef42a0b9cfeade5de00a4e8a91f81f140d5b61408d8c
+    source_doc: docs/models/adjusted_war_v3_2026-08.md
+    status: active
+    superseded_by: null
+    effective: "2026-08-10"
+    caveat: >-
+      Wins outnumbering losses is NOT superiority: the pre-registered WS4.4
+      bar is a PA-weighted paired-t confidence >= 0.90 over >= 2 seasons and
+      the measured value is 0.567, so superiority_claim_allowed = false.
+      AdjustedWAR TIES Marcel on season-forward forecasting. Any surface
+      quoting this must say so; K6 forbids a projection-flavoured claim
+      that does not beat Marcel.
+
+  - id: adjusted_war_v3_naive_lift_17w
+    model: adjusted_war
+    artifact_version: "adjusted_war_v3 v2026.08.10 boards vs the legacy formulation's boards, identical pools/rules/ITT accounting"
+    metric: "Mean fully-OOS ITT board lift vs the ITT-consistent matched-naive control, 17 backfilled windows (9 single-season + 8 two-year-aggregate), percentage points"
+    value:
+      ridge_single_buy_low: 8.28
+      ridge_single_over_valued: 2.79
+      ridge_twoyr_buy_low: 8.76
+      ridge_twoyr_over_valued: 7.29
+      ridge_unweighted_mean: 6.78
+      legacy_unweighted_mean: 6.45
+    ci: >-
+      95% t-intervals across windows -- ridge: single buy-low [+2.34,
+      +14.22], single over-valued [-5.34, +10.91], 2yr buy-low [-1.52,
+      +19.04], 2yr over-valued [+3.34, +11.24]; legacy: [+4.58, +17.51],
+      [-6.60, +10.25], [+0.93, +15.51], [-0.71, +10.15]. Four of the eight
+      config-side intervals cross zero.
+    dataset:
+      path: results/adjusted_war_v3/boards_2026-08-10/ridge_boards_summary.json
+      sha256: 1c6067d6a54923951edd9578df0263c33ed09c86c8be8ecb52eb9757c6d1575c
+    source_doc: docs/models/adjusted_war_v3_2026-08.md
+    status: active
+    superseded_by: null
+    effective: "2026-08-10"
+    caveat: >-
+      Positive in all four config-sides for BOTH formulations, but four of
+      eight config-side t-intervals cross zero, so the per-config lifts are
+      not individually separated from zero. Primary means include the
+      COVID-touched windows exactly as pre-declared (COVID-excluded is a
+      labeled sensitivity, never the headline). The legacy-formulation
+      companion numbers come from
+      results/causal_war/backfill_windows_2026-08-10/windows_summary.json
+      (sha256 2672ab1a4cabce358bcf9709464ad5e17b49e5d419ea73bad70b6eafec515671).
+      Beating a matched-naive control is NOT an edge claim -- see
+      adjusted_war_v3_marcel_lift_17w and adjusted_war_boards_k6_framing.
+
+  - id: adjusted_war_v3_marcel_lift_17w
+    model: adjusted_war
+    artifact_version: "adjusted_war_v3 v2026.08.10 boards vs a Marcel-picker on the identical qualified, Marcel-projectable batter pool"
+    metric: "Mean fully-OOS ITT board lift vs the Marcel-picker control, 17 backfilled windows, BATTER CHANNEL ONLY, percentage points"
+    value:
+      ridge_single_buy_low: -10.22
+      ridge_single_over_valued: -7.37
+      ridge_twoyr_buy_low: -5.00
+      ridge_twoyr_over_valued: -9.83
+      ridge_unweighted_mean: -8.11
+      legacy_unweighted_mean: -8.55
+    ci: >-
+      95% t-intervals across windows -- ridge: [-18.23, -2.22], [-14.35,
+      -0.39], [-17.22, +7.22], [-18.70, -0.97]; legacy: [-14.34, -1.66],
+      [-20.65, -6.10], [-12.53, +2.53], [-13.31, -2.35].
+    dataset:
+      path: results/adjusted_war_v3/boards_2026-08-10/ridge_boards_summary.json
+      sha256: 1c6067d6a54923951edd9578df0263c33ed09c86c8be8ecb52eb9757c6d1575c
+    source_doc: docs/models/adjusted_war_v3_2026-08.md
+    status: active
+    superseded_by: null
+    effective: "2026-08-10"
+    caveat: >-
+      NEGATIVE in all four config-sides for both formulations: a
+      Marcel-picker beats the AdjustedWAR board on its own pools. This is
+      the binding negative result -- no board surface may claim an edge
+      over Marcel (K6). Measured subset: BATTER CHANNEL ONLY (pitcher
+      Marcel is deferred to the marcelR pin, frozen resolution spec 6.7),
+      so a full-board Marcel control does not exist yet; window 2016->2017
+      uses truncated 2-season Marcel history, as pre-declared.
+
+  - id: adjusted_war_boards_k6_framing
+    model: adjusted_war
+    artifact_version: "adjusted_war_v3 v2026.08.10 (production) and the legacy formulation's frozen boards"
+    metric: "Mandatory board-surface framing sentence (K6 consequence, user-adjudicated 2026-08-10)"
+    value: >-
+      beats matched-naive (+6.5pp mean across 17 fully-OOS windows); does
+      not beat the Marcel-picker (-8pp, batter channel); ties Marcel on
+      season-forward forecast -- no edge claim vs Marcel
+    ci: null
+    dataset:
+      path: results/adjusted_war_v3/boards_2026-08-10/ridge_boards_summary.json
+      sha256: 1c6067d6a54923951edd9578df0263c33ed09c86c8be8ecb52eb9757c6d1575c
+    source_doc: docs/models/adjusted_war_v3_2026-08.md
+    status: active
+    superseded_by: null
+    effective: "2026-08-10"
+    caveat: >-
+      This sentence is REQUIRED verbatim-equivalent on every board surface
+      and may not be rendered without its numbers. Exact values behind the
+      rounding: naive-lift unweighted means +6.45pp (legacy) and +6.78pp
+      (ridge) -- claim adjusted_war_v3_naive_lift_17w, four of eight
+      config-side intervals crossing zero; Marcel-lift unweighted means
+      -8.55pp (legacy) and -8.11pp (ridge), batter channel only -- claim
+      adjusted_war_v3_marcel_lift_17w; the forecast tie is claim
+      adjusted_war_v3_vs_marcel_forward (paired-t confidence 0.567, below
+      the 0.90 bar). K3 did NOT fire, so the boards keep shipping -- but
+      the "edge" wording is spent against Marcel, permanently, unless a
+      Marcel-beating result is measured under WS4.4.
+
+  - id: adjusted_war_v3_ci_coverage
+    model: adjusted_war
+    artifact_version: "adjusted_war_v3 v2026.08.10, lambda = 400, fits on 2023 and 2024"
+    metric: "WS4.7 empirical coverage of nominal 95% per-player intervals against realized next-season season-aggregate wOBA (2023->2024 and 2024->2025, pooled n=812, follow-up PA >= 100)"
+    value:
+      layer_a_sampling_error: 0.4963
+      layer_b_ridge_posterior: 0.7131
+      diagnostic_ab_quadrature: 0.7931
+      diagnostic_predictive_full: 0.9360
+      ship_gate: "[0.90, 0.98]"
+      any_ci_may_ship: false
+    ci: >-
+      Wilson 95% on the coverage proportions -- layer (a) [0.462, 0.531],
+      layer (b) [0.681, 0.743], ab-quadrature [0.764, 0.820],
+      predictive-full [0.917, 0.951]
+    dataset:
+      path: results/adjusted_war_v3/uncertainty_2026-08-10/uncertainty_coverage.json
+      sha256: e4b8a30f443a8f9d274186250b614e5eedd2766801015cf41ef0f4fbd89be4ef
+    source_doc: docs/models/adjusted_war_v3_2026-08.md
+    status: active
+    superseded_by: null
+    effective: "2026-08-10"
+    caveat: >-
+      NO PER-PLAYER CONFIDENCE INTERVAL SHIPS. Both shipping candidates
+      fail the pre-registered [90%, 98%] gate decisively: the openWAR-style
+      sampling-error interval covers 49.6% and the ridge-posterior talent
+      interval 71.3% of realized next-season outcomes at a nominal 95%. The
+      two layers are reported separately and were never summed into one
+      number. Only the LABELED DIAGNOSTIC construction that also carries
+      the follow-up season's own sampling noise reaches 93.6%, which
+      locates the gap in unmodelled next-season variation -- it was not a
+      shipping candidate in this run and is not authorized to ship on that
+      basis. Any interval already rendered by the legacy CausalWAR
+      bootstrap is likewise uncalibrated: it has never been
+      coverage-validated at all.
+
   - id: causal_war_v2_correlation_gates
     model: causal_war
     artifact_version: "v2_umpweather (models/causal_war/causal_war_trainsplit_2015_2022_v2_umpweather.pkl)"
@@ -165,14 +472,23 @@ claims:
       path: results/causal_war_v2_umpweather/causal_war_baseline_comparison_2023_2024_metrics.json
       sha256: 3c8cf06704eb80de38ec1751e8c4d6537d61603e4487436345c3c3b380957118
     source_doc: docs/models/causal_war_results.md
-    status: active
-    superseded_by: null
-    effective: "2026-04-23"
+    status: superseded
+    superseded_by: adjusted_war_v3_forward_rmse
+    effective: "2026-08-10"
     caveat: >-
-      Pre-registered gates (r >= 0.50, rho >= 0.60) PASS; the Spearman lower
-      CI (0.5701) sits below the 0.60 line and is recorded FRAGILE. Train
-      2015-2022, test 2023-2024. Correlation with bWAR is agreement, not
-      validation of any contrarian edge.
+      SUPERSEDED 2026-08-10: these gates describe the v2 CausalWAR
+      formulation, which is no longer the production player-value model
+      (AdjustedWAR v3 / ridge was promoted the same day). The measurement
+      itself stands as history -- pre-registered gates (r >= 0.50, rho >=
+      0.60) PASS on train 2015-2022 / test 2023-2024, with the Spearman
+      lower CI (0.5701) below the 0.60 line and recorded FRAGILE -- and it
+      still governs the frozen boards the v2 artifact produced. It may NOT
+      be quoted as a property of the production model. Read the successor
+      with its scope limit: adjusted_war_v3_forward_rmse measures
+      season-forward RMSE, NOT agreement with bWAR; no bWAR-correlation
+      gate has been measured for the ridge, so that quantity is currently
+      unmeasured for production. Correlation with bWAR was always
+      agreement, never validation of a contrarian edge.
 
   - id: causal_war_buy_low_68_4
     model: causal_war
@@ -267,14 +583,18 @@ claims:
       path: results/causal_war/contrarian_stability/hit_rates_by_year.json
       sha256: 2cad50cf72a2872d64d6bc30e39bebbe866e19a17b371486b5dad1ecadee5c84
     source_doc: docs/models/causal_war_results.md
-    status: active
-    superseded_by: null
+    status: superseded
+    superseded_by: adjusted_war_v3_naive_lift_17w
     effective: "2026-08-10"
     caveat: >-
-      Only two fully-OOS windows exist and their signs flip (-2.8pp /
-      +10.8pp; mean ~ +4pp). The 2022->23 window (+7.8pp) is partially
-      in-sample (2022 inside the train range) and must not be counted as
-      OOS. No post-hoc subgroup rescues (kill criterion K3).
+      SUPERSEDED 2026-08-10 by the WS4.5 backfill: the two-window evidence
+      base ("only two fully-OOS windows exist and their signs flip, -2.8pp
+      / +10.8pp") was replaced by 17 fully-OOS windows measured for both
+      formulations. Quote adjusted_war_v3_naive_lift_17w instead, always
+      with adjusted_war_v3_marcel_lift_17w -- beating matched-naive across
+      17 windows does not survive the Marcel control. The 2022->23 window
+      (+7.8pp) remains partially in-sample and must never be counted as
+      OOS. No post-hoc subgroup rescues (K3).
 
   # ------------------------------------------------------------------
   # PitchGPT
@@ -300,6 +620,17 @@ claims:
       the class_calibration and pos-0 corrections production applies) has
       never been measured, and the 0.10 top-1 gate is near-unfailable at
       C=2210 (mean confidence ~5%) -- passing carries little information.
+      STRANDED (2026-08-10, K5 consequence): the production-path measurement
+      was amendment PHASE_0.6.2_PLAN.md section 10.A2 and rode the same
+      holdout contact (#13) as the section-5 evaluation; Phase 0.6.2 was
+      KILLED at the fit-convergence gate before that run (claim
+      pitchgpt_phase062_kill), so contact #13 was never spent and the number
+      remains UNMEASURED with no authorized path to measure it. Measuring it
+      would require a NEW dated spec amendment plus one of the 2 remaining
+      budgeted 2025 contacts (12 of 14 used, docs/holdout_ledger.jsonl) --
+      NOT authorized as of 2026-08-10. Quote the per-pitch ECE only as the
+      pre-class-calibration stack number; never as "the calibration
+      production ships".
 
   - id: pitchgpt_vs_lstm_10k
     model: pitchgpt
@@ -393,8 +724,13 @@ claims:
       PA-level absolute rates from the rollout engine FAIL their fidelity
       gates -- no product may quote absolute K%/BB%/HR% from rollouts. The
       wOBA and PA-length PASSes from the same runs are tainted (claim
-      pitchgpt_woba_pa_pass_pre062, retracted) pending the 0.6.2 clean
-      re-evaluation.
+      pitchgpt_woba_pa_pass_pre062, retracted); 0.6.2 KILLED 2026-08-10 at
+      the fit-convergence gate (claim pitchgpt_phase062_kill), so the clean
+      re-evaluation that would have re-earned them never ran and never will
+      under that protocol. This FAIL is therefore the standing, permanent
+      PA-level position for v2-era PitchGPT: absolute-rate products are
+      dropped from Tier-A scope; only rank/differential products ship, and
+      only with the marginal-bias disclosure.
 
   - id: pitchgpt_woba_pa_pass_pre062
     model: pitchgpt
@@ -412,9 +748,65 @@ claims:
     caveat: >-
       RETRACTED (tainted): the pos-0 calibration active in those runs was fit
       ON the 2025 pitcher-disjoint eval cohort, so the PASSes were partly
-      bought with holdout-fitted weights. They must be re-earned under the
-      pre-registered 0.6.2 protocol (fit on 2023 only, single 2025 eval)
-      before either gate may be quoted as PASS.
+      bought with holdout-fitted weights. They were to be re-earned under the
+      pre-registered 0.6.2 protocol (fit on 2023 only, single 2025 eval);
+      0.6.2 was KILLED 2026-08-10 at the fit-convergence gate (claim
+      pitchgpt_phase062_kill) and the 2025 evaluation never ran, so these
+      PASSes are PERMANENTLY UNEARNED for v2-era PitchGPT -- neither gate may
+      ever be quoted as PASS for the v2 stack, and no further 2025 contact is
+      authorized under that protocol. The only re-earning path is the
+      pre-registered v2 retrain
+      (docs/pitchgpt_sim_engine/PITCHGPT_V2_SPEC.md) clearing its own gates
+      against the sealed 2026 lockbox.
+
+  - id: pitchgpt_phase062_kill
+    model: pitchgpt
+    artifact_version: "v2 sim stack (backbone models/pitchgpt_v2.pt sha256 6f952054...62883c, A1 head sha256 37b50e87...bb25e5 -- both byte-identical pre/post); NO calibration artifact shipped"
+    metric: "Phase 0.6.2 rollout-regime per-position class-marginal calibration, 2023 fit-convergence gate: max per-position class-marginal |delta| vs empirical after each of the 2 permitted fixed-point iterations, pre-registered threshold 1.0pp"
+    value:
+      iteration_1_max_abs_delta_pp: 4.418
+      iteration_2_max_abs_delta_pp: 2.625
+      threshold_pp: 1.0
+      pre_fit_reference_max_abs_delta_pp: 16.37
+      verdict: "KILL -- PHASE_0.6.2_PLAN.md section 6, first disjunct; Phase 0.6 closes as FAIL"
+    ci: >-
+      None. The spec defines no CI for the kill quantity: it is a
+      deterministic pre-registered threshold on measured marginals (10,000
+      PAs x 100 samples ~= up to 1M sampled outcomes at position 0, ~204K at
+      position 5). The terminal 2.625pp is ~2.6x the 1.0pp line -- not a
+      borderline read.
+    dataset:
+      path: results/pitchgpt/rollout_calibration_fit_2023/fit_audit.json
+      sha256: d8df38a1b64a024fe0e98b7014898a865b5a51af0d4f7fc935f7b65234411b0a
+    source_doc: docs/models/pitchgpt_phase062_results.md
+    status: active
+    superseded_by: null
+    effective: "2026-08-10"
+    caveat: >-
+      A pre-registered kill that fired and was honored, not a performance
+      number. Fit cohort: 2023 pitcher-disjoint (2,247 train-split pitchers
+      excluded), 19,625 eligible PAs, 10,000 sampled seed 42, 100 samples/PA,
+      horizon 6, T=1.0 -- in-sample for the fit by design, so NO
+      out-of-sample number exists from this phase. 2025 was never read: the
+      section-5 single evaluation never ran, holdout contact #13 was never
+      spent (2025 budget stands 12 of 14 used), and the section-6 attribution
+      diagnostic (#14) was not triggered. No artifact shipped to models/ --
+      the non-converged W is quarantined at
+      results/pitchgpt/rollout_calibration_fit_2023/W_FAILED_FIT_quarantine.npz
+      (sha256 395e6fcd...31b27d12). Standing consequences for v2-era
+      PitchGPT: the flagship claim is permanently narrowed to "per-pitch
+      calibrated rollout engine" (claim pitchgpt_per_pitch_ece, itself
+      scoped and with its production-path number stranded); PA-level
+      absolute-rate products are dropped from Tier-A scope (claim
+      pitchgpt_pa_rates_fail); the 0.6.1 wOBA/PA-length PASSes are
+      permanently unearned (claim pitchgpt_woba_pa_pass_pre062); only
+      rank/differential products ship, with the marginal-bias disclosure.
+      Diagnosis is descriptive, not a rescue argument: the residual is a
+      ball-marginal deficit at positions 0-4 that per-position outcome
+      reweighting cannot close (exposure bias). The designed successor is
+      the pre-registered v2 retrain
+      (docs/pitchgpt_sim_engine/PITCHGPT_V2_SPEC.md), which gets ONE lockbox
+      contact against sealed 2026 under kill criterion K5.
 
   - id: pitchgpt_outcome_head_in_play_hit
     model: pitchgpt

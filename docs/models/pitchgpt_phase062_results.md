@@ -130,3 +130,23 @@ designed: more iterations = the unbounded knob-tuning §8 exists to prevent.
 - Holdout ledger: `pitchgpt_2025_pitcher_disjoint` = 12/14 contacts used, #13 void
   (documented in the ledger note, 2026-08-10), #14 not triggered. 2026 lockbox untouched
   and sealed.
+
+---
+
+## 7. Consequence execution record (appended 2026-08-10, Batch D — §§1–6 unmodified)
+
+The user adjudicated K5 as FIRED on 2026-08-10; the §4/§6 consequences were executed the same
+day (documentation and surface work only — no model run, no GPU, no DB write). Where they landed:
+
+| Consequence | Landed in |
+|---|---|
+| Kill registered as a quotable claim (iteration 1 = 4.418pp, iteration 2 = 2.625pp vs 1.0pp, 2023 fit cohort, contact #13 unspent) | `docs/claims/claims.yaml` → new entry `pitchgpt_phase062_kill` (dataset `results/pitchgpt/rollout_calibration_fit_2023/fit_audit.json`, sha256 `d8df38a1...411b0a`) |
+| Production-path ECE recorded as UNMEASURED **and stranded** | caveat of `pitchgpt_per_pitch_ece`; measuring it needs a new dated amendment + one of the 2 remaining budgeted 2025 contacts — NOT authorized in this batch |
+| PA-level FAIL made the permanent position; wOBA/PA-length PASSes made permanently unearned | caveats of `pitchgpt_pa_rates_fail` and `pitchgpt_woba_pa_pass_pre062` |
+| PA-level absolute-rate products dropped | `src/dashboard/views/matchup_sim.py` (A3) withholds every simulated wOBA quantity (level, p05/p25/p50/p75/p95 bands, histogram, mean, in-play-hit share, K%/BB%/HR%); publishes only the pair's ordinal position in the loaded cohort behind a scope banner; median-centring evaluated and rejected |
+| Rank/differential products retained with the marginal-bias disclosure | `src/dashboard/views/pitch_call_grades.py` (A1) |
+| TAINTED-pending-0.6.2 markers retired repo-wide (each now cites the kill; originals preserved with dated pointers) | `COORDINATION.md`, `PHASE_0.6_DIAGNOSIS.md` §9.3, `docs/NORTH_STAR.md`, `docs/NORTH_STAR_CURRENT.md`, `docs/awards/methodology_paper_pitchgpt.md`, `docs/awards/methodology_paper_pitchgpt_v2.md`, `docs/models/pitchgpt_validation_spec.md` |
+| Successor pre-registered (no training authorized before its freeze commit) | `docs/pitchgpt_sim_engine/PITCHGPT_V2_SPEC.md` |
+
+`PHASE_0.6.2_PLAN.md` §§1–8 were deliberately NOT edited (frozen verbatim; §11 already carries the
+execution record).

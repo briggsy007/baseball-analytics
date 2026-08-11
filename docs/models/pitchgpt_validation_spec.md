@@ -187,3 +187,28 @@ Any future evaluation contact with these datasets must be appended to the
 ledger via `src/holdout.py` (`@holdout_access` / `record_contact`); a CI guard
 (`tests/test_holdout_ledger.py::TestCIGuard`) fails eval code that touches the
 registered identifiers without it.
+
+### Foreknowledge amendment — 2026-08-10 (K5 consequence; append-only)
+
+The bullet above reads "Budget: 14 (the Phase 0.6.2 single evaluation + at most
+one attribution diagnostic remain)". That reservation is now VOID: **Phase
+0.6.2 was KILLED 2026-08-10 at its fit-convergence gate**
+(`PHASE_0.6.2_PLAN.md` §6 first disjunct; 2023 fit cohort; max per-position
+class-marginal |delta| 4.418pp after iteration 1 and 2.625pp after iteration 2
+against a 1.0pp threshold; claim `pitchgpt_phase062_kill`; verdict doc
+`docs/models/pitchgpt_phase062_results.md`). Consequences for this spec's
+foreknowledge accounting:
+
+- The §5 single 2025 evaluation never ran; **contact #13 was never spent** and
+  the count for `pitchgpt_2025_pitcher_disjoint` stands at **12 of 14**. The
+  attribution diagnostic (#14) was not triggered.
+- The two remaining contacts are **reserved, not free**: spending either
+  requires a new dated spec amendment naming the measurement, plus a ledger
+  entry. Nothing in this batch authorizes one. In particular the production-path
+  per-pitch ECE (0.6.2 amendment §10.A2) is UNMEASURED and stranded.
+- The wOBA and PA-length PA-level PASSes are permanently unearned for v2-era
+  PitchGPT; the per-pitch claim is the only surviving calibration claim.
+- The designed successor is pre-registered separately in
+  `docs/pitchgpt_sim_engine/PITCHGPT_V2_SPEC.md`, which carries its own
+  foreknowledge section and its own kill criteria and which evaluates against
+  the sealed 2026 lockbox, not against the 2025 budgeted tier.

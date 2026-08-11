@@ -137,7 +137,7 @@
     ]
   },
   "adjusted_war_v3": {
-    "production": null,
+    "production": "v2026.08.10",
     "frozen_validated": null,
     "history": [
       {
@@ -146,6 +146,14 @@
         "version": "v2026.08.10",
         "sha256": "60a62686ebcaf4121b8b0339b0870374d52808ffea057980c990e720132cb026",
         "hash_policy": "pinned"
+      },
+      {
+        "ts": "2026-08-11T00:03:29.576906+00:00",
+        "event": "alias",
+        "alias": "production",
+        "from": null,
+        "to": "v2026.08.10",
+        "note": "WS4.2/K3 promotion, 2026-08-10 Batch D (user-adjudicated). AdjustedWAR v3 (ridge joint estimation) becomes the production player-value model; the CausalWAR product name is retired for player value on live surfaces. frozen_validated intentionally LEFT UNSET: no validation spec exists for adjusted_war_v3 yet (docs/models/adjusted_war_v3_validation_spec.md does not exist), so there is no pre-registered gate suite this artifact could have passed. The evidence behind the promotion is the pre-registered K3 measurement set in docs/models/adjusted_war_v3_2026-08.md (season-forward RMSE vs the current formulation, 17 fully-OOS board windows vs matched-naive and Marcel) -- not a validation-spec pass. K6 binds: no edge claim vs Marcel."
       }
     ]
   },

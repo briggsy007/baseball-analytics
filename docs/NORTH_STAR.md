@@ -16,6 +16,16 @@
 > production-path ECE is unmeasured; the wOBA/PA-length rollout PASSes are
 > TAINTED pending Phase 0.6.2 (pos-0 calibration was fit on the eval
 > cohort).
+>
+> **Dated correction pointer (2026-08-10, added after the above).** Phase
+> 0.6.2 was **KILLED at its fit-convergence gate** on 2026-08-10
+> (`docs/models/pitchgpt_phase062_results.md`; claim
+> `pitchgpt_phase062_kill`). Read the last clause above as: the
+> wOBA/PA-length rollout PASSes are **permanently unearned** for v2-era
+> PitchGPT — nothing is "pending" any more — and the unmeasured
+> production-path ECE is now stranded (it rode the killed run's holdout
+> contact). PA-level absolute-rate products are dropped from Tier-A scope;
+> only rank/differential products ship, with the marginal-bias disclosure.
 
 > **Current state lives elsewhere (2026-08-10).** This document is a layered
 > historical strategy record and is preserved unedited below this line. For

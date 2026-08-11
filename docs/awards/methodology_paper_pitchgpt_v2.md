@@ -6,6 +6,23 @@
 **Source of architectural delta:** `docs/pitchgpt_sim_engine/SIM_ENGINE_API.md`,
 `docs/pitchgpt_sim_engine/EXECUTION_PLAN.md`.
 
+> **CORRECTION NOTICE (2026-08-10) — read before expanding any stub.** This
+> outline's framing "we ship a calibrated **PA-level** distribution generator"
+> (§1) does not survive the evidence and may not be written into prose as-is.
+> Phase 0.6 closed as **FAIL** and Phase 0.6.2 — the pre-registered attempt to
+> make rollout PA-level marginals honest — was **KILLED 2026-08-10 at its
+> fit-convergence gate** (`PHASE_0.6.2_PLAN.md` §6 first disjunct: iteration 1
+> = 4.418pp, iteration 2 = 2.625pp vs a 1.0pp threshold on the 2023 fit
+> cohort; verdict doc `docs/models/pitchgpt_phase062_results.md`; claim
+> `pitchgpt_phase062_kill`). The defensible v2 thesis is narrower: a
+> **per-pitch** calibrated engine whose PA-level absolute rates FAIL their
+> fidelity gates (K%/BB%/HR%) and whose wOBA/PA-length PASSes are permanently
+> unearned. Products built on it may be rank/differential only (A1 grades,
+> distribution shapes), each carrying the marginal-bias disclosure; no
+> absolute PA-level rate may be quoted. The successor design and its failable
+> gate suite are pre-registered in
+> `docs/pitchgpt_sim_engine/PITCHGPT_V2_SPEC.md`.
+
 ---
 
 ## Outline orientation

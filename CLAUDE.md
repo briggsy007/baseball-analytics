@@ -4,7 +4,7 @@
 Rely on this file + `MEMORY.md` only. Do **not** auto-read `docs/NORTH_STAR.md` (~25KB) — on demand (strategy, current phase, what's next, `/sitrep`), fetch `docs/NORTH_STAR_CURRENT.md` first (current-state snapshot, claims-registry-governed); `docs/NORTH_STAR.md` is the full history.
 
 ## Flagships
-- Active (3): **DPI, CausalWAR, PitchGPT**. Stats/caveats in `project_flagships.md` memory.
+- Active (3): **DPI, AdjustedWAR (formerly CausalWAR), PitchGPT**. Stats/caveats in `project_flagships.md` memory.
 - Retracted / retired — do not re-litigate: VWR, MechanixAE (descriptive only), ChemNet v1+v2, volatility_surface, Allostatic Load.
 
 ## Hard rules

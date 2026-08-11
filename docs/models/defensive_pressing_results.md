@@ -662,3 +662,31 @@ r(DPI, OAA | BABIP-against) = 0.42 / 0.69 / 0.54 by year (0.41 pooled
 and that partial correlation, not the raw BABIP tracking, is the number
 to quote.
 - `results/validate_defensive_pressing_20260418T212701Z/validation_summary.json` (validate-model SKILL Step 5 schema)
+
+---
+
+## Pointer (appended 2026-08-10, WS3.6 — append-only, no text above modified)
+
+This document records DPI **v1/v2/v3-weather** runs. Three things a reader
+must carry forward from the same-day Batch C/D work:
+
+1. **The defensible core moved.** The partial correlation quoted in erratum 4
+   above (0.42 / 0.69 / 0.54 by year, 0.41 pooled) is the **v1** value and is
+   now **superseded** in the claims registry by
+   `dpi_v2_partial_r_oaa_given_babip` — DPI v2 (pitching strip + jointly
+   estimated park + speed variant) scores pooled 2023–25 partial
+   r = **0.4698**, Fisher CI [0.2900, 0.6177], team-cluster CI
+   [0.2847, 0.5998]. Methods and provenance:
+   `docs/models/defensive_pressing_v2_2026-08.md`.
+2. **Kill-criteria verdicts are recorded, not open.** K1 (positioning) and K2
+   (attribution) were adjudicated 2026-08-10 and **neither fired**; both carry
+   standing caveats (K1: team-level positioning ranking is unreliable,
+   split-half α 0.4958 / 0.3088; K2: both CI floors sit below the 0.30 line
+   and the stage trajectory declines). See §7 of the v2 document.
+3. **Every bootstrap CI in this document is iid-row** and therefore too narrow
+   wherever a window repeats franchises — the point erratum 2 makes. The
+   cluster-honest re-issue is
+   `results/defensive_pressing/reliability_2026-08-10/gate_ci_reissue.csv`
+   (`docs/models/defensive_pressing_reliability_2026-08.md`), and the
+   validation harness no longer has an iid path
+   (`scripts/defensive_pressing_validation.py`, WS3.6).

@@ -23,6 +23,45 @@
 > pre-registered correlation gates; the reliever-tag subset (78.1% vs 56.9%
 > within-filter naive, n=32); two fully-OOS windows (−2.8pp / +10.8pp vs
 > naive).
+>
+> **ADDENDUM — RENAME AND METHODS, 2026-08-10 (Batch D, user-adjudicated).**
+> This paper's body is preserved as submitted and is NOT rewritten; this
+> addendum governs where they conflict.
+> (a) **Rename.** The "Causal" brand is retired for player value. The
+> product is **AdjustedWAR** on every live surface: *regularized adjustment,
+> not causal identification*. Historical identifiers — this paper's title,
+> the module path `src/analytics/causal_war.py`, DB cache keys, registry
+> ids, `predictions/picks.jsonl` product ids and the frozen 2026 boards —
+> keep the old name, and the frozen boards resolve under the frozen
+> resolution spec regardless.
+> (b) **Methods.** Every "gold-standard identification" / "first at-scale
+> DML" phrasing in §2.2 and the abstract is withdrawn as a description of
+> what was built (see item 1 of the notice above). The production
+> estimator is one nuisance E[Y|W] plus per-player mean residuals; §2.1's
+> residual-on-residual step is not run.
+> (c) **Superseded model.** The production player-value model since
+> 2026-08-10 is **AdjustedWAR v3** — ridge joint estimation of batter,
+> pitcher, park×stand and context effects in a single fit
+> (`src/analytics/adjusted_war_v3.py`; registry alias
+> `adjusted_war_v3/production = v2026.08.10`). On two fully held-out
+> seasons it beats the formulation described in this paper on season-forward
+> PA-weighted RMSE (.03265 vs .04567, n=812), which is itself worse than a
+> naive league constant (.03748).
+> (d) **No edge claim vs Marcel (kill criterion K6).** Across 17 fully-OOS
+> backfilled windows the boards beat a matched-naive control (+6.5pp mean)
+> but LOSE to a Marcel-picker (−8pp, batter channel) and merely tie Marcel
+> on season-forward forecast (paired-t confidence 0.567 against a 0.90
+> bar). §1.1's "the disagreements are where edge lives" and §1.3's delivered
+> calls may not be read as an established edge.
+> (e) **No confidence intervals.** §2.5's bootstrap intervals are withdrawn
+> from every surface: the WS4.7 coverage study measured 49.6% (sampling
+> layer) and 71.3% (posterior layer) empirical coverage at a nominal 95%,
+> both outside the pre-registered [90%, 98%] ship gate.
+> Full measurements and the K3 verdict:
+> `docs/models/adjusted_war_v3_2026-08.md`. Registered claims:
+> `adjusted_war_v3_forward_rmse`, `adjusted_war_v3_vs_marcel_forward`,
+> `adjusted_war_v3_naive_lift_17w`, `adjusted_war_v3_marcel_lift_17w`,
+> `adjusted_war_boards_k6_framing`, `adjusted_war_v3_ci_coverage`.
 
 ## Abstract
 

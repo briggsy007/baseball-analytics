@@ -1,8 +1,28 @@
 """AdjustedWAR v3 -- regularized joint estimation of player value (WS4.2).
 
-Working name only.  Any rename/rebrand of the CausalWAR product surface is
-the USER'S pre-registered call (plan 4.2) and happens in Batch D -- this
-module deliberately touches no dashboard surface and no existing artifact.
+PRODUCTION player-value model since 2026-08-10 (Batch D, user-adjudicated):
+registry ``adjusted_war_v3`` production alias ``v2026.08.10``.  The product
+name on live surfaces is **AdjustedWAR** -- "regularized adjustment, NOT
+causal identification".  The legacy CausalWAR formulation
+(``src/analytics/causal_war.py``) keeps its filename and every historical
+id (DB cache keys, pick-ledger product ids, frozen board artifacts); only
+display strings were renamed.
+
+Two standing constraints on anything quoted from this model:
+
+* **K6 (no edge claim vs Marcel).**  Board surfaces state: beats
+  matched-naive (+6.5pp mean across 17 fully-OOS windows); does not beat
+  the Marcel-picker (-8pp, batter channel); ties Marcel on season-forward
+  forecast -- no edge claim vs Marcel.
+* **No confidence intervals ship.**  WS4.7 coverage-validated both
+  uncertainty layers (``scripts/adjusted_war_v3_uncertainty.py``) against
+  realized next-season outcomes: sampling-error 49.6%, ridge-posterior
+  71.3% empirical coverage at a nominal 95%, both outside the
+  pre-registered [90%, 98%] ship gate.  Per-player AdjustedWAR values are
+  displayed as point estimates only until a construction passes.
+
+``frozen_validated`` is deliberately UNSET: no validation spec exists for
+this model yet, so no gate suite has been passed.
 
 Design (research verdict adopted in the 2026-08-10 plan: regularized joint
 estimation, NOT per-player DML; precedents RAPM/Sill 2010, nflWAR,

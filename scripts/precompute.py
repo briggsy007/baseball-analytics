@@ -106,6 +106,11 @@ MODELS: list[dict[str, Any]] = [
     # Tier 3: Slow (10+ min)
     {"name": "pitch_decay",        "module": "src.analytics.pitch_decay",            "fn": "batch_calculate",            "entity": "pitcher", "tier": 3},
     {"name": "viscoelastic_workload", "module": "src.analytics.viscoelastic_workload", "fn": "batch_calculate",          "entity": "pitcher", "tier": 3},
+    # AdjustedWAR (renamed from CausalWAR 2026-08-10). The registry id stays
+    # ``causal_war``; scoring is routed through DEDICATED_PRECOMPUTE ->
+    # precompute_adjusted_war, which resolves the model via the
+    # ``adjusted_war_v3/production`` alias. The module/fn below are the
+    # legacy fallback path only.
     {"name": "causal_war",         "module": "src.analytics.causal_war",             "fn": "batch_calculate",            "entity": "batter",  "tier": 3, "train_fn": "train"},
     {"name": "pitchgpt",           "module": "src.analytics.pitchgpt",               "fn": "batch_calculate",            "entity": "pitcher", "tier": 3},
     {"name": "mechanix_ae",        "module": "src.analytics.mechanix_ae",            "fn": "batch_calculate",            "entity": "pitcher", "tier": 3},
@@ -440,6 +445,245 @@ def precompute_defensive_pressing(conn, season: int) -> dict:
     return {"status": "ok", "rows": len(df), "seconds": round(elapsed, 2)}
 
 
+def resolve_adjusted_war_scoring() -> dict[str, Any]:
+    """Which model scores the AdjustedWAR leaderboard, per the registry.
+
+    WS2.1 pattern (same as Stuff+ / DPI): the ``production`` alias in
+    ``models/registry.json`` decides, not a hard-coded path.  Since
+    2026-08-10 the alias ``adjusted_war_v3/production`` points at
+    ``v2026.08.10`` (ridge joint estimation), so future leaderboards are
+    scored by AdjustedWAR v3.  With the alias unset (fresh clone, rollback)
+    this falls back to the LEGACY formulation and says so -- it never
+    silently labels legacy scores as v3.
+
+    Returns:
+        ``{"scoring_model", "registry_version", "artifact", "lambda_identity",
+        "lambda_fe", "resolved_via"}``.  ``scoring_model`` is
+        ``"adjusted_war_v3"`` or ``"causal_war_legacy"``.
+    """
+    from src.analytics.registry import ModelRegistry, resolve_registry_artifact
+
+    info: dict[str, Any] = {
+        "scoring_model": "causal_war_legacy",
+        "registry_version": None,
+        "artifact": None,
+        "lambda_identity": None,
+        "lambda_fe": None,
+        "resolved_via": "fallback (no adjusted_war_v3 production alias)",
+    }
+    artifact = resolve_registry_artifact("adjusted_war_v3", "production")
+    if artifact is None:
+        return info
+    try:
+        version = ModelRegistry().get_alias("adjusted_war_v3", "production")
+    except Exception:
+        version = None
+    try:
+        import joblib
+
+        meta = joblib.load(artifact)
+        lam = float(meta["lambda_identity"])
+        lam_fe = float(meta.get("lambda_fe", 10.0))
+    except Exception as exc:
+        logger.warning(
+            "adjusted_war_v3 artifact unreadable (%s); falling back to the "
+            "legacy scoring path", exc,
+        )
+        return info
+    info.update(
+        scoring_model="adjusted_war_v3",
+        registry_version=version,
+        artifact=Path(artifact).name,
+        lambda_identity=lam,
+        lambda_fe=lam_fe,
+        resolved_via="models/registry.json alias adjusted_war_v3/production",
+    )
+    return info
+
+
+def _traditional_war_frame(conn, season: int) -> pd.DataFrame:
+    """Batched ``player_id -> traditional_war`` for *season*.
+
+    Same precedence as :func:`src.analytics.causal_war._get_traditional_war`
+    (season batting WAR first, else season pitching WAR), but fetched in one
+    query instead of two per player.  The ridge scoring path needs it: the
+    AdjustedWAR page's Traditional-WAR column, the comparison scatter and
+    the Biggest-Movers tab all key off ``traditional_war``, and the ridge
+    fit itself does not produce it.
+
+    Returns an empty two-column frame when the season-stats tables are
+    unavailable, which leaves those surfaces on their existing "not
+    available" branches instead of failing the precompute.
+    """
+    empty = pd.DataFrame({
+        "player_id": pd.Series(dtype="int64"),
+        "traditional_war": pd.Series(dtype="float64"),
+    })
+    try:
+        war = conn.execute(
+            """
+            SELECT player_id, ROUND(war, 1) AS traditional_war
+            FROM season_batting_stats
+            WHERE season = $1 AND war IS NOT NULL
+            UNION ALL
+            SELECT p.player_id, ROUND(p.war, 1) AS traditional_war
+            FROM season_pitching_stats p
+            WHERE p.season = $1 AND p.war IS NOT NULL
+              AND NOT EXISTS (
+                  SELECT 1 FROM season_batting_stats b
+                  WHERE b.player_id = p.player_id
+                    AND b.season = p.season
+                    AND b.war IS NOT NULL
+              )
+            """,
+            [season],
+        ).fetchdf()
+    except Exception as exc:
+        _warn(f"AdjustedWAR: traditional WAR unavailable ({exc})")
+        return empty
+    if war is None or war.empty:
+        return empty
+    # One row per player even if a season-stats table ever gains per-team
+    # splits -- a fan-out here would silently duplicate leaderboard rows.
+    return war.drop_duplicates(subset=["player_id"], keep="first")
+
+
+def precompute_adjusted_war(conn, season: int) -> dict:
+    """Precompute the AdjustedWAR leaderboard (cache key stays ``causal_war``).
+
+    Renamed 2026-08-10: the product is AdjustedWAR.  The DB cache key,
+    module paths and pick-ledger ids keep the historical ``causal_war``
+    name -- renaming them would orphan frozen artifacts, so only display
+    strings moved.
+
+    Scoring resolves through the registry ``production`` alias
+    (:func:`resolve_adjusted_war_scoring`).  When it resolves to
+    ``adjusted_war_v3`` the leaderboard is the ridge fit for *season* at
+    the artifact's lambda; otherwise the legacy CausalWAR path runs.  Every
+    cached row carries ``scoring_model`` / ``scoring_artifact_version`` /
+    ``scoring_artifact``, and
+    :func:`src.dashboard.views.causal_war._render_scoring_provenance` reads
+    them back and states on the page which model produced the numbers.
+
+    The two paths emit DIFFERENT wOBA columns on purpose -- legacy
+    ``park_adj_woba`` (``raw_woba`` + mean residual) versus ridge
+    ``context_neutral_woba`` (league mean + centered batter coefficient) --
+    so one label never covers two constructions.  Both paths emit
+    ``traditional_war`` so the comparison and movers tabs work either way.
+
+    No confidence interval is emitted: WS4.7 coverage-validated both
+    uncertainty layers and neither cleared the pre-registered [90%, 98%]
+    gate (claim ``adjusted_war_v3_ci_coverage``).
+
+    Returns:
+        Summary dict with status, row_count, and elapsed seconds.
+    """
+    t0 = time.time()
+    scoring = resolve_adjusted_war_scoring()
+    _info(
+        f"AdjustedWAR: scoring model = {scoring['scoring_model']} "
+        f"({scoring['resolved_via']})"
+    )
+
+    if scoring["scoring_model"] == "adjusted_war_v3":
+        from src.analytics.adjusted_war_v3 import (
+            build_design,
+            extract_ridge_pa,
+        )
+
+        _info(f"AdjustedWAR: extracting {season} PAs (read-only)...")
+        pa_frame = extract_ridge_pa(conn, season)
+        design = build_design([pa_frame], [season])
+        _info(
+            f"AdjustedWAR: ridge fit, lambda={scoring['lambda_identity']} "
+            f"({design.n:,} PAs x {design.p} cols)"
+        )
+        fit = design.solve(scoring["lambda_identity"], lam_fe=scoring["lambda_fe"])
+        df = fit.batter[["player_id", "pa", "coef_centered", "adjusted_war_v3"]].copy()
+        df = df.rename(columns={"adjusted_war_v3": "causal_war"})
+        # Context-neutral wOBA = fit-sample league mean + the PA-weighted-
+        # centered batter coefficient: the wOBA the model attributes to the
+        # batter net of park/lineup/platoon/base-out state.  It is the ridge
+        # module's own forward predictor (``adjusted_war_v3`` builds
+        # ``pred_woba`` identically in its season-forward CV).
+        #
+        # Deliberately NOT written into ``park_adj_woba``: the legacy column
+        # of that name is ``raw_woba + mean residual``, a different
+        # construction, and reusing one label for two estimators' quantities
+        # is precisely the conflation this batch exists to stop.  The view
+        # labels each column for the model that produced it.
+        df["context_neutral_woba"] = float(fit.intercept) + df["coef_centered"]
+        raw = (
+            pa_frame.groupby("batter_id")["woba_value"].mean()
+            .rename("raw_woba").reset_index()
+            .rename(columns={"batter_id": "player_id"})
+        )
+        df = df.merge(raw, on="player_id", how="left")
+        try:
+            names = conn.execute(
+                "SELECT player_id, full_name AS name FROM players"
+            ).fetchdf()
+            df = df.merge(names, on="player_id", how="left")
+        except Exception:
+            df["name"] = None
+        # The ridge fit has no notion of traditional WAR; fetch it so the
+        # comparison scatter and Biggest-Movers tabs keep working under the
+        # promoted scoring path.
+        df = df.merge(
+            _traditional_war_frame(conn, season), on="player_id", how="left"
+        )
+        df = df.sort_values("causal_war", ascending=False).reset_index(drop=True)
+        design.free_gram()
+    else:
+        from src.analytics.causal_war import batch_calculate, train
+
+        try:
+            _info("AdjustedWAR: training the legacy formulation...")
+            train(conn)
+        except Exception as exc:
+            _warn(f"AdjustedWAR: legacy training failed: {exc}. Scoring anyway...")
+        df = _call_batch_fn(batch_calculate, conn, season)
+
+    elapsed = time.time() - t0
+    if df is None or df.empty:
+        _warn(f"AdjustedWAR: empty result ({elapsed:.1f}s)")
+        return {"status": "empty", "rows": 0, "seconds": round(elapsed, 2)}
+
+    df = df.copy()
+    df["scoring_model"] = scoring["scoring_model"]
+    df["scoring_artifact_version"] = scoring["registry_version"]
+    df["scoring_artifact"] = scoring["artifact"]
+    # WS4.7: no coverage-validated interval exists, so none is cached.
+    for ci_col in ("ci_low", "ci_high"):
+        if ci_col in df.columns:
+            df = df.drop(columns=[ci_col])
+
+    conn.execute(
+        "DELETE FROM leaderboard_cache WHERE model_name = 'causal_war' AND season = $1",
+        [season],
+    )
+    parquet_bytes = _serialize_to_parquet(df)
+    conn.execute(
+        """
+        INSERT INTO leaderboard_cache
+            (model_name, season, leaderboard_parquet, row_count,
+             computed_at, model_version, compute_seconds)
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        """,
+        [
+            "causal_war", season, parquet_bytes, len(df),
+            datetime.now(timezone.utc),
+            scoring["registry_version"] or "legacy",
+            round(elapsed, 2),
+        ],
+    )
+    _ok(
+        f"AdjustedWAR: {len(df)} players cached in {elapsed:.1f}s "
+        f"(scored by {scoring['scoring_model']})"
+    )
+    return {"status": "ok", "rows": len(df), "seconds": round(elapsed, 2)}
+
+
 def precompute_baserunner_gravity(conn, season: int) -> dict:
     """Precompute the BGI leaderboard for all qualifying runners.
 
@@ -491,6 +735,11 @@ DEDICATED_PRECOMPUTE: dict[str, Any] = {
     "bullpen_matchups":   precompute_bullpen_matchups,
     "defensive_pressing": precompute_defensive_pressing,
     "baserunner_gravity": precompute_baserunner_gravity,
+    # AdjustedWAR (display name since 2026-08-10). Keyed by the historical
+    # ``causal_war`` cache id so frozen artifacts and the dashboard's
+    # cache_reader keep resolving; the dedicated function picks the scoring
+    # model from the registry alias.
+    "causal_war":         precompute_adjusted_war,
 }
 
 

@@ -1,14 +1,18 @@
 # AdjustedWAR v3 — regularized joint estimation (WS4.2), 2026-08-10
 
-**Status: EXPERIMENTAL.** Working name only. The naming decision for the
-CausalWAR product surface ("Causal" brand retirement vs methods-note) is
-pre-registered as the **user's call in Batch D** (plan 4.2) and is NOT made
-here. This document reports measurements; K3 adjudication language is
-deliberately absent — adjudication is Batch D's job.
+**Status (updated 2026-08-10, Batch D): PRODUCTION.** The user adjudicated
+the naming and promotion calls: the "Causal" brand is retired for player
+value — the product is **AdjustedWAR** on every live surface — and
+AdjustedWAR v3 (ridge) is the production player-value model. Sections 1–7
+below are the original measurement report, unchanged except for one
+corrected word in §6 (see §10). §8 records the K3 verdict, §9 the WS4.7
+uncertainty work, §10 the corrections log.
 
 Artifact: `models/adjusted_war_v3/adjusted_war_v3_2026_08_10.pkl`, registered
-as `adjusted_war_v3 v2026.08.10` (sha256 `60a62686ebcaf4…`, hash pinned,
-**no production / frozen_validated alias set**). Code:
+as `adjusted_war_v3 v2026.08.10` (sha256 `60a62686ebcaf4…`, hash pinned).
+Since 2026-08-10 the registry `production` alias points at this version;
+`frozen_validated` remains **unset** — no validation spec exists for this
+model, so there is no gate suite it could have passed. Code:
 `src/analytics/adjusted_war_v3.py` (+ `tests/test_adjusted_war_v3.py`, 5
 tests, solver verified against sklearn Ridge to ~1e-10).
 Evaluation scripts (protocols pre-registered in their docstrings, written
@@ -194,7 +198,7 @@ Measured quantities, exactly as they landed:
    windows measured; 9 single + 8 two-yr):**
    * vs matched-naive: **positive in all four config-sides for both
      formulations** (current: +11.05/+1.82/+8.22/+4.72, mean +6.45;
-     ridge: +8.28/+2.79/+8.76/+7.29, mean +6.78) — with three of eight
+     ridge: +8.28/+2.79/+8.76/+7.29, mean +6.78) — with four of eight
      config-side t-intervals crossing 0 (see §5 tables).
    * vs Marcel (batter channel only): **negative in all four
      config-sides for both formulations** (current: −8.00/−13.37/−5.00/
@@ -221,7 +225,9 @@ Adjudication of these numbers against K3 belongs to Batch D with the user.
   being ranked — a valuation convention shared with the current
   formulation, not a train/test violation of the follow-up claim.
 * Talent-uncertainty and sampling-error layers (WS4.7) are not built
-  here; no CIs ship on per-player AdjustedWAR values.
+  here; no CIs ship on per-player AdjustedWAR values. **They were built and
+  coverage-tested in Batch D — see §9. Both failed the gate, so the "no CIs
+  ship" position stands, now as a measured result rather than an omission.**
 * The frozen v1 checkpoint unpickles with a sklearn 1.8→1.6
   InconsistentVersionWarning; the scoring path reproduces the WS4.6
   rescoring numbers exactly (2023→24 ITT 0.560), so results are
@@ -232,3 +238,214 @@ Adjudication of these numbers against K3 belongs to Batch D with the user.
   with labeled exclusion sensitivities.
 * No claims-registry entries are created here (Batch D); nothing in this
   document may be quoted on a dashboard surface until then (K6).
+  **Superseded by §8: the Batch D entries `adjusted_war_v3_forward_rmse`,
+  `adjusted_war_v3_vs_marcel_forward`, `adjusted_war_v3_naive_lift_17w`,
+  `adjusted_war_v3_marcel_lift_17w`, `adjusted_war_boards_k6_framing` and
+  `adjusted_war_v3_ci_coverage` now exist in `docs/claims/claims.yaml`, and
+  only those numbers may render.**
+
+---
+
+## 8. K3 verdict (2026-08-10, user-adjudicated) — DOES NOT FIRE
+
+**Criterion, quoted verbatim from the platform improvement plan §8:**
+
+> **K3 (CausalWAR pivot, 4.2/4.5):** if the ridge formulation does not beat
+> the current formulation on season-forward prediction AND mean fully-OOS
+> board lift (vs matched-naive AND Marcel) across the backfilled windows is
+> ≤ 0, contrarian boards lose the "edge" label permanently and ship as
+> descriptive divergence viewers. No post-hoc subgroup rescues (the −2.8pp
+> autopsy pattern is banned by this clause).
+
+**Adjudication.** The criterion is a conjunction; both limbs must hold for
+it to fire.
+
+| Limb | Measured | Fires? |
+|---|---|---|
+| "ridge does not beat the current formulation on season-forward prediction" | Ridge **beats** current: pooled PA-weighted RMSE .03265 vs .04567 (Δ −0.013028), better in *both* held-out seasons individually, h2h 321-143-348, paired-t confidence ≈ 1.0 | **NO** |
+| "mean fully-OOS board lift (vs matched-naive AND Marcel) ≤ 0" | vs matched-naive: **positive** in all four config-sides for both formulations (ridge mean +6.78pp, legacy +6.45pp). vs Marcel: negative (ridge −8.11pp, legacy −8.55pp), batter channel only | **NO** (the naive limb is positive, so the AND-conjunction over both controls is not ≤ 0) |
+
+**Verdict: K3 DOES NOT FIRE.** The contrarian boards keep shipping and do
+not become descriptive-only viewers.
+
+**What K3 not firing does NOT license.** The Marcel half of the second limb
+is unambiguously negative, and the pre-registered WS4.4 protocol denies a
+forecasting superiority claim (paired-t confidence 0.567 against a 0.90
+bar). The **K6 consequence therefore binds**: every board surface states,
+verbatim-equivalent,
+
+> beats matched-naive (+6.5pp mean across 17 fully-OOS windows); does not
+> beat the Marcel-picker (−8pp, batter channel); ties Marcel on
+> season-forward forecast — no edge claim vs Marcel
+
+registered as claim `adjusted_war_boards_k6_framing`. Exact figures behind
+the rounding: naive-lift unweighted means +6.45pp (legacy) / +6.78pp
+(ridge); Marcel-lift unweighted means −8.55pp (legacy) / −8.11pp (ridge),
+batter channel only. Standing caveats that travel with the verdict: four of
+eight config-side t-intervals cross zero (§5), the Marcel control has no
+pitcher channel, and ridge's forecasting win over *identically shrunk* raw
+wOBA is ~0.0002–0.0007 RMSE (§3) — the promotion rests on beating the
+legacy formulation and on structural park/opponent cleanliness, not on
+out-forecasting the field.
+
+**Promotion executed on this verdict:** registry alias
+`adjusted_war_v3/production = v2026.08.10` (the only alias touched;
+`frozen_validated` deliberately unset, with the reason recorded in the
+alias history entry in `models/registry.json` and, because manifests are
+write-once, in the sidecar
+`models/adjusted_war_v3/v2026.08.10/AMENDMENTS.md` — the manifest's own
+`notes` field still says "No production/frozen_validated alias set", which
+was true at registration and is superseded by that amendment).
+`scripts/precompute.py::precompute_adjusted_war` resolves the scoring model
+through the alias, and every cached row carries `scoring_model` /
+`scoring_artifact_version` / `scoring_artifact`.
+
+**The disclosure is rendered, not merely stamped.**
+`src/dashboard/views/causal_war.py::_render_scoring_provenance` reads those
+columns back and states on the page which model produced the displayed
+numbers — the same pattern as
+`views/defensive_pressing.py::_render_artifact_provenance`. A frame with no
+stamp is reported as legacy-produced rather than as "unknown": stamping and
+the promotion landed on the same day, so an unstamped cache necessarily
+predates both. This matters right now — the live `leaderboard_cache` row for
+`causal_war` was computed 2026-08-09 by the legacy formulation, and without
+this the page would render legacy numbers under a promoted-model banner.
+
+**Column parity across the two scoring paths.** The ridge fit produces
+neither the legacy `park_adj_woba` (`raw_woba` + mean residual) nor
+`traditional_war`. The ridge branch therefore emits `context_neutral_woba`
+(fit-sample league mean + PA-weighted-centered batter coefficient — the
+module's own forward predictor) under its **own** label rather than
+overloading `park_adj_woba` with a different construction, and joins
+season-stat WAR via `_traditional_war_frame` so the comparison-scatter and
+Biggest-Movers tabs keep working. The view labels whichever adjusted-wOBA
+column is present.
+
+The frozen 2026 boards and every pick already in `predictions/picks.jsonl`
+are **not** rescored — they resolve under the frozen resolution spec against
+the legacy scores they were frozen with.
+
+---
+
+## 9. WS4.7 — uncertainty done right (two layers, coverage-gated)
+
+Script: `scripts/adjusted_war_v3_uncertainty.py` (protocol pre-registered in
+its docstring, written before execution). Run 2026-08-10, CPU only, DuckDB
+`read_only=True`, no artifact writes. Outputs:
+`results/adjusted_war_v3/uncertainty_2026-08-10/{uncertainty_coverage.json,
+coverage_rows.csv}` (json sha256
+`e4b8a30f443a8f9d274186250b614e5eedd2766801015cf41ef0f4fbd89be4ef`).
+
+### 9.1 The two layers (never conflated)
+
+**(a) Sampling error — openWAR pattern.** Resample, with replacement, the
+PAs a batter actually took. The ridge normal equations make this exact
+rather than approximate: for a one-hot batter block, row *j* of
+`(X'X + Λ)β = X'y_c` reduces to
+
+    β_j = Σ_{i ∈ PA(j)} r_i / (n_j + λ),
+    r_i = y_c,i − (x_i'β − β_j)      (partial residual)
+
+i.e. the batter coefficient *is* the sum of that batter's partial residuals
+(outcome minus the fitted pitcher / park×stand / context contributions),
+shrunk by `n_j + λ`. The bootstrap resamples those n_j partial residuals
+and recomputes the ratio. **B = 2000 replicates**, seed 42, percentile
+(2.5 / 97.5) interval. Conditional on the other blocks being held at their
+fitted values — stated, not hidden: that is precisely what "sampling error
+in the player's own PA set" means.
+
+**(b) Talent uncertainty — the λ-implied ridge posterior.** Ridge is the
+posterior mode of `y = Xβ + ε`, `ε ~ N(0, σ²)`, with the λ-implied Gaussian
+prior `β_identity ~ N(0, σ²/λ)`; posterior covariance `σ²(X'X + Λ)⁻¹` with
+`σ̂² = RSS/(n − edf)`, `edf = trace(G(G+Λ)⁻¹)`. Because the *reported*
+coefficient is PA-weight-centered within the batter block, its posterior
+variance is computed exactly as `S_jj − 2(Sw)_j + w'Sw`. Gaussian
+±1.959964 sd.
+
+Fit diagnostics: 2023 — n = 184,177 PA, p = 1,589 cols, σ̂ = 0.5175,
+edf = 538.1; 2024 — n = 184,241 PA, p = 1,577 cols, σ̂ = 0.5102,
+edf = 535.8.
+
+The two layers are reported side by side and are never summed into one
+unlabelled "the CI" (the DRC+ bagging category error).
+
+### 9.2 Coverage validation (the gate, pre-registered)
+
+Frames: the Batch C forward-eval prediction frames
+(`predictions_2023_to_2024.csv`, `predictions_2024_to_2025.csv`), primary
+pool follow-up PA ≥ 100 — identical to §3. Test: does the batter's realized
+**next-season season-aggregate wOBA** fall inside the nominal 95% interval
+placed around the season-*b* prediction `league_b + coef_centered`?
+Reproduction check: this script's ridge solve reproduces Batch C's
+`pred_ridge_1yr` to 5.6e-17 / 1.1e-16 max absolute difference.
+
+**Ship gate, set before the run:** a layer's 95% interval may render on any
+surface only if that layer's pooled empirical coverage lands in
+**[90%, 98%]**.
+
+| construction | 2023→24 (n=409) | 2024→25 (n=403) | pooled (n=812) | Wilson 95% | mean half-width (wOBA) | ships? |
+|---|---|---|---|---|---|---|
+| **(a) sampling error** | 0.4743 | 0.5186 | **0.4963** | [0.462, 0.531] | 0.02308 | **NO** |
+| **(b) ridge posterior** | 0.7017 | 0.7246 | **0.7131** | [0.681, 0.743] | 0.03738 | **NO** |
+| *diag:* (a)⊕(b) quadrature | 0.7702 | 0.8164 | 0.7931 | [0.764, 0.820] | 0.04436 | not a candidate |
+| *diag:* posterior ⊕ follow-up sampling noise | 0.9242 | 0.9479 | 0.9360 | [0.917, 0.951] | 0.06754 | not a candidate |
+
+**Verdict: NO CONFIDENCE INTERVAL SHIPS.** Both shipping candidates miss the
+gate decisively — layer (a) covers half of what it claims, layer (b) about
+three quarters. On the display scale the withheld intervals were ±0.75 WAR
+(sampling) and ±1.06 WAR (posterior) on average, so this is not a cosmetic
+omission: shipping them would have implied roughly 2× more precision than
+the data supports.
+
+**Where the gap lives.** The only construction that reaches nominal is the
+labelled diagnostic that *also* carries the follow-up season's own sampling
+noise (93.6%, inside [90%, 98%]). That locates most of the shortfall in
+unmodelled next-season variation rather than in a mis-specified posterior —
+but it was pre-registered as a diagnostic, not a shipping candidate, and it
+does not become one by having scored well. Two honest limits stated with
+it: (i) this is a *predictive* coverage test, while the intervals nominally
+cover the season-*b* value parameter, so under-coverage here is evidence
+that the intervals mislead as forecasts, not proof that the season-*b*
+estimate is wrong; (ii) a forecast interval that only works because it adds
+next-season noise would need its own pre-registration and its own held-out
+test before it could ship.
+
+**Consequences executed now.** `src/dashboard/views/causal_war.py` gates
+every interval on the claim (`_CI_MAY_SHIP`, currently `False`): the CI Low
+/ CI High leaderboard columns, the single-player error bars and the forest
+CI bars are all withheld and replaced by the measured-coverage note. The
+plotting code is retained and flips back automatically if a construction
+ever passes. `precompute_adjusted_war` emits no `ci_low` / `ci_high`
+columns. Legacy CausalWAR bootstrap intervals are covered by the same
+position — they were never coverage-validated at all.
+
+This closes spec **Ticket 4**, the "coverage-validate before any CI ships"
+item that had been skipped in every prior run while CIs shipped anyway.
+
+---
+
+## 10. Corrections log
+
+* **2026-08-10 (Batch D).** §6 item 2 read "three of eight config-side
+  t-intervals crossing 0"; the correct count is **four of eight** — the
+  crossing intervals are legacy single-season over-valued [−6.60, +10.25],
+  legacy 2-yr over-valued [−0.71, +10.15], ridge single-season over-valued
+  [−5.34, +10.91] and ridge 2-yr buy-low [−1.52, +19.04] (§5). Corrected in
+  place; the §5 tables the count summarizes were always right.
+* **2026-08-10 (Batch D).** Status header updated from EXPERIMENTAL to
+  PRODUCTION and the "working name" language removed, per the user's
+  adjudicated naming + promotion decision. §§1–7 measurements are
+  otherwise unchanged.
+* **2026-08-11 (Batch D review fix).** §8 previously described the
+  provenance stamp as sufficient ("every cached row carries `scoring_model`
+  … so a surface can state which model produced the number"). The stamp was
+  written but no surface read it: the AdjustedWAR page rendered
+  legacy-produced cache rows with no statement of origin on the same day the
+  ridge promotion was announced on that page.
+  `_render_scoring_provenance` now renders it, with a legacy fallback for
+  unstamped caches, and §8 says so. Same pass: the ridge scoring branch had
+  silently dropped `park_adj_woba` and never produced `traditional_war`,
+  which would have hollowed out three of the page's four tabs on the first
+  real precompute run; it now emits `context_neutral_woba` (its own,
+  correctly-labelled construction) and joins season-stat WAR. No measured
+  number in §§1–7 or §9 changed.

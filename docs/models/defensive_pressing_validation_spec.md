@@ -265,3 +265,35 @@ Per `docs/holdout_ledger.jsonl` (created 2026-08-10):
 - Any future **pitch-level** DPI evaluation against 2026 data falls under the
   sealed `lockbox_2026_full_season` tier: no contact before season end, one
   pre-registered contact per spec version after (ledger header policy).
+
+
+---
+
+## CI methodology amendment (appended 2026-08-10, WS3.6 — append-only, no text above modified; NO threshold changed)
+
+**No gate, threshold, or pass rule in this spec is altered.** What changed is
+how the harness computes the interval it reports *next to* each gate
+measurement (`scripts/defensive_pressing_validation.py`), remediating audit
+finding 9 ("pooled bootstrap CIs ignore team clustering"):
+
+- **Cross-team correlations (Gates 2, 3, 4, 6):** pairs cluster bootstrap over
+  the 30 franchises (percentile), plus a wild cluster bootstrap-t interval and
+  the cluster-robust/iid SE ratio (few-cluster territory — Cameron & Miller,
+  JHR 2015). The iid-row percentile bootstrap has been **removed**, and
+  `_pair_metrics` now *requires* cluster labels, so a future run cannot fall
+  back to a too-narrow interval by omission.
+- **Per-team-season DPI point estimates:** games-within-team-season resampling
+  (`dpi_mean_ci_lo` / `dpi_mean_ci_hi` in the team-seasons CSV) — the sampling
+  unit of a team-season mean is the game, not the BIP.
+- The machinery is imported from `scripts/dpi_reliability_2026.py` rather than
+  reimplemented, so the two DPI CI publishers cannot drift apart. Unit tests:
+  `tests/test_dpi_validation_cluster_ci.py`.
+
+**Consequence to expect:** a re-run of this spec will report **wider** CIs than
+those recorded in `docs/models/defensive_pressing_results.md` (measured SE
+inflation on clustered synthetic windows ≈ 1.5x). Point estimates and pass/fail
+verdicts are computed exactly as before — gates are adjudicated on point
+estimates, with the cluster-honest interval recorded alongside. Where a gate
+passes on a point estimate whose honest interval includes the threshold, that
+fact is the claim's mandatory caveat (registry: `dpi_oaa_2025_r`,
+`dpi_gate6_pooled`), not a silent pass.

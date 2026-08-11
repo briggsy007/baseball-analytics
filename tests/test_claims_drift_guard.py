@@ -53,10 +53,14 @@ VIEWS_DIR = REPO_ROOT / "src" / "dashboard" / "views"
 # (?-i:) group): the lowercase ``woba`` identifier appears throughout view
 # code next to harmless defaults/thresholds (bullpen.py, phillies.py) and
 # would be pure false positives.
+# 2026-08-10 (WS3.6 rejection fix): ``decompos`` / ``variance share`` added.
+# A variance-decomposition line ("luck 44% / pitcher 28% / fielding 17%") is a
+# metric claim of exactly the shape the guard exists for, and it slipped
+# through because its literals are INTEGER percents (see _PCT_INT below).
 _KEYWORD = re.compile(
     r"(\bECE\b|\bAUC\b|hit[ -]rate|\br\s*=\s*[-+0-9.]|\brho\s*=\s*[-+0-9.]"
     r"|correlat|calibrat|log[-_ ]loss|\bCI\s*\[|\bBrier\b|(?-i:\bwOBA\b)"
-    r"|perplexit)",
+    r"|perplexit|decompos|variance\s+share)",
     re.IGNORECASE,
 )
 # Hardcoded decimal literal (0.6406, 2.34, ...). Excludes %-suffixed matches
@@ -67,6 +71,15 @@ _TRIVIAL_DECIMALS = {"0.0", "1.0"}
 # Decimal percent literal (68.4%, 77.5%). The lookbehind rejects format
 # specs like ":.1%" and attribute-ish contexts.
 _PCT_DECIMAL = re.compile(r"(?<![:.\w])\d+\.\d+\s*%")
+# Integer percent literal (44%, 17%). Unlike _PCT_DECIMAL this one is NOT a
+# standalone trigger -- integer percents are all over benign UI prose
+# ("0-100%", "top ~2%", "drops by 50%") -- so it only counts as a metric
+# literal when a metric keyword is on the same line. That is the narrowest
+# rule that closes the hole the WS3.6 review found (an unregistered
+# "luck 44% / pitcher 28% / fielding 17% / park 11%" decomposition shipped to
+# a view because the guard only saw DECIMAL percents) with zero new flags
+# anywhere else under src/dashboard/views/.
+_PCT_INT = re.compile(r"(?<![:.\w])\d+\s*%")
 # Quoted-ratio pattern ("13/19 = 68.4%", "13/25 = 52%").
 _RATIO = re.compile(r"\b\d+\s*/\s*\d+\s*=")
 # Annotation: "# claim:<id>" in code, "(claim:<id>)" / "*(claim:<id>)*" in
@@ -81,6 +94,8 @@ def _line_is_flagged(line: str) -> bool:
     if _KEYWORD.search(line):
         decimals = [m for m in _DECIMAL.findall(line) if m not in _TRIVIAL_DECIMALS]
         if decimals:
+            return True
+        if _PCT_INT.search(line):
             return True
     return False
 
@@ -267,7 +282,20 @@ def test_drift_guard_scanner_still_has_teeth():
     assert _line_is_flagged('"rolling Brier score 0.187 across the ledger"')
     assert _line_is_flagged('"mean wOBA 0.3188 vs empirical 0.312"')
     assert _line_is_flagged('"perplexity delta 2.57 vs the 10K LSTM"')
+    # 2026-08-10 WS3.6 rejection fix: INTEGER-percent decomposition literals.
+    # This exact line shipped to the DPI view and the guard did not see it.
+    assert _line_is_flagged(
+        '- BABIP variance decomposes roughly luck 44% / pitcher 28% '
+        '/ fielding 17% / park 11%'
+    )
+    assert _line_is_flagged('"pitching-strip variance share is 16% of team-seasons"')
+    assert _line_is_flagged('"calibration holds for 95% of the pool"')
     # ...and does not flag routine formatting / UI code.
+    # Integer percents are only metric literals NEXT TO a metric keyword:
+    # benign UI prose keeps passing (these lines are live in other views).
+    assert not _line_is_flagged('**stuff quality drops by 50%** like a half-life')
+    assert not _line_is_flagged('- **130+ = elite** (top ~2%), **115+ = plus-plus**')
+    assert not _line_is_flagged('annotation_text="50%",')
     assert not _line_is_flagged('f"{row.get(\'sb_attempt_rate\', 0):.1%}"')
     assert not _line_is_flagged('"Fatigue Score (0-100%) accounts for rest"')
     assert not _line_is_flagged("marker=dict(size=4, opacity=0.6),")

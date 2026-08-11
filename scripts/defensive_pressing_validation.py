@@ -25,6 +25,30 @@ Outputs (into ``--output-dir``)
     defensive_pressing_validation_metrics.json
     defensive_pressing_team_seasons.csv
     defensive_pressing_xout_holdout_sample.csv  (subsample for inspection)
+
+Confidence intervals (WS3.6 recurrence guard, audit finding 9)
+--------------------------------------------------------------
+Every CI this harness publishes is CLUSTER-HONEST. The iid-row percentile
+bootstrap that used to back ``pearson_r_ci``/``spearman_rho_ci`` is gone: it
+resampled team-seasons (and, historically, pooled BIP rows) as if they were
+independent, which understates the width whenever the same franchise appears
+in several rows of the window.
+
+  * cross-team correlations (Gates 2/3/4/6) -> pairs cluster bootstrap over
+    the franchise clusters, plus a wild cluster bootstrap-t interval and the
+    cluster-robust/iid SE ratio (few-cluster territory: 30 franchises,
+    Cameron & Miller JHR 2015).
+  * per-team-season DPI point estimates -> games-within-team-season
+    resampling (``dpi_mean_ci_lo`` / ``dpi_mean_ci_hi`` in the team-seasons
+    CSV). Their per-team seed comes from ``_team_season_seed`` (crc32, never
+    ``hash()``) so identical re-runs at the same ``--random-state`` produce a
+    byte-identical CSV -- the artifact is sha256-pinnable, which is what the
+    claims-registry ``dataset`` entries assume.
+
+The machinery is IMPORTED from ``scripts/dpi_reliability_2026.py`` rather
+than reimplemented, so the two DPI CI publishers cannot drift apart, and
+``_pair_metrics`` requires its ``clusters`` argument -- a future caller
+cannot fall back to an iid interval by omitting it.
 """
 from __future__ import annotations
 
@@ -35,6 +59,7 @@ import logging
 import math
 import sys
 import time
+import zlib
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Optional
@@ -48,6 +73,16 @@ import pandas as pd
 # ---------------------------------------------------------------------------
 ROOT: Path = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
+# scripts/ is not a package; the cluster-bootstrap machinery lives next door
+# in dpi_reliability_2026.py and is imported (never copied) so both DPI CI
+# publishers share one implementation.
+if str(Path(__file__).resolve().parent) not in sys.path:
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from dpi_reliability_2026 import (  # noqa: E402
+    pairs_cluster_bootstrap_r,
+    wild_cluster_bootstrap_t,
+)
 
 from src.analytics import defensive_pressing as dp  # noqa: E402
 from src.analytics.defensive_pressing import (  # noqa: E402
@@ -87,7 +122,9 @@ class DPIValidationConfig:
     test_start: int = 2023
     test_end: int = 2024
     output_dir: Path = ROOT / "results"
-    n_bootstrap_ci: int = 1000
+    n_bootstrap_ci: int = 1000  # pairs cluster bootstrap draws (cross-team CIs)
+    n_bootstrap_wild_cluster: int = 999  # wild cluster bootstrap-t draws
+    n_bootstrap_team_season: int = 2000  # games-within-team-season draws
     random_state: int = 42
     holdout_sample_size: int = 50000  # cap on rows for AUC-on-test computation
     external_oaa_path: Path = (
@@ -329,6 +366,26 @@ def _list_teams_in_season(
     return [str(t) for t in df["t"].tolist()]
 
 
+def _team_season_seed(base: int, season: int, team: str) -> int:
+    """Deterministic RNG seed for one team-season's bootstrap.
+
+    Must be a pure function of ``(base, season, team)`` ACROSS PROCESSES.
+    ``hash()`` on a str is PYTHONHASHSEED-randomized (nothing in this repo
+    pins PYTHONHASHSEED), so a hash-derived seed would make the published
+    ``dpi_mean_ci_lo`` / ``dpi_mean_ci_hi`` columns differ between identical
+    re-runs at the same ``--random-state`` -- while the metrics payload
+    advertises ``random_state`` and a ``ci_policy`` block as if the output
+    were reproducible, and every ``docs/claims/claims.yaml`` dataset entry
+    pins a sha256 of the CSV. ``zlib.crc32`` is a fixed function of the
+    bytes, so the artifact stays sha256-pinnable.
+    """
+    return (
+        int(base)
+        + int(season) * 1000
+        + (zlib.crc32(str(team).encode("utf-8")) % 997)
+    )
+
+
 def _compute_team_season_dpi(
     conn: duckdb.DuckDBPyConnection,
     cfg: DPIValidationConfig,
@@ -348,10 +405,21 @@ def _compute_team_season_dpi(
             profile = calculate_team_dpi(conn, team, season, config)
             if profile.get("dpi_mean") is None:
                 continue
+            # Per-team-season CI by resampling that team's GAMES (the
+            # sampling unit of a team-season mean) -- never BIP rows.
+            ci_lo, ci_hi = _games_within_team_season_ci(
+                profile.get("game_dpis") or [],
+                n_boot=cfg.n_bootstrap_team_season,
+                random_state=_team_season_seed(
+                    cfg.random_state, season, team,
+                ),
+            )
             rows.append({
                 "team_id": str(team),
                 "season": int(season),
                 "dpi_mean": float(profile["dpi_mean"]),
+                "dpi_mean_ci_lo": ci_lo,
+                "dpi_mean_ci_hi": ci_hi,
                 "dpi_total": float(profile["dpi_total"]),
                 "dpi_std": float(profile.get("dpi_std", 0.0)),
                 "consistency": float(profile["consistency"]),
@@ -467,71 +535,156 @@ def _spearman_rho(x: np.ndarray, y: np.ndarray) -> float:
     return float(sx.corr(sy))
 
 
-def _bootstrap_ci(
-    x: np.ndarray, y: np.ndarray, *,
-    n_boot: int, random_state: int, fn=None,
-) -> Optional[list[float]]:
-    """Generic 95% percentile bootstrap CI on a function of two paired arrays."""
-    if fn is None:
-        fn = lambda a, b: float(np.corrcoef(a, b)[0, 1])
+CI_METHOD = (
+    "pairs cluster bootstrap over franchise clusters (percentile), with a "
+    "wild cluster bootstrap-t interval alongside; iid-row bootstrap removed "
+    "2026-08-10 (WS3.6, audit finding 9)"
+)
+
+
+def _cluster_bootstrap_cis(
+    x: np.ndarray, y: np.ndarray, clusters: np.ndarray, *,
+    n_boot: int, random_state: int,
+) -> Optional[dict[str, Any]]:
+    """Pairs-cluster percentile CIs for Pearson r and Spearman rho.
+
+    Whole clusters (franchises) are resampled with replacement, so a window
+    that carries the same team in several seasons is not treated as that
+    many independent observations. Returns ``None`` when the sample is too
+    small / degenerate for a bootstrap to mean anything.
+    """
     n = int(len(x))
     if n < 3 or n_boot < 10:
         return None
-    rng = np.random.RandomState(random_state)
-    boots: list[float] = []
-    for _ in range(n_boot):
-        idx = rng.choice(n, size=n, replace=True)
-        a = x[idx]
-        b = y[idx]
-        if np.std(a) == 0 or np.std(b) == 0:
-            continue
-        try:
-            boots.append(float(fn(a, b)))
-        except Exception:
-            continue
-    if len(boots) < max(10, n_boot // 4):
+    rng = np.random.default_rng(random_state)
+    try:
+        res = pairs_cluster_bootstrap_r(x, y, clusters, int(n_boot), rng)
+    except Exception as exc:  # noqa: BLE001 -- degenerate resamples
+        logger.warning("pairs cluster bootstrap failed: %s", exc)
         return None
-    return [
-        round(float(np.percentile(boots, 2.5)), 4),
-        round(float(np.percentile(boots, 97.5)), 4),
-    ]
+    if res.get("n_degenerate", 0) > max(10, n_boot // 4):
+        return None
+    return {
+        "pearson_ci": [round(float(v), 4) for v in res["pearson_ci"]],
+        "spearman_ci": [round(float(v), 4) for v in res["spearman_ci"]],
+        "n_boot": int(res["n_boot"]),
+        "n_degenerate": int(res["n_degenerate"]),
+    }
+
+
+def _wild_cluster_ci(
+    x: np.ndarray, y: np.ndarray, clusters: np.ndarray, *,
+    n_boot: int, random_state: int,
+) -> Optional[dict[str, Any]]:
+    """Wild cluster bootstrap-t interval + the cluster-robust/iid SE ratio.
+
+    The SE ratio is the recurrence-guard number: it says by how much the
+    honest interval is wider than the iid one this harness used to publish.
+    """
+    if len(np.unique(clusters)) < 3 or len(x) < 4:
+        return None
+    if np.std(x) == 0 or np.std(y) == 0:
+        return None
+    try:
+        res = wild_cluster_bootstrap_t(
+            x, y, clusters, int(n_boot), np.random.default_rng(random_state),
+        )
+    except Exception as exc:  # noqa: BLE001 -- singular designs
+        logger.warning("wild cluster bootstrap-t failed: %s", exc)
+        return None
+    iid_se = float(res["iid_se"])
+    return {
+        "wild_cluster_t_ci": [round(float(v), 4) for v in res["wcb_t_ci"]],
+        "cluster_robust_se": round(float(res["cluster_robust_se"]), 4),
+        "iid_se": round(iid_se, 4),
+        "se_inflation_vs_iid": (
+            round(float(res["cluster_robust_se"]) / iid_se, 3)
+            if iid_se > 0 else None
+        ),
+        "n_clusters": int(res["n_clusters"]),
+        "n_boot": int(res["n_boot"]),
+    }
 
 
 def _pair_metrics(
-    a: np.ndarray, b: np.ndarray, *,
-    n_boot: int, random_state: int,
+    a: np.ndarray, b: np.ndarray, clusters: np.ndarray, *,
+    n_boot: int, random_state: int, n_boot_wild: int = 999,
 ) -> dict[str, Any]:
+    """Correlation + CLUSTER-HONEST CIs for two paired, clustered arrays.
+
+    ``clusters`` is REQUIRED (one cluster label per row -- the franchise, for
+    every window this harness scores). Omitting it is a TypeError rather
+    than a silent fallback to an iid interval: audit finding 9 was exactly
+    that fallback shipping too-narrow CIs.
+    """
     a = np.asarray(a, dtype=float)
     b = np.asarray(b, dtype=float)
+    clusters = np.asarray(clusters)
+    if clusters.shape[0] != a.shape[0]:
+        raise ValueError(
+            f"clusters length {clusters.shape[0]} != data length {a.shape[0]}"
+        )
+    # Mask non-finite rows in lockstep so cluster labels stay aligned.
     mask = np.isfinite(a) & np.isfinite(b)
     a = a[mask]
     b = b[mask]
+    clusters = clusters[mask]
     n = int(len(a))
     out: dict[str, Any] = {
         "n": n,
+        "n_clusters": int(len(np.unique(clusters))) if n else 0,
         "pearson_r": None,
         "pearson_r_ci": None,
         "spearman_rho": None,
         "spearman_rho_ci": None,
+        "ci_method": CI_METHOD,
+        "wild_cluster": None,
     }
     if n < 3 or np.std(a) == 0 or np.std(b) == 0:
         return out
     r = float(np.corrcoef(a, b)[0, 1])
     rho = float(_spearman_rho(a, b))
-    r_ci = _bootstrap_ci(
-        a, b, n_boot=n_boot, random_state=random_state,
+    pairs = _cluster_bootstrap_cis(
+        a, b, clusters, n_boot=n_boot, random_state=random_state,
     )
-    rho_ci = _bootstrap_ci(
-        a, b, n_boot=n_boot, random_state=random_state + 1,
-        fn=_spearman_rho,
+    wild = _wild_cluster_ci(
+        a, b, clusters, n_boot=n_boot_wild, random_state=random_state + 1,
     )
     out.update({
         "pearson_r": round(r, 4),
-        "pearson_r_ci": r_ci,
+        "pearson_r_ci": pairs["pearson_ci"] if pairs else None,
         "spearman_rho": round(rho, 4),
-        "spearman_rho_ci": rho_ci,
+        "spearman_rho_ci": pairs["spearman_ci"] if pairs else None,
+        "n_boot_pairs_cluster": pairs["n_boot"] if pairs else None,
+        "wild_cluster": wild,
     })
     return out
+
+
+def _games_within_team_season_ci(
+    game_dpis: list[Any], *, n_boot: int, random_state: int,
+) -> tuple[Optional[float], Optional[float]]:
+    """95% CI for one team-season DPI mean by resampling its GAMES.
+
+    The team-season point estimate is a mean over that team's games, so its
+    sampling unit is the game -- not the BIP. (WS3.1 uses the same
+    resampling for its per-team-season intervals.) Accepts either bare game
+    DPI floats or ``calculate_team_dpi``'s per-game result dicts.
+    """
+    raw = [
+        g.get("dpi") if isinstance(g, dict) else g
+        for g in (game_dpis or [])
+    ]
+    vals = np.asarray(
+        [v for v in raw if v is not None and np.isfinite(v)],
+        dtype=float,
+    )
+    if len(vals) < 5 or n_boot < 10:
+        return None, None
+    rng = np.random.default_rng(random_state)
+    means = rng.choice(vals, size=(int(n_boot), len(vals)), replace=True).mean(axis=1)
+    lo, hi = np.percentile(means, [2.5, 97.5])
+    return round(float(lo), 4), round(float(hi), 4)
 
 
 # ---------------------------------------------------------------------------
@@ -672,16 +825,25 @@ def run_validation(cfg: DPIValidationConfig) -> dict[str, Any]:
 
     # ---- Step 6: gate metrics --------------------------------------------
     rng_state = cfg.random_state
+    # Cluster labels for every cross-team correlation: the franchise. A
+    # multi-season window carries each team once per season, so franchise is
+    # the unit that repeats and the unit the bootstrap must resample.
+    team_clusters = merged["team_id"].to_numpy()
+    boot_kwargs = dict(
+        n_boot=cfg.n_bootstrap_ci, n_boot_wild=cfg.n_bootstrap_wild_cluster,
+    )
 
     metrics_dpi_vs_rp = _pair_metrics(
         merged["dpi_mean"].to_numpy(),
         merged["rp_proxy"].to_numpy(),
-        n_boot=cfg.n_bootstrap_ci, random_state=rng_state,
+        team_clusters,
+        random_state=rng_state, **boot_kwargs,
     )
     metrics_dpi_vs_babip = _pair_metrics(
         merged["dpi_mean"].to_numpy(),
         merged["babip_against"].to_numpy(),
-        n_boot=cfg.n_bootstrap_ci, random_state=rng_state + 10,
+        team_clusters,
+        random_state=rng_state + 10, **boot_kwargs,
     )
 
     # External Statcast OAA correlation (Gate 6)
@@ -689,17 +851,20 @@ def run_validation(cfg: DPIValidationConfig) -> dict[str, Any]:
         metrics_dpi_vs_oaa = _pair_metrics(
             merged["dpi_mean"].to_numpy(),
             merged["team_oaa"].to_numpy(),
-            n_boot=cfg.n_bootstrap_ci, random_state=rng_state + 30,
+            team_clusters,
+            random_state=rng_state + 30, **boot_kwargs,
         )
         metrics_dpi_vs_frp = _pair_metrics(
             merged["dpi_mean"].to_numpy(),
             merged["team_frp"].to_numpy(),
-            n_boot=cfg.n_bootstrap_ci, random_state=rng_state + 31,
+            team_clusters,
+            random_state=rng_state + 31, **boot_kwargs,
         )
     else:
         metrics_dpi_vs_oaa = {
-            "n": 0, "pearson_r": None, "pearson_r_ci": None,
+            "n": 0, "n_clusters": 0, "pearson_r": None, "pearson_r_ci": None,
             "spearman_rho": None, "spearman_rho_ci": None,
+            "ci_method": CI_METHOD, "wild_cluster": None,
         }
         metrics_dpi_vs_frp = dict(metrics_dpi_vs_oaa)
 
@@ -711,11 +876,16 @@ def run_validation(cfg: DPIValidationConfig) -> dict[str, Any]:
     if cfg.test_start in pivot.columns and cfg.test_end in pivot.columns:
         a = pivot[cfg.test_start].to_numpy()
         b = pivot[cfg.test_end].to_numpy()
+        yoy_clusters = pivot.index.to_numpy()
     else:
         a = np.array([])
         b = np.array([])
+        yoy_clusters = np.array([])
+    # One row per franchise here, so the cluster bootstrap reduces to the
+    # ordinary pairs bootstrap -- by construction, not by omission.
     metrics_yoy = _pair_metrics(
-        a, b, n_boot=cfg.n_bootstrap_ci, random_state=rng_state + 20,
+        a, b, yoy_clusters,
+        random_state=rng_state + 20, **boot_kwargs,
     )
 
     # ---- Step 7: gate evaluation -----------------------------------------
@@ -740,6 +910,7 @@ def run_validation(cfg: DPIValidationConfig) -> dict[str, Any]:
         "threshold": ">= 0.40",
         "measured": g2_meas,
         "measured_ci": metrics_dpi_vs_rp.get("pearson_r_ci"),
+        "measured_ci_method": CI_METHOD,
         "operator": ">=",
         "pass": bool(g2_meas is not None and g2_meas >= 0.40),
         "hard": True,
@@ -753,6 +924,7 @@ def run_validation(cfg: DPIValidationConfig) -> dict[str, Any]:
         "threshold": "<= -0.50",
         "measured": g3_meas,
         "measured_ci": metrics_dpi_vs_babip.get("pearson_r_ci"),
+        "measured_ci_method": CI_METHOD,
         "operator": "<=",
         "pass": bool(g3_meas is not None and g3_meas <= -0.50),
         "hard": True,
@@ -766,6 +938,7 @@ def run_validation(cfg: DPIValidationConfig) -> dict[str, Any]:
         "threshold": ">= 0.30",
         "measured": g4_meas,
         "measured_ci": metrics_yoy.get("pearson_r_ci"),
+        "measured_ci_method": CI_METHOD,
         "operator": ">=",
         "pass": bool(g4_meas is not None and g4_meas >= 0.30),
         "hard": True,
@@ -790,6 +963,7 @@ def run_validation(cfg: DPIValidationConfig) -> dict[str, Any]:
         "threshold": ">= 0.45",
         "measured": g6_meas,
         "measured_ci": metrics_dpi_vs_oaa.get("pearson_r_ci"),
+        "measured_ci_method": CI_METHOD,
         "operator": ">=",
         "pass": bool(g6_meas is not None and g6_meas >= 0.45),
         "hard": True,
@@ -823,9 +997,36 @@ def run_validation(cfg: DPIValidationConfig) -> dict[str, Any]:
             "test_start": cfg.test_start,
             "test_end": cfg.test_end,
             "n_bootstrap_ci": cfg.n_bootstrap_ci,
+            "n_bootstrap_wild_cluster": cfg.n_bootstrap_wild_cluster,
+            "n_bootstrap_team_season": cfg.n_bootstrap_team_season,
             "random_state": cfg.random_state,
             "holdout_sample_size": cfg.holdout_sample_size,
             "use_weather": bool(cfg.use_weather),
+        },
+        "ci_policy": {
+            "cross_team_correlations": CI_METHOD,
+            "per_team_season_dpi": (
+                "games-within-team-season resampling "
+                f"({cfg.n_bootstrap_team_season} draws); columns "
+                "dpi_mean_ci_lo / dpi_mean_ci_hi in the team-seasons CSV"
+            ),
+            "per_team_season_seed": (
+                "random_state + season*1000 + zlib.crc32(team_id) % 997 "
+                "-- crc32, never hash(), so the CI columns are byte-identical "
+                "across re-runs at the same --random-state and the CSV stays "
+                "sha256-pinnable"
+            ),
+            "cluster_unit": "franchise (team_id)",
+            "source": (
+                "pairs_cluster_bootstrap_r / wild_cluster_bootstrap_t imported "
+                "from scripts/dpi_reliability_2026.py (single implementation "
+                "shared with the WS3.1 reliability run)"
+            ),
+            "recurrence_guard": (
+                "audit finding 9: the iid-row bootstrap was removed, and "
+                "_pair_metrics now REQUIRES cluster labels -- a caller cannot "
+                "obtain an iid interval by omitting them"
+            ),
         },
         "leakage_audit": leakage,
         "metrics": {
@@ -849,8 +1050,10 @@ def run_validation(cfg: DPIValidationConfig) -> dict[str, Any]:
             "stability": {
                 "yoy_pearson_r": metrics_yoy.get("pearson_r"),
                 "yoy_pearson_r_ci": metrics_yoy.get("pearson_r_ci"),
+                "yoy_pearson_r_ci_method": metrics_yoy.get("ci_method"),
                 "yoy_spearman_rho": metrics_yoy.get("spearman_rho"),
                 "yoy_n_teams": metrics_yoy.get("n"),
+                "yoy_n_clusters": metrics_yoy.get("n_clusters"),
             },
             "data_quality": {
                 "n_team_seasons": int(len(merged)),
@@ -888,6 +1091,12 @@ def run_validation(cfg: DPIValidationConfig) -> dict[str, Any]:
     return payload
 
 
+def _se_inflation(metrics: dict[str, Any]) -> Any:
+    """Cluster-robust / iid SE ratio, or ``n/a`` when not estimable."""
+    wild = metrics.get("wild_cluster") or {}
+    return wild.get("se_inflation_vs_iid", "n/a")
+
+
 def _print_summary(payload: dict[str, Any]) -> None:
     m = payload["metrics"]
     g = payload["gates"]
@@ -904,15 +1113,18 @@ def _print_summary(payload: dict[str, Any]) -> None:
     cc = m["consumer_claim"]
     rp = cc["dpi_vs_rp_proxy"]
     bb = cc["dpi_vs_babip_against"]
+    print(f"CI method: {payload.get('ci_policy', {}).get('cross_team_correlations')}")
     print(
-        f"DPI vs RP proxy:        n={rp['n']}  "
+        f"DPI vs RP proxy:        n={rp['n']}  clusters={rp.get('n_clusters')}  "
         f"r={rp['pearson_r']}  CI={rp['pearson_r_ci']}  "
-        f"rho={rp['spearman_rho']}"
+        f"rho={rp['spearman_rho']}  "
+        f"SE inflation={_se_inflation(rp)}"
     )
     print(
-        f"DPI vs BABIP-against:   n={bb['n']}  "
+        f"DPI vs BABIP-against:   n={bb['n']}  clusters={bb.get('n_clusters')}  "
         f"r={bb['pearson_r']}  CI={bb['pearson_r_ci']}  "
-        f"rho={bb['spearman_rho']}"
+        f"rho={bb['spearman_rho']}  "
+        f"SE inflation={_se_inflation(bb)}"
     )
     st = m["stability"]
     print(
@@ -970,7 +1182,21 @@ def build_argparser() -> argparse.ArgumentParser:
     p.add_argument("--test-start", type=int, default=2023)
     p.add_argument("--test-end", type=int, default=2024)
     p.add_argument("--output-dir", type=Path, default=ROOT / "results")
-    p.add_argument("--n-bootstrap-ci", type=int, default=1000)
+    p.add_argument(
+        "--n-bootstrap-ci", type=int, default=1000,
+        help="Pairs cluster bootstrap draws for cross-team correlation CIs.",
+    )
+    p.add_argument(
+        "--n-bootstrap-wild-cluster", type=int, default=999,
+        help="Wild cluster bootstrap-t draws (few-cluster interval).",
+    )
+    p.add_argument(
+        "--n-bootstrap-team-season", type=int, default=2000,
+        help=(
+            "Games-within-team-season resampling draws for the per-team-season "
+            "DPI CI columns."
+        ),
+    )
     p.add_argument("--random-state", type=int, default=42)
     p.add_argument(
         "--holdout-sample-size", type=int, default=50000,
@@ -1023,6 +1249,8 @@ def main(argv: list[str] | None = None) -> int:
         test_end=args.test_end,
         output_dir=args.output_dir,
         n_bootstrap_ci=args.n_bootstrap_ci,
+        n_bootstrap_wild_cluster=args.n_bootstrap_wild_cluster,
+        n_bootstrap_team_season=args.n_bootstrap_team_season,
         random_state=args.random_state,
         holdout_sample_size=args.holdout_sample_size,
         use_weather=bool(args.use_weather),

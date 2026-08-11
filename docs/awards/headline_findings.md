@@ -24,6 +24,69 @@
 > framing overstates the implementation: production CausalWAR is a
 > one-nuisance approximation (per-player mean residuals, no treatment model),
 > and the venue confounder is inert in production.
+>
+> **ADDENDUM — RENAME, METHODS AND SUPERSESSION, 2026-08-10 (Batch D,
+> user-adjudicated).** This synthesis is preserved as submitted and is NOT
+> rewritten; this addendum governs where they conflict. It mirrors the
+> five-part addendum carried by the companion paper
+> `methodology_paper_causal_war.md`, which remains the authority for
+> Finding 2.
+> (a) **Rename.** The "Causal" brand is retired for player value. The
+> product is **AdjustedWAR** on every live surface: *regularized adjustment,
+> not causal identification*. Historical identifiers keep the old name —
+> this document's body and the companion paper's title, the module path
+> `src/analytics/causal_war.py`, DB cache keys, registry ids,
+> `predictions/picks.jsonl` product ids and the frozen 2026 boards, which
+> resolve under the frozen resolution spec regardless.
+> (b) **Methods framing withdrawn — correction item 4 extends to the text
+> that carries it.** Item 4 above withdrew the "first at-scale DML" framing;
+> it now covers the sentences themselves. Finding 2's heading ("a DML-first
+> methodology delivering a front-office-actionable edge") and its opening
+> sentence ("the first at-scale application of Double Machine Learning with
+> Frisch-Waugh-Lovell residualization — the Chernozhukov et al. (2018)
+> gold-standard causal-inference protocol") are **withdrawn** as
+> descriptions of what was built, as is every recurrence of that framing
+> below — including the second-spotlight section's "DML is the research
+> innovation". The production
+> estimator fit one nuisance E[Y|W] and took per-player mean residuals — no
+> treatment model, no residual-on-residual regression — and the venue
+> confounder was inert in production.
+> (c) **No edge claim vs Marcel (kill criterion K6).** Every place this
+> document describes the contrarian boards — Finding 2 and the "second
+> spotlight" section — states, verbatim-equivalent: *beats matched-naive
+> (+6.5pp mean across 17 fully-OOS windows); does not beat the Marcel-picker
+> (−8pp, batter channel); ties Marcel on season-forward forecast — no edge
+> claim vs Marcel.* Registered as `[claim:adjusted_war_boards_k6_framing]`;
+> the underlying measurements are `[claim:adjusted_war_v3_naive_lift_17w]`
+> and `[claim:adjusted_war_v3_marcel_lift_17w]` (boards) and
+> `[claim:adjusted_war_v3_vs_marcel_forward]` (forecast, paired-t confidence
+> 0.567 against a 0.90 bar). Standing caveats: four of eight config-side
+> naive-lift t-intervals cross zero, and the Marcel control is
+> **batter-channel only** (pitcher Marcel is deferred to the marcelR pin,
+> frozen resolution spec §6.7). K3 did **not** fire, so the boards keep
+> shipping — but the "edge" wording is spent against Marcel, permanently,
+> unless a Marcel-beating result is measured under WS4.4.
+> (d) **Per-player confidence intervals withdrawn.** No per-player interval
+> ships on any surface. The WS4.7 coverage study measured 49.6% (sampling
+> layer) and 71.3% (ridge-posterior layer) empirical coverage at a nominal
+> 95%, both outside the pre-registered [90%, 98%] ship gate.
+> `[claim:adjusted_war_v3_ci_coverage]`.
+> (e) **Production model superseded.** The production player-value model
+> since 2026-08-10 is **AdjustedWAR v3** — ridge joint estimation of batter,
+> pitcher, park×stand and context effects in a single fit
+> (`src/analytics/adjusted_war_v3.py`; registry alias
+> `adjusted_war_v3/production = v2026.08.10`, `frozen_validated`
+> deliberately unset because no validation spec exists for it). On two fully
+> held-out seasons it beats the formulation described in Finding 2 on
+> season-forward PA-weighted RMSE (.03265 vs .04567, n=812), which is itself
+> worse than a naive league constant (.03748)
+> — `[claim:adjusted_war_v3_forward_rmse]`. Consequently Finding 2's
+> r = 0.71 / ρ = 0.62 correlation gates describe the **superseded**
+> formulation and may not be quoted as properties of production; no
+> bWAR-correlation gate has been measured for the ridge.
+> Full measurements and the K3 verdict:
+> `docs/models/adjusted_war_v3_2026-08.md`; the adjudicated criterion texts
+> and consequences: `docs/models/kill_criteria_verdicts_2026-08.md`.
 
 ---
 

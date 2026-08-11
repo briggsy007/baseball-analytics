@@ -145,7 +145,7 @@ def _render_sidebar() -> str:
                 "Phillies Hub",
                 "Data Management",
                 "───────────────",
-                "CausalWAR",
+                "AdjustedWAR",
                 "Projections (v2)",
                 "Contrarian Leaderboards",
                 "Track Record",
@@ -191,7 +191,9 @@ def main() -> None:
         "Sequencing": sequencing.render,
         "Phillies Hub": phillies.render,
         "Data Management": data_management.render,
-        "CausalWAR": causal_war.render,
+        # Renamed 2026-08-10 (Batch D): the nav label is AdjustedWAR; the
+        # view module keeps its historical ``causal_war`` filename.
+        "AdjustedWAR": causal_war.render,
         "Projections (v2)": projections.render,
         "Contrarian Leaderboards": contrarian_leaderboards.render,
         "Track Record": track_record.render,

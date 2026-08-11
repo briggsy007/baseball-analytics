@@ -1,6 +1,6 @@
 ---
 name: validate-model
-description: Run the full validation playbook for a flagship baseball model (CausalWAR, PitchGPT, VWR, Defensive Pressing, MechanixAE, or Allostatic Load). Use when the user asks to validate a model, check if a model passes its spec gates, run the validation suite, or invokes `/validate-model <name>`. Accepts model name as argument; `all` or `flagships` runs the four flagships sequentially.
+description: Run the full validation playbook for a flagship baseball model (AdjustedWAR -- invoked as `causal_war` -- PitchGPT, VWR, Defensive Pressing, MechanixAE, or Allostatic Load). Use when the user asks to validate a model, check if a model passes its spec gates, run the validation suite, or invokes `/validate-model <name>`. Accepts model name as argument; `all` or `flagships` runs the four flagships sequentially. The AdjustedWAR gates grade the LEGACY CausalWAR v2 artifact only -- the production ridge model (adjusted_war_v3) has no validation spec and is reported as production, ungated.
 ---
 
 # validate-model
@@ -10,7 +10,10 @@ You are executing the repo's canonical validation playbook for one of six baseba
 ## Step 1 — Dispatch on model argument
 
 Accepted arguments (case-insensitive, accept hyphens/underscores):
-- `causalwar` | `causal_war` | `causal-war` → `causal_war`
+- `adjustedwar` | `adjusted_war` | `adjusted-war` | `causalwar` | `causal_war` | `causal-war` → `causal_war`
+  (the **product is AdjustedWAR** since 2026-08-10; `causal_war` stays the normalized token, the
+  spec path and the results-doc path — files, module ids and registry ids were deliberately NOT
+  renamed. See the banner in Step 2 before reporting anything about this model.)
 - `pitchgpt` | `pitch-gpt` → `pitchgpt`
 - `mechanixae` | `mechanix_ae` | `mechanix-ae` → `mechanix_ae`
 - `vwr` | `viscoelastic` | `viscoelastic_workload` | `viscoelastic-workload` → `viscoelastic_workload`
@@ -26,8 +29,36 @@ Normalize to one of `{causal_war, pitchgpt, mechanix_ae, viscoelastic_workload, 
 
 Read `docs/models/<model>_validation_spec.md`. Extract the pass/fail thresholds below. These are the authoritative gates this skill checks — if the spec has been updated and thresholds drift, re-read and use the current values.
 
-### CausalWAR gates (source: `docs/models/causal_war_validation_spec.md`)
-- **Baseline comparison (Ticket 2):** `Pearson r ≥ 0.5` AND `Spearman rho_rank ≥ 0.6` vs traditional WAR proxy.
+### AdjustedWAR — LEGACY CausalWAR gates (source: `docs/models/causal_war_validation_spec.md`)
+
+> **BANNER — read before running or reporting this model (added 2026-08-10, Batch D).**
+> The product is **AdjustedWAR**; "CausalWAR" is the retired brand and is kept below only where
+> it names the legacy artifact, the spec file or the invocation token.
+>
+> 1. **These gates describe the LEGACY formulation.** The `r ≥ 0.50` / `rho ≥ 0.60`
+>    correlation gates belong to the v2 DML CausalWAR artifact
+>    (`models/causal_war/causal_war_trainsplit_2015_2022*.pkl`) and to
+>    `docs/models/causal_war_validation_spec.md`, which describes that architecture.
+> 2. **They are superseded as a property of production.** Registry claim
+>    `causal_war_v2_correlation_gates` (`docs/claims/claims.yaml`) carries
+>    `status: superseded`. The measurement stands as history and still governs the frozen
+>    boards the v2 artifact produced, but it **may NOT be quoted as a property of the
+>    production model**. See `docs/models/kill_criteria_verdicts_2026-08.md` (K3).
+> 3. **Production is `adjusted_war_v3` (ridge) and has NO validation spec.** Registry alias
+>    `adjusted_war_v3/production = v2026.08.10`; `frozen_validated` is deliberately **unset**
+>    because `docs/models/adjusted_war_v3_validation_spec.md` does not exist — there is no gate
+>    suite this artifact could have passed. No bWAR-correlation gate has ever been measured for
+>    the ridge.
+> 4. **Therefore: never emit a PASS/FAIL for the production model.** Report its status as
+>    **`production, ungated`** and point at `docs/models/adjusted_war_v3_2026-08.md` (the
+>    pre-registered K3 measurement set — season-forward RMSE vs the legacy formulation, 17
+>    fully-OOS board windows vs matched-naive and Marcel) for its evidence. Any PASS/FAIL this
+>    skill prints for `causal_war` is scoped to the **legacy v2 artifact** and must say so.
+> 5. **This skill does not validate the ridge.** `scripts/baseline_comparison.py` scores the
+>    legacy pickle. Do not repoint it at `adjusted_war_v3`, and do not invent ridge gates —
+>    writing a spec for `adjusted_war_v3` is a separate, pre-registration-first task.
+
+- **Baseline comparison (Ticket 2):** `Pearson r ≥ 0.5` AND `Spearman rho_rank ≥ 0.6` vs traditional WAR proxy. **Legacy artifact only** (see banner).
 - **Leakage check (Ticket 1 / Award checklist):** no overlap in `game_pk` between train split (2015-2022) and test split (2023-2024); test R² reported alongside train R².
 - **CI coverage (Ticket 4, award checklist):** overall coverage in `[93%, 97%]` (informational — only check if `results/ci_coverage*.json` exists; do not rerun).
 
@@ -79,7 +110,16 @@ Use `date -u +%Y%m%dT%H%M%SZ` (or equivalent) for the timestamp. Create it at th
 
 Work from the repo root `C:\Users\hunte\projects\baseball`. All scripts assume that cwd. Use `python scripts/<script>.py ...`. Stream output to a log file in the run directory (`step_<n>.log`). If a step fails (non-zero exit), record the failure in the summary JSON with the stderr tail, mark overall verdict FAIL, and continue to the remaining independent steps.
 
-### 4a — CausalWAR
+### 4a — AdjustedWAR (grades the LEGACY CausalWAR v2 artifact)
+
+**Scope, before you run anything:** everything in this block scores the legacy DML pickle. The
+production player-value model is `adjusted_war_v3` (ridge) and this skill has no gates for it —
+see the Step 2 banner. Whatever this block returns, the run must also report:
+
+```
+AdjustedWAR production model: adjusted_war_v3 v2026.08.10 — production, ungated
+  (no validation spec exists; evidence in docs/models/adjusted_war_v3_2026-08.md)
+```
 
 1. **Leakage check.** Before running anything, confirm the model file exists at `models/causal_war/causal_war_trainsplit_2015_2022.pkl`. The split is encoded in the filename — train = 2015-2022. The baseline script re-extracts PA-level data for train-start/end and test-start/end and performs its own in-memory split; confirm `--train-start 2015 --train-end 2022 --test-start 2023 --test-end 2024` in the invocation so no overlap is possible. Record `leakage_check: PASS` with the `game_pk`-disjointness justification (separate season ranges) in the summary JSON.
 
@@ -96,6 +136,9 @@ Work from the repo root `C:\Users\hunte\projects\baseball`. All scripts assume t
    - `pearson_r >= 0.5` → PASS/FAIL
    - `spearman_rho >= 0.6` → PASS/FAIL
    - Record measured values, 95% CIs, and biggest-movers CSV path. Note in `notes` if the lower CI bound dips below the threshold (known fragility on combined Spearman).
+   - **Label the verdict.** Any PASS/FAIL here is `legacy CausalWAR v2 artifact` scope. Write that
+     scope into `notes` and into the results-doc section, and do NOT restate it as the status of
+     AdjustedWAR production. Superseded per `[claim:causal_war_v2_correlation_gates]`.
 
 ### 4b — PitchGPT
 
@@ -215,12 +258,26 @@ Write `results/validate_<model>_<ts>/validation_summary.json`:
 }
 ```
 
-`overall_pass` is `true` iff every hard gate is `true`. Soft flags (CausalWAR Spearman lower-CI fragility, ABL seasonal-control informational, ABL verdict band) do not flip it — record them in `notes`. For MechanixAE when the profiling script is not yet implemented, set `overall_pass: null` and explain in `notes`.
+`overall_pass` is `true` iff every hard gate is `true`. Soft flags (legacy CausalWAR Spearman lower-CI fragility, ABL seasonal-control informational, ABL verdict band) do not flip it — record them in `notes`. For MechanixAE when the profiling script is not yet implemented, set `overall_pass: null` and explain in `notes`.
+
+**For `causal_war` only**, add these fields so the JSON cannot be read as a verdict on production:
+
+```json
+{
+  "product_name": "AdjustedWAR",
+  "gated_artifact": "legacy CausalWAR v2 (models/causal_war/causal_war_trainsplit_2015_2022*.pkl)",
+  "production_model": "adjusted_war_v3 v2026.08.10",
+  "production_model_status": "production, ungated — no validation spec exists (frozen_validated deliberately unset)",
+  "production_model_evidence": "docs/models/adjusted_war_v3_2026-08.md"
+}
+```
+
+`overall_pass` stays scoped to the legacy artifact; there is no `overall_pass` for the ridge.
 
 ## Step 6 — Append verdict to the results doc
 
 Append (do not overwrite) a new section to the appropriate doc:
-- `causal_war` → `docs/models/causal_war_baseline_results.md`
+- `causal_war` → `docs/models/causal_war_baseline_results.md` (legacy-artifact verdicts; state that scope in the appended section — see 4a)
 - `pitchgpt` → `docs/models/pitchgpt_calibration_ablation_results.md`
 - `mechanix_ae` → `docs/models/mechanix_ae_results.md`
 - `viscoelastic_workload` → `docs/models/viscoelastic_workload_results.md`
@@ -266,16 +323,28 @@ Report: results/validate_<model>_<ts>/validation_summary.json
 Verdict appended to: docs/models/<results_doc>.md
 ```
 
-For `all` / `flagships`, print one block per model in the order they ran, then a one-line roster summary at the end (e.g., "Flagship roster: 3/4 PASS — CausalWAR PASS, PitchGPT FAIL (ablation), VWR PASS, DPI PASS").
+For `causal_war`, print one extra line after `Verdict appended to:` — the block is 6 lines, and the
+model line must carry its scope:
 
-Keep each block to those 5 lines unless the user asked for detail.
+```
+AdjustedWAR (legacy CausalWAR v2 artifact): <PASS|FAIL>
+Gates passed: X / Y
+Failed: <comma-separated gate names, or "none">
+Report: results/validate_causal_war_<ts>/validation_summary.json
+Verdict appended to: docs/models/causal_war_baseline_results.md
+Production model: adjusted_war_v3 v2026.08.10 — production, ungated (no validation spec; evidence: docs/models/adjusted_war_v3_2026-08.md)
+```
+
+For `all` / `flagships`, print one block per model in the order they ran, then a one-line roster summary at the end (e.g., "Flagship roster: 3/4 PASS — AdjustedWAR legacy-artifact PASS (production ridge ungated), PitchGPT FAIL (ablation), VWR PASS, DPI PASS").
+
+Keep each block to those 5 lines (6 for AdjustedWAR) unless the user asked for detail.
 
 ## Operational notes
 
 - **Hardware.** GPU is available — `torch 2.11.0+cu126`, RTX 3050 Laptop, 4GB VRAM, cuDNN 9.10.02. Scripts auto-detect via `_get_device()` / `torch.cuda.is_available()`. Per-model:
   - **PitchGPT**: GPU strongly preferred (~2× faster than CPU at small model size, ~800 MB peak VRAM).
   - **MechanixAE**: GPU eval (light); training would be GPU-heavy but `--skip-train` is default.
-  - **CausalWAR**: CPU only (sklearn / DML).
+  - **AdjustedWAR**: CPU only (the legacy CausalWAR v2 artifact this skill grades is sklearn / DML; the production `adjusted_war_v3` ridge is not exercised by this skill).
   - **VWR / Allostatic Load**: CPU only (sklearn LinearRegression / LogisticRegression + numpy).
   - **Defensive Pressing (DPI)**: CPU only (sklearn HistGradientBoostingClassifier + numpy). Known limitation: xOut model is re-trained on every validation run (not pickled). v2 hardening ticket: persist xOut checkpoint to `models/defensive_pressing/xout_v1.pkl`.
 - **Never modify** existing scripts, specs, results docs above the appended verdict line, or model checkpoints.

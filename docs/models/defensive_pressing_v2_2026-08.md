@@ -2,9 +2,10 @@
 
 **Status:** COMPLETE through C1b — C1a (WS3.2 pitching strip + WS3.3
 sprint-speed feature) + C1b (WS3.4 park jointly estimated, WS3.5 positioning
-thesis, final K1/K2 measurement, §5). Nothing here changes flagship status,
-aliases, or claims — kill-criteria adjudication is Batch D. This document
-reports numbers only; it contains **no adjudication language**.
+thesis, final K1/K2 measurement, §5). Sections §1–§6 report numbers only and
+contain **no adjudication language**; they are unchanged since C1b.
+**§7 (appended 2026-08-10, Batch D / WS3.6) carries the K1/K2 verdicts** and
+the consequences that executed from them.
 
 **Provenance anchor:** every DPI number in this doc descends from the frozen
 validated xOut checkpoint `models/defensive_pressing/xout_v1.pkl`
@@ -533,3 +534,128 @@ reviewed."*
 `scripts/verify_artifacts.py` after all C1b registrations: **ok=18 warn=0
 fail=0**. No existing artifact modified; production / frozen_validated
 aliases untouched throughout.
+
+---
+
+## 7. K1 / K2 verdicts — 2026-08-10 (Batch D, WS3.6)
+
+*Appended after §1–§6 were written and frozen. The quantities are §5's,
+unchanged; this section adds only the adjudication and its consequences.
+Both verdicts were adjudicated by the user on 2026-08-10 and are binding —
+they are recorded here, not re-litigated.*
+
+### 7.1 K1 — positioning thesis: **DOES NOT FIRE**
+
+**Criterion, verbatim (plan §8):** *"K1 (DPI positioning, 3.5): if xOut-B
+(alignment features) adds < 0.002 holdout AUC over xOut-A in BOTH eras AND
+per-team positioning value fails split-half reliability (α < 0.5), the
+'pressing/positioning' thesis is dead: rename/reframe DPI as a BIP-conversion
+residual metric within one session of the result. No third feature-set
+attempt."*
+
+| arm | measured | criterion line | arm satisfied? |
+|---|---|---|---|
+| holdout AUC delta B−A, pre-ban 2015–2022 | **+0.0119** [+0.0113, +0.0125], n_test 183,659 | < 0.002 in BOTH eras | **no** (≈6× the line) |
+| holdout AUC delta B−A, post-ban 2023–2025 | **+0.0135** [+0.0126, +0.0144], n_test 76,437 | < 0.002 in BOTH eras | **no** (≈7× the line) |
+| positioning-value split-half α, pre-ban | **0.4958** (8 seasons) | α < 0.5 | yes |
+| positioning-value split-half α, post-ban | **0.3088** (3 seasons) | α < 0.5 | yes |
+
+**Verdict: K1 does not fire.** The criterion is a conjunction, and the AUC
+conjunct is decisively false — the alignment block adds an order of magnitude
+more holdout AUC than the materiality line in **both** eras, with bootstrap
+CIs excluding the line. The alpha conjunct is satisfied, but one true
+conjunct does not fire an AND. The "pressing"/positioning name therefore
+**survives**; no rename or reframe is triggered, and per the criterion's last
+sentence there is **no third feature-set attempt**.
+
+**Standing caveat that ships with the surviving name** (not a
+verdict-changer, and it may not be dropped): positioning signal is real at
+the **BIP level** and unreliable at the **team level**. Per-team positioning
+value fails split-half in both eras (α 0.4958 / 0.3088, both below the
+criterion's 0.5 bar and far below the FanGraphs 0.707 convention), and the
+post-ban series contains a negative season (2024, −0.167). Consequence, now
+enforced in the claims registry: **no team positioning leaderboard, no team
+positioning ranking, and no per-team positioning-runs number may ship.**
+
+### 7.2 K2 — DPI attribution: **DOES NOT FIRE**
+
+**Criterion, verbatim (plan §8):** *"K2 (DPI attribution, 3.2–3.4): if after
+pitching-strip + park + speed the partial r(DPI_v2, OAA | BABIP) pooled
+2023–25 falls below 0.30, DPI's 'defense' claim narrows to 'descriptive
+BIP-outcome residual'; flagship status reviewed."*
+
+| quantity | value |
+|---|---|
+| **PRIMARY (pre-committed before fitting): partial r(DPI_v2_final, OAA \| BABIP), pooled 2023–25** | **0.4698** (n = 90 team-seasons) |
+| criterion line | 0.30 |
+| Fisher-z 95% CI | [0.2900, 0.6177] |
+| team-cluster pairs bootstrap 95% CI (30 franchises, 5,000 draws) | [0.2847, 0.5998] |
+| per-year | 2023 0.3959 · 2024 0.5309 · 2025 0.4213 |
+| sensitivity (2023–25-only MixedLM fit) | 0.4299 [Fisher 0.2435, 0.5857; cluster 0.2780, 0.5420] |
+
+**Verdict: K2 does not fire, adjudicated on the point estimate as the
+criterion is worded** ("the partial r … falls below 0.30"). The pre-committed
+pooled point estimate 0.4698 sits 0.17 above the line. DPI's defense claim is
+therefore **not** narrowed to "descriptive BIP-outcome residual" by K2, and
+the flagship-status review clause is not triggered — DPI remains a flagship.
+
+**Two standing caveats, recorded as caveats and not as verdict-changers**
+(user adjudication, 2026-08-10; both now carried in the mandatory caveat of
+claim `dpi_v2_partial_r_oaa_given_babip`):
+
+1. **CI floors sit below the line.** Fisher 0.2900 and cluster 0.2847 are
+   0.010 and 0.015 *below* 0.30. The estimate is not statistically separated
+   from its own criterion; the verdict rests on the point estimate because
+   that is what K2 names.
+2. **The stage trajectory declines** as confounds are removed — v1
+   season-centered 0.5725 → pitching strip 0.4531 → + park 0.4805 → + speed
+   0.4698 (like-for-like season-centered basis). The pre-committed
+   expectation for WS3 was exactly this (bias removal, not a higher headline
+   correlation), but it also means a further bias-removal stage could carry
+   the pooled value under the line. Any future stage re-adjudicates K2 on the
+   same pre-registered wording.
+
+### 7.3 Consequences executed (WS3.6, same session)
+
+- **Claims registry** (`docs/claims/claims.yaml`, DPI block) now leads with
+  the defensible core:
+  - `dpi_v2_partial_r_oaa_given_babip` (narrowed) — 0.4698 with both CIs and
+    the two standing caveats above;
+  - `dpi_positioning_alignment_ab` (narrowed) — the AUC deltas, the alphas,
+    and the "no team positioning ranking" consequence;
+  - `dpi_pitching_strip_variance_share` (active) — 10.5–16.4% of team-season
+    DPI v1 variance is opposing-staff contact management (audit finding 7,
+    quantified);
+  - `dpi_partial_r_oaa_given_babip` (the v1 partial r) → **superseded** by
+    the v2 entry, never deleted; `dpi_babip_corroboration` (−0.80) stays
+    **retracted**; `dpi_split_half_reliability` (0.584) and
+    `dpi_yoy_stability` (2024→25 = 0.3699) re-verified against their
+    artifacts (hashes unchanged) and retained;
+  - `dpi_oaa_2025_r` and `dpi_gate6_pooled` gained a dated pointer noting
+    they are raw DPI v1 correlations carrying the stripped confounds.
+- **Dashboard** (`src/dashboard/views/defensive_pressing.py`): every quoted
+  number now resolves through `src.claims.get_claim`; the unsourced "30–50
+  runs" impact line and the fielder-level mechanism copy (audit DPI finding
+  10) are deleted; extra-base prevention is labelled as a raw, unmodelled
+  rate; regressed DPI renders alongside raw wherever the leaderboard renders
+  (shrinkage R from the WS3.1 split-half artifact, deferred with a stated
+  reason for seasons that artifact does not cover, e.g. in-season 2026).
+- **Validation harness** (`scripts/defensive_pressing_validation.py`): the
+  iid-row bootstrap is **removed**. Cross-team gate CIs are pairs-cluster
+  bootstrap + wild cluster bootstrap-t over the 30 franchises (machinery
+  imported from `scripts/dpi_reliability_2026.py`, not copied), per-team-season
+  CIs resample games within team-season, and `_pair_metrics` now *requires*
+  cluster labels so a future run cannot re-publish too-narrow CIs (audit
+  finding 9 recurrence guard; unit tests in
+  `tests/test_dpi_validation_cluster_ci.py`).
+
+### 7.4 What is still NOT claimed
+
+- No causal or fielder-level attribution: DPI v2 is a team-season residual on
+  batted-ball outcomes with pitcher contact-management and park removed, not
+  a measurement of range, arm, or transition skill.
+- No team positioning ranking (K1 alpha arm, §7.1).
+- No run-value conversion of DPI or of extra-base prevention.
+- No claim that DPI v2 improves on v1 as a *number*: the v2 partial r is
+  lower than the v1 season-centered value by construction, and that is the
+  intended outcome of bias removal.

@@ -314,6 +314,33 @@ def test_outcome_to_woba_demo_keys():
 
 
 # ---------------------------------------------------------------------------
+# K5 consequence copy (2026-08-10)
+# ---------------------------------------------------------------------------
+
+
+def test_kill_quantities_render_as_text_not_a_dict_repr():
+    """The kill claim's value is a mapping; the disclosure must format it.
+
+    Interpolating ``Claim.value`` whole would emit a raw Python dict repr
+    into the marginal-bias disclosure that licenses these grades to ship.
+    """
+    from src.claims import get_claim
+    from src.dashboard.views import pitch_call_grades
+
+    kill = get_claim("pitchgpt_phase062_kill").value
+    for text in (
+        pitch_call_grades._KILL_QUANTITIES,
+        pitch_call_grades._PA_SCOPE_DISCLOSURE,
+    ):
+        assert "{'" not in text, "raw Python dict repr leaked into the disclosure"
+        for key in kill:
+            assert key not in text, f"dict key {key!r} leaked into user-facing copy"
+    for key in ("iteration_1_max_abs_delta_pp", "iteration_2_max_abs_delta_pp"):
+        assert f"{kill[key]:.3f}pp" in pitch_call_grades._KILL_QUANTITIES
+    assert kill["verdict"] in pitch_call_grades._KILL_QUANTITIES
+
+
+# ---------------------------------------------------------------------------
 # Dependency-light: don't require pytest plugins beyond defaults
 # ---------------------------------------------------------------------------
 

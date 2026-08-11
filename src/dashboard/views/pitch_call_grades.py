@@ -20,8 +20,23 @@ Disclosure (load-bearing per SIM_ENGINE_API §4):
     features cannot disambiguate balls in play that become hits vs outs
     without launch_speed / launch_angle. Grades that depend on this
     distinction are flagged.
+
+PRODUCT SCOPE — K5 consequence (2026-08-10):
+    Phase 0.6.2 was KILLED at the fit-convergence gate
+    (``docs/models/pitchgpt_phase062_results.md``; claim
+    ``pitchgpt_phase062_kill``). Per ``PHASE_0.6.2_PLAN.md`` §6 the A1 grades
+    SURVIVE — they are a rank/differential product (percentile-of-actual
+    within a rollout distribution, and a per-pitch wOBA *delta*), and §6
+    explicitly lets rank/differential products "proceed with the
+    marginal-bias disclosure". What may never appear on this page is any
+    PA-level ABSOLUTE rate from the rollout engine (K%/BB%/HR%, absolute
+    wOBA level): those are dropped from Tier-A scope permanently for v2-era
+    PitchGPT. The disclosure block below carries the marginal-bias text; do
+    not remove it while grades render.
 """
 from __future__ import annotations
+
+from typing import Any
 
 import streamlit as st
 
@@ -39,6 +54,22 @@ from src.dashboard.fixtures.pitch_call_grades_fixture import (
 _CLAIM_ECE = get_claim("pitchgpt_per_pitch_ece")
 _CLAIM_IN_PLAY_HIT = get_claim("pitchgpt_outcome_head_in_play_hit")
 _CLAIM_PA_RATES = get_claim("pitchgpt_pa_rates_fail")
+_CLAIM_062_KILL = get_claim("pitchgpt_phase062_kill")
+
+# The kill claim's ``value`` is a mapping. Interpolating it whole renders a
+# raw Python dict repr on the page, so index the sub-keys and format them --
+# the same convention the other dict-valued claims use (see
+# contrarian_leaderboards.py ``_render_k3_evidence`` and causal_war.py).
+_K062: dict[str, Any] = _CLAIM_062_KILL.value
+_KILL_QUANTITIES = (
+    "Verdict quantities (2023 fit-convergence gate; max per-position "
+    "class-marginal absolute deviation from empirical): iteration 1 "
+    f"{_K062['iteration_1_max_abs_delta_pp']:.3f}pp, iteration 2 "
+    f"{_K062['iteration_2_max_abs_delta_pp']:.3f}pp, against a pre-registered "
+    f"{_K062['threshold_pp']:.1f}pp convergence threshold (pre-fit reference "
+    f"{_K062['pre_fit_reference_max_abs_delta_pp']:.2f}pp). "
+    f"{_K062['verdict']}."
+)
 
 # ---------------------------------------------------------------------------
 # Lazy import of pitchgpt_sim
@@ -74,12 +105,32 @@ _METHODOLOGY_FOOTNOTE = (
     "rollout's terminal wOBA, and report where the actual pitch's "
     "outcome falls in that distribution. **High percentile = pitcher "
     "allowed less than expected (good call); low percentile = allowed "
-    "more (bad call).** Calibration is post-temperature ECE 0.0114 on "  # claim:pitchgpt_per_pitch_ece
-    "2025 pitcher-disjoint holdout per "
-    "`results/pitchgpt_sim/outcome_baselines_2026_04_25/a1_concat/metrics.json`. "
+    "more (bad call).** This is a **rank/differential** product: the "
+    "percentile and the per-pitch delta are comparisons inside one rollout "
+    "distribution, never an absolute PA-level rate. "
+    f"Calibration is per-pitch post-temperature ECE {_CLAIM_ECE.value} on "
+    "the 2025 pitcher-disjoint holdout per "
+    "`results/pitchgpt_sim/outcome_baselines_2026_04_25/a1_concat/metrics.json` "
+    "(the outcome head is the upper end of that range). "
     f"**Calibration scope (2026-08-10 audit):** {_CLAIM_ECE.caveat} "
     f"PA-level absolute rates additionally FAIL their fidelity gates: "
     f"{_CLAIM_PA_RATES.caveat}"
+)
+
+_PA_SCOPE_DISCLOSURE = (
+    ":warning: **Marginal-bias disclosure (required for this product).** "
+    "Phase 0.6.2 -- the pre-registered attempt to make rollout PA-level "
+    "marginals honest -- was **KILLED at its fit-convergence gate on "
+    "2026-08-10**, and Phase 0.6 closed as FAIL. The rollout engine's "
+    "PA-level absolute rates are therefore known-biased and are dropped "
+    "from Tier-A scope permanently for v2-era PitchGPT; the 0.6.1 wOBA and "  # claim:pitchgpt_woba_pa_pass_pre062
+    "PA-length PASSes are permanently unearned. These **grades survive** "
+    "only because `PHASE_0.6.2_PLAN.md` §6 lets rank/differential products "
+    "proceed *with this disclosure* -- a grade is a within-distribution "
+    "comparison, and the shared marginal bias largely cancels in the "
+    "percentile. It does not cancel exactly: read grades as ordinal, not as "
+    "a calibrated probability of a better outcome. "
+    f"{_KILL_QUANTITIES} {_CLAIM_062_KILL.caveat}"
 )
 
 _HIT_CEILING_DISCLOSURE = (
@@ -218,6 +269,7 @@ def _render_disclosure_block() -> None:
     """Render the load-bearing disclosure block (in_play_hit ceiling)."""
     st.markdown("---")
     st.markdown("### Disclosures")
+    st.error(_PA_SCOPE_DISCLOSURE)
     st.info(_HIT_CEILING_DISCLOSURE)
     st.caption(
         "Methodology paper v2 §3.7 details the Plan B WEAKER PASS verdict and "
@@ -236,7 +288,9 @@ def render() -> None:
     st.caption(
         "A1 dossier — `EXECUTION_PLAN.md` §6 A1. Grade each pitch by where "
         "its actual outcome falls in a distribution of N=100 calibrated "
-        "rollouts of the remaining at-bat."
+        "rollouts of the remaining at-bat. Rank/differential product only — "
+        "no PA-level absolute rate is shown or implied (see the "
+        "marginal-bias disclosure at the bottom)."
     )
 
     sim_available = _try_import_pitchgpt_sim()

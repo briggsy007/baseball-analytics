@@ -179,7 +179,11 @@ try:
 except ImportError:
     pass
 
-# ── CausalWAR -- Causal Inference Player Valuation ──
+# ── AdjustedWAR (legacy formulation) -- context-adjusted player valuation ──
+# Renamed 2026-08-10: the product is AdjustedWAR, a regularized adjustment,
+# NOT causal identification. Symbol names keep their historical `causal_war`
+# spelling on purpose (frozen artifacts, DB cache keys, pick-ledger ids).
+# Production player value is `src.analytics.adjusted_war_v3` (ridge).
 try:
     from src.analytics.causal_war import (
         CausalWARModel,

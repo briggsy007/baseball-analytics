@@ -1,14 +1,47 @@
 """
-CausalWAR -- Causal Inference Player Valuation via Double Machine Learning.
+CausalWAR (legacy formulation) -- per-PA player valuation via a one-nuisance
+Double-ML approximation.
 
-Estimates the causal effect of individual players on run production by
-de-confounding park, lineup context, platoon matchup, base-out state, and
-defensive alignment using the Frisch-Waugh-Lovell approach:
+RENAMED 2026-08-10 (Batch D, user-adjudicated).  The product name on every
+live surface is now **AdjustedWAR**: "regularized adjustment, not causal
+identification".  The *file* keeps its ``causal_war`` name on purpose --
+module paths, DB cache keys, registry ids and the append-only pick-ledger
+product ids are historical identifiers and are NOT renamed (renaming them
+would break frozen artifacts and the 2026 board resolution, which resolves
+under the frozen spec regardless).  Only display strings moved.
 
-    1. Fit nuisance models E[Y|W] and E[T|W] with cross-fitting.
-    2. Residualise:  Y_res = Y - E[Y|W],  T_res = T - E[T|W].
-    3. Regress Y_res on T_res to recover the causal effect.
-    4. Bootstrap for confidence intervals.
+Scope of this module after the rename:
+
+* The production player-value model is **AdjustedWAR v3**
+  (``src/analytics/adjusted_war_v3.py``, registry ``adjusted_war_v3``
+  production alias ``v2026.08.10``), a ridge/joint-estimation model.  The
+  scoring path in ``scripts/precompute.py`` resolves it through that alias.
+* This module remains the frozen historical formulation: it produced the
+  2023-25 evidence boards, the frozen 2026 mid-season and reliever boards,
+  and every pick already written to ``predictions/picks.jsonl``.  Those
+  artifacts are append-only history and keep using it.
+* Do NOT describe this estimator as causal identification.  It fits ONE
+  nuisance E[Y|W] and takes per-player mean residuals -- no treatment
+  model, no residual-on-residual regression (2026-08-10 audit S2, and
+  ``docs/awards/methodology_paper_causal_war.md``'s correction notice).
+  Measured season-forward: this formulation loses to both the ridge and to
+  Marcel, and is worse than a naive league constant
+  (``docs/models/adjusted_war_v3_2026-08.md`` S3).
+
+Estimates the effect of individual players on run production by adjusting
+for park, lineup context, platoon matchup, base-out state, and defensive
+alignment, in the shape of a Frisch-Waugh-Lovell residualization:
+
+    1. Fit the nuisance model E[Y|W] with cross-fitting (E[T|W] is NOT
+       fitted in production -- the "one-nuisance approximation").
+    2. Residualise:  Y_res = Y - E[Y|W].
+    3. Take per-player means of Y_res as the player effect (this stands in
+       for the residual-on-residual step, which production does not run).
+    4. Bootstrap for intervals.  Those intervals have never been
+       coverage-validated; the WS4.7 coverage study of the ridge analogues
+       (docs/models/adjusted_war_v3_2026-08.md) measured 49.6% / 71.3%
+       empirical coverage against a nominal 95% -- treat any per-player
+       interval from this family as uncalibrated.
 
 No external causal-inference library required -- implemented manually with
 scikit-learn's HistGradientBoostingRegressor.
@@ -138,7 +171,11 @@ class CausalWARModel(BaseAnalyticsModel):
         return "1.0.0"
 
     def train(self, conn: duckdb.DuckDBPyConnection, **kwargs) -> dict:
-        """Train nuisance models and estimate player causal effects.
+        """Train the nuisance model and estimate per-player adjusted effects.
+
+        Not causal effects: see the module docstring. This is a
+        one-nuisance FWL approximation and the per-player quantity is a
+        mean residual, an adjustment.
 
         Args:
             conn: Open DuckDB connection.
@@ -634,13 +671,17 @@ class CausalWARModel(BaseAnalyticsModel):
         player_ids: np.ndarray,
         pa_df: pd.DataFrame,
     ) -> tuple[np.ndarray, dict[int, dict], dict]:
-        """Fit the Double ML model using Frisch-Waugh-Lovell.
+        """Fit the one-nuisance Frisch-Waugh-Lovell approximation.
+
+        NOT Double ML -- E[T|W] is never fitted and there is no
+        residual-on-residual regression (module docstring, 2026-08-10 audit
+        S2). The output is a regularized adjustment, not an identification.
 
         For each player with enough PAs, the treatment is a binary indicator
         (1 if this player, 0 otherwise). We use a simplified approach:
 
         1. Fit E[Y|W] to residualise the outcome on confounders.
-        2. Compute per-player average residuals as the causal effect.
+        2. Compute per-player average residuals as the adjusted effect.
         3. Bootstrap for confidence intervals.
 
         Returns:
@@ -676,7 +717,7 @@ class CausalWARModel(BaseAnalyticsModel):
         avg_outcome_r2 = float(np.mean(outcome_r2_scores))
         logger.info("Outcome nuisance model avg R2: %.4f", avg_outcome_r2)
 
-        # ---- Step 2: Per-player causal effects ---------------------------
+        # ---- Step 2: Per-player adjusted effects -------------------------
         unique_players = np.unique(player_ids)
         player_effects: dict[int, dict] = {}
 

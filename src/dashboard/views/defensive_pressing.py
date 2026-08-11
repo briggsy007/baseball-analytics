@@ -2,15 +2,32 @@
 Defensive Pressing Intensity (DPI) dashboard view.
 
 Displays team-level defensive efficiency metrics:
-- Team DPI big-number with league rank & consistency score
+- Team DPI big-number with league rank, regressed DPI & consistency score
 - BIP outcome chart: launch_speed vs launch_angle colored by actual vs expected
-- Team leaderboard: all teams ranked by DPI with bar chart
+- Team leaderboard: all teams ranked by DPI (raw + regressed) with bar chart
 - Extra-base prevention: team ranking on limiting advancement
 - Game-by-game DPI: timeline chart across the season
+
+2026-08-10 (WS3.6, plan docs/plans/2026-08-10_platform_improvement_plan.md):
+every number quoted as evidence on this page comes from the claims registry
+via ``src.claims.get_claim`` -- no hand-copied metrics, and no unregistered
+external-literature figures either (a SABR BABIP variance-decomposition
+parenthetical was dropped for that reason on review: it carried no registry
+entry, and its fielding term read as a statement about DPI's own signal
+composition). The unsourced
+runs-saved impact line and the fielder-level mechanism copy (audit DPI
+finding 10) were deleted; DPI is presented as a team BIP-conversion residual.
+The exact deleted strings are pinned as banned in
+``tests/test_defensive_pressing_view.py``.
+The "pressing"/positioning name survives kill criterion K1 (which did not
+fire) but ships with the positioning caveat: BIP-level alignment signal is
+real, team-level positioning ranking is not reliable
+(claim dpi_positioning_alignment_ab).
 """
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Any
 
 import pandas as pd
@@ -18,6 +35,7 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import streamlit as st
 
+from src.claims import ClaimError, get_claim
 from src.dashboard.db_helper import get_db_connection, has_data
 
 # ---------------------------------------------------------------------------
@@ -53,6 +71,25 @@ _POSITIVE_GREEN = "#2ECC71"
 _NEGATIVE_RED = "#E74C3C"
 _NEUTRAL_GOLD = "#FFC145"
 
+# Batch-A (WS3.1) split-half reliability artifact: carries per-season
+# reliability_R and regressed_dpi for 2015-2025 team-seasons.
+_REPO_ROOT = Path(__file__).resolve().parents[3]
+_RELIABILITY_CSV = (
+    _REPO_ROOT / "results" / "defensive_pressing" / "reliability_2026-08-10"
+    / "team_season_dpi_2015_2025.csv"
+)
+
+# Claims-registry ids rendered in the evidence panel, defensible core first.
+_DPI_EVIDENCE_CLAIMS = (
+    "dpi_v2_partial_r_oaa_given_babip",
+    "dpi_positioning_alignment_ab",
+    "dpi_split_half_reliability",
+    "dpi_yoy_stability",
+    "dpi_pitching_strip_variance_share",
+    "dpi_oaa_2025_r",
+    "dpi_gate6_pooled",
+)
+
 
 # ---------------------------------------------------------------------------
 # Page entry point
@@ -69,22 +106,28 @@ def render() -> None:
     """Render the Defensive Pressing Intensity (DPI) Analysis page."""
     st.title("Defensive Pressing Intensity (DPI)")
     st.caption(
-        "Soccer gegenpressing metrics applied to baseball defense. Measures how "
-        "effectively a team converts batted balls in play into outs compared to "
-        "expectation, using a HistGradientBoosting model on BIP features."
+        "Team BIP-conversion residual: how many more (or fewer) balls in play "
+        "a defense turns into outs than a batted-ball model expects on the "
+        "same batted balls (HistGradientBoosting on exit velocity, launch "
+        "angle, spray angle, batted-ball type). The 'pressing' name survives "
+        "the 2026-08 positioning A/B test, with the caveat below — DPI is a "
+        "team-season outcome residual, not a fielder-tracking metric."
     )
 
     with st.expander("What does this mean?"):
         st.markdown("""
-**DPI measures how well a defense converts batted balls into outs** compared to what an average defense would do on the same batted balls.
+**DPI measures how well a defense converts batted balls into outs** compared to what the batted-ball model expects on the same batted balls.
 
-- **Positive DPI** = defense is making more outs than expected (elite fielding, good positioning, efficient transitions)
-- **DPI near 0** = league-average defense
-- **Negative DPI** = defense is leaking hits on balls that should be caught (poor range, bad positioning, slow reactions)
-- **Consistency score** matters — a defense with high average DPI but wild variance is unreliable in big moments
-- **Extra-base prevention** measures how well a defense limits damage on hits (holding singles to singles, preventing doubles)
-- **Impact:** The gap between the best and worst defensive teams is worth 30-50 runs per season — equivalent to a top free agent signing
+- **Positive DPI** = more outs than the model expected on those batted balls
+- **DPI near 0** = league-average conversion
+- **Negative DPI** = fewer outs than expected
+- **What DPI cannot tell you:** which fielder, or which mechanism. Range, positioning, transition speed, pitcher contact management, park and luck are not separated inside a team-season outcome residual. The share of it that is fielding rather than pitching or luck is not measured on this page; the one decomposition we did run is the pitching-strip variance share in Evidence & caveats.
+- **Rank on regressed DPI, not raw.** Season DPI is noisy enough that raw leaderboard gaps overstate true team separation; the regressed column shrinks each team toward the league mean by the measured split-half reliability (see Evidence & caveats).
+- **Consistency** is the inverse of game-DPI variance — a dispersion descriptor, not a validated skill.
+- **Extra-base prevention** is the raw share of hits held to singles. There is no expected-XBH model behind it, so it is not batted-ball- or park-adjusted.
 """)
+
+    _render_evidence_panel()
 
     conn = get_db_connection()
 
@@ -117,6 +160,11 @@ def render() -> None:
 
     _render_artifact_provenance(leaderboard, season)
 
+    # Regressed DPI alongside raw everywhere the leaderboard renders.
+    leaderboard, reliability, reliability_note = _with_regressed_dpi(
+        leaderboard, season,
+    )
+
     # ---- Team selector ---------------------------------------------------
     team_options = leaderboard["team_id"].tolist()
     default_idx = team_options.index("PHI") if "PHI" in team_options else 0
@@ -137,19 +185,144 @@ def render() -> None:
     ])
 
     with tab_overview:
-        _render_team_overview(conn, selected_team, season, leaderboard)
+        _render_team_overview(
+            conn, selected_team, season, leaderboard,
+            reliability, reliability_note,
+        )
 
     with tab_scatter:
         _render_bip_scatter(conn, selected_team, season)
 
     with tab_board:
-        _render_leaderboard(leaderboard)
+        _render_leaderboard(leaderboard, season, reliability, reliability_note)
 
     with tab_ebp:
         _render_extra_base_prevention(leaderboard)
 
     with tab_timeline:
         _render_timeline(conn, selected_team, season)
+
+
+# ---------------------------------------------------------------------------
+# Evidence panel (WS3.6: every quoted number resolves through the registry)
+# ---------------------------------------------------------------------------
+
+def _render_evidence_panel() -> None:
+    """Render the DPI claims-registry entries, defensible core first.
+
+    Nothing here is hand-copied: values, CIs and caveats all come from
+    ``docs/claims/claims.yaml`` through :func:`src.claims.get_claim`, so a
+    retracted or narrowed claim cannot silently keep rendering (K6).
+    """
+    with st.expander("Evidence & caveats (claims registry)"):
+        st.caption(
+            "Values, confidence intervals and caveats are read live from "
+            "`docs/claims/claims.yaml`. A retracted claim cannot render here."
+        )
+        for claim_id in _DPI_EVIDENCE_CLAIMS:
+            try:
+                claim = get_claim(claim_id)
+            except ClaimError as exc:
+                st.warning(f"`{claim_id}` unavailable: {exc}")
+                continue
+            st.markdown(f"**{claim.metric}** *(claim:{claim.id}, {claim.status})*")
+            if isinstance(claim.value, dict):
+                st.markdown(
+                    "\n".join(f"- `{k}`: {v}" for k, v in claim.value.items())
+                )
+            else:
+                st.markdown(f"- value: {claim.value}")
+            if claim.ci:
+                st.markdown(f"- CI: {claim.ci}")
+            st.caption(claim.caveat)
+            if claim.source_doc:
+                st.caption(f"Source: `{claim.source_doc}`")
+            st.markdown("---")
+
+
+# ---------------------------------------------------------------------------
+# Regressed DPI (WS3.1/WS3.6: rank on the shrunk value, not the raw one)
+# ---------------------------------------------------------------------------
+
+@st.cache_data(ttl=3600)
+def _season_reliability(season: int) -> tuple[float | None, str]:
+    """Return ``(reliability_R, provenance_note)`` for one season.
+
+    ``R`` is the Spearman-Brown split-half reliability recorded per season by
+    the WS3.1 artifact ``team_season_dpi_2015_2025.csv`` (full seasons carry
+    the Fisher-z mean, 2020 carries its own 60-game estimate). Seasons absent
+    from that artifact -- in-season 2026, most importantly -- return
+    ``(None, reason)``: applying a full-season reliability to a partial
+    sample would overstate how much of the spread is signal.
+    """
+    if not _RELIABILITY_CSV.exists():
+        return None, (
+            f"reliability artifact not found at `{_RELIABILITY_CSV.name}` "
+            "(run `python scripts/dpi_reliability_2026.py`)"
+        )
+    try:
+        rel = pd.read_csv(
+            _RELIABILITY_CSV, usecols=["season", "reliability_R"],
+        )
+    except Exception as exc:  # noqa: BLE001 -- dashboard must not hard-fail
+        return None, f"could not read the reliability artifact: {exc}"
+    row = rel[rel["season"] == int(season)]
+    if row.empty or row["reliability_R"].isna().all():
+        return None, (
+            f"no published split-half reliability for {season} — the WS3.1 "
+            "artifact covers full seasons 2015-2025 only, and applying a "
+            "full-season reliability to a partial in-season sample would "
+            "overstate true team separation"
+        )
+    return float(row["reliability_R"].iloc[0]), (
+        f"split-half reliability for {season} from "
+        f"`results/defensive_pressing/reliability_2026-08-10/"
+        f"{_RELIABILITY_CSV.name}`"
+    )
+
+
+def _with_regressed_dpi(
+    leaderboard: pd.DataFrame, season: int,
+) -> tuple[pd.DataFrame, float | None, str]:
+    """Attach a ``regressed_dpi`` column shrunk toward the league mean.
+
+    ``regressed = league_mean + R * (dpi_mean - league_mean)``. The league
+    mean is taken from the displayed leaderboard itself so the shrunk value
+    shares a scoring artifact with the raw one (the artifact that produced
+    the displayed numbers is named in the provenance caption); only ``R``
+    comes from the WS3.1 split-half artifact.
+    """
+    reliability, note = _season_reliability(season)
+    if reliability is None or "dpi_mean" not in leaderboard.columns:
+        return leaderboard, None, note
+    df = leaderboard.copy()
+    league_mean = float(df["dpi_mean"].mean())
+    df["regressed_dpi"] = (
+        league_mean + reliability * (df["dpi_mean"] - league_mean)
+    ).round(4)
+    return df, reliability, note
+
+
+def _render_regression_caption(
+    reliability: float | None, note: str, season: int | None,
+) -> None:
+    """One-line statement of the shrinkage applied (or why it was deferred)."""
+    label = str(season) if season else "this season"
+    if reliability is None:
+        st.caption(f"Regressed DPI not shown for {label}: {note}.")
+        return
+    try:
+        claim = get_claim("dpi_split_half_reliability")
+        caveat = claim.caveat
+    except ClaimError:
+        caveat = (
+            "season DPI is quoted regressed because raw leaderboard gaps "
+            "overstate true team separation"
+        )
+    st.caption(
+        f"Regressed DPI shrinks each team toward the league mean by the "
+        f"measured reliability R = {reliability:.3f} ({note}). {caveat}"
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -242,8 +415,9 @@ def _load_leaderboard(conn, season: int) -> pd.DataFrame | None:
 
 def _render_team_overview(
     conn, team_id: str, season: int, leaderboard: pd.DataFrame,
+    reliability: float | None = None, reliability_note: str = "",
 ) -> None:
-    """Big-number DPI card with league rank and consistency score."""
+    """Big-number DPI card with league rank, regressed DPI and consistency."""
     st.subheader(f"{team_id} Defensive Pressing Intensity")
 
     team_row = leaderboard[leaderboard["team_id"] == team_id]
@@ -258,25 +432,35 @@ def _render_team_overview(
     consistency = row.get("consistency", 0)
     n_games = int(row.get("n_games", 0))
     percentile = row.get("percentile", 0)
+    regressed = row.get("regressed_dpi")
 
-    col1, col2, col3, col4 = st.columns(4)
+    col1, col2, col3, col4, col5 = st.columns(5)
 
     with col1:
         color = _POSITIVE_GREEN if dpi_mean > 0 else _NEGATIVE_RED
         st.metric(
-            "DPI (avg per game)",
+            "DPI raw (avg per game)",
             f"{dpi_mean:+.3f}",
             delta=f"Rank #{rank} of {n_teams}",
         )
 
     with col2:
-        st.metric("Percentile", f"{percentile:.0f}th")
+        st.metric(
+            "DPI regressed",
+            f"{regressed:+.3f}" if regressed is not None and pd.notna(regressed)
+            else "n/a",
+        )
 
     with col3:
-        st.metric("Consistency", f"{consistency:.3f}")
+        st.metric("Percentile", f"{percentile:.0f}th")
 
     with col4:
+        st.metric("Consistency", f"{consistency:.3f}")
+
+    with col5:
         st.metric("Games", str(n_games))
+
+    _render_regression_caption(reliability, reliability_note, season)
 
     # Gauge chart for DPI
     fig = go.Figure(go.Indicator(
@@ -440,8 +624,11 @@ def _load_bip_data(team_id: str, season: int) -> pd.DataFrame:
 # Tab: Team Leaderboard
 # ---------------------------------------------------------------------------
 
-def _render_leaderboard(leaderboard: pd.DataFrame) -> None:
-    """All teams ranked by DPI with horizontal bar chart."""
+def _render_leaderboard(
+    leaderboard: pd.DataFrame, season: int | None = None,
+    reliability: float | None = None, reliability_note: str = "",
+) -> None:
+    """All teams ranked by DPI (raw bars + regressed markers) with a table."""
     st.subheader("Team DPI Leaderboard")
 
     if leaderboard.empty:
@@ -461,14 +648,32 @@ def _render_leaderboard(leaderboard: pd.DataFrame) -> None:
         y=sorted_df["team_id"],
         orientation="h",
         marker_color=colors,
+        name="DPI raw",
         text=[f"{v:+.3f}" for v in sorted_df["dpi_mean"]],
         textposition="outside",
         hovertemplate=(
             "%{y}<br>"
-            "DPI: %{x:+.3f}<br>"
+            "DPI raw: %{x:+.3f}<br>"
             "<extra></extra>"
         ),
     ))
+
+    if "regressed_dpi" in sorted_df.columns:
+        fig.add_trace(go.Scatter(
+            x=sorted_df["regressed_dpi"],
+            y=sorted_df["team_id"],
+            mode="markers",
+            name="DPI regressed",
+            marker=dict(
+                color="white", symbol="diamond", size=9,
+                line=dict(color=_PHILLIES_BLUE, width=1),
+            ),
+            hovertemplate=(
+                "%{y}<br>"
+                "DPI regressed: %{x:+.3f}<br>"
+                "<extra></extra>"
+            ),
+        ))
 
     fig.update_layout(
         template="plotly_dark",
@@ -477,13 +682,19 @@ def _render_leaderboard(leaderboard: pd.DataFrame) -> None:
         height=max(400, len(sorted_df) * 28),
         margin=dict(t=30, b=40, l=60, r=60),
         xaxis=dict(zeroline=True, zerolinecolor="white", zerolinewidth=1),
+        legend=dict(
+            orientation="h", yanchor="bottom", y=1.02,
+            xanchor="right", x=1,
+        ),
     )
     st.plotly_chart(fig, use_container_width=True)
 
+    _render_regression_caption(reliability, reliability_note, season)
+
     # Data table
     display_cols = [
-        "rank", "team_id", "dpi_mean", "dpi_total", "consistency",
-        "extra_base_prevention", "n_games", "percentile",
+        "rank", "team_id", "dpi_mean", "regressed_dpi", "dpi_total",
+        "consistency", "extra_base_prevention", "n_games", "percentile",
     ]
     available = [c for c in display_cols if c in leaderboard.columns]
     st.dataframe(
@@ -501,8 +712,16 @@ def _render_extra_base_prevention(leaderboard: pd.DataFrame) -> None:
     """Team ranking on limiting advancement (extra-base prevention rate)."""
     st.subheader("Extra-Base Prevention")
     st.caption(
-        "Fraction of hits that are kept to singles. Higher = better at "
-        "preventing doubles, triples, and home runs on batted balls."
+        "Raw fraction of hits allowed that were kept to singles "
+        "(1 - XBH share). Higher = fewer doubles, triples and home runs "
+        "among the hits allowed."
+    )
+    st.caption(
+        "Descriptive only (audit DPI finding 10): there is no expected-XBH "
+        "model behind this column, so it is not adjusted for batted-ball "
+        "mix, park or opposing hitters, it is not validated against any "
+        "external fielding metric, and it carries no claims-registry entry. "
+        "Do not read it as extra-base-prevention skill or convert it to runs."
     )
 
     if "extra_base_prevention" not in leaderboard.columns:

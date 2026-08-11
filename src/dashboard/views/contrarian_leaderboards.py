@@ -1,14 +1,29 @@
 """
-Contrarian Leaderboards -- where CausalWAR most disagrees with bWAR.
+Contrarian Leaderboards -- where AdjustedWAR most disagrees with bWAR.
+
+RENAMED 2026-08-10: the product formerly displayed as "CausalWAR" is
+**AdjustedWAR** -- regularized adjustment, not causal identification. Only
+display strings changed; the frozen board CSVs, pick-ledger product ids and
+DB cache keys keep their historical ``causal_war`` names, and the frozen
+2026 boards resolve under the frozen resolution spec regardless.
 
 Surfaces two product-grade lists derived from the
 ``causal_war_baseline_comparison_2023_2024.csv`` validation artifact:
 
-1. **Buy-Low (CausalWAR > bWAR)** -- players the model loves more than the
-   public WAR market does (positive ``rank_diff``).
-2. **Over-Valued (bWAR > CausalWAR)** -- players whose public WAR depends
-   on glove / park / sequencing the per-PA causal model cannot see
-   (negative ``rank_diff``).
+1. **Buy-Low (AdjustedWAR > bWAR)** -- players the model ranks higher than
+   the public WAR market does (positive ``rank_diff``).
+2. **Over-Valued (bWAR > AdjustedWAR)** -- players whose public WAR depends
+   on glove / park / sequencing the per-PA model cannot see (negative
+   ``rank_diff``).
+
+Which model produced the displayed scores
+-----------------------------------------
+Every board rendered here is a FROZEN artifact scored by the LEGACY
+formulation (``src/analytics/causal_war.py``, v1/v2). AdjustedWAR v3
+(ridge, ``src/analytics/adjusted_war_v3.py``) was promoted to the
+production scoring path on 2026-08-10, but frozen boards are never
+rescored -- the 2026 picks resolve against the scores they were frozen
+with. Each surface states its producing model explicitly.
 
 Each row is tagged with a methodology heuristic (RELIEVER LEVERAGE GAP /
 PARK FACTOR / DEFENSE GAP / GENUINE EDGE? / OTHER) and a 2025 follow-up
@@ -17,9 +32,9 @@ outcome pulled from ``season_batting_stats`` / ``season_pitching_stats``.
 Note on direction
 -----------------
 ``rank_diff`` in the source CSV is computed as ``rank_trad - rank_causal``.
-A *positive* rank_diff means CausalWAR ranks the player higher (better)
+A *positive* rank_diff means AdjustedWAR ranks the player higher (better)
 than bWAR does -- i.e. "Buy-Low". A *negative* rank_diff means bWAR ranks
-the player higher than CausalWAR -- i.e. "Over-Valued". This view sorts
+the player higher than AdjustedWAR -- i.e. "Over-Valued". This view sorts
 accordingly (Buy-Low: descending; Over-Valued: ascending).
 
 See also: ``docs/edges/causal_war_contrarians_2024.md``.
@@ -46,7 +61,29 @@ from src.dashboard.db_helper import get_db_connection
 _CLAIM_BUY_LOW = get_claim("causal_war_buy_low_68_4")
 _CLAIM_OVER_VALUED = get_claim("causal_war_v2_over_valued")
 _CLAIM_RELIEVER = get_claim("causal_war_reliever_tag")
-_CLAIM_OOS = get_claim("causal_war_oos_windows")
+# K3 / K6 (2026-08-10 adjudication). The two-window ``causal_war_oos_windows``
+# claim is SUPERSEDED by the 17-window backfill; quote the successors.
+_CLAIM_K6 = get_claim("adjusted_war_boards_k6_framing")
+_CLAIM_NAIVE_LIFT = get_claim("adjusted_war_v3_naive_lift_17w")
+_CLAIM_MARCEL_LIFT = get_claim("adjusted_war_v3_marcel_lift_17w")
+_CLAIM_FORECAST = get_claim("adjusted_war_v3_vs_marcel_forward")
+
+# --- Rename + model-provenance disclosure (Batch D, 2026-08-10) ------------
+# Rendered once at the top of the page, before any board.
+_RENAME_NOTE = (
+    "AdjustedWAR -- renamed 2026-08-10; formerly CausalWAR. Regularized "
+    "adjustment, not causal identification."
+)
+_PRODUCING_MODEL_FROZEN = (
+    "Scores on every board below were produced by the LEGACY formulation "
+    "(src/analytics/causal_war.py, v1/v2) and are frozen. AdjustedWAR v3 "
+    "(ridge, registry alias adjusted_war_v3/production = v2026.08.10) was "
+    "promoted to the production scoring path on 2026-08-10 and scores "
+    "FUTURE leaderboards; frozen boards are never rescored, because the "
+    "picks resolve against the scores they were frozen with."
+)
+# K6 consequence: the mandated framing, verbatim from the claims registry.
+_K6_FRAMING = f"Board evidence, in full: AdjustedWAR {_CLAIM_K6.value}."
 
 # Pinned 2026-08-10 to the v2 (production-default) comparison artifact.
 # The previous pin was v1's revert-run CSV
@@ -190,7 +227,8 @@ _BANNER_2026 = (
     "controls, resolution at end of 2026 regular season + 7 days; kill "
     "criterion K4 -- a miss publishes as prominently as a win). Spec "
     f"SHA-256 at freeze: `{_RESOLUTION_SPEC_SHA256}`; the freeze-commit SHA "
-    "is recorded in the spec's Deviations Log (entry 1)."
+    "is recorded in the spec's Deviations Log (entry 1). "
+    f"{_K6_FRAMING}"
 )
 
 
@@ -201,7 +239,7 @@ _BANNER_2026 = (
 
 @st.cache_data(ttl=3600, show_spinner=False)
 def _load_comparison_csv() -> pd.DataFrame | None:
-    """Load the CausalWAR vs bWAR baseline comparison CSV."""
+    """Load the AdjustedWAR vs bWAR baseline comparison CSV (legacy scores)."""
     if not _CSV_PATH.exists():
         return None
     df = pd.read_csv(_CSV_PATH)
@@ -394,9 +432,9 @@ def _compute_hit_rate(
     buy_low_df: pd.DataFrame,
     outcomes: dict[int, dict],
 ) -> tuple[int, int, float | None]:
-    """% of CausalWAR-loved 2024 picks who held up in 2025.
+    """% of AdjustedWAR-loved 2024 picks who held up in 2025.
 
-    Preferred signal: 2025 WAR >= per-year 2024 trad_war (CausalWAR's edge
+    Preferred signal: 2025 WAR >= per-year 2024 trad_war (AdjustedWAR's edge
     held). Fallback signals (used because the 2025 WAR column is not yet
     backfilled in season_*_stats):
       - Pitcher: 2025 ERA <= 4.00 AND IP >= 30 -> hit
@@ -496,7 +534,7 @@ def _render_table(df: pd.DataFrame, key: str) -> None:
             "name": st.column_config.TextColumn("Player"),
             "field_pos": st.column_config.TextColumn("Pos", width="small"),
             "volume": st.column_config.TextColumn("Volume"),
-            "causal_war": st.column_config.NumberColumn("CausalWAR", format="%.2f"),
+            "causal_war": st.column_config.NumberColumn("AdjustedWAR", format="%.2f"),
             "trad_war": st.column_config.NumberColumn("bWAR", format="%.2f"),
             "rank_diff": st.column_config.NumberColumn("Rank Diff", format="%+d"),
             "tag": st.column_config.TextColumn("Methodology Tag"),
@@ -512,12 +550,41 @@ def _render_table(df: pd.DataFrame, key: str) -> None:
 # ---------------------------------------------------------------------------
 
 
+def _render_k3_evidence() -> None:
+    """The K6-mandated framing, expanded into its registry-backed numbers.
+
+    Every figure here comes from a claims-registry entry (K6): the mean
+    lifts, the Marcel control, and the forecast tie. Nothing is
+    hand-copied, so the drift guard has nothing to catch.
+    """
+    naive = _CLAIM_NAIVE_LIFT.value
+    marcel = _CLAIM_MARCEL_LIFT.value
+    forecast = _CLAIM_FORECAST.value
+    with st.expander("Board evidence in numbers (17 fully-OOS windows)"):
+        st.markdown(
+            f"- **vs matched-naive** (unweighted mean of the four "
+            f"config-sides): AdjustedWAR v3 ridge "
+            f"{naive['ridge_unweighted_mean']:+.2f}pp, legacy formulation "
+            f"{naive['legacy_unweighted_mean']:+.2f}pp -- positive "
+            f"everywhere, but {_CLAIM_NAIVE_LIFT.caveat}\n"
+            f"- **vs the Marcel-picker** (batter channel only): ridge "
+            f"{marcel['ridge_unweighted_mean']:+.2f}pp, legacy "
+            f"{marcel['legacy_unweighted_mean']:+.2f}pp -- "
+            f"{_CLAIM_MARCEL_LIFT.caveat}\n"
+            f"- **Season-forward forecast vs Marcel**: "
+            f"W-L-T {forecast['ridge_w_l_t']}, "
+            f"superiority_claim_allowed = "
+            f"{forecast['superiority_claim_allowed']}. "
+            f"{_CLAIM_FORECAST.caveat}"
+        )
+
+
 def _render_validated_board() -> None:
     """Render the 2023/24 -> 2025 evidence board (bounded claims per 2026-08-10 audit)."""
     st.caption(
-        "Where my CausalWAR most disagreed with Baseball-Reference WAR on "
+        "Where my AdjustedWAR most disagreed with Baseball-Reference WAR on "
         "full-season 2023-24 data -- and what 2025 said. Rendered from the "
-        "v2 (production-model) comparison artifact "
+        "v2 legacy-formulation comparison artifact "
         f"(`results/causal_war_v2_umpweather/`): Buy-Low {_CLAIM_BUY_LOW.value}, "  # claim:causal_war_buy_low_68_4
         f"Over-Valued {_CLAIM_OVER_VALUED.value}."  # claim:causal_war_v2_over_valued
     )
@@ -525,15 +592,15 @@ def _render_validated_board() -> None:
         "The 68.4% Buy-Low number is NOT a validated edge. "  # claim:causal_war_buy_low_68_4
         f"{_CLAIM_BUY_LOW.caveat} The defensible results are the "
         f"reliever-tag subset ({_CLAIM_RELIEVER.value}) "  # claim:causal_war_reliever_tag
-        "and two fully-OOS windows averaging ~+4pp with a sign flip "
-        "(-2.8pp and +10.8pp vs matched naive)."  # claim:causal_war_oos_windows
+        f"and the 17-window backfill. {_K6_FRAMING}"
     )
+    _render_k3_evidence()
 
     df = _load_comparison_csv()
     if df is None or df.empty:
         st.error(
             f"Comparison CSV not found at `{_CSV_PATH}`. "
-            "Re-run the CausalWAR validation suite first."
+            "Re-run the AdjustedWAR validation suite first."
         )
         return
 
@@ -572,7 +639,7 @@ def _render_validated_board() -> None:
         return
 
     # Build Buy-Low and Over-Valued slices ---------------------------------
-    # rank_diff > 0 -> CausalWAR ranks higher than bWAR (model loves it more)
+    # rank_diff > 0 -> AdjustedWAR ranks higher than bWAR (model loves it more)
     buy_low = filtered.sort_values("rank_diff", ascending=False).head(_TOP_N).copy()
     over_valued = filtered.sort_values("rank_diff", ascending=True).head(_TOP_N).copy()
 
@@ -599,7 +666,7 @@ def _render_validated_board() -> None:
             "Buy-Low 2025 hit rate",
             f"{hit_rate*100:.0f}%",
             help=(
-                f"{hits}/{n_eval} CausalWAR-loved 2024 picks held up in 2025. "
+                f"{hits}/{n_eval} AdjustedWAR-loved 2024 picks held up in 2025. "
                 "Prefers WAR delta when populated; falls back to ERA<=4.00 "
                 "(IP>=30) for pitchers and OPS>=0.700 (PA>=100) for batters "
                 "since 2025 season WAR is not yet backfilled."
@@ -611,21 +678,21 @@ def _render_validated_board() -> None:
     st.markdown("---")
 
     # Two stacked tables ---------------------------------------------------
-    st.subheader("Buy-Low (CausalWAR > bWAR)")
+    st.subheader("Buy-Low (AdjustedWAR > bWAR)")
     st.caption(
         "Top "
         f"{_TOP_N} players where my model ranks them higher than the public "
-        "WAR market. Sorted by ``rank_diff`` descending (most CausalWAR-favoured "
+        "WAR market. Sorted by ``rank_diff`` descending (most AdjustedWAR-favoured "
         "first)."
     )
     _render_table(buy_low_disp, key="buylow")
 
     st.markdown("")
 
-    st.subheader("Over-Valued (bWAR > CausalWAR)")
+    st.subheader("Over-Valued (bWAR > AdjustedWAR)")
     st.caption(
         "Top "
-        f"{_TOP_N} players where bWAR ranks them higher than CausalWAR -- "
+        f"{_TOP_N} players where bWAR ranks them higher than AdjustedWAR -- "
         "their value likely leans on glove / park / sequencing the per-PA "
         "model cannot see. Sorted by ``rank_diff`` ascending (most bWAR-favoured "
         "first)."
@@ -655,18 +722,29 @@ def _render_validated_board() -> None:
     # Methodology blurb ----------------------------------------------------
     st.markdown(
         """
-**Methodology.** CausalWAR is a per-PA offensive-run-value estimator using a
-one-nuisance approximation of Double-ML (per-player mean residuals of
-E[Y|context] -- not full residual-on-residual DML) over platoon, base-out
-state, and inning context. The venue and fielding-alignment confounders are
-currently inert in production (the games/venue join is empty and shift flags
-are hard-coded 0), so the model is blind to park as well as defense and
-leverage. bWAR includes all three, so the most extreme rank disagreements
-concentrate on exactly those blind spots: the model under-rates park-friendly
-starters and glove-first shortstops, and over-rates stuff-driven middle
-relievers whose ERA-based value bWAR discounts via leverage chaining. Tag
-heuristics encode those gaps; the deep-dive lives in
-``docs/edges/causal_war_contrarians_2024.md``.
+**Methodology.** AdjustedWAR is a per-PA offensive-run-value estimator --
+*regularized adjustment, not causal identification*. The boards on this page
+were scored by the LEGACY formulation (a one-nuisance approximation of
+Double-ML: per-player mean residuals of E[Y|context], **not** full
+residual-on-residual DML) over platoon, base-out state, and inning context.
+In that formulation the venue and fielding-alignment confounders are inert
+(the games/venue join is empty and shift flags are hard-coded 0), so it is
+blind to park as well as defense and leverage. bWAR includes all three, so
+the most extreme rank disagreements concentrate on exactly those blind spots:
+the model under-rates park-friendly starters and glove-first shortstops, and
+over-rates stuff-driven middle relievers whose ERA-based value bWAR discounts
+via leverage chaining. Tag heuristics encode those gaps; the deep-dive lives
+in ``docs/edges/causal_war_contrarians_2024.md``.
+
+**Production model (future boards).** AdjustedWAR v3 -- ridge joint
+estimation of batter, pitcher, park x stand and context effects in one fit
+(``src/analytics/adjusted_war_v3.py``; registry alias
+``adjusted_war_v3/production = v2026.08.10``). It carries the park term the
+legacy formulation lost and adjusts for opponent quality structurally. Its
+measured evidence, and the limits on what may be claimed from it, are in
+``docs/models/adjusted_war_v3_2026-08.md``. No per-player confidence
+interval is displayed for either formulation: the WS4.7 coverage study
+failed its pre-registered gate.
         """.strip()
     )
 
@@ -710,7 +788,7 @@ def _render_2026_table(df: pd.DataFrame, key: str) -> None:
             "name": "Player",
             "team": "Team",
             "field_pos": "Pos",
-            "causal_war": "CausalWAR",
+            "causal_war": "AdjustedWAR",
             "trad_war": "bWAR",
             "rank_diff": "Rank Diff",
             "pa_total": "PA",
@@ -723,7 +801,7 @@ def _render_2026_table(df: pd.DataFrame, key: str) -> None:
     styler = (
         show.style.apply(_highlight_phillies, axis=1).format(
             {
-                "CausalWAR": "{:.2f}",
+                "AdjustedWAR": "{:.2f}",
                 "bWAR": "{:.2f}",
                 "Rank Diff": "{:+d}",
                 "PA": "{:.0f}",
@@ -757,7 +835,8 @@ _BANNER_2026_RELIEVER = (
     "miss publishes as prominently as a win. Every pick is frozen in "
     "`predictions/picks.jsonl` (evidence_class prospective). Spec SHA-256 "
     f"at freeze: `{_RESOLUTION_SPEC_SHA256}`; freeze record in the spec's "
-    "Deviations Log (entry 2)."
+    "Deviations Log (entry 2). "
+    f"{_K6_FRAMING}"
 )
 
 
@@ -787,7 +866,7 @@ def _render_2026_reliever_table(df: pd.DataFrame, key: str) -> None:
             "side_rank": "Rank",
             "name": "Player",
             "team": "Team",
-            "causal_war": "CausalWAR",
+            "causal_war": "AdjustedWAR",
             "trad_war": "bWAR",
             "rank_diff": "Rank Diff",
             "ip_total": "IP",
@@ -798,7 +877,7 @@ def _render_2026_reliever_table(df: pd.DataFrame, key: str) -> None:
     styler = (
         show.style.apply(_highlight_phillies, axis=1).format(
             {
-                "CausalWAR": "{:.2f}",
+                "AdjustedWAR": "{:.2f}",
                 "bWAR": "{:.2f}",
                 "Rank Diff": "{:+d}",
                 "IP": "{:.1f}",
@@ -841,7 +920,7 @@ def _render_2026_reliever_section() -> None:
         "season progress p_f = 0.7531 through 2026-08-09 (spec s6.2/s6.3). "
         "Ranks computed within the qualified reliever pool (n=244); sides "
         "require a rank_diff sign (s6.4). Baselines: frozen staging parquet "
-        "as-of 2026-08-09 (spec artifact A3); CausalWAR pitcher effects "
+        "as-of 2026-08-09 (spec artifact A3); AdjustedWAR pitcher effects "
         "from the frozen 2015-2022 nuisance checkpoint (>= 50 batters "
         f"faced). Full detail + freeze hashes in `{summary_ref}`."
     )
@@ -849,13 +928,13 @@ def _render_2026_reliever_section() -> None:
     reliever_bl = board[board["board"] == "reliever_buy_low"].sort_values("side_rank")
     reliever_ov = board[board["board"] == "reliever_over_valued"].sort_values("side_rank")
 
-    st.markdown("**Buy-Low (CausalWAR > bWAR)** -- UNRESOLVED picks.")
+    st.markdown("**Buy-Low (AdjustedWAR > bWAR)** -- UNRESOLVED picks.")
     if reliever_bl.empty:
         st.info("No Buy-Low reliever rows.")
     else:
         _render_2026_reliever_table(reliever_bl, key="buylow")
 
-    st.markdown("**Over-Valued (bWAR > CausalWAR)** -- UNRESOLVED picks.")
+    st.markdown("**Over-Valued (bWAR > AdjustedWAR)** -- UNRESOLVED picks.")
     if reliever_ov.empty:
         st.info("No Over-Valued reliever rows.")
     else:
@@ -890,7 +969,8 @@ def _render_2026_board() -> None:
         "~68% season progress through Aug 3. Pro-rated gates are themselves "
         "UNVALIDATED (2026-08-10 audit, finding 2.11): 'validated' describes "
         "only the full-season 2023-24 cohort the methodology was measured "
-        "on, not this pro-rated variant. CausalWAR-2026 is a batter-only "
+        "on, not this pro-rated variant. The AdjustedWAR-2026 board (frozen "
+        "under its legacy product id CausalWAR-2026) is a batter-only "
         "leaderboard, so pitcher tags do not appear here. Full detail in "
         f"`{summary_ref}`."
     )
@@ -912,7 +992,7 @@ def _render_2026_board() -> None:
         over_valued = over_valued[over_valued["team"] == "PHI"]
 
     st.markdown("---")
-    st.subheader("Buy-Low (CausalWAR > bWAR)")
+    st.subheader("Buy-Low (AdjustedWAR > bWAR)")
     st.caption(
         "Players my model ranks higher than the public WAR market at the 2026 "
         "mid-season snapshot (positive rank_diff). UNRESOLVED picks."
@@ -923,9 +1003,9 @@ def _render_2026_board() -> None:
         _render_2026_table(buy_low, key="buylow")
 
     st.markdown("")
-    st.subheader("Over-Valued (bWAR > CausalWAR)")
+    st.subheader("Over-Valued (bWAR > AdjustedWAR)")
     st.caption(
-        "Players bWAR ranks higher than CausalWAR -- value likely leaning on "
+        "Players bWAR ranks higher than AdjustedWAR -- value likely leaning on "
         "glove / park / sequencing the per-PA model cannot see (negative "
         "rank_diff). UNRESOLVED picks."
     )
@@ -940,6 +1020,7 @@ def _render_2026_board() -> None:
 def render() -> None:
     """Render the Contrarian Leaderboards page (evidence board + 2026 live)."""
     st.title("Contrarian Leaderboards")
+    st.info(f"{_RENAME_NOTE} {_PRODUCING_MODEL_FROZEN} {_K6_FRAMING}")
 
     tab_evidence, tab_live = st.tabs(
         ["Evidence board (2023/24 -> 2025)", "2026 Mid-Season (live)"]

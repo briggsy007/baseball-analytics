@@ -18,6 +18,24 @@
 > marginals (K%/BB%/HR%) currently FAIL their Phase 0.6 fidelity gates;
 > the wOBA/PA-length PASSes are TAINTED pending Phase 0.6.2 re-evaluation
 > (pos-0 calibration was fit on the eval cohort).
+>
+> **DATED UPDATE TO NOTE (3) — 2026-08-10.** Phase 0.6.2 is over: it was
+> **KILLED 2026-08-10 at the fit-convergence gate** (`PHASE_0.6.2_PLAN.md`
+> §6 first disjunct — the 2023-only fit did not converge within the 2
+> permitted fixed-point iterations: max per-position class-marginal |delta|
+> 4.418pp after iteration 1, 2.625pp after iteration 2, against a 1.0pp
+> threshold; verdict doc `docs/models/pitchgpt_phase062_results.md`, claim
+> `pitchgpt_phase062_kill`). Note (3) therefore no longer reads "pending":
+> **the wOBA/PA-length PASSes are permanently unearned for v2-era
+> PitchGPT** — the clean re-evaluation that would have re-earned them never
+> ran (2025 was never read; holdout contact #13 was never spent) and none is
+> authorized under that protocol. The PA-level absolute-rate products are
+> dropped from Tier-A scope; only rank/differential products ship, with the
+> marginal-bias disclosure. Note (2)'s unmeasured production-path ECE is
+> likewise now **stranded**: it rode the same killed run (amendment §10.A2 on
+> contact #13). Re-earning any PA-level PASS requires the pre-registered v2
+> retrain (`docs/pitchgpt_sim_engine/PITCHGPT_V2_SPEC.md`) clearing its own
+> gates.
 
 ---
 
