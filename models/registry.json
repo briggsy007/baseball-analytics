@@ -133,6 +133,34 @@
         "version": "v2026.04.26-a1-head-calibration",
         "sha256": "d7ef4944b9148c1ea8ec21536cddc4f9ec402dcb3e738af4c6b4d96c224de4f0",
         "hash_policy": "pinned"
+      },
+      {
+        "ts": "2026-08-11T06:33:18.140528+00:00",
+        "event": "register",
+        "version": "v2026.08.11-factorized",
+        "sha256": "8c11f1c9219dc932420fdb4a097f731aa598a7afcafa0d4ade52dfafb58e5ef4",
+        "hash_policy": "pinned"
+      },
+      {
+        "ts": "2026-08-11T06:33:18.172374+00:00",
+        "event": "register",
+        "version": "v2026.08.11-factorized-outcomehead",
+        "sha256": "4d83c4a989d6fc52d62672642f12ff2a5dbf3c0c26601690471da4cfce0ef94d",
+        "hash_policy": "pinned"
+      },
+      {
+        "ts": "2026-08-11T06:33:18.220104+00:00",
+        "event": "register",
+        "version": "v2026.08.11-factorized-calibration",
+        "sha256": "5055946cee57f49de9cb1acf8a694b6da152ce135b4fad04449f9c829915eff0",
+        "hash_policy": "pinned"
+      },
+      {
+        "ts": "2026-08-11T07:55:27.746362+00:00",
+        "event": "register",
+        "version": "v2026.08.11-factorized-kce-bandwidths",
+        "sha256": "d78903da10873ed2569c7320860fd8e59cceb44467e5bf0819cb884c61fef450",
+        "hash_policy": "pinned"
       }
     ]
   },

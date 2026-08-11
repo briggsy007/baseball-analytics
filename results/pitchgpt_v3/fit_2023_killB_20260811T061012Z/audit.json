@@ -1,0 +1,431 @@
+{
+  "gate": "K-v2-FIT-B",
+  "tier": "fit-2023",
+  "spec_path": "docs/pitchgpt_sim_engine/PITCHGPT_V2_SPEC.md",
+  "spec_freeze_sha": "b61e05b3729aca2fa4609fbdadf4e533c1cd814f",
+  "spec_body_sha256": "b19b54d96b496c5ffbff3f9af3070c180609003ec3d5d0aae71bfa84bb8d6d5b",
+  "git_sha": "17493d7e1b3dd1fe086ee59d7eb3628303dd9660",
+  "cohort": {
+    "seasons": [
+      2023
+    ],
+    "max_games": null,
+    "sample_seed": 42,
+    "n_excluded_pitchers": 2247,
+    "max_seq_len": 256,
+    "n_rows_sql": 77281,
+    "n_sequences": 1890,
+    "n_pitches_kept": 77274,
+    "n_games": 1254,
+    "n_pitchers": 168,
+    "build_sec": 0.6,
+    "game_pk_sha256": "710cd8f500f15117ae5b8c421d88ccf764082bba90f3ea519c94271cb2fcf0f4",
+    "n_pas": 19653,
+    "horizon": 6,
+    "pa_scope": "PA-start invariant context + per-position count_state, matching the rollout engine (spec \u00a74.3)",
+    "subsample": "none (full 2023 pitcher-disjoint cohort)"
+  },
+  "n_samples_per_pa": 100,
+  "horizon": 6,
+  "seed_convention": "42 + pa_index * 1000 (\u00a74.3.2), per-PA uniform block",
+  "temperatures": {
+    "T_type": 1.0906238643309591,
+    "T_zone": 0.992020000598816,
+    "T_velo": 0.8719576104684792,
+    "T_outcome": 0.9857199414787908
+  },
+  "calibration_provenance": {
+    "fit_cohort_season": 2023,
+    "fit_seed": 42,
+    "fit_n_pas": 19653,
+    "produced_by": "scripts/pitchgpt_v3_calibrate.py"
+  },
+  "backbone_checkpoint": "C:\\Users\\hunte\\projects\\baseball\\models\\pitchgpt_v3_factorized.pt",
+  "backbone_stage": "B_curriculum_rollout_aware_finetune",
+  "threshold_pp": 1.0,
+  "kill": true,
+  "shipped_T": {
+    "max_abs_gap_pp": 1.885244620918261,
+    "max_at_position": 1,
+    "max_at_class": "called_strike",
+    "per_position_max_pp": [
+      0.791736630539866,
+      1.885244620918261,
+      1.5731705793707098,
+      1.1655607749833874,
+      1.6783161178428707,
+      1.1135482118699191
+    ],
+    "pass": false,
+    "rollout_marginals": [
+      {
+        "position": 0,
+        "ball": 0.395628148374294,
+        "called_strike": 0.2944217167862413,
+        "swinging_strike": 0.07090469648399736,
+        "foul": 0.1234106752149799,
+        "in_play_out": 0.07788123950541902,
+        "in_play_hit": 0.036225512644379995,
+        "hbp": 0.0015280109906884445
+      },
+      {
+        "position": 1,
+        "ball": 0.39153150540529963,
+        "called_strike": 0.14605701975460378,
+        "swinging_strike": 0.1133657167977426,
+        "foul": 0.17806014532281042,
+        "in_play_out": 0.11740041566834913,
+        "in_play_hit": 0.0518860433482707,
+        "hbp": 0.0016991537029237183
+      },
+      {
+        "position": 2,
+        "ball": 0.3812635227953462,
+        "called_strike": 0.10375094663905825,
+        "swinging_strike": 0.1208137035157706,
+        "foul": 0.19804487364147316,
+        "in_play_out": 0.13481389648783895,
+        "in_play_hit": 0.0593965249756529,
+        "hbp": 0.001916531944859967
+      },
+      {
+        "position": 3,
+        "ball": 0.36489163736838554,
+        "called_strike": 0.1017566210470103,
+        "swinging_strike": 0.1225889291683298,
+        "foul": 0.20544155197961605,
+        "in_play_out": 0.14013964754577912,
+        "in_play_hit": 0.06323143181565503,
+        "hbp": 0.001950181075224134
+      },
+      {
+        "position": 4,
+        "ball": 0.32884659670140687,
+        "called_strike": 0.0645430194772402,
+        "swinging_strike": 0.12508366338567037,
+        "foul": 0.23625462757841464,
+        "in_play_out": 0.1664312196067922,
+        "in_play_hit": 0.0766444147872425,
+        "hbp": 0.0021964584632332244
+      },
+      {
+        "position": 5,
+        "ball": 0.2809786802129301,
+        "called_strike": 0.042848901881272224,
+        "swinging_strike": 0.13126553224012327,
+        "foul": 0.2676084792339578,
+        "in_play_out": 0.18699539235564297,
+        "in_play_hit": 0.08824868135693058,
+        "hbp": 0.002054332719143022
+      }
+    ],
+    "position_counts": [
+      [
+        777528.0,
+        578627.0,
+        139349.0,
+        242539.0,
+        153060.0,
+        71194.0,
+        3003.0
+      ],
+      [
+        680452.0,
+        253836.0,
+        197021.0,
+        309455.0,
+        204033.0,
+        90174.0,
+        2953.0
+      ],
+      [
+        549257.0,
+        149466.0,
+        174047.0,
+        285308.0,
+        194216.0,
+        85568.0,
+        2761.0
+      ],
+      [
+        400408.0,
+        111661.0,
+        134521.0,
+        225438.0,
+        153780.0,
+        69386.0,
+        2140.0
+      ],
+      [
+        244188.0,
+        47927.0,
+        92882.0,
+        175433.0,
+        123585.0,
+        56913.0,
+        1631.0
+      ],
+      [
+        115437.0,
+        17604.0,
+        53929.0,
+        109944.0,
+        76825.0,
+        36256.0,
+        844.0
+      ]
+    ],
+    "mask_events": {
+      "mask_fallbacks": {
+        "zone_dropped_type_condition": 901,
+        "velo_dropped_zone_condition": 1382
+      },
+      "mask_degenerate": {
+        "zone_uniform": 0,
+        "velo_uniform": 0
+      }
+    },
+    "pa_terminal_share": {
+      "K": 0.16640970844145933,
+      "BB": 0.07021726962804661,
+      "HBP": 0.006783697145473973,
+      "in_play_hit": 0.20836055564036024,
+      "in_play_out": 0.46074339795451075,
+      "truncated": 0.08748537119014908
+    },
+    "mean_pa_length": 3.762570091080242,
+    "elapsed_sec": 98.5
+  },
+  "raw_T": {
+    "max_abs_gap_pp": 1.840502133223465,
+    "max_at_position": 1,
+    "max_at_class": "called_strike",
+    "per_position_max_pp": [
+      0.8992520225919703,
+      1.840502133223465,
+      1.5807263046375573,
+      1.2140718298125228,
+      1.5376014118105492,
+      1.1628322255652412
+    ],
+    "rollout_marginals": [
+      {
+        "position": 0,
+        "ball": 0.39328702996997916,
+        "called_strike": 0.29273291609423496,
+        "swinging_strike": 0.07142268355976186,
+        "foul": 0.12492698315778762,
+        "in_play_out": 0.07895639342594006,
+        "in_play_hit": 0.037057446700249325,
+        "hbp": 0.0016165470920470157
+      },
+      {
+        "position": 1,
+        "ball": 0.3886471872581462,
+        "called_strike": 0.14650444463155174,
+        "swinging_strike": 0.11334935023142995,
+        "foul": 0.17911571036250246,
+        "in_play_out": 0.11788740728096046,
+        "in_play_hit": 0.05270293805889497,
+        "hbp": 0.001792962176514214
+      },
+      {
+        "position": 2,
+        "ball": 0.37852608104812013,
+        "called_strike": 0.10367538938638977,
+        "swinging_strike": 0.12092686156312067,
+        "foul": 0.1995902296247256,
+        "in_play_out": 0.13516847276908603,
+        "in_play_hit": 0.06007874838844559,
+        "hbp": 0.002034217220112199
+      },
+      {
+        "position": 3,
+        "ball": 0.3621200644833537,
+        "called_strike": 0.10127151049871895,
+        "swinging_strike": 0.12315660321646489,
+        "foul": 0.20686391921607608,
+        "in_play_out": 0.1405814139020682,
+        "in_play_hit": 0.06401018235437601,
+        "hbp": 0.001996306328942132
+      },
+      {
+        "position": 4,
+        "ball": 0.32583515329094087,
+        "called_strike": 0.0647465491021618,
+        "swinging_strike": 0.12595284463790885,
+        "foul": 0.23766177463873786,
+        "in_play_out": 0.16616767891191225,
+        "in_play_hit": 0.0774316649520333,
+        "hbp": 0.0022043344663050762
+      },
+      {
+        "position": 5,
+        "ball": 0.2801322320554509,
+        "called_strike": 0.04369856207478392,
+        "swinging_strike": 0.13127278272718776,
+        "foul": 0.2671156390970046,
+        "in_play_out": 0.18672612517771142,
+        "in_play_hit": 0.08903280712715037,
+        "hbp": 0.0020218517407110423
+      }
+    ],
+    "pa_terminal_share": {
+      "K": 0.16713122678471481,
+      "BB": 0.06841245611357044,
+      "HBP": 0.007035058260825319,
+      "in_play_hit": 0.21035109143642192,
+      "in_play_out": 0.4605103546532336,
+      "truncated": 0.08655981275123391
+    },
+    "elapsed_sec": 107.8
+  },
+  "empirical_marginals": [
+    {
+      "position": 0,
+      "ball": 0.3995827609016435,
+      "called_strike": 0.2961379941993589,
+      "swinging_strike": 0.07164300615682084,
+      "foul": 0.12145728387523533,
+      "in_play_out": 0.06996387320002036,
+      "in_play_hit": 0.03775505011957462,
+      "hbp": 0.0034600315473464613
+    },
+    {
+      "position": 1,
+      "ball": 0.3850561540224616,
+      "called_strike": 0.1649094659637864,
+      "swinging_strike": 0.11425624570249827,
+      "foul": 0.17407746963098786,
+      "in_play_out": 0.10674994269997708,
+      "in_play_hit": 0.05254412101764841,
+      "hbp": 0.002406600962640385
+    },
+    {
+      "position": 2,
+      "ball": 0.375761308424006,
+      "called_strike": 0.11948265243276535,
+      "swinging_strike": 0.11934578799698899,
+      "foul": 0.19756381304318074,
+      "in_play_out": 0.12160405118729899,
+      "in_play_hit": 0.06357353041812085,
+      "hbp": 0.0026688564976390886
+    },
+    {
+      "position": 3,
+      "ball": 0.359781244396629,
+      "called_strike": 0.11341222879684418,
+      "swinging_strike": 0.11663977048592433,
+      "foul": 0.21149363457055764,
+      "in_play_out": 0.13250851712390174,
+      "in_play_hit": 0.06338533261610185,
+      "hbp": 0.002779272010041241
+    },
+    {
+      "position": 4,
+      "ball": 0.3171317932968354,
+      "called_strike": 0.0775804513286153,
+      "swinging_strike": 0.1175056749899853,
+      "foul": 0.25303778875684335,
+      "in_play_out": 0.15542796100948056,
+      "in_play_hit": 0.07637868874349045,
+      "hbp": 0.002937641874749633
+    },
+    {
+      "position": 5,
+      "ball": 0.2782608695652174,
+      "called_strike": 0.050966183574879226,
+      "swinging_strike": 0.1294685990338164,
+      "foul": 0.278743961352657,
+      "in_play_out": 0.17753623188405798,
+      "in_play_hit": 0.08067632850241546,
+      "hbp": 0.004347826086956522
+    }
+  ],
+  "empirical_counts": [
+    [
+      7853.0,
+      5820.0,
+      1408.0,
+      2387.0,
+      1375.0,
+      742.0,
+      68.0
+    ],
+    [
+      6720.0,
+      2878.0,
+      1994.0,
+      3038.0,
+      1863.0,
+      917.0,
+      42.0
+    ],
+    [
+      5491.0,
+      1746.0,
+      1744.0,
+      2887.0,
+      1777.0,
+      929.0,
+      39.0
+    ],
+    [
+      4013.0,
+      1265.0,
+      1301.0,
+      2359.0,
+      1478.0,
+      707.0,
+      31.0
+    ],
+    [
+      2375.0,
+      581.0,
+      880.0,
+      1895.0,
+      1164.0,
+      572.0,
+      22.0
+    ],
+    [
+      1152.0,
+      211.0,
+      536.0,
+      1154.0,
+      735.0,
+      334.0,
+      18.0
+    ]
+  ],
+  "empirical_pa_terminal_share": {
+    "K": 0.1748842415916145,
+    "BB": 0.07032005291812955,
+    "HBP": 0.011194219712003257,
+    "in_play_hit": 0.21375871368238947,
+    "in_play_out": 0.4270085991960515,
+    "truncated": 0.10283417289981174
+  },
+  "empirical_mean_pa_length_capped": 3.7908207398361573,
+  "secondary_position_kl": {
+    "kl_per_position": [
+      0.0013886237799178242,
+      0.001902517375338929,
+      0.00213043370603256,
+      0.0012817514819735754,
+      0.0027495493842036277,
+      0.002522683037283412
+    ],
+    "spearman_rho": 0.6,
+    "spearman_p": 0.208,
+    "v2_era_reference_rho": 0.822
+  },
+  "v2_era_reference": {
+    "raw_T_pp": 16.37,
+    "after_two_reweighting_rounds_pp": 2.625,
+    "source": "docs/models/pitchgpt_phase062_results.md \u00a71"
+  },
+  "elapsed_sec": 206.6,
+  "duckdb_read_only": true,
+  "looked_at_once": true
+}

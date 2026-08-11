@@ -1,0 +1,211 @@
+{
+  "stage": "outcome_head",
+  "spec_path": "docs/pitchgpt_sim_engine/PITCHGPT_V2_SPEC.md",
+  "spec_freeze_sha": "b61e05b3729aca2fa4609fbdadf4e533c1cd814f",
+  "spec_body_sha256": "b19b54d96b496c5ffbff3f9af3070c180609003ec3d5d0aae71bfa84bb8d6d5b",
+  "git_sha": "17493d7e1b3dd1fe086ee59d7eb3628303dd9660",
+  "class_weighting": "NONE (\u00a73.5 [FIXED] deliberate change vs A1)",
+  "regime": "PA-scoped (BOS + PA pitches), backbone FROZEN",
+  "backbone_checkpoint": "C:\\Users\\hunte\\projects\\baseball\\models\\pitchgpt_v3_factorized.pt",
+  "backbone_stage": "B_curriculum_rollout_aware_finetune",
+  "head_params": 35847,
+  "head_topology": "211 -> 128 -> 64 -> 7, ReLU + dropout 0.1",
+  "epochs": 5,
+  "lr": 0.001,
+  "batch_size": 32,
+  "seed": 42,
+  "best_epoch": 2,
+  "best_fit2023_log_loss": 1.213910749631559,
+  "train_pa_cohort": {
+    "seasons": [
+      2015,
+      2016,
+      2017,
+      2018,
+      2019,
+      2020,
+      2021,
+      2022
+    ],
+    "max_games": 10000,
+    "sample_seed": 42,
+    "n_excluded_pitchers": 0,
+    "max_seq_len": 256,
+    "n_rows_sql": 2942504,
+    "n_sequences": 85837,
+    "n_pitches_kept": 2942098,
+    "n_games": 9999,
+    "n_pitchers": 2076,
+    "build_sec": 14.5,
+    "game_pk_sha256": "059627594987b97905837eee358c26c82f42e0e6c253e255b4e8e6c3ef1639e9",
+    "n_pas": 756204,
+    "horizon": 6,
+    "pa_scope": "PA-start invariant context + per-position count_state, matching the rollout engine (spec \u00a74.3)"
+  },
+  "fit_pa_cohort": {
+    "seasons": [
+      2023
+    ],
+    "max_games": null,
+    "sample_seed": 42,
+    "n_excluded_pitchers": 2247,
+    "max_seq_len": 256,
+    "n_rows_sql": 77281,
+    "n_sequences": 1890,
+    "n_pitches_kept": 77274,
+    "n_games": 1254,
+    "n_pitchers": 168,
+    "build_sec": 0.6,
+    "game_pk_sha256": "710cd8f500f15117ae5b8c421d88ccf764082bba90f3ea519c94271cb2fcf0f4",
+    "n_pas": 19653,
+    "horizon": 6,
+    "pa_scope": "PA-start invariant context + per-position count_state, matching the rollout engine (spec \u00a74.3)"
+  },
+  "history": [
+    {
+      "epoch": 1,
+      "train_log_loss": 1.245390795303207,
+      "fit2023": {
+        "log_loss": 1.2180263621540106,
+        "n": 74501,
+        "empirical_class_share": {
+          "ball": 0.37051851652997947,
+          "called_strike": 0.16779640541737695,
+          "swinging_strike": 0.10554220748714782,
+          "foul": 0.1841586018979611,
+          "in_play_out": 0.11264278331834472,
+          "in_play_hit": 0.05638850485228386,
+          "hbp": 0.002952980496906082
+        },
+        "predicted_class_share": {
+          "ball": 0.3509263669600754,
+          "called_strike": 0.18345766370500427,
+          "swinging_strike": 0.1046443819444459,
+          "foul": 0.18784298470970084,
+          "in_play_out": 0.11401241053283759,
+          "in_play_hit": 0.05570446282760807,
+          "hbp": 0.003411729896365072
+        },
+        "max_abs_class_share_gap": 0.01959214956990407
+      },
+      "sec": 138.9
+    },
+    {
+      "epoch": 2,
+      "train_log_loss": 1.2265921948987968,
+      "fit2023": {
+        "log_loss": 1.213910749631559,
+        "n": 74501,
+        "empirical_class_share": {
+          "ball": 0.37051851652997947,
+          "called_strike": 0.16779640541737695,
+          "swinging_strike": 0.10554220748714782,
+          "foul": 0.1841586018979611,
+          "in_play_out": 0.11264278331834472,
+          "in_play_hit": 0.05638850485228386,
+          "hbp": 0.002952980496906082
+        },
+        "predicted_class_share": {
+          "ball": 0.36892885469343534,
+          "called_strike": 0.1515009987298435,
+          "swinging_strike": 0.1136415320046564,
+          "foul": 0.18836741508188648,
+          "in_play_out": 0.12085239647318073,
+          "in_play_hit": 0.05470583405943167,
+          "hbp": 0.002002969496800684
+        },
+        "max_abs_class_share_gap": 0.01629540668753346
+      },
+      "sec": 175.0
+    },
+    {
+      "epoch": 3,
+      "train_log_loss": 1.2239117991236728,
+      "fit2023": {
+        "log_loss": 1.2167308555094374,
+        "n": 74501,
+        "empirical_class_share": {
+          "ball": 0.37051851652997947,
+          "called_strike": 0.16779640541737695,
+          "swinging_strike": 0.10554220748714782,
+          "foul": 0.1841586018979611,
+          "in_play_out": 0.11264278331834472,
+          "in_play_hit": 0.05638850485228386,
+          "hbp": 0.002952980496906082
+        },
+        "predicted_class_share": {
+          "ball": 0.34684911062697565,
+          "called_strike": 0.16466419861394477,
+          "swinging_strike": 0.11748371141420684,
+          "foul": 0.20342853809481165,
+          "in_play_out": 0.11200794121609159,
+          "in_play_hit": 0.05249096105227405,
+          "hbp": 0.003075539218510729
+        },
+        "max_abs_class_share_gap": 0.023669405903003815
+      },
+      "sec": 187.9
+    },
+    {
+      "epoch": 4,
+      "train_log_loss": 1.2229640776539012,
+      "fit2023": {
+        "log_loss": 1.2152121000066798,
+        "n": 74501,
+        "empirical_class_share": {
+          "ball": 0.37051851652997947,
+          "called_strike": 0.16779640541737695,
+          "swinging_strike": 0.10554220748714782,
+          "foul": 0.1841586018979611,
+          "in_play_out": 0.11264278331834472,
+          "in_play_hit": 0.05638850485228386,
+          "hbp": 0.002952980496906082
+        },
+        "predicted_class_share": {
+          "ball": 0.35665986335072264,
+          "called_strike": 0.16849363280456964,
+          "swinging_strike": 0.11862431158019533,
+          "foul": 0.1942850733678281,
+          "in_play_out": 0.1065490698488291,
+          "in_play_hit": 0.05265401008489111,
+          "hbp": 0.0027340335226131284
+        },
+        "max_abs_class_share_gap": 0.01385865317925683
+      },
+      "sec": 138.7
+    },
+    {
+      "epoch": 5,
+      "train_log_loss": 1.2222958079423105,
+      "fit2023": {
+        "log_loss": 1.217410117705792,
+        "n": 74501,
+        "empirical_class_share": {
+          "ball": 0.37051851652997947,
+          "called_strike": 0.16779640541737695,
+          "swinging_strike": 0.10554220748714782,
+          "foul": 0.1841586018979611,
+          "in_play_out": 0.11264278331834472,
+          "in_play_hit": 0.05638850485228386,
+          "hbp": 0.002952980496906082
+        },
+        "predicted_class_share": {
+          "ball": 0.34237004927799314,
+          "called_strike": 0.16324162749152485,
+          "swinging_strike": 0.12229104850489371,
+          "foul": 0.2032179020438117,
+          "in_play_out": 0.11245642295803915,
+          "in_play_hit": 0.05404664447945356,
+          "hbp": 0.002376310187002724
+        },
+        "max_abs_class_share_gap": 0.02814846725198633
+      },
+      "sec": 178.9
+    }
+  ],
+  "wall_clock_sec": 819.3,
+  "gpu_seconds": 819.3,
+  "duckdb_read_only": true,
+  "checkpoint_sha256": "4d83c4a989d6fc52d62672642f12ff2a5dbf3c0c26601690471da4cfce0ef94d",
+  "checkpoint_path": "C:\\Users\\hunte\\projects\\baseball\\models\\pitchgpt_v3_outcomehead.pt"
+}

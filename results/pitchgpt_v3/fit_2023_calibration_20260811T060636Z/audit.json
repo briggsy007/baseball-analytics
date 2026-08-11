@@ -1,0 +1,413 @@
+{
+  "artifact": "calibration_pitchgpt_v3",
+  "temperatures": {
+    "T_type": 1.0906238643309591,
+    "T_zone": 0.992020000598816,
+    "T_velo": 0.8719576104684792,
+    "T_outcome": 0.9857199414787908
+  },
+  "fit_cohort_season": 2023,
+  "fit_seed": 42,
+  "fit_n_pas": 19653,
+  "produced_by": "scripts/pitchgpt_v3_calibrate.py",
+  "fit_cohort": "2023 pitcher-disjoint (2015-2022 pitchers excluded)",
+  "fit_cohort_meta": {
+    "seasons": [
+      2023
+    ],
+    "max_games": null,
+    "sample_seed": 42,
+    "n_excluded_pitchers": 2247,
+    "max_seq_len": 256,
+    "n_rows_sql": 77281,
+    "n_sequences": 1890,
+    "n_pitches_kept": 77274,
+    "n_games": 1254,
+    "n_pitchers": 168,
+    "build_sec": 0.6,
+    "game_pk_sha256": "710cd8f500f15117ae5b8c421d88ccf764082bba90f3ea519c94271cb2fcf0f4",
+    "n_pas": 19653,
+    "horizon": 6,
+    "pa_scope": "PA-start invariant context + per-position count_state, matching the rollout engine (spec \u00a74.3)"
+  },
+  "form": "one scalar per head; vectors/matrices banned by \u00a70.2",
+  "spec_path": "docs/pitchgpt_sim_engine/PITCHGPT_V2_SPEC.md",
+  "spec_freeze_sha": "b61e05b3729aca2fa4609fbdadf4e533c1cd814f",
+  "spec_body_sha256": "b19b54d96b496c5ffbff3f9af3070c180609003ec3d5d0aae71bfa84bb8d6d5b",
+  "git_sha": "17493d7e1b3dd1fe086ee59d7eb3628303dd9660",
+  "backbone_checkpoint": "C:\\Users\\hunte\\projects\\baseball\\models\\pitchgpt_v3_factorized.pt",
+  "outcome_head_checkpoint": "C:\\Users\\hunte\\projects\\baseball\\models\\pitchgpt_v3_outcomehead.pt",
+  "fit_detail": {
+    "type": {
+      "T": 1.0906238643309591,
+      "nll_at_T": 1.75920569896698,
+      "nll_at_1": 1.7621562480926514,
+      "n": 74501,
+      "bounds": [
+        0.25,
+        5.0
+      ],
+      "converged": true
+    },
+    "zone": {
+      "T": 0.992020000598816,
+      "nll_at_T": 2.966510534286499,
+      "nll_at_1": 2.9665231704711914,
+      "n": 74501,
+      "bounds": [
+        0.25,
+        5.0
+      ],
+      "converged": true
+    },
+    "velo": {
+      "T": 0.8719576104684792,
+      "nll_at_T": 0.7158564329147339,
+      "nll_at_1": 0.7205880284309387,
+      "n": 74501,
+      "bounds": [
+        0.25,
+        5.0
+      ],
+      "converged": true
+    },
+    "outcome": {
+      "T": 0.9857199414787908,
+      "nll_at_T": 1.2138386964797974,
+      "nll_at_1": 1.2139109373092651,
+      "n": 74501,
+      "bounds": [
+        0.25,
+        5.0
+      ],
+      "converged": true
+    }
+  },
+  "gate_cohorts_never_fit_on": [
+    "2024 (dev)",
+    "2025 (budgeted)",
+    "2026 (lockbox)"
+  ],
+  "created_utc": "2026-08-11T06:06:36.583657+00:00",
+  "artifact_path": "C:\\Users\\hunte\\projects\\baseball\\models\\calibration_pitchgpt_v3.json",
+  "artifact_sha256": "5055946cee57f49de9cb1acf8a694b6da152ce135b4fad04449f9c829915eff0",
+  "backbone_meta": {
+    "stage": "B_curriculum_rollout_aware_finetune",
+    "spec_path": "docs/pitchgpt_sim_engine/PITCHGPT_V2_SPEC.md",
+    "spec_freeze_sha": "b61e05b3729aca2fa4609fbdadf4e533c1cd814f",
+    "spec_body_sha256": "b19b54d96b496c5ffbff3f9af3070c180609003ec3d5d0aae71bfa84bb8d6d5b",
+    "git_sha": "17493d7e1b3dd1fe086ee59d7eb3628303dd9660",
+    "stage_a_checkpoint": "C:\\Users\\hunte\\projects\\baseball\\models\\pitchgpt_v3_factorized_stage_a.pt",
+    "stage_a_meta": {
+      "stage": "A_teacher_forced_pretrain",
+      "spec_path": "docs/pitchgpt_sim_engine/PITCHGPT_V2_SPEC.md",
+      "spec_freeze_sha": "b61e05b3729aca2fa4609fbdadf4e533c1cd814f",
+      "spec_body_sha256": "b19b54d96b496c5ffbff3f9af3070c180609003ec3d5d0aae71bfa84bb8d6d5b",
+      "git_sha": "17493d7e1b3dd1fe086ee59d7eb3628303dd9660",
+      "seed": 42,
+      "epochs": 5,
+      "batch_size": 32,
+      "lr": 0.001,
+      "grad_clip": 1.0,
+      "best_epoch": 5,
+      "best_fit2023_nll_per_pitch": 4.690316464482732,
+      "train_cohort": {
+        "seasons": [
+          2015,
+          2016,
+          2017,
+          2018,
+          2019,
+          2020,
+          2021,
+          2022
+        ],
+        "max_games": 10000,
+        "sample_seed": 42,
+        "n_excluded_pitchers": 0,
+        "max_seq_len": 256,
+        "n_rows_sql": 2942504,
+        "n_sequences": 85837,
+        "n_pitches_kept": 2942098,
+        "n_games": 9999,
+        "n_pitchers": 2076,
+        "build_sec": 14.5,
+        "game_pk_sha256": "059627594987b97905837eee358c26c82f42e0e6c253e255b4e8e6c3ef1639e9"
+      },
+      "fit_cohort": {
+        "seasons": [
+          2023
+        ],
+        "max_games": null,
+        "sample_seed": 42,
+        "n_excluded_pitchers": 2247,
+        "max_seq_len": 256,
+        "n_rows_sql": 77281,
+        "n_sequences": 1890,
+        "n_pitches_kept": 77274,
+        "n_games": 1254,
+        "n_pitchers": 168,
+        "build_sec": 0.6,
+        "game_pk_sha256": "710cd8f500f15117ae5b8c421d88ccf764082bba90f3ea519c94271cb2fcf0f4"
+      },
+      "factorized_input_ablation": false,
+      "support_counts_sha256": "9f4a8a138b6bf988d5b620c2f967429bef291385d6d4c128fe0b03152cb78f56",
+      "output_stack_params": 28240,
+      "flat_head_params": 285090,
+      "wall_clock_sec": 430.6,
+      "gpu_seconds": 427.3,
+      "duckdb_read_only": true,
+      "history": [
+        {
+          "epoch": 1,
+          "train_nll_per_pitch": 4.9717366704182835,
+          "train_nll_type": 1.398642070422155,
+          "train_nll_zone": 3.0150131150479598,
+          "train_nll_velo": 0.5580814849481686,
+          "train_perplexity": 144.27723192572503,
+          "fit2023": {
+            "nll_per_pitch": 4.839845042161396,
+            "nll_type": 1.3986351535816957,
+            "nll_zone": 2.94823188077337,
+            "nll_velo": 0.49297800780633044,
+            "perplexity": 126.4497558310293,
+            "n_pitches": 75384
+          },
+          "train_sec": 84.3
+        },
+        {
+          "epoch": 2,
+          "train_nll_per_pitch": 4.678645937387056,
+          "train_nll_type": 1.2850536183776815,
+          "train_nll_zone": 2.9383265758990182,
+          "train_nll_velo": 0.4552657431103561,
+          "train_perplexity": 107.6242438981957,
+          "fit2023": {
+            "nll_per_pitch": 4.773933088730111,
+            "nll_type": 1.3559925411709755,
+            "nll_zone": 2.9344981356587088,
+            "nll_velo": 0.4834424119004269,
+            "perplexity": 118.38394205660025,
+            "n_pitches": 75384
+          },
+          "train_sec": 87.1
+        },
+        {
+          "epoch": 3,
+          "train_nll_per_pitch": 4.639355279005919,
+          "train_nll_type": 1.2714552769899685,
+          "train_nll_zone": 2.9254243544499015,
+          "train_nll_velo": 0.44247564756604923,
+          "train_perplexity": 103.47761188384057,
+          "fit2023": {
+            "nll_per_pitch": 4.73664265277089,
+            "nll_type": 1.3469686373573295,
+            "nll_zone": 2.9284700650540327,
+            "nll_velo": 0.46120395035952705,
+            "perplexity": 114.05065054767354,
+            "n_pitches": 75384
+          },
+          "train_sec": 85.0
+        },
+        {
+          "epoch": 4,
+          "train_nll_per_pitch": 4.616835436588619,
+          "train_nll_type": 1.2637339626386914,
+          "train_nll_zone": 2.918217892913585,
+          "train_nll_velo": 0.43488358103634206,
+          "train_perplexity": 101.17335549738034,
+          "fit2023": {
+            "nll_per_pitch": 4.701179327003821,
+            "nll_type": 1.3221872882909815,
+            "nll_zone": 2.922927074114583,
+            "nll_velo": 0.45606496459825724,
+            "perplexity": 110.07691260958865,
+            "n_pitches": 75384
+          },
+          "train_sec": 84.4
+        },
+        {
+          "epoch": 5,
+          "train_nll_per_pitch": 4.601032586816899,
+          "train_nll_type": 1.2580788780214094,
+          "train_nll_zone": 2.912868166012369,
+          "train_nll_velo": 0.4300855427831206,
+          "train_perplexity": 99.58709488986989,
+          "fit2023": {
+            "nll_per_pitch": 4.690316464482732,
+            "nll_type": 1.3220109261487758,
+            "nll_zone": 2.9207471207703017,
+            "nll_velo": 0.4475584175636545,
+            "perplexity": 108.88763342404295,
+            "n_pitches": 75384
+          },
+          "train_sec": 86.5
+        }
+      ]
+    },
+    "curriculum": [
+      {
+        "name": "B1",
+        "depth": 2,
+        "epochs": 1,
+        "eps_start": 0.0,
+        "eps_end": 0.25
+      },
+      {
+        "name": "B2",
+        "depth": 4,
+        "epochs": 1,
+        "eps_start": 0.25,
+        "eps_end": 0.5
+      },
+      {
+        "name": "B3",
+        "depth": 6,
+        "epochs": 1,
+        "eps_start": 0.5,
+        "eps_end": 0.5
+      }
+    ],
+    "lr": 0.0002,
+    "batch_size": 32,
+    "grad_clip": 1.0,
+    "seed": 42,
+    "horizon": 6,
+    "dynamic_context_check": {
+      "n_pas_checked": 17774,
+      "count_state_positions_checked": 72996,
+      "advance_count_agreement": 0.9994657241492685,
+      "pct_pas_with_varying_count_state": 0.9999437380443345,
+      "static_context_bug_present": false
+    },
+    "train_pa_cohort": {
+      "seasons": [
+        2015,
+        2016,
+        2017,
+        2018,
+        2019,
+        2020,
+        2021,
+        2022
+      ],
+      "max_games": 10000,
+      "sample_seed": 42,
+      "n_excluded_pitchers": 0,
+      "max_seq_len": 256,
+      "n_rows_sql": 2942504,
+      "n_sequences": 85837,
+      "n_pitches_kept": 2942098,
+      "n_games": 9999,
+      "n_pitchers": 2076,
+      "build_sec": 14.5,
+      "game_pk_sha256": "059627594987b97905837eee358c26c82f42e0e6c253e255b4e8e6c3ef1639e9",
+      "n_pas": 756204,
+      "horizon": 6,
+      "pa_scope": "PA-start invariant context + per-position count_state, matching the rollout engine (spec \u00a74.3)"
+    },
+    "fit_pa_cohort": {
+      "seasons": [
+        2023
+      ],
+      "max_games": null,
+      "sample_seed": 42,
+      "n_excluded_pitchers": 2247,
+      "max_seq_len": 256,
+      "n_rows_sql": 77281,
+      "n_sequences": 1890,
+      "n_pitches_kept": 77274,
+      "n_games": 1254,
+      "n_pitchers": 168,
+      "build_sec": 0.6,
+      "game_pk_sha256": "710cd8f500f15117ae5b8c421d88ccf764082bba90f3ea519c94271cb2fcf0f4",
+      "n_pas": 19653,
+      "horizon": 6,
+      "pa_scope": "PA-start invariant context + per-position count_state, matching the rollout engine (spec \u00a74.3)"
+    },
+    "history": [
+      {
+        "stage": "A_baseline",
+        "pa_nll_per_pitch": 5.420190222908082,
+        "n_positions": 74501
+      },
+      {
+        "substage": "B1",
+        "depth": 2,
+        "eps_start": 0.0,
+        "eps_end": 0.25,
+        "train_nll_per_pitch": 5.241480991842462,
+        "n_positions": 74501,
+        "n_scheduled_substitutions": 178777,
+        "n_rollable_positions": 1428849,
+        "substitution_rate": 0.12511958926380604,
+        "mask_events": {
+          "mask_fallbacks": {
+            "zone_dropped_type_condition": 35,
+            "velo_dropped_zone_condition": 70
+          },
+          "mask_degenerate": {
+            "zone_uniform": 0,
+            "velo_uniform": 0
+          }
+        },
+        "sec": 1987.7,
+        "pa_nll_per_pitch": 5.3903602174803025
+      },
+      {
+        "substage": "B2",
+        "depth": 4,
+        "eps_start": 0.25,
+        "eps_end": 0.5,
+        "train_nll_per_pitch": 5.4079130233493915,
+        "n_positions": 74501,
+        "n_scheduled_substitutions": 903920,
+        "n_rollable_positions": 2409472,
+        "substitution_rate": 0.3751527305567361,
+        "mask_events": {
+          "mask_fallbacks": {
+            "zone_dropped_type_condition": 93,
+            "velo_dropped_zone_condition": 157
+          },
+          "mask_degenerate": {
+            "zone_uniform": 0,
+            "velo_uniform": 0
+          }
+        },
+        "sec": 2852.5,
+        "pa_nll_per_pitch": 5.431109591859506
+      },
+      {
+        "substage": "B3",
+        "depth": 6,
+        "eps_start": 0.5,
+        "eps_end": 0.5,
+        "train_nll_per_pitch": 5.4900989218877125,
+        "n_positions": 74501,
+        "n_scheduled_substitutions": 1344178,
+        "n_rollable_positions": 2689266,
+        "substitution_rate": 0.4998308088526758,
+        "mask_events": {
+          "mask_fallbacks": {
+            "zone_dropped_type_condition": 95,
+            "velo_dropped_zone_condition": 193
+          },
+          "mask_degenerate": {
+            "zone_uniform": 0,
+            "velo_uniform": 0
+          }
+        },
+        "sec": 2923.4,
+        "pa_nll_per_pitch": 5.449267410342017
+      }
+    ],
+    "wall_clock_sec": 7765.3,
+    "gpu_seconds": 7765.3,
+    "duckdb_read_only": true,
+    "two_pass_fallback_used": false,
+    "resume_state_used": true
+  },
+  "elapsed_sec": 2.0,
+  "duckdb_read_only": true,
+  "tier": "fit-2023"
+}

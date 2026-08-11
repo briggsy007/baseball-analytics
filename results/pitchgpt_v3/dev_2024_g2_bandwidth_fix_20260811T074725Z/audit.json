@@ -1,0 +1,431 @@
+{
+  "tier": "burned-dev",
+  "tier_warning": "2024 is the BURNED dev tier (\u00a75.3). NO validation authority. The one graded contact is against sealed 2026 (\u00a75.5) and was NOT made.",
+  "purpose": "Re-measure G2 (\u00a76.3) with ONE pinned kernel bandwidth per head so the \u00a76.2 frozen-v2 side-by-side is like-for-like, and record the bandwidths so the graded run replays rather than refits them. \u00a79 entries 13 and 14.",
+  "lockbox_2026_contacted": false,
+  "holdout_2025_contacted": false,
+  "spec_path": "docs/pitchgpt_sim_engine/PITCHGPT_V2_SPEC.md",
+  "spec_freeze_sha": "b61e05b3729aca2fa4609fbdadf4e533c1cd814f",
+  "spec_body_sha256": "b19b54d96b496c5ffbff3f9af3070c180609003ec3d5d0aae71bfa84bb8d6d5b",
+  "git_sha": "17493d7e1b3dd1fe086ee59d7eb3628303dd9660",
+  "cohort": {
+    "seasons": [
+      2024
+    ],
+    "max_games": null,
+    "sample_seed": 42,
+    "n_excluded_pitchers": 2247,
+    "max_seq_len": 256,
+    "n_rows_sql": 155510,
+    "n_sequences": 3881,
+    "n_pitches_kept": 155500,
+    "n_games": 1928,
+    "n_pitchers": 361,
+    "build_sec": 0.8,
+    "game_pk_sha256": "d987652dbd0c09a1557d3078bffe9aac6335bcd5e2cfe3b703ae58963d1093c1",
+    "n_pas": 40042,
+    "horizon": 6,
+    "pa_scope": "PA-start invariant context + per-position count_state, matching the rollout engine (spec \u00a74.3)"
+  },
+  "n_pa": 40042,
+  "prior_run": "results/pitchgpt_v3/dev_2024_gates_20260811T062956Z/audit.json",
+  "gate_verdict_unchanged": true,
+  "gate_verdict_unchanged_reason": "Every v3 SKCE/p-value reproduces the prior run bit-for-bit (asserted in-run). Only the frozen-v2 REFERENCE moved, and \u00a76.2 reports it without gating on it. G2 remains FAIL, not VOID.",
+  "subsample": {
+    "deviations_log_entry": 13,
+    "cap": 2000,
+    "seed": 42,
+    "note": "\u00a76.3 authorizes no subsample; the O(n^2) U-statistic forces one. Publish n_used with every SKCE and p-value."
+  },
+  "bandwidth_pinning": {
+    "deviations_log_entry": 14,
+    "artifact": "kce_bandwidths_pitchgpt_v3_dev2024.json",
+    "pinned": {
+      "type": 0.528885669192457,
+      "zone": 0.5917139052806228,
+      "velo": 1.515810088781656,
+      "outcome": 0.9692382695111024
+    }
+  },
+  "temperatures": {
+    "T_type": 1.0906238643309591,
+    "T_zone": 0.992020000598816,
+    "T_velo": 0.8719576104684792,
+    "T_outcome": 0.9857199414787908
+  },
+  "calibration_provenance": {
+    "fit_cohort_season": 2023,
+    "fit_seed": 42,
+    "fit_n_pas": 19653,
+    "produced_by": "scripts/pitchgpt_v3_calibrate.py"
+  },
+  "backbone_stage": "B_curriculum_rollout_aware_finetune",
+  "backbone_sha256": "8c11f1c9219dc932420fdb4a097f731aa598a7afcafa0d4ade52dfafb58e5ef4",
+  "outcome_head_sha256": "4d83c4a989d6fc52d62672642f12ff2a5dbf3c0c26601690471da4cfce0ef94d",
+  "frozen_artifact_sha256_pre": {
+    "pitchgpt_v2.pt": "6f952054d14ac6f918f3eb9502b496b70bc0c87dfc65dc50d98ee7244a62883c",
+    "pitchgpt_v2_outcomehead_a1.pt": "37b50e87599013c281560c9f63286fe5b7645297d0042694d907287417bb25e5"
+  },
+  "frozen_artifact_sha256_post": {
+    "pitchgpt_v2.pt": "6f952054d14ac6f918f3eb9502b496b70bc0c87dfc65dc50d98ee7244a62883c",
+    "pitchgpt_v2_outcomehead_a1.pt": "37b50e87599013c281560c9f63286fe5b7645297d0042694d907287417bb25e5"
+  },
+  "a1_temperature": 0.8003096499977166,
+  "per_head": {
+    "type": {
+      "v3_observed": {
+        "skce": 0.0026936448004237193,
+        "p_value": 0.000999000999000999,
+        "bandwidth": 0.528885669192457,
+        "bandwidth_source": "median-heuristic-fitted-on-this-cohort",
+        "n_used": 2000,
+        "n_available": 149949,
+        "subsample_cap": 2000,
+        "subsampled": true,
+        "subsample_seed": 42,
+        "n_bootstrap": 1000,
+        "null_mean": -2.324133476447523e-07,
+        "null_q99": 0.0003038999285321561,
+        "rejects_calibration_at_1pct": true
+      },
+      "power_probe": {
+        "skce": 0.0019587652655080204,
+        "p_value": 0.000999000999000999,
+        "bandwidth": 0.528885669192457,
+        "bandwidth_source": "pinned",
+        "n_used": 2000,
+        "n_available": 149949,
+        "subsample_cap": 2000,
+        "subsampled": true,
+        "subsample_seed": 42,
+        "n_bootstrap": 1000,
+        "null_mean": -3.4248673676918437e-06,
+        "null_q99": 0.0002968743718344105,
+        "rejects_calibration_at_1pct": true
+      },
+      "probe_detects_planted_error": true,
+      "frozen_v2_reference_SAME_kernel": {
+        "skce": 0.0018709862892879266,
+        "p_value": 0.000999000999000999,
+        "bandwidth": 0.528885669192457,
+        "bandwidth_source": "pinned",
+        "n_used": 2000,
+        "n_available": 149949,
+        "subsample_cap": 2000,
+        "subsampled": true,
+        "subsample_seed": 42,
+        "n_bootstrap": 1000,
+        "null_mean": 2.915718756277809e-06,
+        "null_q99": 0.00030205572110252233,
+        "rejects_calibration_at_1pct": true
+      },
+      "frozen_v2_reference_OWN_kernel_SUPERSEDED": {
+        "skce": 0.0021435103625568577,
+        "p_value": 0.000999000999000999,
+        "bandwidth": 0.6283427430341253,
+        "bandwidth_source": "median-heuristic-fitted-on-this-cohort",
+        "n_used": 2000,
+        "n_available": 149949,
+        "subsample_cap": 2000,
+        "subsampled": true,
+        "subsample_seed": 42,
+        "n_bootstrap": 1000,
+        "null_mean": 3.4075479554721014e-06,
+        "null_q99": 0.00034955556460400774,
+        "rejects_calibration_at_1pct": true
+      },
+      "v3_reproduces_prior_run_exactly": true,
+      "reproduction_vs_prior_run": {
+        "power_probe": {
+          "prior_skce": 0.0019587652655080204,
+          "rerun_skce": 0.0019587652655080204,
+          "abs_delta_skce": 0.0,
+          "prior_p_value": 0.000999000999000999,
+          "rerun_p_value": 0.000999000999000999,
+          "prior_bandwidth": 0.528885669192457,
+          "rerun_bandwidth": 0.528885669192457,
+          "bit_for_bit": true
+        },
+        "frozen_v2_reference_own_kernel": {
+          "prior_skce": 0.0021435103625568577,
+          "rerun_skce": 0.0021435103625568577,
+          "abs_delta_skce": 0.0,
+          "prior_p_value": 0.000999000999000999,
+          "rerun_p_value": 0.000999000999000999,
+          "prior_bandwidth": 0.6283427430341253,
+          "rerun_bandwidth": 0.6283427430341253,
+          "bit_for_bit": true
+        }
+      },
+      "outcome_ratio_v2_over_v3_same_kernel": 0.6945928019141997,
+      "outcome_ratio_v2_over_v3_own_kernel_SUPERSEDED": 0.7957657825633419
+    },
+    "zone": {
+      "v3_observed": {
+        "skce": 0.0002610403740613873,
+        "p_value": 0.000999000999000999,
+        "bandwidth": 0.5917139052806228,
+        "bandwidth_source": "median-heuristic-fitted-on-this-cohort",
+        "n_used": 2000,
+        "n_available": 149949,
+        "subsample_cap": 2000,
+        "subsampled": true,
+        "subsample_seed": 42,
+        "n_bootstrap": 1000,
+        "null_mean": -3.584568272665101e-06,
+        "null_q99": 0.0001573299160565467,
+        "rejects_calibration_at_1pct": true
+      },
+      "power_probe": {
+        "skce": 0.00026743570404159933,
+        "p_value": 0.000999000999000999,
+        "bandwidth": 0.5917139052806228,
+        "bandwidth_source": "pinned",
+        "n_used": 2000,
+        "n_available": 149949,
+        "subsample_cap": 2000,
+        "subsampled": true,
+        "subsample_seed": 42,
+        "n_bootstrap": 1000,
+        "null_mean": -2.3236005645031427e-06,
+        "null_q99": 0.0001584009971090467,
+        "rejects_calibration_at_1pct": true
+      },
+      "probe_detects_planted_error": true,
+      "frozen_v2_reference_SAME_kernel": {
+        "skce": 0.00020644069147867023,
+        "p_value": 0.003996003996003996,
+        "bandwidth": 0.5917139052806228,
+        "bandwidth_source": "pinned",
+        "n_used": 2000,
+        "n_available": 149949,
+        "subsample_cap": 2000,
+        "subsampled": true,
+        "subsample_seed": 42,
+        "n_bootstrap": 1000,
+        "null_mean": -5.013612846303898e-06,
+        "null_q99": 0.00016732770855321872,
+        "rejects_calibration_at_1pct": true
+      },
+      "frozen_v2_reference_OWN_kernel_SUPERSEDED": {
+        "skce": 0.00020142270360427368,
+        "p_value": 0.002997002997002997,
+        "bandwidth": 0.5284856885529934,
+        "bandwidth_source": "median-heuristic-fitted-on-this-cohort",
+        "n_used": 2000,
+        "n_available": 149949,
+        "subsample_cap": 2000,
+        "subsampled": true,
+        "subsample_seed": 42,
+        "n_bootstrap": 1000,
+        "null_mean": -4.684315807637167e-06,
+        "null_q99": 0.00015376563127298323,
+        "rejects_calibration_at_1pct": true
+      },
+      "v3_reproduces_prior_run_exactly": true,
+      "reproduction_vs_prior_run": {
+        "power_probe": {
+          "prior_skce": 0.00026743570404159933,
+          "rerun_skce": 0.00026743570404159933,
+          "abs_delta_skce": 0.0,
+          "prior_p_value": 0.000999000999000999,
+          "rerun_p_value": 0.000999000999000999,
+          "prior_bandwidth": 0.5917139052806228,
+          "rerun_bandwidth": 0.5917139052806228,
+          "bit_for_bit": true
+        },
+        "frozen_v2_reference_own_kernel": {
+          "prior_skce": 0.00020142270360427368,
+          "rerun_skce": 0.00020142270360427368,
+          "abs_delta_skce": 0.0,
+          "prior_p_value": 0.002997002997002997,
+          "rerun_p_value": 0.002997002997002997,
+          "prior_bandwidth": 0.5284856885529934,
+          "rerun_bandwidth": 0.5284856885529934,
+          "bit_for_bit": true
+        }
+      },
+      "outcome_ratio_v2_over_v3_same_kernel": 0.7908381690800167,
+      "outcome_ratio_v2_over_v3_own_kernel_SUPERSEDED": 0.7716151355073767
+    },
+    "velo": {
+      "v3_observed": {
+        "skce": 0.002350371182974282,
+        "p_value": 0.000999000999000999,
+        "bandwidth": 1.515810088781656,
+        "bandwidth_source": "median-heuristic-fitted-on-this-cohort",
+        "n_used": 2000,
+        "n_available": 149949,
+        "subsample_cap": 2000,
+        "subsampled": true,
+        "subsample_seed": 42,
+        "n_bootstrap": 1000,
+        "null_mean": -6.029476552419297e-06,
+        "null_q99": 0.00030697130160238474,
+        "rejects_calibration_at_1pct": true
+      },
+      "power_probe": {
+        "skce": 0.0025108043854320658,
+        "p_value": 0.000999000999000999,
+        "bandwidth": 1.515810088781656,
+        "bandwidth_source": "pinned",
+        "n_used": 2000,
+        "n_available": 149949,
+        "subsample_cap": 2000,
+        "subsampled": true,
+        "subsample_seed": 42,
+        "n_bootstrap": 1000,
+        "null_mean": -7.811969435491865e-06,
+        "null_q99": 0.0003365392384740498,
+        "rejects_calibration_at_1pct": true
+      },
+      "probe_detects_planted_error": true,
+      "frozen_v2_reference_SAME_kernel": {
+        "skce": 0.0014908889878838202,
+        "p_value": 0.000999000999000999,
+        "bandwidth": 1.515810088781656,
+        "bandwidth_source": "pinned",
+        "n_used": 2000,
+        "n_available": 149949,
+        "subsample_cap": 2000,
+        "subsampled": true,
+        "subsample_seed": 42,
+        "n_bootstrap": 1000,
+        "null_mean": -4.249814115676644e-06,
+        "null_q99": 0.00040986643764586524,
+        "rejects_calibration_at_1pct": true
+      },
+      "frozen_v2_reference_OWN_kernel_SUPERSEDED": {
+        "skce": 0.0014763854165861792,
+        "p_value": 0.000999000999000999,
+        "bandwidth": 1.4305782380337866,
+        "bandwidth_source": "median-heuristic-fitted-on-this-cohort",
+        "n_used": 2000,
+        "n_available": 149949,
+        "subsample_cap": 2000,
+        "subsampled": true,
+        "subsample_seed": 42,
+        "n_bootstrap": 1000,
+        "null_mean": -4.21472497536957e-06,
+        "null_q99": 0.0003989702609617412,
+        "rejects_calibration_at_1pct": true
+      },
+      "v3_reproduces_prior_run_exactly": true,
+      "reproduction_vs_prior_run": {
+        "power_probe": {
+          "prior_skce": 0.0025108043854320658,
+          "rerun_skce": 0.0025108043854320658,
+          "abs_delta_skce": 0.0,
+          "prior_p_value": 0.000999000999000999,
+          "rerun_p_value": 0.000999000999000999,
+          "prior_bandwidth": 1.515810088781656,
+          "rerun_bandwidth": 1.515810088781656,
+          "bit_for_bit": true
+        },
+        "frozen_v2_reference_own_kernel": {
+          "prior_skce": 0.0014763854165861792,
+          "rerun_skce": 0.0014763854165861792,
+          "abs_delta_skce": 0.0,
+          "prior_p_value": 0.000999000999000999,
+          "rerun_p_value": 0.000999000999000999,
+          "prior_bandwidth": 1.4305782380337866,
+          "rerun_bandwidth": 1.4305782380337866,
+          "bit_for_bit": true
+        }
+      },
+      "outcome_ratio_v2_over_v3_same_kernel": 0.6343206548325578,
+      "outcome_ratio_v2_over_v3_own_kernel_SUPERSEDED": 0.6281498970379156
+    },
+    "outcome": {
+      "v3_observed": {
+        "skce": 0.0003624129933765835,
+        "p_value": 0.012987012987012988,
+        "bandwidth": 0.9692382695111024,
+        "bandwidth_source": "median-heuristic-fitted-on-this-cohort",
+        "n_used": 2000,
+        "n_available": 149946,
+        "subsample_cap": 2000,
+        "subsampled": true,
+        "subsample_seed": 42,
+        "n_bootstrap": 1000,
+        "null_mean": 5.60977882495837e-06,
+        "null_q99": 0.00037264762382380943,
+        "rejects_calibration_at_1pct": false
+      },
+      "power_probe": {
+        "skce": 0.0007962458846358338,
+        "p_value": 0.000999000999000999,
+        "bandwidth": 0.9692382695111024,
+        "bandwidth_source": "pinned",
+        "n_used": 2000,
+        "n_available": 149946,
+        "subsample_cap": 2000,
+        "subsampled": true,
+        "subsample_seed": 42,
+        "n_bootstrap": 1000,
+        "null_mean": 3.4166407468137406e-06,
+        "null_q99": 0.000325576932023108,
+        "rejects_calibration_at_1pct": true
+      },
+      "probe_detects_planted_error": true,
+      "frozen_v2_reference_SAME_kernel": {
+        "skce": 0.010722497206459718,
+        "p_value": 0.000999000999000999,
+        "bandwidth": 0.9692382695111024,
+        "bandwidth_source": "pinned",
+        "n_used": 2000,
+        "n_available": 149946,
+        "subsample_cap": 2000,
+        "subsampled": true,
+        "subsample_seed": 42,
+        "n_bootstrap": 1000,
+        "null_mean": 6.925551081319694e-06,
+        "null_q99": 0.00040513496118790577,
+        "rejects_calibration_at_1pct": true
+      },
+      "frozen_v2_reference_OWN_kernel_SUPERSEDED": {
+        "skce": 0.01059168104485218,
+        "p_value": 0.000999000999000999,
+        "bandwidth": 0.9491413475406736,
+        "bandwidth_source": "median-heuristic-fitted-on-this-cohort",
+        "n_used": 2000,
+        "n_available": 149946,
+        "subsample_cap": 2000,
+        "subsampled": true,
+        "subsample_seed": 42,
+        "n_bootstrap": 1000,
+        "null_mean": 6.826804315466976e-06,
+        "null_q99": 0.00040063140149480223,
+        "rejects_calibration_at_1pct": true
+      },
+      "v3_reproduces_prior_run_exactly": true,
+      "reproduction_vs_prior_run": {
+        "power_probe": {
+          "prior_skce": 0.0007962458846358338,
+          "rerun_skce": 0.0007962458846358338,
+          "abs_delta_skce": 0.0,
+          "prior_p_value": 0.000999000999000999,
+          "rerun_p_value": 0.000999000999000999,
+          "prior_bandwidth": 0.9692382695111024,
+          "rerun_bandwidth": 0.9692382695111024,
+          "bit_for_bit": true
+        },
+        "frozen_v2_reference_own_kernel": {
+          "prior_skce": 0.01059168104485218,
+          "rerun_skce": 0.01059168104485218,
+          "abs_delta_skce": 0.0,
+          "prior_p_value": 0.000999000999000999,
+          "rerun_p_value": 0.000999000999000999,
+          "prior_bandwidth": 0.9491413475406736,
+          "rerun_bandwidth": 0.9491413475406736,
+          "bit_for_bit": true
+        }
+      },
+      "outcome_ratio_v2_over_v3_same_kernel": 29.58640391603721,
+      "outcome_ratio_v2_over_v3_own_kernel_SUPERSEDED": 29.225445109376526
+    }
+  },
+  "elapsed_sec": 1293.7,
+  "duckdb_read_only": true,
+  "duckdb_opened": false
+}

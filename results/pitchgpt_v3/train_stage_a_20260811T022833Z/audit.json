@@ -1,0 +1,149 @@
+{
+  "stage": "A_teacher_forced_pretrain",
+  "spec_path": "docs/pitchgpt_sim_engine/PITCHGPT_V2_SPEC.md",
+  "spec_freeze_sha": "b61e05b3729aca2fa4609fbdadf4e533c1cd814f",
+  "spec_body_sha256": "b19b54d96b496c5ffbff3f9af3070c180609003ec3d5d0aae71bfa84bb8d6d5b",
+  "git_sha": "17493d7e1b3dd1fe086ee59d7eb3628303dd9660",
+  "seed": 42,
+  "epochs": 5,
+  "batch_size": 32,
+  "lr": 0.001,
+  "grad_clip": 1.0,
+  "best_epoch": 5,
+  "best_fit2023_nll_per_pitch": 4.690316464482732,
+  "train_cohort": {
+    "seasons": [
+      2015,
+      2016,
+      2017,
+      2018,
+      2019,
+      2020,
+      2021,
+      2022
+    ],
+    "max_games": 10000,
+    "sample_seed": 42,
+    "n_excluded_pitchers": 0,
+    "max_seq_len": 256,
+    "n_rows_sql": 2942504,
+    "n_sequences": 85837,
+    "n_pitches_kept": 2942098,
+    "n_games": 9999,
+    "n_pitchers": 2076,
+    "build_sec": 14.5,
+    "game_pk_sha256": "059627594987b97905837eee358c26c82f42e0e6c253e255b4e8e6c3ef1639e9"
+  },
+  "fit_cohort": {
+    "seasons": [
+      2023
+    ],
+    "max_games": null,
+    "sample_seed": 42,
+    "n_excluded_pitchers": 2247,
+    "max_seq_len": 256,
+    "n_rows_sql": 77281,
+    "n_sequences": 1890,
+    "n_pitches_kept": 77274,
+    "n_games": 1254,
+    "n_pitchers": 168,
+    "build_sec": 0.6,
+    "game_pk_sha256": "710cd8f500f15117ae5b8c421d88ccf764082bba90f3ea519c94271cb2fcf0f4"
+  },
+  "factorized_input_ablation": false,
+  "support_counts_sha256": "9f4a8a138b6bf988d5b620c2f967429bef291385d6d4c128fe0b03152cb78f56",
+  "output_stack_params": 28240,
+  "flat_head_params": 285090,
+  "wall_clock_sec": 430.6,
+  "gpu_seconds": 427.3,
+  "duckdb_read_only": true,
+  "history": [
+    {
+      "epoch": 1,
+      "train_nll_per_pitch": 4.9717366704182835,
+      "train_nll_type": 1.398642070422155,
+      "train_nll_zone": 3.0150131150479598,
+      "train_nll_velo": 0.5580814849481686,
+      "train_perplexity": 144.27723192572503,
+      "fit2023": {
+        "nll_per_pitch": 4.839845042161396,
+        "nll_type": 1.3986351535816957,
+        "nll_zone": 2.94823188077337,
+        "nll_velo": 0.49297800780633044,
+        "perplexity": 126.4497558310293,
+        "n_pitches": 75384
+      },
+      "train_sec": 84.3
+    },
+    {
+      "epoch": 2,
+      "train_nll_per_pitch": 4.678645937387056,
+      "train_nll_type": 1.2850536183776815,
+      "train_nll_zone": 2.9383265758990182,
+      "train_nll_velo": 0.4552657431103561,
+      "train_perplexity": 107.6242438981957,
+      "fit2023": {
+        "nll_per_pitch": 4.773933088730111,
+        "nll_type": 1.3559925411709755,
+        "nll_zone": 2.9344981356587088,
+        "nll_velo": 0.4834424119004269,
+        "perplexity": 118.38394205660025,
+        "n_pitches": 75384
+      },
+      "train_sec": 87.1
+    },
+    {
+      "epoch": 3,
+      "train_nll_per_pitch": 4.639355279005919,
+      "train_nll_type": 1.2714552769899685,
+      "train_nll_zone": 2.9254243544499015,
+      "train_nll_velo": 0.44247564756604923,
+      "train_perplexity": 103.47761188384057,
+      "fit2023": {
+        "nll_per_pitch": 4.73664265277089,
+        "nll_type": 1.3469686373573295,
+        "nll_zone": 2.9284700650540327,
+        "nll_velo": 0.46120395035952705,
+        "perplexity": 114.05065054767354,
+        "n_pitches": 75384
+      },
+      "train_sec": 85.0
+    },
+    {
+      "epoch": 4,
+      "train_nll_per_pitch": 4.616835436588619,
+      "train_nll_type": 1.2637339626386914,
+      "train_nll_zone": 2.918217892913585,
+      "train_nll_velo": 0.43488358103634206,
+      "train_perplexity": 101.17335549738034,
+      "fit2023": {
+        "nll_per_pitch": 4.701179327003821,
+        "nll_type": 1.3221872882909815,
+        "nll_zone": 2.922927074114583,
+        "nll_velo": 0.45606496459825724,
+        "perplexity": 110.07691260958865,
+        "n_pitches": 75384
+      },
+      "train_sec": 84.4
+    },
+    {
+      "epoch": 5,
+      "train_nll_per_pitch": 4.601032586816899,
+      "train_nll_type": 1.2580788780214094,
+      "train_nll_zone": 2.912868166012369,
+      "train_nll_velo": 0.4300855427831206,
+      "train_perplexity": 99.58709488986989,
+      "fit2023": {
+        "nll_per_pitch": 4.690316464482732,
+        "nll_type": 1.3220109261487758,
+        "nll_zone": 2.9207471207703017,
+        "nll_velo": 0.4475584175636545,
+        "perplexity": 108.88763342404295,
+        "n_pitches": 75384
+      },
+      "train_sec": 86.5
+    }
+  ],
+  "checkpoint_path": "models\\pitchgpt_v3_factorized_stage_a.pt",
+  "checkpoint_sha256": "c0e73ba8c15d67a1da36e0ed2edc3e578871b6635c3f5aa6aae647329b43194e"
+}

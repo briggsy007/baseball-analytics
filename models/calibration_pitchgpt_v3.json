@@ -1,0 +1,92 @@
+{
+  "artifact": "calibration_pitchgpt_v3",
+  "temperatures": {
+    "T_type": 1.0906238643309591,
+    "T_zone": 0.992020000598816,
+    "T_velo": 0.8719576104684792,
+    "T_outcome": 0.9857199414787908
+  },
+  "fit_cohort_season": 2023,
+  "fit_seed": 42,
+  "fit_n_pas": 19653,
+  "produced_by": "scripts/pitchgpt_v3_calibrate.py",
+  "fit_cohort": "2023 pitcher-disjoint (2015-2022 pitchers excluded)",
+  "fit_cohort_meta": {
+    "seasons": [
+      2023
+    ],
+    "max_games": null,
+    "sample_seed": 42,
+    "n_excluded_pitchers": 2247,
+    "max_seq_len": 256,
+    "n_rows_sql": 77281,
+    "n_sequences": 1890,
+    "n_pitches_kept": 77274,
+    "n_games": 1254,
+    "n_pitchers": 168,
+    "build_sec": 0.6,
+    "game_pk_sha256": "710cd8f500f15117ae5b8c421d88ccf764082bba90f3ea519c94271cb2fcf0f4",
+    "n_pas": 19653,
+    "horizon": 6,
+    "pa_scope": "PA-start invariant context + per-position count_state, matching the rollout engine (spec \u00a74.3)"
+  },
+  "form": "one scalar per head; vectors/matrices banned by \u00a70.2",
+  "spec_path": "docs/pitchgpt_sim_engine/PITCHGPT_V2_SPEC.md",
+  "spec_freeze_sha": "b61e05b3729aca2fa4609fbdadf4e533c1cd814f",
+  "spec_body_sha256": "b19b54d96b496c5ffbff3f9af3070c180609003ec3d5d0aae71bfa84bb8d6d5b",
+  "git_sha": "17493d7e1b3dd1fe086ee59d7eb3628303dd9660",
+  "backbone_checkpoint": "C:\\Users\\hunte\\projects\\baseball\\models\\pitchgpt_v3_factorized.pt",
+  "outcome_head_checkpoint": "C:\\Users\\hunte\\projects\\baseball\\models\\pitchgpt_v3_outcomehead.pt",
+  "fit_detail": {
+    "type": {
+      "T": 1.0906238643309591,
+      "nll_at_T": 1.75920569896698,
+      "nll_at_1": 1.7621562480926514,
+      "n": 74501,
+      "bounds": [
+        0.25,
+        5.0
+      ],
+      "converged": true
+    },
+    "zone": {
+      "T": 0.992020000598816,
+      "nll_at_T": 2.966510534286499,
+      "nll_at_1": 2.9665231704711914,
+      "n": 74501,
+      "bounds": [
+        0.25,
+        5.0
+      ],
+      "converged": true
+    },
+    "velo": {
+      "T": 0.8719576104684792,
+      "nll_at_T": 0.7158564329147339,
+      "nll_at_1": 0.7205880284309387,
+      "n": 74501,
+      "bounds": [
+        0.25,
+        5.0
+      ],
+      "converged": true
+    },
+    "outcome": {
+      "T": 0.9857199414787908,
+      "nll_at_T": 1.2138386964797974,
+      "nll_at_1": 1.2139109373092651,
+      "n": 74501,
+      "bounds": [
+        0.25,
+        5.0
+      ],
+      "converged": true
+    }
+  },
+  "gate_cohorts_never_fit_on": [
+    "2024 (dev)",
+    "2025 (budgeted)",
+    "2026 (lockbox)"
+  ],
+  "created_utc": "2026-08-11T06:06:36.583657+00:00"
+}

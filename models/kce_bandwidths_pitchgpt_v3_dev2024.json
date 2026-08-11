@@ -1,0 +1,36 @@
+{
+  "schema": "pitchgpt_v3_kce_bandwidths/1",
+  "spec_section": "\u00a76.3 (bandwidth fixed before the contact and recorded)",
+  "deviations_log_entry": 14,
+  "superseding_deviations_log_entry": 16,
+  "rule": "\u00a76.3 median heuristic: the median pairwise L1 distance on the probability simplex, evaluated on the model-under-test's (v3) 2024 dev-cohort probabilities for that head, over 20,000 seeded random pairs (seed 42) drawn from the same fixed seeded 2,000-row SKCE subsample (\u00a79 entry 13). ONE bandwidth per head, shared by the v3 statistic, the \u00a76.3 power probe and the \u00a76.2 frozen-v2 reference.",
+  "created_utc": "2026-08-11T07:54:52.110503+00:00",
+  "bandwidths": {
+    "type": 0.528885669192457,
+    "zone": 0.5917139052806228,
+    "velo": 1.515810088781656,
+    "outcome": 0.9692382695111024
+  },
+  "fit_cohort_season": 2024,
+  "fit_cohort": "2024 pitcher-disjoint BURNED dev cohort",
+  "fit_seed": 42,
+  "fit_n_used_per_head": {
+    "type": 2000,
+    "zone": 2000,
+    "velo": 2000,
+    "outcome": 2000
+  },
+  "fit_n_available_per_head": {
+    "type": 149949,
+    "zone": 149949,
+    "velo": 149949,
+    "outcome": 149946
+  },
+  "fitted_on_model": "v3-factorized (the model under test)",
+  "measured_by": "scripts/pitchgpt_v3_g2_bandwidth_fix.py",
+  "produced_by": "scripts/pitchgpt_v3_pin_kce_bandwidths.py",
+  "serialized_from_audit": "results/pitchgpt_v3/dev_2024_g2_bandwidth_fix_20260811T074725Z/audit.json",
+  "serialized_from_audit_sha256": "cac232b303cee54057864bde5e26d6bff4e2cebd324ae9f7961a44e4ba06e183",
+  "spec_freeze_sha": "b61e05b3729aca2fa4609fbdadf4e533c1cd814f",
+  "measurement_git_sha": "17493d7e1b3dd1fe086ee59d7eb3628303dd9660"
+}

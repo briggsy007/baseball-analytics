@@ -1,0 +1,51 @@
+{
+  "gate": "K-v2-FIT-A",
+  "tier": "burned-dev",
+  "spec_path": "docs/pitchgpt_sim_engine/PITCHGPT_V2_SPEC.md",
+  "spec_freeze_sha": "b61e05b3729aca2fa4609fbdadf4e533c1cd814f",
+  "spec_body_sha256": "b19b54d96b496c5ffbff3f9af3070c180609003ec3d5d0aae71bfa84bb8d6d5b",
+  "cohort": {
+    "seasons": [
+      2024
+    ],
+    "max_games": null,
+    "sample_seed": 42,
+    "n_excluded_pitchers": 2247,
+    "max_seq_len": 256,
+    "n_rows_sql": 155510,
+    "n_sequences": 3881,
+    "n_pitches_kept": 155500,
+    "n_games": 1928,
+    "n_pitchers": 361,
+    "build_sec": 0.8,
+    "game_pk_sha256": "d987652dbd0c09a1557d3078bffe9aac6335bcd5e2cfe3b703ae58963d1093c1"
+  },
+  "v3": {
+    "nll_per_pitch": 4.7064314749957,
+    "perplexity": 110.6565737456409,
+    "nll_type": 1.3667349387621326,
+    "nll_zone": 2.9086756083376546,
+    "nll_velo": 0.43102092789591273,
+    "n_pitches": 151619
+  },
+  "v3_checkpoint": "C:\\Users\\hunte\\projects\\baseball\\models\\pitchgpt_v3_factorized_stage_a.pt",
+  "v3_checkpoint_sha256": "c0e73ba8c15d67a1da36e0ed2edc3e578871b6635c3f5aa6aae647329b43194e",
+  "v3_spec_freeze_sha": "b61e05b3729aca2fa4609fbdadf4e533c1cd814f",
+  "frozen_v2": {
+    "nll_per_pitch": 4.737205082234293,
+    "perplexity": 114.11481403588857,
+    "n_pitches": 151619
+  },
+  "frozen_v2_sha256_pre": "6f952054d14ac6f918f3eb9502b496b70bc0c87dfc65dc50d98ee7244a62883c",
+  "frozen_v2_sha256_post": "6f952054d14ac6f918f3eb9502b496b70bc0c87dfc65dc50d98ee7244a62883c",
+  "v1_10k_informational": {
+    "nll_per_pitch": 4.740056433118592,
+    "perplexity": 114.44065974125559,
+    "n_pitches": 151619
+  },
+  "relative_nll_delta_vs_v2": -0.006496152626788616,
+  "kill_threshold_relative_worse": 0.02,
+  "kill": false,
+  "elapsed_sec": 4.7,
+  "duckdb_read_only": true
+}

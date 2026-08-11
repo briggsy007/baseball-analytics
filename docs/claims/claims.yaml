@@ -21,7 +21,7 @@
 # (docs/audits/FLAGSHIP_AUDIT_2026-08-10.md) and the Batch-A correction pass.
 
 schema_version: 1
-updated: "2026-08-10"
+updated: "2026-08-11"
 
 claims:
   # ------------------------------------------------------------------
@@ -807,6 +807,171 @@ claims:
       the pre-registered v2 retrain
       (docs/pitchgpt_sim_engine/PITCHGPT_V2_SPEC.md), which gets ONE lockbox
       contact against sealed 2026 under kill criterion K5.
+
+  - id: pitchgpt_v3_factorization_nll_dev
+    model: pitchgpt
+    artifact_version: "v3-factorized Stage A (models/pitchgpt_v3_factorized_stage_a.pt sha256 c0e73ba8...43194e); registry pitchgpt/v2026.08.11-factorized"
+    metric: "K-v2-FIT-A: teacher-forced NLL per composite token vs frozen v2 on identical rows, 2024 BURNED-DEV cohort (151,619 pitches)"
+    value:
+      v3_nll_per_pitch: 4.70643
+      frozen_v2_nll_per_pitch: 4.73721
+      v1_10k_nll_per_pitch: 4.74006
+      relative_delta_vs_v2: -0.00650
+      kill_threshold_relative_worse: 0.020
+      verdict: "NO KILL -- v3 is 0.650% BETTER, at a 10.1x smaller output stack (28,240 vs 285,090 params)"
+    ci: null
+    dataset:
+      path: results/pitchgpt_v3/dev_2024_nll_stage_a_20260811T022934Z/audit.json
+      sha256: 0f5d2a79d4e76c0dd8d692849c66ada480ab0209baea197308ce157d6f5ce373
+    source_doc: docs/pitchgpt_sim_engine/V2_BUILD_RESULTS_2026-08.md
+    status: active
+    superseded_by: null
+    effective: "2026-08-11"
+    caveat: >-
+      tier=burned-dev. NOT A VALIDATION NUMBER. 2024 is the BURNED dev tier
+      (PITCHGPT_V2_SPEC.md section 5.3; three committed scripts trained/tested
+      on it), carries no validation authority and no budget, and no 2024
+      number may be published as a validation result. This is the H1
+      (representation) evidence only: the chain-rule factorization does not
+      cost next-pitch predictive quality. It says NOTHING about calibration or
+      about PA-level rates -- the companion dev-tier gate suite FAILED (claim
+      pitchgpt_v3_dev_gate_fail) and the section-7.2 exposure-bias kill FIRED
+      (claim pitchgpt_v3_killB). 2025 was never read (12/14 contacts stand);
+      sealed 2026 was never read and was NOT contacted. Registry aliases
+      production and frozen_validated remain pinned to v2026.04.23.
+
+  - id: pitchgpt_v3_killB
+    model: pitchgpt
+    artifact_version: "v3-factorized post-Stage-B (models/pitchgpt_v3_factorized.pt sha256 8c11f1c9...) + v3 outcome head (4d83c4a9...) + calibration_pitchgpt_v3.json (5055946c...), fit_cohort_season=2023"
+    metric: "K-v2-FIT-B: max over within-PA positions 0-5 and 7 outcome classes of |rollout marginal - empirical marginal|, 2023 pitcher-disjoint fit cohort, pre-registered threshold 1.0pp"
+    value:
+      shipped_temperature_max_abs_delta_pp: 1.8852
+      raw_T_max_abs_delta_pp: 1.8405
+      threshold_pp: 1.0
+      worst_cell: "position 1, called_strike"
+      per_position_max_pp: [0.792, 1.885, 1.573, 1.166, 1.678, 1.114]
+      v2_era_raw_T_reference_pp: 16.37
+      v2_era_after_two_reweighting_rounds_pp: 2.625
+      spearman_rho_position_kl: 0.6
+      spearman_p_position_kl: 0.208
+      spearman_n_positions: 6
+      spearman_cohort: "2023 pitcher-disjoint fit cohort (the cohort this kill was measured on)"
+      verdict: "KILL -- PITCHGPT_V2_SPEC.md section 7.2. H2 not supported at the pre-registered threshold."
+    ci: >-
+      None. The spec defines no CI for the kill quantity: it is a
+      deterministic pre-registered threshold on measured marginals (19,653
+      PAs x 100 samples, full cohort, no subsample). 1.8852pp is 1.9x the
+      1.0pp line.
+    dataset:
+      path: results/pitchgpt_v3/fit_2023_killB_20260811T061012Z/audit.json
+      sha256: 9da4667f88960b86373b6d472f8a1e34655cd774b1c8fe50561b5ceb0baa2c62
+    source_doc: docs/pitchgpt_sim_engine/V2_BUILD_RESULTS_2026-08.md
+    status: active
+    superseded_by: null
+    effective: "2026-08-11"
+    caveat: >-
+      A pre-registered kill that fired and was honored, not a performance
+      number. Quote it in BOTH directions or not at all: v3 improved the
+      quantity 8.7x over the v2-era stack (16.37pp) and beat the 2.625pp that
+      two rounds of the now-banned output reweighting reached, AND still
+      missed the 1.0pp line by 1.9x. The monotone within-PA drift signature on
+      THIS (2023 fit) cohort reads rho=0.6, p=0.208, n=6 positions, against the
+      v2-era reference 0.822 -- directionally weaker but NOT statistically
+      distinguishable from either 0.822 or 0 at n=6, so it is not quotable as a
+      standalone result. Do not confuse it with the 2024 dev cohort's separate
+      value of rho=0.2571, p=0.6228 (claim pitchgpt_v3_dev_gate_fail): they are
+      different cohorts from different runs and are not interchangeable.
+      In-sample for the calibration fit by
+      design (2023 is the fit cohort, section 5.2), so NO out-of-sample number
+      exists. No post-hoc reweighting layer was added to rescue it (section
+      0.2 bans that family -- it is what this program replaces). The section
+      4.5 second curriculum run is UNSPENT: spending it requires a dated
+      section-9 entry naming the single change BEFORE the run, and is an
+      orchestrator/user decision. Consequence executed: the section-5.5
+      sealed-2026 lockbox contact was NOT made and is not authorized while
+      this kill stands; PA-level absolute-rate products stay dropped for v3 as
+      well as for the v2-era stack.
+
+  - id: pitchgpt_v3_dev_gate_fail
+    model: pitchgpt
+    artifact_version: "v3-factorized full stack (backbone 8c11f1c9..., outcome head 4d83c4a9..., calibration 5055946c...); registry pitchgpt/v2026.08.11-factorized*"
+    metric: "PITCHGPT_V2_SPEC.md section 6 gate suite (G1 classwise-ECE/TACE per head, G2 SKCE test, G3 PIT + PA marginals, G4 per-count-state ECE + position gate, G5 decision calibration), 2024 BURNED-DEV cohort (40,042 PAs / 149,949 pitch rows)"
+    value:
+      verdict: "FAIL (section 6.8: G1 FAIL, G2 FAIL, G3 FAIL, G4 FAIL, G5 FAIL)"
+      G1_outcome_head_cwECE: 0.00603
+      G1_outcome_head_cwECE_frozen_v2: 0.04036
+      G1_H_type_cwECE: 0.02127
+      G1_H_zone_cwECE: 0.00404
+      G1_H_velo_cwECE: 0.02281
+      G2_heads_rejecting_calibration_at_1pct: 3
+      G2_power_probe_detects_planted_error: true
+      G2_skce_n_used_per_head: 2000
+      G2_skce_n_available_per_head: 149949
+      G2_skce_subsample_note: "Section 6.3 authorizes NO subsample; the O(n^2) U-statistic forces one (deviations-log entry 13). Every G2 SKCE and p-value here is a 2,000-row statistic (98.7% of rows discarded), seed 42, and must be quoted with n_used."
+      G2_kernel_bandwidth_pinned: true
+      G2_kernel_bandwidth_pin_artifact: models/kce_bandwidths_pitchgpt_v3_dev2024.json
+      G2_kernel_bandwidth_pin_sha256: d78903da10873ed2569c7320860fd8e59cceb44467e5bf0819cb884c61fef450
+      G2_kernel_bandwidth_pinned_values: {type: 0.528886, zone: 0.591714, velo: 1.515810, outcome: 0.969238}
+      G2_kernel_bandwidth_note: "Per-head median-heuristic bandwidth fitted once on v3's 2024 dev probabilities and pinned write-once (deviations-log entries 14 and 16), so the v3 statistic, the power probe and the frozen-v2 reference share ONE kernel and the graded run replays rather than refits it. Entry 14 asserted this pin existed before it did; the measurement that produced it ran on 2026-08-11 and is the audit named in G2_shared_kernel_audit."
+      G2_shared_kernel_audit: results/pitchgpt_v3/dev_2024_g2_bandwidth_fix_20260811T074725Z/audit.json
+      G2_shared_kernel_audit_sha256: cac232b303cee54057864bde5e26d6bff4e2cebd324ae9f7961a44e4ba06e183
+      G2_v3_skce_shared_kernel: {H_type: 2.6936e-03, H_zone: 2.6104e-04, H_velo: 2.3504e-03, outcome: 3.6241e-04}
+      G2_v3_p_shared_kernel: {H_type: 0.0010, H_zone: 0.0010, H_velo: 0.0010, outcome: 0.0130}
+      G2_frozen_v2_skce_shared_kernel: {H_type: 1.8710e-03, H_zone: 2.0644e-04, H_velo: 1.4909e-03, outcome: 1.0722e-02}
+      G2_frozen_v2_p_shared_kernel: {H_type: 0.0010, H_zone: 0.0040, H_velo: 0.0010, outcome: 0.0010}
+      G2_outcome_head_v2_over_v3_ratio_shared_kernel: 29.6
+      G2_superseded_frozen_v2_skce_own_kernel: {H_type: 2.1435e-03, H_zone: 2.0142e-04, H_velo: 1.4764e-03, outcome: 1.0592e-02}
+      G2_superseded_outcome_head_ratio_own_kernel: 29.2
+      G3_PIT_KS: 0.14447
+      G3_PIT_KS_threshold: 0.03
+      G4_position_gap_pp: 2.5408
+      G4_count_states_passing: "8 of 12"
+      G4_spearman_rho_position_kl: 0.2571
+      G4_spearman_p_position_kl: 0.6228
+      G4_spearman_n_positions: 6
+      G4_spearman_cohort: "2024 burned-dev cohort (NOT the 2023 fit cohort, whose value is 0.6 -- see claim pitchgpt_v3_killB)"
+      G5_K_max_decile_gap_pp: 11.1155
+      G5_K_weighted_gap_pp: 5.8107
+    ci: null
+    dataset:
+      path: results/pitchgpt_v3/dev_2024_gates_20260811T062956Z/audit.json
+      sha256: cbb9d6f1ac6ebb3834b20d0a45348548a6c3896b5ac89c7da866328a0160efaf
+    source_doc: docs/pitchgpt_sim_engine/V2_BUILD_RESULTS_2026-08.md
+    status: active
+    superseded_by: null
+    effective: "2026-08-11"
+    caveat: >-
+      tier=burned-dev. NOT THE LOCKBOX VALIDATION AND NOT A VALIDATION OF ANY
+      KIND. 2024 carries no validation authority (section 5.3). The one graded
+      contact is against the sealed 2026 full season at season end (section
+      5.5) and was NOT made; 2025 was never read (12/14 contacts stand).
+      Weakest number, volunteered per section 6.8: the G5 K-decile table shows
+      predicted P(K) spanning 0.0991-0.2398 while the empirical rate is nearly
+      flat and non-monotone (0.2098-0.2338), i.e. per-PA K% is close to
+      uninformative in rank on this cohort, not merely miscalibrated in level.
+      G2 is a genuine FAIL and NOT void: the mandatory power probe rejected a
+      planted x1.10 logit distortion at p=0.0010 on all four heads, under the
+      pinned kernel. The G2 frozen-v2 side-by-side was FIRST PUBLISHED
+      CROSS-KERNEL (each model under its own refitted median-heuristic
+      bandwidth) and is now re-measured under one shared pinned bandwidth per
+      head; v3's own numbers reproduce bit-for-bit, so the gate did not move,
+      but the corrected comparison moves partly AGAINST v3: frozen-v2 H_type
+      drops 2.1435e-03 -> 1.8710e-03, widening v3's H_type deficit from 1.26x
+      to 1.44x worse than the incumbent. The outcome-head advantage survives
+      and is marginally larger (29.2x -> 29.6x). Quote both directions. The
+      section-6.7 anti-unfailability rule was executed on dev BEFORE any
+      contact and TIGHTENED four thresholds (H_zone cwECE and TACE 0.020 ->
+      0.005; count 1-0 0.020 -> 0.00893; count 1-1 0.020 -> 0.01102); two of
+      the G4 failures are failures against those tightened lines and would
+      pass the spec-as-written 0.02. What genuinely improved over frozen v2:
+      the unweighted outcome head (section 3.5) is 6.7x better calibrated
+      (cwECE 0.00603 vs 0.04036), has a lower top-1 ECE than frozen v2 in 11 of
+      12 count states (sole exception count 1-0, 0.01990 vs 0.01488),
+      and its predicted ball share is within 0.16pp of empirical versus the A1
+      head's -11.6pp deficit. What did not: the three field heads are slightly
+      WORSE calibrated than frozen v2's marginalised equivalents. Registry
+      aliases production and frozen_validated remain pinned to v2026.04.23; no
+      PA-level absolute-rate product unblocks.
 
   - id: pitchgpt_outcome_head_in_play_hit
     model: pitchgpt
