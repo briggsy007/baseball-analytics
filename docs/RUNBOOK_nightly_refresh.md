@@ -8,12 +8,16 @@ Scheduler at **06:30 local**.
 
 | # | Step | Command | Required? |
 |---|------|---------|-----------|
-| 1 | Daily data refresh | `python scripts/daily_refresh.py` | yes |
-| 2 | Leaderboard precompute | `python scripts/precompute.py --season <S> --tier 1 --force` | yes |
-| 3 | Hit-parlay board | `python scripts/hit_parlay_today.py` | no (needs live lineups) |
+| 1 | Artifact registry gate (pre) | `python scripts/verify_artifacts.py` | yes — a tampered frozen artifact ABORTS the chain |
+| 2 | Daily data refresh | `python scripts/daily_refresh.py` | yes |
+| 3 | Leaderboard precompute | `python scripts/precompute.py --season <S> --tier 1 --force` | yes |
+| 4 | Hit-parlay board | `python scripts/hit_parlay_today.py` | no (needs live lineups) |
+| 5 | Morning pick resolver | `python scripts/resolve_picks.py` | no (read-only DB + JSONL appends) |
+| 6 | Artifact registry gate (post) | `python scripts/verify_artifacts.py` | yes — proves the run modified no pinned artifact |
 
-Step 2 is the reason this wrapper exists: `daily_refresh.py` does **not** call
+Step 3 is the reason this wrapper exists: `daily_refresh.py` does **not** call
 `precompute.py`, so leaderboard caches (Stuff+, DPI, etc.) go stale without it.
+Steps 1 and 6 are the WS2.1 frozen-evidence integrity gates.
 
 `<S>` (season) is derived from the calendar date — Feb–Dec map to that year,
 January rolls back to the prior completed season. Override with `--season`.
@@ -43,6 +47,18 @@ schtasks /create /tn "BaseballNightlyRefresh" /sc daily /st 06:30 /tr "cmd /c cd
 ```
 
 The script manages its own logs, so no output redirection is needed in `/tr`.
+
+> **This is a cmd/PowerShell command and does NOT survive a paste into Git Bash.**
+> MSYS path conversion rewrites the `/create` flag into `C:/Program Files/Git/create`
+> and the command fails with `ERROR: Invalid argument/option`. Hit for real on
+> 2026-08-16. In Git Bash, use:
+>
+> ```
+> MSYS_NO_PATHCONV=1 schtasks /create /tn "BaseballNightlyRefresh" /sc daily /st 06:30 /tr 'cmd /c cd /d C:\Users\hunte\projects\baseball && C:\Users\hunte\AppData\Local\Programs\Python\Python312\python.exe scripts\nightly_refresh.py' /f
+> ```
+>
+> Single-quote the `/tr` value so bash leaves the backslashes and `&&` alone.
+> (Doubling the slashes — `//create`, `//tn` — also works.)
 
 ## Check status
 
@@ -91,10 +107,12 @@ already holds the single-instance lock.
   (via `filelock`, non-blocking) before doing anything. A second concurrent
   launch — manual or scheduled — refuses immediately with exit `4`. schtasks'
   IgnoreNew policy only governs scheduler triggers; the lock is the real gate.
-- **Task registration status.** As of 2026-08-10 **no `BaseballNightlyRefresh`
-  task is registered** in Windows Task Scheduler (`schtasks /query` finds no
-  match) despite this runbook: the chain only runs when launched manually.
-  Register it with the command above when nightly automation is wanted.
+- **Task registration status.** ~~As of 2026-08-10 no `BaseballNightlyRefresh`
+  task is registered.~~ **REGISTERED 2026-08-16**: daily 06:30, Status `Ready`,
+  Run As User `hunte`, first scheduled fire 2026-08-17 06:30. Between 2026-08-10
+  and 2026-08-16 nothing ran automatically, which is what produced a five-day
+  Statcast gap (Aug 11–15, 19,684 pitches, backfilled 2026-08-16) and let the
+  matchup-cache abort below go unnoticed.
 - **Frozen vs in-season model artifacts.** Retrains inside the chain
   (`daily_refresh --full`, tier-1 precompute first-run, `retrain_active_2026`)
   write ONLY the in-season artifacts `models/stuff_model_2026_inseason.pkl` /
@@ -121,12 +139,32 @@ schtasks /delete /tn "BaseballNightlyRefresh" /f         # remove
 
 ## Caveats
 
-- **Exit-127-after-commit quirk.** Large DuckDB write transactions can exit
-  non-zero at process teardown even though the COMMIT landed. The wrapper does
-  not trust exit codes blindly: it verifies each step's real effect (step 1 →
-  `pitches` watermark not regressed; step 2 → `leaderboard_cache` computed_at
-  advanced; step 3 → today's hit-parlay JSON written). A verified step is marked
-  `ok_verified` and does not fail the run.
+- **Nonzero-exit-after-commit quirk — and its dangerous edge (corrected 2026-08-16).**
+  Large DuckDB write transactions *can* exit non-zero at process teardown after
+  the COMMIT genuinely landed, so the wrapper does not trust exit codes blindly:
+  it verifies each step's real effect and marks a verified step `ok_verified`.
+  That tolerance is still correct — but the previous wording asserted the COMMIT
+  had landed **unconditionally**, and that was false in at least one case.
+
+  On 2026-08-11 the `daily_refresh` step recorded **rc 3221226505 (0xC0000409,
+  Windows fast-fail abort** — bash renders it as "127"**)** and the COMMIT had
+  **not** landed: the process was aborting *inside* the `matchup_summary`
+  rebuild, and the transaction rolled back. Reproduced three times. Because the
+  `pitches` watermark was written early in the ETL and was therefore healthy,
+  the step still classified `ok_verified` and the chain carried on — for months.
+  Everything downstream of the rebuild inside `daily_refresh.py` (roster sync,
+  transaction sync, the step-4 cache rebuild, the pregame report) silently never
+  ran, and the cache drifted 923,797 pitches stale.
+
+  **A nonzero exit is now only excusable if the effect check independently
+  proves the work landed.** The `daily_refresh` check was accordingly tightened
+  to require the `pitches` watermark AND matchup-cache sync
+  (`SUM(matchup_summary.num_pitches) == COUNT(pitches WHERE pitch_type IS NOT NULL)`),
+  the latter being the *tail* of the ETL and therefore real evidence it ran to
+  completion. Both numbers are recorded in `status.json`. The root cause — the
+  cache table's `PRIMARY KEY` and its ART index — was removed; the rebuild now
+  replaces the table wholesale (`DROP` + PK-less `CREATE` + `INSERT`), which
+  also migrates any existing PK'd copy. See `src/db/queries.py::refresh_matchup_cache`.
 - **Logged-in requirement.** The task as registered runs only while the user is
   logged in. To run when logged off, re-create it with `/ru <user> /rp <pass>`
   (not required for the intended single-user desktop setup).

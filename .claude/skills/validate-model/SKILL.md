@@ -1,6 +1,6 @@
 ---
 name: validate-model
-description: Run the full validation playbook for a flagship baseball model (AdjustedWAR -- invoked as `causal_war` -- PitchGPT, VWR, Defensive Pressing, MechanixAE, or Allostatic Load). Use when the user asks to validate a model, check if a model passes its spec gates, run the validation suite, or invokes `/validate-model <name>`. Accepts model name as argument; `all` or `flagships` runs the four flagships sequentially. The AdjustedWAR gates grade the LEGACY CausalWAR v2 artifact only -- the production ridge model (adjusted_war_v3) has no validation spec and is reported as production, ungated.
+description: Run the full validation playbook for a flagship baseball model (AdjustedWAR -- invoked as `causal_war` -- PitchGPT, VWR, Defensive Pressing, MechanixAE, or Allostatic Load). Use when the user asks to validate a model, check if a model passes its spec gates, run the validation suite, or invokes `/validate-model <name>`. Accepts model name as argument; `all` or `flagships` runs the three ACTIVE flagships sequentially (VWR is retracted and excluded from bulk runs, though still individually invocable). The AdjustedWAR gates grade the LEGACY CausalWAR v2 artifact only -- the production ridge model (adjusted_war_v3) has no validation spec and is reported as production, ungated.
 ---
 
 # validate-model
@@ -19,7 +19,7 @@ Accepted arguments (case-insensitive, accept hyphens/underscores):
 - `vwr` | `viscoelastic` | `viscoelastic_workload` | `viscoelastic-workload` → `viscoelastic_workload`
 - `abl` | `allostatic` | `allostatic_load` | `allostatic-load` → `allostatic_load`
 - `dpi` | `defensive_pressing` | `defensive-pressing` → `defensive_pressing`
-- `all` | `flagships` → run `causal_war`, `pitchgpt`, `viscoelastic_workload`, `defensive_pressing` sequentially (the current flagship four; MechanixAE and Allostatic Load are validated but not flagship and are excluded from bulk runs)
+- `all` | `flagships` → run `causal_war`, `pitchgpt`, `defensive_pressing` sequentially (the three ACTIVE flagships). Excluded from bulk runs: **VWR — RETRACTED** (promotion-day residual AUC 0.768 collapsed same-day to 0.438 OOS; permanently off the flagship-candidate list, still individually invocable via `vwr` and documented in §4d), plus MechanixAE and Allostatic Load, which are validated but were never flagship.
 
 If argument is missing or unrecognized: ask the user which model. Do not guess.
 
@@ -335,7 +335,7 @@ Verdict appended to: docs/models/causal_war_baseline_results.md
 Production model: adjusted_war_v3 v2026.08.10 — production, ungated (no validation spec; evidence: docs/models/adjusted_war_v3_2026-08.md)
 ```
 
-For `all` / `flagships`, print one block per model in the order they ran, then a one-line roster summary at the end (e.g., "Flagship roster: 3/4 PASS — AdjustedWAR legacy-artifact PASS (production ridge ungated), PitchGPT FAIL (ablation), VWR PASS, DPI PASS").
+For `all` / `flagships`, print one block per model in the order they ran, then a one-line roster summary at the end (e.g., "Flagship roster: 2/3 PASS — AdjustedWAR legacy-artifact PASS (production ridge ungated), PitchGPT FAIL (ablation), DPI PASS").
 
 Keep each block to those 5 lines (6 for AdjustedWAR) unless the user asked for detail.
 

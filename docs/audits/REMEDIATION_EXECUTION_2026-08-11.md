@@ -112,3 +112,81 @@ verdicts; awards docs, `/validate-model` surface, and memory brought in line.
 | `/validate-model flagships` still runs retracted VWR in its roster list | small follow-up |
 | Coverage gate: 90% required vs ~54% actual makes every green suite exit non-zero — pick a convention | user |
 | WS6 (Checking-Our-Work page, versioned write-ups, WAR-disagreement board, uncertainty-native UX, annual self-review) | designed follow-on content sessions |
+
+---
+
+## Addendum 2026-08-16 — operational debt closed
+
+Executed against `docs/plans/2026-08-16_cleanup_execution_plan.md`. This addendum is APPENDED;
+nothing above it is rewritten. Five §5 open items closed, one new defect found and fixed, and one
+correction to a claim this report itself made.
+
+### What closed
+
+**Nightly automation registered.** `BaseballNightlyRefresh` now exists in Windows Task Scheduler
+— daily 06:30, Status `Ready`, Run As User `hunte`, first scheduled fire 2026-08-17 06:30. The
+§5 item said "nothing runs automatically today"; that was true from 2026-08-10 until today, and
+it is the root cause of a **five-day Statcast gap** (Aug 11–15, 19,684 pitches, backfilled
+2026-08-16 — `pitches` now 8,258,584 rows through game_date 2026-08-15).
+
+**`matchup_summary` rebuild — root-caused and fixed.** The cache was **923,797 pitches stale**
+(holding 7,237,440 against 8,161,237 eligible). Cause: committing a full rebuild
+(1,671,256-row `DELETE` + 1,851,623-row `INSERT`) against the table's
+`PRIMARY KEY (pitcher_id, batter_id, pitch_type)` and its ART index hard-aborted the process with
+a **Windows fast-fail, rc 3221226505 (0xC0000409)**, raising nothing Python could catch. The
+transaction rolled back silently. Reproduced three times on the live DB and once on a full copy.
+Fix: the rebuild replaces the table wholesale (`DROP` + PK-less `CREATE` + `INSERT`), which also
+migrates any existing PK'd copy — `schema.py` governs creation only, so a DDL-only fix would have
+worked on fresh installs and left the real database broken. Live rebuild: 1,851,623 rows, in
+sync, 1.5s, first attempt. The pre-registered kill criterion (3 attempts / 90 min) was not
+approached.
+
+**The blast radius was larger than "a stale cache" — this report understated it.** §1 and §2
+above treat the 8/11 chain as having run; `logs/nightly/2026-08-11/02_daily_refresh.log` ends
+mid-line inside the matchup rebuild at ETL step 5/6. Everything after that point in
+`daily_refresh.py` — **roster sync, transaction sync, the step-4 cache rebuild, and the pre-game
+report** — had therefore not been running at all. Today's chain completed **6/6 steps, 0 failed**
+(26 roster players, 10 new transactions, 1,851,623 cache rows, pre-game report generated).
+
+**The detection failure, which mattered more than the bug.** `nightly_refresh.py::verify_daily_refresh`
+effect-checked only the `pitches` watermark. The ETL loads pitches FIRST and rebuilds the cache
+LAST, so a mid-run death left a healthy watermark and the step classified **`ok_verified`** — the
+chain reported success while four steps silently did nothing, for months. The check now also
+requires `SUM(matchup_summary.num_pitches) == COUNT(pitches WHERE pitch_type IS NOT NULL)`, the
+tail of the ETL and therefore real evidence it completed; both numbers land in `status.json`.
+Today's `daily_refresh` step is `rc=0, status="ok"` — a genuine pass, not the tolerated one.
+`docs/RUNBOOK_nightly_refresh.md`'s exit-127 caveat asserted the COMMIT "already landed"; that
+was **false for this step** and has been corrected.
+
+**Two divergent rebuild implementations, now one.** `daily_etl._refresh_matchup_cache` and
+`db/queries.refresh_matchup_cache` each carried a copy of the aggregation, and they disagreed on
+the BA/SLG denominator (the former also excluded sac flies, sac bunts and catcher interference).
+Which numbers the matchup explorer showed depended on which path last rebuilt the table. Unified
+on the dashboard-facing implementation; `tests/test_matchup_refresh.py` guards against
+re-divergence.
+
+**`/validate-model flagships` roster** no longer runs retracted VWR in bulk (still individually
+invocable; §4d intact).
+
+**Freshness noise** — `update_data_freshness` threw `ConversionException` on every season-stats
+refresh by passing the season year `"2026"` into a DATE column. Now `None`: a season aggregate has
+no game_date, and the project rule is to leave NULL rather than invent one. Verified safe —
+`check_data_freshness` is only ever consulted for `pitches`.
+
+### Decisions of record (user-adjudicated 2026-08-16)
+
+| # | Decision | Outcome |
+|---|---|---|
+| D1 | Coverage gate | `fail_under` ratcheted **90 → 50**. At ~54% actual, a 90 bar made every green suite exit non-zero — a 30/30-passing drift-guard run still exited 1, which trains everyone to ignore exit codes. |
+| D2 | Production-path ECE | **DEFERRED to season end.** No 2025 holdout contact spent; **12/14 used, 2 remain budgeted**. Recorded as a decision, not a lapse. |
+| D3 | v3 lockbox contact | **FORFEIT.** A killed candidate's evaluation rights end with its kill. Recorded as `PITCHGPT_V2_SPEC.md` §9 deviations entry 18. Spends nothing; sealed 2026 remains at **0 contacts**. |
+| D4 | Scheduler-fired proof run | Yes — fired after the manual chain to prove scheduler-context invocation today rather than discovering a broken `/tr` at 06:30. |
+| D5 | Drop `matchup_summary` PRIMARY KEY | Yes. Uniqueness is guaranteed by `GROUP BY` construction, nothing upserts into the table, and the PK's ART index was the crash site. |
+
+### Still open
+
+Unchanged from §5: WS6, K4 season-end prep (pitcher-Marcel pin, season-end `sprint_speed`
+refresh), the ECE amendment (deferred per D2), and WS0.4's two-dated-dirs acceptance (needs two
+real scheduled mornings — check 2026-08-18). New and deliberately not fixed today:
+`transactions.transaction_date` contains garbage (`MAX = 2925-11-26`) and needs a source-data
+audit, not a fabricated correction.

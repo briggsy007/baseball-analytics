@@ -59,7 +59,12 @@ omit = [
 ]
 
 [tool.coverage.report]
-fail_under = 90
+# Ratcheted 90 -> 50 on 2026-08-16 (decision D1). Actual coverage is ~54%, so a
+# 90 bar made EVERY green suite exit non-zero -- a 30/30-passing drift-guard run
+# still exited 1, which trains everyone to ignore exit codes entirely. 50 sits
+# just below the current floor, so a non-zero exit means something real again:
+# tests failed, or coverage regressed. Ratchet upward as coverage improves.
+fail_under = 50
 show_missing = true
 exclude_lines = [
     "pragma: no cover",
