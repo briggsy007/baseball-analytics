@@ -1088,7 +1088,12 @@ def insert_season_batting(conn: duckdb.DuckDBPyConnection, df: pd.DataFrame) -> 
 
         update_data_freshness(
             conn, "season_batting_stats",
-            max_game_date=str(max(seasons)),
+            # A season year is not a date. Passing str(max(seasons)) -- "2026" --
+            # into a DATE column threw ConversionException on every single run,
+            # logging a full traceback and skipping the watermark anyway. NULL is
+            # the honest value: there is no game_date for a season aggregate.
+            # Safe: check_data_freshness is only ever consulted for "pitches".
+            max_game_date=None,
             row_count=conn.execute("SELECT COUNT(*) FROM season_batting_stats").fetchone()[0],
         )
     except Exception:
@@ -1138,7 +1143,8 @@ def insert_season_pitching(conn: duckdb.DuckDBPyConnection, df: pd.DataFrame) ->
 
         update_data_freshness(
             conn, "season_pitching_stats",
-            max_game_date=str(max(seasons)),
+            # See the season_batting_stats call above: a year is not a date.
+            max_game_date=None,
             row_count=conn.execute("SELECT COUNT(*) FROM season_pitching_stats").fetchone()[0],
         )
     except Exception:

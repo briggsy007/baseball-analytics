@@ -82,74 +82,29 @@ def _enable_cache() -> None:
 def _refresh_matchup_cache(conn: duckdb.DuckDBPyConnection) -> None:
     """Rebuild the ``matchup_summary`` table from the current ``pitches`` data.
 
-    This is a lightweight aggregation that powers the matchup explorer
-    on the dashboard.
+    Thin wrapper. The rebuild itself lives in
+    ``src/db/queries.py::refresh_matchup_cache`` -- there is exactly ONE
+    implementation and two call sites. Until 2026-08-16 this function carried a
+    second copy of the aggregation that had drifted out of agreement with the
+    dashboard-facing one (different BA/SLG denominators: this copy excluded sac
+    flies, sac bunts and catcher interference; the canonical one does not), so
+    which numbers the matchup explorer showed depended on which code path had
+    last rebuilt the table. That divergence is the reason this is now a wrapper.
     """
-    logger.info("Refreshing matchup_summary cache …")
+    logger.info("Refreshing matchup_summary cache ...")
     try:
         # Check if the pitches table has data.
         pitch_count = conn.execute("SELECT COUNT(*) FROM pitches").fetchone()[0]
         if pitch_count == 0:
-            logger.info("No pitches in database — skipping matchup cache refresh")
+            logger.info("No pitches in database - skipping matchup cache refresh")
             return
 
-        conn.execute("BEGIN TRANSACTION")
-        try:
-            conn.execute("DELETE FROM matchup_summary")
-            conn.execute("""
-                INSERT INTO matchup_summary
-                SELECT
-                    pitcher_id,
-                    batter_id,
-                    pitch_type,
-                    COUNT(*)                                           AS num_pitches,
-                    AVG(release_speed)                                 AS avg_speed,
-                    AVG(release_spin_rate)                             AS avg_spin,
-                    AVG(pfx_x)                                        AS avg_pfx_x,
-                    AVG(pfx_z)                                        AS avg_pfx_z,
-                    AVG(CASE WHEN description IN (
-                        'swinging_strike', 'swinging_strike_blocked',
-                        'foul_tip'
-                    ) THEN 1.0 ELSE 0.0 END) * 100.0                  AS whiff_rate,
-                    AVG(CASE
-                        WHEN events IN ('single') THEN 1.0
-                        WHEN events IN ('double') THEN 1.0
-                        WHEN events IN ('triple') THEN 1.0
-                        WHEN events IN ('home_run') THEN 1.0
-                        WHEN events IS NOT NULL
-                             AND events NOT IN ('walk', 'hit_by_pitch',
-                                                'catcher_interf', 'sac_fly',
-                                                'sac_bunt', 'sac_fly_double_play',
-                                                'sac_bunt_double_play')
-                        THEN 0.0
-                        ELSE NULL
-                    END)                                               AS ba,
-                    AVG(CASE
-                        WHEN events = 'single' THEN 1.0
-                        WHEN events = 'double' THEN 2.0
-                        WHEN events = 'triple' THEN 3.0
-                        WHEN events = 'home_run' THEN 4.0
-                        WHEN events IS NOT NULL
-                             AND events NOT IN ('walk', 'hit_by_pitch',
-                                                'catcher_interf', 'sac_fly',
-                                                'sac_bunt', 'sac_fly_double_play',
-                                                'sac_bunt_double_play')
-                        THEN 0.0
-                        ELSE NULL
-                    END)                                               AS slg,
-                    SUM(woba_value) / NULLIF(SUM(woba_denom), 0)       AS woba
-                FROM pitches
-                WHERE pitch_type IS NOT NULL
-                GROUP BY pitcher_id, batter_id, pitch_type
-            """)
-            conn.execute("COMMIT")
-            row_count = conn.execute("SELECT COUNT(*) FROM matchup_summary").fetchone()[0]
-            logger.info("matchup_summary rebuilt: %d rows", row_count)
-        except Exception:
-            conn.execute("ROLLBACK")
-            raise
+        from src.db.queries import refresh_matchup_cache
+
+        row_count = refresh_matchup_cache(conn)
+        logger.info("matchup_summary rebuilt: %d rows", row_count)
     except duckdb.CatalogException:
-        logger.warning("matchup_summary table does not exist — skipping cache refresh")
+        logger.warning("matchup_summary table does not exist - skipping cache refresh")
     except Exception:
         logger.exception("Failed to refresh matchup_summary")
 

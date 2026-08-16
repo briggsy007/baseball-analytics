@@ -277,6 +277,25 @@ def read_watermark() -> dict:
             )
         except Exception:
             snap["leaderboard_cache_max_computed_at"] = None
+        # Matchup-cache sync (WS-2026-08-16). The ETL can die *mid-run* without
+        # raising anything Python can catch -- on 2026-08-11 daily_refresh took a
+        # Windows fast-fail abort (rc 3221226505) inside the matchup rebuild, and
+        # because the pitches watermark was untouched the step was classified
+        # ok_verified. The cache drifted 923,797 pitches and four downstream ETL
+        # steps silently stopped running. These two numbers are what make that
+        # visible: they must be equal after a healthy run.
+        try:
+            snap["matchup_sum_num_pitches"] = c.execute(
+                "SELECT SUM(num_pitches) FROM matchup_summary"
+            ).fetchone()[0]
+        except Exception:
+            snap["matchup_sum_num_pitches"] = None
+        try:
+            snap["pitches_eligible_for_matchup"] = c.execute(
+                "SELECT COUNT(*) FROM pitches WHERE pitch_type IS NOT NULL"
+            ).fetchone()[0]
+        except Exception:
+            snap["pitches_eligible_for_matchup"] = None
         c.close()
     except Exception as exc:
         snap["error"] = str(exc)
@@ -371,15 +390,47 @@ def _classify(rc: int | None, effect_ok: bool, timed_out: bool) -> str:
 
 
 def verify_daily_refresh(step: dict, before: dict) -> dict:
-    """Effect check: pitches watermark present and not regressed."""
+    """Effect check: pitches watermark not regressed AND the matchup cache in sync.
+
+    The watermark alone is not sufficient evidence that the ETL ran. The ETL
+    loads pitches FIRST and rebuilds the matchup cache LAST, so a mid-run death
+    leaves a perfectly healthy watermark behind -- which is exactly how the
+    2026-08-11 fast-fail abort (rc 3221226505, inside the matchup rebuild) got
+    classified ``ok_verified`` while roster sync, transaction sync, the cache
+    rebuild and the pregame report all silently stopped running for months.
+
+    Requiring cache sync makes the tail of the ETL prove it completed. A stale
+    cache now surfaces as ``fail`` rather than passing silently: visible
+    staleness is the honest outcome, and silent staleness is what got us here.
+    """
     after = read_watermark()
     before_max = before.get("pitches_max_game_date")
     after_max = after.get("pitches_max_game_date")
-    effect_ok = after_max is not None and (before_max is None or after_max >= before_max)
+    watermark_ok = after_max is not None and (before_max is None or after_max >= before_max)
+
+    cached = after.get("matchup_sum_num_pitches")
+    eligible = after.get("pitches_eligible_for_matchup")
+    # Unknown (missing table / unreadable) is NOT treated as a pass -- but it is
+    # also not treated as a hard failure when the table simply does not exist
+    # yet on a fresh database, which is the one legitimate None case.
+    if cached is None and eligible is None:
+        cache_ok = True
+        cache_note = "matchup_summary unavailable (fresh DB?) -- sync check skipped"
+    else:
+        cache_ok = cached is not None and eligible is not None and cached == eligible
+        drift = (eligible - cached) if (cached is not None and eligible is not None) else None
+        cache_note = "in sync" if cache_ok else f"STALE by {drift} pitches"
+
+    effect_ok = watermark_ok and cache_ok
     step["verify"] = {
-        "check": "pitches_max_game_date present and >= pre-run",
+        "check": "pitches_max_game_date >= pre-run AND matchup cache in sync",
         "before": before_max,
         "after": after_max,
+        "watermark_ok": watermark_ok,
+        "matchup_sum_num_pitches": cached,
+        "pitches_eligible_for_matchup": eligible,
+        "matchup_cache_ok": cache_ok,
+        "matchup_cache_note": cache_note,
         "effect_ok": effect_ok,
     }
     step["status"] = _classify(step["returncode"], effect_ok, step["timed_out"])

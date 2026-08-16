@@ -160,8 +160,7 @@ def _step_matchup_cache(conn) -> bool:
 
     try:
         from src.db.queries import refresh_matchup_cache
-        df = refresh_matchup_cache(conn)
-        rows = len(df) if df is not None else 0
+        rows = refresh_matchup_cache(conn)
         _ok(f"Matchup cache rebuilt: {rows} rows")
         return True
     except Exception as exc:

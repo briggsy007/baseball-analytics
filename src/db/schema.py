@@ -362,7 +362,20 @@ def _create_transactions(conn: duckdb.DuckDBPyConnection) -> None:
 
 
 def _create_matchup_summary(conn: duckdb.DuckDBPyConnection) -> None:
-    """Materialized aggregate used by ``refresh_matchup_cache``."""
+    """Materialized aggregate used by ``refresh_matchup_cache``.
+
+    Deliberately carries NO PRIMARY KEY (2026-08-16). The natural key
+    (pitcher_id, batter_id, pitch_type) is guaranteed unique by the rebuild's
+    ``GROUP BY`` construction, and nothing upserts into this table -- so the
+    constraint bought no integrity we do not already have. What it cost was the
+    whole cache: committing a full rebuild (~1.7M-row DELETE + ~1.85M-row
+    INSERT) against the PK's ART index hard-aborted the process with a Windows
+    fast-fail (0xC0000409) *at COMMIT*, raising no Python exception. The
+    transaction rolled back silently, so the cache sat 923,797 pitches stale
+    while every caller believed it had refreshed. See
+    ``src/db/queries.py::refresh_matchup_cache`` for the rebuild that replaces
+    this table wholesale, which is also what migrates any existing PK'd copy.
+    """
     conn.execute("""
         CREATE TABLE IF NOT EXISTS matchup_summary (
             pitcher_id    INTEGER,
@@ -376,8 +389,7 @@ def _create_matchup_summary(conn: duckdb.DuckDBPyConnection) -> None:
             whiff_rate    FLOAT,
             ba            FLOAT,
             slg           FLOAT,
-            woba          FLOAT,
-            PRIMARY KEY (pitcher_id, batter_id, pitch_type)
+            woba          FLOAT
         );
     """)
 

@@ -402,19 +402,35 @@ def get_today_games(
 # ── Cache refresh ─────────────────────────────────────────────────────────
 
 
-def refresh_matchup_cache(conn: duckdb.DuckDBPyConnection) -> pd.DataFrame:
+def refresh_matchup_cache(conn: duckdb.DuckDBPyConnection) -> int:
     """Rebuild the ``matchup_summary`` table with aggregated pitcher-vs-batter stats.
 
-    The table is fully replaced (DELETE + INSERT) so downstream consumers
-    always see a consistent snapshot.
+    THE single rebuild implementation. ``src/ingest/daily_etl.py`` delegates
+    here; before 2026-08-16 it carried a second, subtly different copy of this
+    aggregation, and the two silently disagreed on the BA/SLG denominator.
+
+    The table is replaced wholesale -- ``DROP`` then recreate then ``INSERT``,
+    not ``DELETE`` then ``INSERT`` -- so downstream consumers always see a
+    consistent snapshot. That shape is deliberate and load-bearing: the old
+    DELETE+INSERT form committed against the table's ``PRIMARY KEY`` ART index
+    and hard-aborted the whole process with a Windows fast-fail (0xC0000409) at
+    ``COMMIT``, raising no Python exception that any caller could catch. The
+    rebuild rolled back silently every night while the cache drifted 923,797
+    pitches stale. Dropping the table also migrates any pre-existing PK'd copy,
+    since ``schema.py`` governs creation only.
 
     Args:
-        conn: Open DuckDB connection.
+        conn: Open DuckDB connection (read-write).
 
     Returns:
-        DataFrame of the newly-materialised matchup summary rows.
+        Number of rows materialised. Deliberately not the rows themselves --
+        this table is ~1.85M rows and no caller ever needed them.
     """
-    conn.execute("DELETE FROM matchup_summary")
+    # Single source of truth for the DDL; PK-less by design (see schema.py).
+    from src.db.schema import _create_matchup_summary
+
+    conn.execute("DROP TABLE IF EXISTS matchup_summary")
+    _create_matchup_summary(conn)
     conn.execute("""
         INSERT INTO matchup_summary
         SELECT pitcher_id,
@@ -463,4 +479,4 @@ def refresh_matchup_cache(conn: duckdb.DuckDBPyConnection) -> pd.DataFrame:
         GROUP  BY pitcher_id, batter_id, pitch_type
     """)
 
-    return conn.execute("SELECT * FROM matchup_summary").fetchdf()
+    return conn.execute("SELECT COUNT(*) FROM matchup_summary").fetchone()[0]
