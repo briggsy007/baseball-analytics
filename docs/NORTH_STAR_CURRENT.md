@@ -1,12 +1,13 @@
 # NORTH STAR — CURRENT STATE
 
-**Snapshot date:** 2026-08-10 (post-audit remediation, **regenerated after Batch D** —
-kill-criteria adjudication, AdjustedWAR rename + promotion, DPI v2 claims rewrite, PitchGPT
-0.6.2 kill consequences).
+**Snapshot date:** 2026-08-16 (post-audit remediation, **regenerated after the PitchGPT v3
+factorized retrain** of 2026-08-11 — its Stage-A no-kill, its Stage-B kill, and its dev-tier
+gate suite. The prior snapshot, 2026-08-10, covered Batch D: kill-criteria adjudication,
+AdjustedWAR rename + promotion, DPI v2 claims rewrite, PitchGPT 0.6.2 kill consequences).
 **Generated from:** `docs/claims/claims.yaml` (the claims registry — the ONLY sanctioned
 source for headline numbers, kill criterion K6). Every number below carries its claim id
 inline as `[claim:<id>]`; the registry entry's caveat is part of the claim, not optional. All
-**37** registry entries are cited somewhere in this file.
+**40** registry entries are cited somewhere in this file.
 **Relationship to `docs/NORTH_STAR.md`:** that file is a layered historical strategy record
 (five dated strata, 2026-04-16 → 2026-08). It is preserved unedited for provenance. THIS
 file is the current state. When they disagree, this file and the claims registry win.
@@ -40,13 +41,18 @@ fact.
 - **Batch C — DONE** (commit `aab12a4`): DPI v2 bias fixes (WS3.2–3.5), AdjustedWAR honest
   reformulation (WS4.1–4.6), PitchGPT Phase 0.6.2 run (WS5.1). Numbers landed exactly as
   measured; no adjudication language was written into the results docs.
-- **Batch D — THIS SESSION:** kill-criteria adjudication (§3.4 below and the dedicated
-  verdicts doc), DPI claims rewrite (WS3.6), AdjustedWAR uncertainty + rename + ridge
-  promotion (WS4.7), PitchGPT kill consequences + v2 spec pre-registration (WS5.2/5.3 spec
-  only — **no training run**), this regeneration.
+- **Batch D — DONE** (`b61e05b`, `17493d7`, `5e39d71`): kill-criteria adjudication (§3.4 below
+  and the dedicated verdicts doc), DPI claims rewrite (WS3.6), AdjustedWAR uncertainty +
+  rename + ridge promotion (WS4.7), PitchGPT kill consequences + v2 spec pre-registration
+  (WS5.2/5.3).
+- **PitchGPT v3 factorized retrain — DONE 2026-08-11** (`5e39d71`), executed against the spec
+  frozen at `b61e05b`. **Its own pre-registered Stage-B kill fired** (§3.3). Batches A–D and
+  this build are recorded end-to-end in
+  `docs/audits/REMEDIATION_EXECUTION_2026-08-11.md`.
 - **Next deadlines:** K4 resolves after the 2026 regular season (resolution date R = last
-  2026 regular-season game + 7 days; publication by R + 14). The WS5.2 training run may start
-  only after the `PITCHGPT_V2_SPEC.md` freeze commit exists.
+  2026 regular-season game + 7 days; publication by R + 14). The §4.5 second curriculum run
+  and the §5.5 sealed-2026 lockbox contact are both **unspent and unauthorized** while the v3
+  Stage-B kill stands.
 
 ## 3. Active flagships (3) — narrowed claims only
 
@@ -208,6 +214,48 @@ exists for this model, so there is no gate suite it could have passed.
   budgeted, **12 of 14 contacts used** (`docs/holdout_ledger.jsonl`), 2024 = burned dev
   tier, **2026 full season = sealed lockbox** until regular season ends.
 
+#### 3.3.1 The v3 successor (built 2026-08-11) — its own kill fired
+
+Canonical: `docs/pitchgpt_sim_engine/V2_BUILD_RESULTS_2026-08.md`. The successor ran against
+the spec frozen at `b61e05b`. Two pre-registered fit-stage criteria, one each way:
+
+- **K-v2-FIT-A — NO KILL.** Teacher-forced NLL per composite token, 2024 cohort (151,619
+  pitches): v3 **4.70643** vs frozen v2 **4.73721** — 0.650% *better*, against a kill line of
+  2% worse, at a **10.1× smaller output stack** (28,240 vs 285,090 params). The chain-rule
+  factorization thesis (H1, representation) holds: factorizing costs no next-pitch predictive
+  quality. `[claim:pitchgpt_v3_factorization_nll_dev]`
+- **K-v2-FIT-B — KILL.** Max over within-PA positions 0–5 and 7 outcome classes of |rollout
+  marginal − empirical marginal| on the 2023 pitcher-disjoint fit cohort: **1.8852pp** against
+  the pre-registered **1.0pp** line (worst cell: position 1, `called_strike`). Quotable only in
+  **both** directions — v3 improved this quantity **8.7×** over the v2-era stack (16.37pp) and
+  beat the 2.625pp that two rounds of the now-banned output reweighting reached, **and** still
+  missed the line by 1.9×. In-sample for the calibration fit by design, so no OOS number
+  exists. H2 (exposure bias) not supported. `[claim:pitchgpt_v3_killB]`
+
+**Dev-tier gate suite: FAIL overall** (G1–G5, 2024 burned-dev cohort, 40,042 PAs / 149,949
+pitch rows) — `[claim:pitchgpt_v3_dev_gate_fail]`. **This is not a validation of any kind:**
+2024 carries no validation authority, and the one graded contact (sealed 2026, season end) was
+**not made**. Both directions, as the registry requires:
+
+- *Genuinely better:* the unweighted outcome head is **6.7× better calibrated** than frozen v2
+  (cwECE 0.00603 vs 0.04036), lower top-1 ECE in **11 of 12** count states, predicted ball
+  share within 0.16pp of empirical (vs the A1 head's −11.6pp deficit); under one shared pinned
+  kernel its SKCE advantage is **29.6×**.
+- *Genuinely worse:* the three field heads are slightly worse calibrated than frozen v2's
+  marginalised equivalents, and the shared-kernel correction moved partly **against** v3 —
+  H_type deficit widened from 1.26× to **1.44×** worse than the incumbent. G3 PIT KS 0.14447
+  vs a 0.03 line; G5 K-decile max gap 11.1155pp, with predicted P(K) spanning 0.0991–0.2398
+  against a nearly flat, non-monotone empirical 0.2098–0.2338 — per-PA K% is close to
+  uninformative *in rank* on this cohort, not merely miscalibrated in level.
+
+**Standing consequences.** Registry aliases `production` and `frozen_validated` remain pinned
+to `v2026.04.23` — v3 shipped nothing. No PA-level absolute-rate product unblocks. The §5.5
+sealed-2026 lockbox contact was **not made and is not authorized** while this kill stands
+(0 contacts; 2025 still at 12/14). The §4.5 second curriculum run is **unspent**: spending it
+requires a dated §9 deviations entry naming the single change *before* the run — a user
+decision, not an implementation detail. No post-hoc reweighting layer was added to rescue the
+kill; §0.2 bans that family, and it is precisely what this program replaces.
+
 ### 3.4 Kill-criteria verdicts (adjudicated 2026-08-10, user-approved)
 
 Full text, measured quantities and executed consequences:
@@ -221,6 +269,10 @@ Full text, measured quantities and executed consequences:
 | **K4** | 2026 boards | **PENDING** | Resolves only after the 2026 regular season, strictly per the frozen spec |
 | **K5** | PitchGPT | **FIRED — KILL** | 2023 fit did not converge in 2 permitted iterations (2.625pp vs 1.0pp) |
 | **K6** | Global claims discipline | **standing rule** | Not a one-time verdict; enforced by the claims registry, the drift guard and the Marcel protocol |
+
+K5's successor — the v3 factorized retrain built 2026-08-11 — **fired its own pre-registered
+Stage-B kill** and shipped nothing; see §3.3.1. Two kills in a row on the same hypothesis
+family is the correction loop working as designed, not a stalled program.
 
 ## 4. Retired / retracted roster — do not re-litigate
 
@@ -250,7 +302,8 @@ All four retired-model dashboard views carry demotion banners (Batch A, WS0.3).
 - **Kill-criteria verdicts:** `docs/models/kill_criteria_verdicts_2026-08.md` (K1–K6,
   adjudicated 2026-08-10).
 - **Claims registry:** `docs/claims/claims.yaml` + `src/claims.py::get_claim(id)` (raises
-  on retracted claims) — **37 entries: 20 active, 6 narrowed, 3 superseded, 8 retracted.**
+  on retracted claims) — **40 entries: 23 active, 6 narrowed, 3 superseded, 8 retracted.**
+  The three added since the 2026-08-10 snapshot are the v3 build's (§3.3.1).
   K6: no claim ships to dashboard/docs without a registry entry. Enforced by
   `tests/test_claims_drift_guard.py` (view literal scan, banned-string list, and the
   citation check over this file).
@@ -281,7 +334,7 @@ All four retired-model dashboard views carry demotion banners (Batch A, WS0.3).
   because the pick basis is frozen; nightly chain filelock-wrapped; no scheduled task
   currently registered.
 
-## 6. Inventory (measured 2026-08-10, post-Batch-C/D)
+## 6. Inventory (measured 2026-08-16, post-v3-build)
 
 The historical "16 models / 25 dashboard views" figures (NORTH_STAR "Current state as of
 2026-04-16") no longer match the repo. Measured counts:
@@ -290,16 +343,19 @@ The historical "16 models / 25 dashboard views" figures (NORTH_STAR "Current sta
   `__init__.py`). Newest: `track_record.py` (Batch B). No new view in Batch C/D — the
   AdjustedWAR page is still the file `views/causal_war.py`, renamed only in its display
   strings and app registration.
-- **Analytics modules:** **34** modules in `src/analytics/` (35 `.py` files minus
-  `__init__.py`) — up 2 from Batch B (`adjusted_war_v3.py`, `marcel.py`). Breakdown: **24**
+- **Analytics modules:** **39** modules in `src/analytics/` (40 `.py` files minus
+  `__init__.py`) — up 5 from the 2026-08-10 snapshot, all five the v3 build's sim stack
+  (`pitchgpt_v3`, `pitchgpt_v3_data`, `pitchgpt_v3_gates`, `pitchgpt_v3_infer`,
+  `pitchgpt_v3_rollout`). Breakdown: **24**
   implement a distinct model/index (the 3 flagships across 4 modules — `defensive_pressing`,
   `adjusted_war_v3` + legacy `causal_war`, `pitchgpt` — plus stuff_model, mechanix_ae,
   viscoelastic_workload, allostatic_load, chemnet, volatility_surface, mesi, loft,
   baserunner_gravity, pset, alpha_decay, sharpe_lineup, kinetic_half_life, pitch_decay,
-  pitch_sequencing, anomaly, bullpen, matchups, win_probability, projections); **3** are
+  pitch_sequencing, anomaly, bullpen, matchups, win_probability, projections); **8** are
   PitchGPT sim-stack sub-modules (`pitchgpt_calibration`, `pitchgpt_outcome_head`,
-  `pitchgpt_sim`); **3** are baseline comparators (`pitch_lstm`, `pitch_markov`, `marcel`);
-  **4** are infrastructure (`base`, `features`, `validation`, `registry`).
+  `pitchgpt_sim`, plus the five `pitchgpt_v3*` modules above); **3** are baseline comparators
+  (`pitch_lstm`, `pitch_markov`, `marcel`); **4** are infrastructure (`base`, `features`,
+  `validation`, `registry`).
 
 These are file counts, not endorsements: only the 3 active flagships carry claims; the rest
 are held-back or retired per §3–§4.

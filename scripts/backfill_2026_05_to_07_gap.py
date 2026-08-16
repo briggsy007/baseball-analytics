@@ -69,8 +69,11 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--start", default=START)
     ap.add_argument("--end", default=END)
+    ap.add_argument("--status-path", default=str(STATUS_PATH),
+                    help="Where to write the JSON run-status file.")
     args = ap.parse_args()
     START, END = args.start, args.end
+    globals()["STATUS_PATH"] = Path(args.status_path)
 
     from src.db.schema import get_connection
     from src.ingest.statcast_loader import (
