@@ -375,18 +375,27 @@ def run_step(log: Log, step_dir: Path, index: int, name: str,
 def _classify(rc: int | None, effect_ok: bool, timed_out: bool) -> str:
     """Map (exit code, verified effect) to a status.
 
-    ok           - clean exit 0
+    ok           - exit 0 AND the effect check confirms the work landed
     ok_verified  - nonzero/None exit but the effect check confirms it worked
-                   (covers the documented exit-127-at-teardown quirk)
-    fail         - nonzero exit and effect could not be confirmed
+                   (covers the documented exit-nonzero-at-teardown quirk)
+    fail         - the effect could not be confirmed, whatever the exit code
+
+    2026-08-16: ``rc == 0`` used to short-circuit straight to "ok", so a step
+    that exited cleanly while doing nothing was indistinguishable from one that
+    worked -- the effect check was consulted ONLY on a nonzero exit. That is
+    backwards: the wrapped scripts trap their own step failures and exit 0
+    regardless (``daily_refresh.py`` marks a failed sub-step non-fatal and still
+    returns 0), so the exit code is the *weaker* signal and the effect check is
+    the real evidence. It cost us twice: ``verify_precompute``'s timezone bug
+    (below) made its check permanently false and nobody could see it, and the
+    matchup cache-sync assertion added this morning was disarmed the moment the
+    ETL exited 0 with a stale cache. An unverified effect is now a failure.
     """
     if timed_out:
         return "fail"
-    if rc == 0:
-        return "ok"
-    if effect_ok:
-        return "ok_verified"
-    return "fail"
+    if not effect_ok:
+        return "fail"
+    return "ok" if rc == 0 else "ok_verified"
 
 
 def verify_daily_refresh(step: dict, before: dict) -> dict:
@@ -438,13 +447,24 @@ def verify_daily_refresh(step: dict, before: dict) -> dict:
 
 
 def verify_precompute(step: dict) -> dict:
-    """Effect check: leaderboard_cache has an entry computed at/after step start."""
-    step_start = datetime.fromisoformat(step["started_at"]).replace(tzinfo=None)
+    """Effect check: leaderboard_cache has an entry computed at/after step start.
+
+    Both sides must be in the SAME clock. ``started_at`` is recorded as
+    timezone-aware UTC, while DuckDB hands back ``computed_at`` as a naive
+    LOCAL timestamp -- so the original ``.replace(tzinfo=None)`` compared a UTC
+    wall time against a local one and, at UTC-4, made this check false for every
+    run that had not taken at least four hours. It was false on 2026-08-16 for a
+    precompute that had demonstrably just written the cache, and nobody noticed
+    because ``_classify`` discarded the result whenever rc was 0.
+    """
+    step_start = (
+        datetime.fromisoformat(step["started_at"]).astimezone().replace(tzinfo=None)
+    )
     lb_max = _leaderboard_max_computed_at()
     effect_ok = lb_max is not None and lb_max >= step_start
     step["verify"] = {
-        "check": "leaderboard_cache.max(computed_at) >= step start",
-        "step_start_utc": step_start.isoformat(),
+        "check": "leaderboard_cache.max(computed_at) >= step start (both local)",
+        "step_start_local": step_start.isoformat(),
         "leaderboard_max_computed_at": lb_max.isoformat() if lb_max else None,
         "effect_ok": effect_ok,
     }
