@@ -3,8 +3,11 @@
 Daily ETL for the baseball analytics platform.
 
 Designed to run each morning during the MLB season (e.g. via cron at 6 AM ET).
-It refreshes yesterday's Statcast pitches, current-season aggregate stats from
-FanGraphs, and the player ID crosswalk.
+It refreshes Statcast pitches for whatever window is missing between the
+``pitches`` table's ingested watermark and yesterday (or an explicit
+``target_date``), current-season aggregate stats from FanGraphs, and the
+player ID crosswalk. See :func:`pitch_load_window` for the gap-fill logic
+that makes a sporadically-firing nightly job self-healing.
 
 Usage
 -----
@@ -30,7 +33,6 @@ ROOT: Path = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(ROOT))
 
 from src.ingest.statcast_loader import (  # noqa: E402
-    check_data_freshness,
     insert_pitches,
     load_player_id_map,
     load_season_batting_stats,
@@ -110,15 +112,72 @@ def _refresh_matchup_cache(conn: duckdb.DuckDBPyConnection) -> None:
 
 
 # ---------------------------------------------------------------------------
+# Gap-aware Statcast window
+# ---------------------------------------------------------------------------
+
+
+def pitch_load_window(
+    watermark: Optional[date], end: date, max_days: int = 21
+) -> list[date]:
+    """Return the inclusive list of dates to (re-)load Statcast pitches for.
+
+    This is what makes a sporadically-firing nightly job self-healing: a run
+    walks forward from the day after the last ingested ``game_date`` (the DB
+    watermark) through ``end``, instead of only ever asking for a single
+    fixed day. If the scheduler missed several nights, the next run that
+    actually fires closes the whole gap instead of leaving the skipped days
+    permanently un-ingested (the incident this function fixes: 27 game dates
+    were never loaded because each run only ever asked for "yesterday").
+
+    ``max_days`` caps how far back a single run reaches. A DB that has gone
+    stale for months should NOT trigger one routine nightly call pulling
+    months of Statcast data inline -- that is what the explicit
+    ``scripts/backfill_*`` tools are for. When the true gap exceeds
+    ``max_days`` this still returns exactly ``max_days`` dates ending at
+    ``end``; the operator is expected to notice the gap-fill log line
+    staying pinned at ``max_days`` across runs and kick off a real backfill.
+
+    Args:
+        watermark: ``MAX(game_date)`` currently in ``pitches``, or ``None``
+            if the table is empty / unqueryable (treated as "load only
+            ``end``" -- there is nothing to walk forward from).
+        end: The last date that should be loaded (inclusive).
+        max_days: Hard cap on the number of days returned.
+
+    Returns:
+        Dates in ascending order, inclusive of both ends. Empty when
+        ``watermark >= end`` (already current, or watermark ahead of
+        ``end``).
+    """
+    if watermark is None:
+        return [end]
+    start = max(watermark + timedelta(days=1), end - timedelta(days=max_days - 1))
+    if start > end:
+        return []
+    days: list[date] = []
+    d = start
+    while d <= end:
+        days.append(d)
+        d += timedelta(days=1)
+    return days
+
+
+# ---------------------------------------------------------------------------
 # Main ETL routine
 # ---------------------------------------------------------------------------
 
 
-def run_daily_etl(conn: Optional[duckdb.DuckDBPyConnection] = None) -> dict:
+def run_daily_etl(
+    conn: Optional[duckdb.DuckDBPyConnection] = None,
+    target_date: Optional[str] = None,
+    lookback_days: int = 21,
+) -> dict:
     """Execute the full daily ETL pipeline.
 
     Steps:
-        1. Load yesterday's Statcast pitch data.
+        1. Load Statcast pitch data for the gap-aware window between the
+           ``pitches`` watermark and ``target_date`` (default: yesterday) --
+           see :func:`pitch_load_window`.
         2. Insert into the ``pitches`` table.
         3. Load current-season batting stats from FanGraphs.
         4. Load current-season pitching stats from FanGraphs.
@@ -129,10 +188,15 @@ def run_daily_etl(conn: Optional[duckdb.DuckDBPyConnection] = None) -> dict:
     Args:
         conn: Optional pre-existing DuckDB connection. If ``None``, one
               will be opened (and closed at the end).
+        target_date: ISO date (YYYY-MM-DD) to load through. Defaults to
+              yesterday when omitted.
+        lookback_days: Cap on how many missing days a single run will
+              catch up in one call (see :func:`pitch_load_window`).
 
     Returns:
         Summary dict with keys ``pitches``, ``batting_rows``,
-        ``pitching_rows``, ``players``.
+        ``pitching_rows``, ``players``, ``dates_loaded``,
+        ``watermark_before``.
     """
     own_conn = conn is None
     if own_conn:
@@ -140,34 +204,55 @@ def run_daily_etl(conn: Optional[duckdb.DuckDBPyConnection] = None) -> dict:
 
     _enable_cache()
 
-    yesterday: date = date.today() - timedelta(days=1)
-    yesterday_str: str = yesterday.isoformat()
+    end: date = (
+        date.fromisoformat(target_date) if target_date
+        else date.today() - timedelta(days=1)
+    )
     current_year: int = datetime.now().year
 
+    try:
+        row = conn.execute("SELECT MAX(game_date) FROM pitches").fetchone()
+        watermark: Optional[date] = row[0] if row and row[0] is not None else None
+    except Exception:
+        watermark = None
+
+    window = pitch_load_window(watermark, end, lookback_days)
+
     summary: dict = {
-        "date": yesterday_str,
+        "date": end.isoformat(),
         "season": current_year,
         "pitches": 0,
         "batting_rows": 0,
         "pitching_rows": 0,
         "players": 0,
+        "dates_loaded": [],
+        "watermark_before": watermark.isoformat() if watermark else None,
     }
 
-    # ── 1. Yesterday's Statcast pitches ───────────────────────────────────
-    logger.info("Step 1/6: Loading Statcast data for %s", yesterday_str)
-    if check_data_freshness(conn, "pitches", yesterday_str):
-        logger.info("  Pitches already fresh through %s — skipping", yesterday_str)
+    # ── 1. Gap-aware Statcast pitches ─────────────────────────────────────
+    if not window:
+        logger.info("Step 1/6: pitches already current through %s", end.isoformat())
+    elif len(window) > 1:
+        logger.info(
+            "Step 1/6: gap-fill: %d missing day(s) %s .. %s",
+            len(window), window[0].isoformat(), window[-1].isoformat(),
+        )
     else:
+        logger.info("Step 1/6: Loading Statcast data for %s", window[0].isoformat())
+
+    for d in window:
+        d_str = d.isoformat()
+        summary["dates_loaded"].append(d_str)
         try:
-            pitch_df = load_statcast_range(yesterday_str, yesterday_str)
+            pitch_df = load_statcast_range(d_str, d_str)
             if pitch_df is not None and not pitch_df.empty:
                 inserted = insert_pitches(conn, pitch_df)
-                summary["pitches"] = inserted
-                logger.info("  Inserted %d pitches for %s", inserted, yesterday_str)
+                summary["pitches"] += inserted
+                logger.info("  Inserted %d pitches for %s", inserted, d_str)
             else:
-                logger.info("  No pitches returned for %s (off-day?)", yesterday_str)
+                logger.info("  No pitches returned for %s (off-day?)", d_str)
         except Exception:
-            logger.exception("  Failed to load Statcast data for %s", yesterday_str)
+            logger.exception("  Failed to load Statcast data for %s", d_str)
 
     # ── 2. Season batting stats ───────────────────────────────────────────
     logger.info("Step 2/6: Loading %d batting stats", current_year)

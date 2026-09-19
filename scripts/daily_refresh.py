@@ -111,7 +111,7 @@ def _step_etl(conn, target_date: str) -> dict:
 
     try:
         from src.ingest.daily_etl import run_daily_etl
-        summary = run_daily_etl(conn=conn)
+        summary = run_daily_etl(conn=conn, target_date=target_date)
         _ok(
             f"ETL complete -- pitches: {summary.get('pitches', 0)}, "
             f"batting: {summary.get('batting_rows', 0)}, "

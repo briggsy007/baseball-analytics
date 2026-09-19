@@ -10,8 +10,13 @@ Per product:
 
 * ``hit_parlay`` legs — resolved from the DuckDB ``pitches`` table
   (READ-ONLY; the single-writer rule is never touched) per the frozen leg
-  rule wording in ``src/pick_ledger.py``. Resolvable once the DB's ingested
-  watermark covers the pick date.
+  rule wording in ``src/pick_ledger.py``. Resolvable once the pick's game
+  date itself has ingested pitches -- NOT merely once the global watermark
+  has advanced past it, since a later day's ingest can move the watermark
+  forward while the pick date itself stays an ingest gap -- and either the
+  pick's specific game is present in ``pitches`` for that date, or 3 days
+  have elapsed since the date without the game appearing (treated as
+  postponed/cancelled).
 * ``hit_parlay`` parlay picks — resolved from their legs' recorded
   resolutions (never from the DB directly).
 * ``contrarian_board_2026_midseason`` / ``..._reliever`` — NOT resolvable before its
@@ -32,7 +37,7 @@ from __future__ import annotations
 
 import argparse
 import sys
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -59,8 +64,57 @@ def _db_watermark(conn) -> date | None:
     return row[0] if row else None
 
 
-def resolve_hit_parlay_leg(conn, pick: dict) -> tuple[str, dict]:
-    """Return (outcome, score_fields) for one leg per the frozen rule."""
+def _date_ingested(conn, day: str) -> bool:
+    """True if ``pitches`` has at least one row for ``day`` (YYYY-MM-DD).
+
+    Distinct from the watermark: a later day's ingest can push
+    ``MAX(game_date)`` past ``day`` while ``day`` itself was never loaded
+    (the exact ingest-gap shape that produced 16 false voids in Aug-Sep
+    2026 -- see module docstring).
+    """
+    row = conn.execute(
+        "SELECT COUNT(*) FROM pitches WHERE game_date = ?", [day]
+    ).fetchone()
+    return bool(row and row[0])
+
+
+def _game_ingested(conn, day: str, game: str | None) -> bool | None:
+    """Whether the pick's specific game is present in ``pitches`` on ``day``.
+
+    ``game`` is the pick subject's ``"AWAY@HOME"`` string (e.g.
+    ``"CLE@COL"``). Returns ``None`` when ``game`` is missing or not in
+    that shape -- callers must treat "unknown" as "can't tell", never as
+    "absent".
+    """
+    if not game or "@" not in game:
+        return None
+    away, _, home = game.partition("@")
+    away, home = away.strip(), home.strip()
+    if not away or not home:
+        return None
+    row = conn.execute(
+        """
+        SELECT COUNT(*) FROM pitches
+        WHERE game_date = ? AND away_team = ? AND home_team = ?
+        """,
+        [day, away, home],
+    ).fetchone()
+    return bool(row and row[0])
+
+
+def resolve_hit_parlay_leg(
+    conn, pick: dict, *, game_ingested: bool | None = None
+) -> tuple[str, dict]:
+    """Return (outcome, score_fields) for one leg per the frozen rule.
+
+    ``game_ingested`` (as determined by ``_game_ingested`` by the caller)
+    does not change the outcome (yes/no/void are decided by hits/AB alone,
+    per the frozen rule), but it does change which void reason is recorded:
+    a void with ``game_ingested is False`` means the day was ingested but
+    this specific game never showed up after the grace period (postponed/
+    cancelled per the rule wording), vs. the game being present with zero
+    ABs for this batter (``void-no-ab``).
+    """
     subject = pick.get("subject") or {}
     pid = subject.get("player_id")
     day = subject.get("date")
@@ -89,11 +143,19 @@ def resolve_hit_parlay_leg(conn, pick: dict) -> tuple[str, dict]:
         outcome = "no"
     else:
         outcome = "void"
+    if outcome == "void":
+        resolution_branch = (
+            "void-game-absent" if game_ingested is False else "void-no-ab"
+        )
+    else:
+        resolution_branch = outcome
     fields: dict = {
         "hits": hits,
         "ab": ab,
         "source": "duckdb pitches (read_only)",
-        "resolution_branch": outcome if outcome != "void" else "void-no-ab",
+        "date_ingested": True,
+        "game_ingested": game_ingested,
+        "resolution_branch": resolution_branch,
     }
     if p is not None and outcome in ("yes", "no"):
         y = 1.0 if outcome == "yes" else 0.0
@@ -128,16 +190,28 @@ def resolve_hit_parlay_parlay(pick: dict, resolutions_by_id: dict) -> tuple[str,
     return outcome, fields
 
 
-def main() -> int:
-    ap = argparse.ArgumentParser(description="Resolve due picks in the ledger.")
-    ap.add_argument("--as-of", default=date.today().isoformat(),
-                    help="Treat this date as 'today' (YYYY-MM-DD).")
-    ap.add_argument("--dry-run", action="store_true",
-                    help="Report what would resolve; append nothing.")
-    args = ap.parse_args()
-    as_of = date.fromisoformat(args.as_of)
+def run(
+    as_of: date,
+    dry_run: bool = False,
+    conn=None,
+    picks_path=None,
+    resolutions_path=None,
+) -> int:
+    """Resolve every due pick as of ``as_of``. The work behind ``main()``.
 
-    ledger = load_ledger()
+    Args:
+        as_of: Treat this date as "today" for completeness/deadline checks.
+        dry_run: Report what would resolve; append nothing.
+        conn: Optional pre-existing DuckDB connection (read-only usage
+            only). When given it is used as-is and NOT closed here --
+            callers own its lifecycle. When ``None`` a read-only connection
+            is opened lazily (only if a hit-parlay leg actually needs one)
+            and closed before returning.
+        picks_path: Override for ``predictions/picks.jsonl`` (tests).
+        resolutions_path: Override for ``predictions/resolutions.jsonl``
+            (tests).
+    """
+    ledger = load_ledger(picks_path=picks_path, resolutions_path=resolutions_path)
     picks = ledger["picks"]
     resolutions_by_id = {r["pick_id"]: r for r in ledger["resolutions"]}
     unresolved = [p for p in picks if p["pick_id"] not in resolutions_by_id]
@@ -149,17 +223,20 @@ def main() -> int:
         print("Nothing to do.")
         return 0
 
-    conn = None
+    own_conn = conn is None
     watermark: date | None = None
+    watermark_computed = False
     appended = 0
     skipped: list[str] = []
     parlays_pending: list[dict] = []
 
     def _ensure_conn():
-        nonlocal conn, watermark
+        nonlocal conn, watermark, watermark_computed
         if conn is None:
             conn = get_connection(read_only=True)
+        if not watermark_computed:
             watermark = _db_watermark(conn)
+            watermark_computed = True
         return conn
 
     for pick in unresolved:
@@ -176,17 +253,38 @@ def main() -> int:
                 skipped.append(f"{pid}: game day not complete (as_of {as_of})")
                 continue
             c = _ensure_conn()
-            if leg_day and watermark and date.fromisoformat(leg_day) > watermark:
+            leg_day_date = date.fromisoformat(leg_day) if leg_day else None
+            if leg_day_date and watermark and leg_day_date > watermark:
                 skipped.append(
                     f"{pid}: DB watermark {watermark} has not ingested "
                     f"{leg_day} yet"
                 )
                 continue
-            outcome, fields = resolve_hit_parlay_leg(c, pick)
-            if args.dry_run:
+            if leg_day and not _date_ingested(c, leg_day):
+                skipped.append(
+                    f"{pid}: no pitches ingested for {leg_day} (watermark "
+                    f"{watermark} is past it but the day itself is absent "
+                    "-- ingest gap, not a void)"
+                )
+                continue
+            game = subject.get("game")
+            gi = _game_ingested(c, leg_day, game) if leg_day else None
+            if gi is False and leg_day_date is not None and as_of < leg_day_date + timedelta(days=3):
+                skipped.append(
+                    f"{pid}: game {game} on {leg_day} not in pitches yet "
+                    "(day ingested, game absent; waiting up to 3 days for "
+                    "a late publish before treating it as "
+                    "postponed/cancelled)"
+                )
+                continue
+            outcome, fields = resolve_hit_parlay_leg(c, pick, game_ingested=gi)
+            if dry_run:
                 print(f"  DRY-RUN would resolve {pid}: {outcome} {fields}")
             else:
-                resolve_pick(pid, outcome, score_fields=fields)
+                resolve_pick(
+                    pid, outcome, score_fields=fields,
+                    picks_path=picks_path, resolutions_path=resolutions_path,
+                )
                 resolutions_by_id[pid] = {"pick_id": pid, "outcome": outcome}
                 appended += 1
                 print(f"  resolved {pid}: {outcome.upper()} {fields}")
@@ -222,22 +320,25 @@ def main() -> int:
             skipped.append(f"{pid}: legs not all resolved yet")
             continue
         outcome, fields = result
-        if args.dry_run:
+        if dry_run:
             print(f"  DRY-RUN would resolve {pid}: {outcome} {fields}")
         else:
-            resolve_pick(pid, outcome, score_fields=fields)
+            resolve_pick(
+                pid, outcome, score_fields=fields,
+                picks_path=picks_path, resolutions_path=resolutions_path,
+            )
             appended += 1
             print(f"  resolved {pid}: {outcome.upper()} {fields}")
 
-    if conn is not None:
+    if own_conn and conn is not None:
         conn.close()
 
     for s in skipped:
         print(f"  skipped {s}")
 
     # Honest summary, exactly as it lands (K4: losses at full prominence).
-    if appended and not args.dry_run:
-        ledger = load_ledger()
+    if appended and not dry_run:
+        ledger = load_ledger(picks_path=picks_path, resolutions_path=resolutions_path)
         tr = compute_track_record(ledger["picks"], ledger["resolutions"])
         s = tr["summary"]
         print(
@@ -256,6 +357,17 @@ def main() -> int:
 
     print(f"\nAppended {appended} resolution(s). Skipped {len(skipped)}.")
     return 0
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser(description="Resolve due picks in the ledger.")
+    ap.add_argument("--as-of", default=date.today().isoformat(),
+                    help="Treat this date as 'today' (YYYY-MM-DD).")
+    ap.add_argument("--dry-run", action="store_true",
+                    help="Report what would resolve; append nothing.")
+    args = ap.parse_args()
+    as_of = date.fromisoformat(args.as_of)
+    return run(as_of, dry_run=args.dry_run)
 
 
 if __name__ == "__main__":

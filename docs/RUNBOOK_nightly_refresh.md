@@ -175,3 +175,49 @@ schtasks /delete /tn "BaseballNightlyRefresh" /f         # remove
   want the upcoming season in deep offseason, pass `--season` explicitly.
 - **FanGraphs 403.** `daily_refresh` season-stat fetches may 403 on FanGraphs;
   the underlying code already falls back to Baseball-Reference. Harmless.
+
+## Addendum 2026-09-19 (the stale month: 5 runs in 31 days, a 27-date gap, 16 false voids)
+
+- **What happened.** Between 2026-08-19 and 2026-09-18 the task fired on only 5 of 31
+  mornings (8/19, 8/23, 8/27, 9/02, 9/09). Root cause: it was registered with Task
+  Scheduler defaults on a laptop — `DisallowStartIfOnBatteries=true`,
+  `StopIfGoingOnBatteries=true`, `StartWhenAvailable=false`, `WakeToRun=false`. A 06:30
+  trigger that arrives while the machine is on battery or asleep is refused and never
+  retried; `schtasks /query /v` shows it as `Last Result: -2147020576` (`0x800710E0`,
+  "The operator or administrator has refused the request"). Because the ETL loaded only
+  "yesterday", each run that did fire ingested one day and left every skipped day
+  permanently empty: **27 game dates / 105,101 pitches** were missing. Backfilled
+  2026-09-19 (`logs/backfill_2026_09_gap.log`, one `load_statcast_range(d, d)` per day).
+  A season-wide audit against the MLB Stats API schedule then found one further hole:
+  2026-06-17 SF@ATL (gamePk 824912) is absent from Baseball Savant's own feed, so it
+  stays empty (never fabricate).
+- **Consequence in the ledger.** `scripts/resolve_picks.py` gated hit-parlay legs only on
+  the global `MAX(game_date)` watermark. A later ingested day advanced the watermark past
+  the pick dates while those dates had zero rows, so **16 resolutions** (the 8/19, 8/23,
+  8/27 and 9/02 slates: 12 legs + 4 parlays) were appended as `void` / `void-no-ab` with
+  `ab = 0`. Resolutions are append-only and final (`src/pick_ledger.py::resolve_pick`);
+  they stand as a recorded process miss, and this addendum is their documentation.
+- **Fixes (both tested).** (1) `src/ingest/daily_etl.py::run_daily_etl` is gap-aware: it
+  loads every day from the `pitches` watermark + 1 through yesterday (or an explicit
+  `--date`), capped at 21 days per run (`pitch_load_window`); a nightly that misses a
+  week now heals itself on the next fire. `daily_refresh.py --date` finally reaches the
+  ETL (it was a no-op). (2) `scripts/resolve_picks.py` never resolves a leg unless its
+  game date has ingested pitches, and waits up to 3 days for the specific game to appear
+  before treating it as postponed (`void-game-absent`); score fields now carry
+  `date_ingested` / `game_ingested`. Tests: `tests/test_daily_etl_window.py`,
+  `tests/test_resolve_picks.py`.
+- **Scheduler settings — operator action** (agent sessions cannot change scheduled
+  tasks). In PowerShell:
+
+  ```
+  $s = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable -WakeToRun -ExecutionTimeLimit (New-TimeSpan -Hours 72) -MultipleInstances IgnoreNew
+  Set-ScheduledTask -TaskName "BaseballNightlyRefresh" -Settings $s
+  ```
+
+  `-StartWhenAvailable` is the one that matters: a missed 06:30 fires as soon as the
+  machine is back. Verify with
+  `(Get-ScheduledTask -TaskName BaseballNightlyRefresh).Settings`.
+- **Detection gap that remains.** Nothing in the chain asserts "every scheduled game on
+  an ingested date has pitches". The 2026-09-19 audit compared
+  `COUNT(DISTINCT game_pk)` per `game_date` against the Stats API schedule
+  (`gameType=R`, status Final); that query belongs in the `daily_refresh` effect check.
